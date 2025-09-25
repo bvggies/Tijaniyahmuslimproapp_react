@@ -1,30 +1,66 @@
 {
   "expo": {
-    "name": "Tijaniyahmuslimproapp",
-    "slug": "Tijaniyahmuslimproapp",
+    "name": "Tijaniyah Pro",
+    "slug": "tijaniyah-pro",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/appicon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/appicon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#052F2A"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tijaniyahpro.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/appicon.png",
+        "backgroundColor": "#052F2A"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "package": "com.tijaniyahpro.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "web": {},
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app needs access to location to calculate accurate prayer times and Qibla direction."
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "This app needs access to motion sensors for the Qibla compass feature."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#2E7D32"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you select a profile picture.",
+          "cameraPermission": "The app accesses your camera to let you take a profile picture."
+        }
+      ]
+    ]
   }
 }

@@ -1,0 +1,413 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+  TextInput,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../utils/theme';
+import { useNotifications } from '../contexts/NotificationContext';
+
+export default function NotificationSettingsScreen() {
+  const {
+    settings,
+    permissionsGranted,
+    updateSettings,
+    requestPermissions,
+    scheduleAllNotifications,
+    sendTestNotification,
+  } = useNotifications();
+
+  const updateSetting = (key: keyof NotificationSettings, value: any) => {
+    updateSettings({ [key]: value });
+  };
+
+  const updateReminderType = (type: keyof NotificationSettings['reminderTypes'], value: boolean) => {
+    updateSettings({
+      reminderTypes: {
+        ...settings.reminderTypes,
+        [type]: value,
+      },
+    });
+  };
+
+  const handleTestNotification = async () => {
+    if (!permissionsGranted) {
+      Alert.alert(
+        'Permissions Required',
+        'Please grant notification permissions to test notifications.',
+        [{ text: 'OK', onPress: requestPermissions }]
+      );
+      return;
+    }
+
+    try {
+      await sendTestNotification();
+      Alert.alert('Success', 'Test notification sent!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send test notification.');
+    }
+  };
+
+  const handleScheduleAll = async () => {
+    if (!permissionsGranted) {
+      Alert.alert(
+        'Permissions Required',
+        'Please grant notification permissions to schedule notifications.',
+        [{ text: 'OK', onPress: requestPermissions }]
+      );
+      return;
+    }
+
+    try {
+      await scheduleAllNotifications();
+      Alert.alert('Success', 'All notifications have been scheduled!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to schedule notifications. Please try again.');
+    }
+  };
+
+  const SettingCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <View style={styles.settingCard}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+
+  const ToggleRow = ({
+    title,
+    subtitle,
+    value,
+    onValueChange,
+    icon,
+  }: {
+    title: string;
+    subtitle?: string;
+    value: boolean;
+    onValueChange: (value: boolean) => void;
+    icon: string;
+  }) => (
+    <View style={styles.toggleRow}>
+      <View style={styles.toggleLeft}>
+        <Ionicons name={icon as any} size={24} color={colors.primary} style={styles.toggleIcon} />
+        <View style={styles.toggleText}>
+          <Text style={styles.toggleTitle}>{title}</Text>
+          {subtitle && <Text style={styles.toggleSubtitle}>{subtitle}</Text>}
+        </View>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={{ false: colors.mintSurfaceAlt, true: colors.primary }}
+        thumbColor={value ? colors.mintSurface : colors.textLight}
+      />
+    </View>
+  );
+
+  return (
+    <LinearGradient colors={[colors.background, colors.mintSurface]} style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Notification Settings</Text>
+          <Text style={styles.headerSubtitle}>
+            Customize your Islamic reminders and prayer notifications
+          </Text>
+        </View>
+
+        {/* Permissions Status */}
+        <SettingCard title="Permissions">
+          <View style={styles.permissionStatus}>
+            <Ionicons
+              name={permissionsGranted ? 'checkmark-circle' : 'close-circle'}
+              size={24}
+              color={permissionsGranted ? colors.success : colors.error}
+            />
+            <Text style={[
+              styles.permissionText,
+              { color: permissionsGranted ? colors.success : colors.error }
+            ]}>
+              {permissionsGranted ? 'Notifications Enabled' : 'Notifications Disabled'}
+            </Text>
+          </View>
+          {!permissionsGranted && (
+            <TouchableOpacity style={styles.permissionButton} onPress={requestPermissions}>
+              <Text style={styles.permissionButtonText}>Enable Notifications</Text>
+            </TouchableOpacity>
+          )}
+        </SettingCard>
+
+        {/* Prayer Notifications */}
+        <SettingCard title="Prayer Notifications">
+          <ToggleRow
+            title="Prayer Time Alerts"
+            subtitle="Get notified when it's time for prayer"
+            value={settings.prayerNotifications}
+            onValueChange={(value) => updateSetting('prayerNotifications', value)}
+            icon="time"
+          />
+        </SettingCard>
+
+        {/* Daily Reminders */}
+        <SettingCard title="Daily Reminders">
+          <ToggleRow
+            title="Daily Islamic Reminders"
+            subtitle="Receive daily reminders for spiritual practices"
+            value={settings.reminderNotifications}
+            onValueChange={(value) => updateSetting('reminderNotifications', value)}
+            icon="notifications"
+          />
+
+          {settings.reminderNotifications && (
+            <>
+              <View style={styles.timePicker}>
+                <Text style={styles.timeLabel}>Reminder Time</Text>
+                <TextInput
+                  style={styles.timeInput}
+                  value={settings.reminderTime}
+                  onChangeText={(text) => updateSetting('reminderTime', text)}
+                  placeholder="HH:MM"
+                  placeholderTextColor={colors.textLight}
+                />
+              </View>
+
+              <View style={styles.reminderTypes}>
+                <Text style={styles.reminderTypesTitle}>Reminder Types</Text>
+                
+                <ToggleRow
+                  title="Quran Reading"
+                  subtitle="Daily reminder to read the Holy Quran"
+                  value={settings.reminderTypes.quranReading}
+                  onValueChange={(value) => updateReminderType('quranReading', value)}
+                  icon="book"
+                />
+
+                <ToggleRow
+                  title="Dhikr"
+                  subtitle="Reminder for remembrance of Allah"
+                  value={settings.reminderTypes.dhikr}
+                  onValueChange={(value) => updateReminderType('dhikr', value)}
+                  icon="heart"
+                />
+
+                <ToggleRow
+                  title="Dua"
+                  subtitle="Reminder to make supplications"
+                  value={settings.reminderTypes.dua}
+                  onValueChange={(value) => updateReminderType('dua', value)}
+                  icon="hand-left"
+                />
+
+                <ToggleRow
+                  title="Wazifa"
+                  subtitle="Reminder for daily spiritual practices"
+                  value={settings.reminderTypes.wazifa}
+                  onValueChange={(value) => updateReminderType('wazifa', value)}
+                  icon="fitness"
+                />
+              </View>
+            </>
+          )}
+        </SettingCard>
+
+        {/* Notification Preferences */}
+        <SettingCard title="Notification Preferences">
+          <ToggleRow
+            title="Sound"
+            subtitle="Play sound with notifications"
+            value={settings.soundEnabled}
+            onValueChange={(value) => updateSetting('soundEnabled', value)}
+            icon="volume-high"
+          />
+
+          <ToggleRow
+            title="Vibration"
+            subtitle="Vibrate with notifications"
+            value={settings.vibrationEnabled}
+            onValueChange={(value) => updateSetting('vibrationEnabled', value)}
+            icon="phone-portrait"
+          />
+        </SettingCard>
+
+        {/* Test & Actions */}
+        <SettingCard title="Actions">
+          <TouchableOpacity style={styles.actionButton} onPress={handleTestNotification}>
+            <Ionicons name="send" size={20} color={colors.mintSurface} />
+            <Text style={styles.actionButtonText}>Send Test Notification</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionButton} onPress={handleScheduleAll}>
+            <Ionicons name="calendar" size={20} color={colors.mintSurface} />
+            <Text style={styles.actionButtonText}>Schedule All Notifications</Text>
+          </TouchableOpacity>
+        </SettingCard>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Notifications help you stay connected to your Islamic practices and prayer times.
+          </Text>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  header: {
+    paddingVertical: 30,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: colors.textLight,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  settingCard: {
+    backgroundColor: colors.mintSurface,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 16,
+  },
+  permissionStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  permissionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  permissionButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  permissionButtonText: {
+    color: colors.mintSurface,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.mintSurfaceAlt,
+  },
+  toggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  toggleIcon: {
+    marginRight: 12,
+  },
+  toggleText: {
+    flex: 1,
+  },
+  toggleTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: 2,
+  },
+  toggleSubtitle: {
+    fontSize: 14,
+    color: colors.textLight,
+    lineHeight: 18,
+  },
+  timePicker: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.mintSurfaceAlt,
+  },
+  timeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: 8,
+  },
+  timeInput: {
+    backgroundColor: colors.mintSurfaceAlt,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: colors.textDark,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  reminderTypes: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.mintSurfaceAlt,
+  },
+  reminderTypesTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: 12,
+  },
+  actionButton: {
+    backgroundColor: colors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  actionButtonText: {
+    color: colors.mintSurface,
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  footer: {
+    paddingVertical: 30,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 14,
+    color: colors.textLight,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});
