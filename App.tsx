@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
@@ -19,6 +19,8 @@ import WazifaScreen from './src/screens/WazifaScreen';
 import TijaniyahFeaturesScreen from './src/screens/TijaniyahFeaturesScreen';
 import TariqaTijaniyyahScreen from './src/screens/TariqaTijaniyyahScreen';
 import TijaniyaFiqhScreen from './src/screens/TijaniyaFiqhScreen';
+import TijaniyaLazimScreen from './src/screens/TijaniyaLazimScreen';
+import AzanScreen from './src/screens/AzanScreen';
 import ResourcesForBeginnersScreen from './src/screens/ResourcesForBeginnersScreen';
 import ProofOfTasawwufPart1Screen from './src/screens/ProofOfTasawwufPart1Screen';
 import LazimScreen from './src/screens/LazimScreen';
@@ -46,6 +48,9 @@ import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import AuthWrapper from './src/components/AuthWrapper';
 import { NotificationProvider } from './src/contexts/NotificationContext';
+import { LanguageProvider, useLanguage } from './src/contexts/LanguageContext';
+import { TimeFormatProvider } from './src/contexts/TimeFormatContext';
+import { IslamicCalendarProvider } from './src/contexts/IslamicCalendarContext';
 import GlassTabBar from './src/components/GlassTabBar';
 
 // Import types
@@ -54,6 +59,29 @@ import { TabBarIconProps } from './src/types';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+class ErrorBoundary extends React.Component<any, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: any, info: any) {
+    console.error('Unhandled error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 16 }}>Something went wrong. Please restart the app.</Text>
+        </View>
+      );
+    }
+    return this.props.children as any;
+  }
+}
+
 // Tab Bar Icon Component
 const TabBarIcon = ({ focused, color, size, name }: TabBarIconProps & { name: string }) => (
   <Ionicons name={name as any} size={size} color={color} />
@@ -61,6 +89,8 @@ const TabBarIcon = ({ focused, color, size, name }: TabBarIconProps & { name: st
 
 // Main Tab Navigator
 function MainTabNavigator() {
+  const { t } = useLanguage();
+  
   return (
     <Tab.Navigator
       tabBar={(props) => <GlassTabBar {...props} />}
@@ -68,12 +98,36 @@ function MainTabNavigator() {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Tijaniyah Features" component={TijaniyahFeaturesScreen} />
-      <Tab.Screen name="Qibla" component={QiblaScreen} />
-      <Tab.Screen name="Quran" component={QuranScreen} />
-      <Tab.Screen name="Duas" component={DuasScreen} />
-      <Tab.Screen name="More" component={MoreStackNavigator} />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{ tabBarLabel: t('nav.home') }}
+      />
+      <Tab.Screen 
+        name="Tijaniyah Features" 
+        component={TijaniyahFeaturesScreen}
+        options={{ tabBarLabel: t('nav.tijaniyah_features') }}
+      />
+      <Tab.Screen 
+        name="Qibla" 
+        component={QiblaScreen}
+        options={{ tabBarLabel: t('nav.qibla') }}
+      />
+      <Tab.Screen 
+        name="Quran" 
+        component={QuranScreen}
+        options={{ tabBarLabel: t('nav.quran') }}
+      />
+      <Tab.Screen 
+        name="Duas" 
+        component={DuasScreen}
+        options={{ tabBarLabel: t('nav.duas') }}
+      />
+      <Tab.Screen 
+        name="More" 
+        component={MoreStackNavigator}
+        options={{ tabBarLabel: t('nav.more') }}
+      />
     </Tab.Navigator>
   );
 }
@@ -90,6 +144,34 @@ function MoreStackNavigator() {
         headerTitleStyle: {
           fontWeight: 'bold',
           color: colors.textPrimary,
+        },
+        cardStyleInterpolator: ({ current, layouts }) => {
+          return {
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+            },
+          };
+        },
+        transitionSpec: {
+          open: {
+            animation: 'timing',
+            config: {
+              duration: 300,
+            },
+          },
+          close: {
+            animation: 'timing',
+            config: {
+              duration: 300,
+            },
+          },
         },
       }}
     >
@@ -117,6 +199,16 @@ function MoreStackNavigator() {
         name="TijaniyaFiqh" 
         component={TijaniyaFiqhScreen}
         options={{ title: 'Tijaniya Fiqh' }}
+      />
+      <Stack.Screen 
+        name="TijaniyaLazim" 
+        component={TijaniyaLazimScreen}
+        options={{ title: 'Tijaniya Lazim' }}
+      />
+      <Stack.Screen 
+        name="Azan" 
+        component={AzanScreen}
+        options={{ title: 'Azan' }}
       />
       <Stack.Screen 
         name="ResourcesForBeginners" 
@@ -212,7 +304,39 @@ function MoreStackNavigator() {
 // Authentication Stack Navigator
 function AuthStackNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator 
+      screenOptions={{ 
+        headerShown: false,
+        cardStyleInterpolator: ({ current, layouts }) => {
+          return {
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+            },
+          };
+        },
+        transitionSpec: {
+          open: {
+            animation: 'timing',
+            config: {
+              duration: 300,
+            },
+          },
+          close: {
+            animation: 'timing',
+            config: {
+              duration: 300,
+            },
+          },
+        },
+      }}
+    >
       <Stack.Screen name="GuestMode" component={GuestModeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
@@ -251,16 +375,24 @@ export default function App() {
     return null;
   }
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <AuthWrapper>
-          <NavigationContainer>
-            <StatusBar style="light" backgroundColor="#2E7D32" />
-            <AppNavigator />
-          </NavigationContainer>
-        </AuthWrapper>
-      </NotificationProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <TimeFormatProvider>
+        <IslamicCalendarProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <AuthWrapper>
+              <NavigationContainer>
+              <StatusBar style="light" backgroundColor="#2E7D32" />
+              <ErrorBoundary>
+                <AppNavigator />
+              </ErrorBoundary>
+            </NavigationContainer>
+              </AuthWrapper>
+            </NotificationProvider>
+          </AuthProvider>
+        </IslamicCalendarProvider>
+      </TimeFormatProvider>
+    </LanguageProvider>
   );
 }
 

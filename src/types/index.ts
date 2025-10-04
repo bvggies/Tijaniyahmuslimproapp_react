@@ -1,8 +1,12 @@
 export interface PrayerTime {
   name: string;
   time: string;
+  timeWithSeconds?: string;
   isNext: boolean;
   isCurrent: boolean;
+  countdown?: string;
+  secondsUntil?: number;
+  dateTime?: Date;
 }
 
 export interface Location {

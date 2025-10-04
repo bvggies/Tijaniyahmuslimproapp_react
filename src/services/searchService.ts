@@ -9,6 +9,8 @@ export interface SearchResult {
   arabic?: string;
   transliteration?: string;
   translation?: string;
+  screen?: string;
+  specialties?: string[];
 }
 
 export const searchData: SearchResult[] = [
@@ -171,6 +173,218 @@ export const searchData: SearchResult[] = [
     category: 'Wazifa',
   },
 
+  // Scholars
+  {
+    id: 'ahmad_tijani',
+    title: 'Shaykh Ahmad Tijani (R.A)',
+    titleArabic: 'الشيخ أحمد التجاني',
+    description: 'Founder of Tariqa Tijaniyya & Seal of Muhammadan Sainthood',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Sufism', 'Islamic Law', 'Hadith', 'Tafsir', 'Spiritual Guidance', 'Seal of Sainthood'],
+  },
+  {
+    id: 'ali_harazim_al_barada',
+    title: 'Khalifat Al-Akbar, Sidi Ali Harazim Al-Barada (R.A)',
+    titleArabic: 'خليفة الأكبر سيدي علي حرازم البرادة',
+    description: 'Greatest Inheritor of Shaykh Ahmad Tijani & Author of Jawahir al-Ma\'ani',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Sufism', 'Spiritual Guidance', 'Jawahir al-Ma\'ani', 'Khalifa', 'Scholarship'],
+  },
+  {
+    id: 'ali_tamasini',
+    title: 'Al-Qutb Sidi Al-Hajj Ali Ibn \'Isa Tamasini (R.A)',
+    titleArabic: 'القطب سيدي الحاج علي بن عيسى تاماسيني',
+    description: 'Khalifa of Shaykh Ahmad Tijani & Qutb',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Qutbaniyya', 'Spiritual Training', 'Karamat', 'Healing', 'Visionary Encounters'],
+  },
+  {
+    id: 'muhammad_ghali',
+    title: 'Sidi Muhammad Al-Ghali (R.A)',
+    titleArabic: 'سيدي محمد الغالي',
+    description: 'Khalifa of Shaykh Ahmad Tijani & Teacher of Al-Hajj Umar',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Khalifa', 'Spiritual Training', 'West Africa', 'Ijaza'],
+  },
+  {
+    id: 'ibrahim_riyahi',
+    title: 'Shaykh Al-Islam Ibrahim Al-Riyahi (R.A)',
+    titleArabic: 'الشيخ الإسلام إبراهيم الرياحي',
+    description: 'Imam of Zaytuna University & Introducer of Tariqa Tijaniyya in Tunisia',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Maliki Fiqh', 'Zaytuna University', 'Tunisia', 'Islamic Law', 'Scholarship'],
+  },
+  {
+    id: 'muhammad_al_hafiz_shinqiti',
+    title: 'Sidi Muhammad Al-Hafiz Al-Shinqiti (R.A)',
+    titleArabic: 'سيدي محمد الحافظ الشنقيطي',
+    description: 'First Introducer of Tariqa Tijaniyya in Mauritania',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Mauritania', 'West Africa', 'Hadith', 'Fiqh', 'Sufism', 'Idaw Ali'],
+  },
+  {
+    id: 'umar_al_futi_tal',
+    title: 'Shaykh Al-Hajj Umar Al-Futi Tal (R.A)',
+    titleArabic: 'الشيخ الحاج عمر الفوتي تال',
+    description: 'Khalifa of Tariqa Tijaniyya & Jihad Leader',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Jihad', 'Islamic Law', 'Sufism', 'Political Leadership', 'Scholarship'],
+  },
+  {
+    id: 'muhammad_al_arabi_ibn_saih',
+    title: 'Shaykh Sīdi Muhammad al-Arabī bin al-Sā\'ih (R.A)',
+    titleArabic: 'الشيخ سيدي محمد العربي بن السائح',
+    description: 'Renowned Scholar & Spiritual Guide',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Islamic Scholarship', 'Spiritual Guidance', 'Education', 'Islamic Sciences'],
+  },
+  {
+    id: 'ahmad_sukayrij',
+    title: 'Shaykh Ahmad Sukayrij (R.A)',
+    titleArabic: 'الشيخ أحمد السكايرج',
+    description: 'Renowned Scholar & Author',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Islamic Scholarship', 'Literature', 'Biography', 'Morocco'],
+  },
+  {
+    id: 'abdoulaye_niasse',
+    title: 'Al-Hajj Abdoulaye Bin Mamadou Niasse (R.A)',
+    titleArabic: 'الحاج عبد الله بن ممدو نياس',
+    description: 'Great Scholar of Senegambia & First to Obtain Ijaza Mutlaqa',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Islamic Scholarship', 'Senegambia', 'Ijaza Mutlaqa', 'Education'],
+  },
+  {
+    id: 'malik_sy',
+    title: 'Al-Hajj Malik Sy (R.A)',
+    titleArabic: 'الحاج مالك سي',
+    description: 'Renowned Tijani Scholar & Educator',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Education', 'Islamic Scholarship', 'Community Leadership', 'Poetry'],
+  },
+  {
+    id: 'ibrahim_niasse',
+    title: 'Shaykh Ibrahim Niasse (R.A)',
+    titleArabic: 'الشيخ إبراهيم نياس',
+    description: 'Shaykh al-Islam & Global Islamic Leader',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Islamic Scholarship', 'Global Leadership', 'Preaching', 'Education', 'Shaykh al-Islam'],
+  },
+  {
+    id: 'sheikh_abdullahi_maikano',
+    title: 'Sheikh Abdullahi Maikano (R.A)',
+    titleArabic: 'الشيخ عبد الله مايكانو',
+    description: 'First National Chief Imam of Ghana Armed Forces',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Ghana Armed Forces', 'Islamic Leadership', 'Military Chaplaincy', 'Ghana'],
+  },
+  {
+    id: 'muhammad_hafiz_mishiri',
+    title: 'Shaykh Muhammad Al-Hafiz Al-Mishiri (R.A)',
+    titleArabic: 'الشيخ محمد الحافظ المشيري',
+    description: 'Renowned Scholar & Spiritual Guide',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Islamic Scholarship', 'Spiritual Guidance', 'Education', 'Tariqa Tijaniyya', 'Islamic Sciences'],
+  },
+  {
+    id: 'muhammad_al_ghali_abu_talib',
+    title: 'Al-Muqaddam Al-Sharif, Sidi Muhammad Al-Ghali Abu Talib Al-Tijani Al-Hassani (R.A)',
+    titleArabic: 'المقدم الشريف سيدي محمد الغالي أبو طالب التجاني الحسني',
+    description: 'Elite Companion of Shaykh Ahmad Tijani',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Elite Companion', 'Spiritual Zeal', 'Visionary Encounters', 'Propagation', 'Hijaz'],
+  },
+  {
+    id: 'ibrahim_al_riyahi_duplicate',
+    title: 'Shaykh Al-Islam Ibrahim Al-Riyahi (R.A)',
+    titleArabic: 'الشيخ الإسلام إبراهيم الرياحي',
+    description: 'Imam of Zaytuna University & Maliki Shaykh al-Islam of Tunis',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Maliki Fiqh', 'Zaytuna University', 'Islamic Law', 'Poetry', 'Diplomacy', 'Sufism'],
+  },
+  {
+    id: 'sheikh_ahmed_jallo',
+    title: 'Sheikh Ahmed Abulfaid Khalifa Jallo (R.A)',
+    titleArabic: 'الشيخ أحمد أبو الفيض خليفة جالو',
+    description: 'President & Supreme Leader of Tijaniyya Muslim Council of Ghana',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Leadership', 'Peace & Unity', 'Community Building', 'Interfaith Relations', 'Ghana'],
+  },
+  {
+    id: 'muhammad_al_hafiz_shinqiti_duplicate',
+    title: 'Sidi Muhammad Al-Hafiz Al-Shinqiti (R.A)',
+    titleArabic: 'سيدي محمد الحافظ الشنقيطي',
+    description: 'First Introducer of Tariqa Tijaniyya in Mauritania',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tariqa Tijaniyya', 'Mauritania', 'West Africa', 'Hadith', 'Fiqh', 'Sufism', 'Idaw Ali'],
+  },
+  {
+    id: 'imam_an_nawawi',
+    title: 'Imam An-Nawawi (R.A)',
+    titleArabic: 'الإمام النووي',
+    description: 'Shaykh al-Islam & Hadith Scholar',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Hadith', 'Fiqh', 'Shafi\'i School', 'Spirituality', 'Scholarship'],
+  },
+  {
+    id: 'ibn_kathir',
+    title: 'Ibn Kathir (R.A)',
+    titleArabic: 'ابن كثير',
+    description: 'Mufassir & Historian',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Tafsir', 'History', 'Hadith', 'Fiqh', 'Shafi\'i School'],
+  },
+  {
+    id: 'imam_al_ghazali',
+    title: 'Imam Al-Ghazali (R.A)',
+    titleArabic: 'الإمام الغزالي',
+    description: 'Hujjat al-Islam & Theologian',
+    type: 'scholar',
+    category: 'Scholars',
+    screen: 'Scholars',
+    specialties: ['Aqidah', 'Tasawwuf', 'Philosophy', 'Fiqh', 'Shafi\'i School', 'Theology'],
+  },
+
   // General
   {
     id: 'general-1',
@@ -179,6 +393,7 @@ export const searchData: SearchResult[] = [
     description: 'Find the direction of Kaaba',
     type: 'general',
     category: 'Qibla',
+    screen: 'Qibla',
   },
   {
     id: 'general-2',
@@ -187,6 +402,7 @@ export const searchData: SearchResult[] = [
     description: 'Find nearby mosques',
     type: 'general',
     category: 'Mosque',
+    screen: 'Mosque',
   },
 ];
 
@@ -202,7 +418,8 @@ export const searchApp = (query: string): SearchResult[] => {
     item.arabic?.toLowerCase().includes(lowercaseQuery) ||
     item.transliteration?.toLowerCase().includes(lowercaseQuery) ||
     item.translation?.toLowerCase().includes(lowercaseQuery) ||
-    item.category.toLowerCase().includes(lowercaseQuery)
+    item.category.toLowerCase().includes(lowercaseQuery) ||
+    item.specialties?.some(specialty => specialty.toLowerCase().includes(lowercaseQuery))
   );
 };
 

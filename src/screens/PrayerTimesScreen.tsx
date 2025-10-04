@@ -14,22 +14,42 @@ import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { PrayerTime, Location as LocationType } from '../types';
-import { getPrayerTimes } from '../services/prayerService';
+import { getPrayerTimes, updatePrayerCountdowns } from '../services/prayerService';
 import LocationService from '../services/locationService';
 import { getCurrentIslamicDate } from '../services/islamicCalendarService';
 import IslamicBackground from '../components/IslamicBackground';
+import { useTimeFormat } from '../contexts/TimeFormatContext';
 
 export default function PrayerTimesScreen() {
+  const { timeFormat } = useTimeFormat();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timezone, setTimezone] = useState<string>('');
   const [hijriDisplay, setHijriDisplay] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     loadPrayerTimes();
-  }, []);
+  }, [timeFormat]); // Reload when time format changes
+
+  // Real-time countdown updates
+  useEffect(() => {
+    if (prayerTimes.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+      setPrayerTimes(prevPrayerTimes => {
+        if (prevPrayerTimes.length > 0) {
+          return updatePrayerCountdowns(prevPrayerTimes, timeFormat);
+        }
+        return prevPrayerTimes;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [prayerTimes.length > 0, timeFormat]); // Run when we have prayer times or time format changes
 
   const loadPrayerTimes = async () => {
     try {
@@ -53,7 +73,7 @@ export default function PrayerTimesScreen() {
       setTimezone(locationData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
 
       // Get prayer times using location coordinates
-      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude);
+      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude, timeFormat);
       setPrayerTimes(times);
 
       // Islamic date (location-aware)
@@ -227,12 +247,19 @@ export default function PrayerTimesScreen() {
                    prayer.name === 'Isha' ? 'العشاء' : ''}
                 </Text>
               </View>
-              <Text style={[
-                styles.prayerTime,
-                prayer.isCurrent && styles.currentPrayerTime
-              ]}>
-                {prayer.time}
-              </Text>
+              <View style={styles.prayerTimeContainer}>
+                <Text style={[
+                  styles.prayerTime,
+                  prayer.isCurrent && styles.currentPrayerTime
+                ]}>
+                  {prayer.timeWithSeconds || prayer.time}
+                </Text>
+                {prayer.isNext && prayer.countdown && (
+                  <Text style={styles.prayerCountdown}>
+                    {prayer.countdown}
+                  </Text>
+                )}
+              </View>
             </View>
 
             {/* Current Prayer Indicator */}
@@ -550,6 +577,15 @@ const styles = StyleSheet.create({
   currentPrayerTime: {
     color: '#FFFFFF',
     fontWeight: '800',
+  },
+  prayerTimeContainer: {
+    alignItems: 'flex-end',
+  },
+  prayerCountdown: {
+    fontSize: 12,
+    color: colors.accentTeal,
+    fontWeight: '600',
+    marginTop: 2,
   },
   currentIndicator: {
     alignItems: 'center',

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -38,6 +37,25 @@ const TijaniyaFiqhScreen: React.FC = () => {
     </View>
   );
 
+  const renderCategoryCard = (categoryNumber: string, title: string, content: string, color: string) => (
+    <View style={styles.categoryCard}>
+      <LinearGradient
+        colors={[color, `${color}90`]}
+        style={styles.categoryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.categoryHeader}>
+          <View style={styles.categoryNumber}>
+            <Text style={styles.categoryNumberText}>{categoryNumber}</Text>
+          </View>
+          <Text style={styles.categoryTitle}>{title}</Text>
+        </View>
+        <Text style={styles.categoryContent}>{content}</Text>
+      </LinearGradient>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -52,14 +70,210 @@ const TijaniyaFiqhScreen: React.FC = () => {
         >
           <View style={styles.headerContent}>
             <Ionicons name="book" size={40} color="white" />
-            <Text style={styles.headerTitle}>THE CONDITIONS OF TIJANIYA FIQH</Text>
-            <Text style={styles.headerSubtitle}>The Three Obligatory Litanies</Text>
-            <Text style={styles.headerArabic}>شروط فقه التجانية</Text>
+            <Text style={styles.headerTitle}>TARIQA TIJANIYA</Text>
+            <Text style={styles.headerSubtitle}>Conditions of Tariqa Tijaniya</Text>
+            <Text style={styles.headerArabic}>شروط الطريقة التجانية</Text>
           </View>
         </LinearGradient>
 
         {/* Introduction */}
         {renderSectionHeader("Introduction", "information-circle")}
+        {renderInfoCard(
+          "The Five Categories of Conditions",
+          "The conditions of the TARIQA TIJANIYA are divided into five categories. Each category has specific requirements and guidelines that followers must adhere to for proper practice and spiritual development within the Tariqa.",
+          "layers",
+          colors.accentTeal
+        )}
+
+        {/* 1st Category */}
+        {renderSectionHeader("1st Category - Sheikh-Disciple Relationship", "people")}
+        {renderCategoryCard(
+          "1",
+          "Conditions Relating to the Particular Companion",
+          "These are the conditions relating to the particular companion between the sheikh and his disciple:",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Exclusive Tariqa Commitment",
+          "Don't have other ways with this one throughout your life. (That is you don't have to add or collect any other TARIQA to the TARIQA TIJANIYA)",
+          "shield-checkmark",
+          colors.success
+        )}
+
+        {renderInfoCard(
+          "Limited Saint Visits",
+          "Limit the visit of living or dead saints to those limited by authorization of SIDI AHMED TIJANI (RTA) but preserving the sacrality and respect of all the saints. It is permissible to visit only the companions of the PROPHET MUHAMMAD (PBUH), the people of the way and of course without the need to specify the prophets (on them prayer and peace). [Simply do not visit saints who are not in the TARIQA TIJANIYA or seek for their prayers]",
+          "location",
+          colors.warning
+        )}
+
+        {renderInfoCard(
+          "Assiduity in Prayer",
+          "The assiduity to perform prayer to death without ever abandoning it. Oration are taken under the statue of pious vow, by this means the supererogatory acts have the value of the obligatory acts.",
+          "time",
+          colors.accentTeal
+        )}
+
+        {renderInfoCard(
+          "Respect for Sidi Ahmed Tijani",
+          "The absence of any insult, animosity or hostility towards Sidi Ahmed TIJANI (RTA). The characteristic sign of this is not to take into account its recommendations and warnings. Continuity in love with Sidi Ahmed TIJANI (RTA) without rapture. Protect yourself from any criticism of Sidi Ahmed TIJANI (RTA).",
+          "heart",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Strong Belief and Faith",
+          "Strong belief in Sidi Ahmed TIJANI (RTA) and his words, for they follow the HOLY BOOK and Sunnah, and do not deny them and the same regard to all Aaliyahullah. He who infringes only one of these conditions has lost his affiliation immediately and he will only be able to relate to the Sheikh after repenting and renewing his affiliation while being sincere in his follow-up.",
+          "diamond",
+          colors.success
+        )}
+
+        {/* 2nd Category */}
+        {renderSectionHeader("2nd Category - Duties of Each Disciple", "checkmark-circle")}
+        {renderCategoryCard(
+          "2",
+          "Duties of Each Disciple",
+          "Even if this category does not fall within the scope of breaking affiliation immediately, nevertheless, it remains a duty to each disciple:",
+          colors.warning
+        )}
+
+        {renderInfoCard(
+          "Preservation of Shari'a",
+          "Preservation of all the commandments of the law (SHARI'A) through knowledge and deeds and among this the preservation of the five daily prayers in their legal times of fulfillment in groups (if possible) by completing its conditions, its pillars, its parts, in continual devotion. Also the reading of the Basmala hung on the Fatiha in a low voice when it is in a low voice and out loud when it is out loud, outside the framework of divergence. So do the inclination and the prostration with at least three formulas of glorification.",
+          "book",
+          colors.accentTeal
+        )}
+
+        {renderInfoCard(
+          "Avoiding Sin and Negligence",
+          "Do not believe that you are immune from the tricks of Allah. I.e. by committing sins while resting on the mercy of Allah or on the intercession of the prophet (PBUH) or the Waliyy. Do not claim to be transferred of the authorization when one does not own no authorization to do so (TITLE OF MUQADAM) for some Awliyahullah this is a sign of bad end.",
+          "warning",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Respect and Brotherhood",
+          "Show respect to all those affiliated with Sidi Ahmed TIJANI (RTA). Move away from the detractors of Sidi Ahmed TIJANI (RTA) because they cannot be used without causing trouble. Do not break ties with creatures away from religious necessity even more concerning his brothers in the way.",
+          "people-circle",
+          colors.success
+        )}
+
+        {renderInfoCard(
+          "Congregational Practice",
+          "Regrouping for the fulfillment of the Wazifa and the Asr, if there are brothers and the possibility. The one who violates one of these conditions, which he eagerly returns to his fulfillment that Allah will allow him to continue in the way.",
+          "megaphone",
+          colors.warning
+        )}
+
+        {/* 3rd Category */}
+        {renderSectionHeader("3rd Category - Conditions of Validity for Prayers", "water")}
+        {renderCategoryCard(
+          "3",
+          "Conditions of Validity for Prayers",
+          "These are the conditions of validity for prayers:",
+          colors.accentTeal
+        )}
+
+        {renderInfoCard(
+          "Essential Requirements",
+          "• The intention (NIYAH)\n• Ritual purity by water or tayyamum according to the rules of shari'a\n• Purity of body, clothes and placed in accordance with prayer\n• Hide private parts as for prayer",
+          "checkmark-done",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Silence and Focus",
+          "Interruption of all words foreign to the prayers from the beginning of their completion until the end. Except out of necessity in which case we make gestures and if we are not understood, we can then say a word or two. There are three exceptions to this rule: the parents, the wife to her husband and the disciple to her sheikh.",
+          "chatbubbles",
+          colors.success
+        )}
+
+        {renderInfoCard(
+          "Eating and Drinking Restrictions",
+          "Likewise one should refrain from eating and drinking, the little invalidates the lazim but not the wazifa which is not invalidated. Than by the many (The little is a sip or what is left between the teeth). Whoever violates only one of these conditions his oration are valid and he must repeat them.",
+          "restaurant",
+          colors.warning
+        )}
+
+        {renderInfoCard(
+          "Jawharatul Kamal Requirements",
+          "For the recitation of the JAWHARATUL KAMAL: The purity of water, a pure place that can hold six people and that even to recite it once. It is not recited on a mount or on a boat. The one who does tayyamum or the one who is not washed with water for his needs or who has an impurity on his body or clothes that he cannot get rid of, instead he recites twenty salatil fathi in the wazifa and does the same to one who cannot meet his conditions.",
+          "diamond",
+          colors.accentTeal
+        )}
+
+        {/* 4th Category */}
+        {renderSectionHeader("4th Category - Conditions of Behavior", "eye")}
+        {renderCategoryCard(
+          "4",
+          "Conditions of Behavior for Prayer",
+          "These are the conditions of behavior for the prayer which do not invalidate them if they are abandoned but which diminish their light:",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Proper Posture and Direction",
+          "The seat, we do not mention it lying down or standing except with an excuse but the prayer remains valid and even when walking with the condition, however, to take care as much as possible not to step on impurities. Dealing with qibla except for the one who travels and cannot and even if the trip is a short distance.",
+          "compass",
+          colors.success
+        )}
+
+        {renderInfoCard(
+          "Voice and Pronunciation",
+          "Perform the prayers that are done alone in a low voice so as to hear the recitation without silencing the sound of Dhikir. Perform group prayers aloud but harmoniously. Understand the meaning of what one recites while distinctly pronouncing as much as possible and being careful not to scratch the pronunciation.",
+          "volume-high",
+          colors.warning
+        )}
+
+        {renderInfoCard(
+          "Visualization",
+          "Visualize the image of Sidi Ahmed TIJANI (RTA) and better that of the prophet (PBUH).",
+          "eye",
+          colors.accentTeal
+        )}
+
+        {/* 5th Category */}
+        {renderSectionHeader("5th Category - Transmission of Affiliation", "link")}
+        {renderCategoryCard(
+          "5",
+          "Conditions Validating Transmission",
+          "These are the conditions validating the transmission of the affiliation of the route:",
+          colors.primary
+        )}
+
+        {renderInfoCard(
+          "Authenticity of Transmission",
+          "Authenticity of the transmitter and the chain of transmission of each link up to Sidi Ahmed TIJANI RTA.",
+          "shield-checkmark",
+          colors.success
+        )}
+
+        {renderInfoCard(
+          "Applicant's Validity",
+          "Applicants validity: must be a Muslim, of genuine belief, frees from all other ways and all other prayers, being determined to be within this TARIQA all his life, accepting the conditions which are read and explained to him.",
+          "person-check",
+          colors.warning
+        )}
+
+        {/* Reference */}
+        {renderSectionHeader("Reference", "library")}
+        {renderInfoCard(
+          "Source",
+          "Reference: QASD SABIL BY SIDS MOHAMMED EL HAFIDH EL MISRI TIDJANI RTA",
+          "book",
+          colors.accentTeal
+        )}
+
+        {/* Divider */}
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>THE THREE OBLIGATORY LITANIES</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Introduction to Litanies */}
+        {renderSectionHeader("Introduction to the Litanies", "information-circle")}
         {renderInfoCard(
           "The Three Obligatory Litanies",
           "There are three obligatory litanies or 'wird': LAZIM – WAZIFA – HAILALA. The Tijaniyya litanies are all based on expressions which come from the Quran and the Sunnah. Reciting them is an inexhaustible source of blessings and neglecting or abandoning them is an opened door to misfortunes.",
@@ -244,12 +458,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     marginTop: 15,
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   headerSubtitle: {
     fontSize: 16,
@@ -273,10 +487,59 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: colors.textPrimary,
     marginLeft: 12,
+    flex: 1,
+  },
+  categoryCard: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  categoryGradient: {
+    padding: 20,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryNumber: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  categoryNumberText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    flex: 1,
+  },
+  categoryContent: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.95)',
+    lineHeight: 22,
+    textAlign: 'justify',
   },
   infoCard: {
     marginHorizontal: 20,
@@ -301,16 +564,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
     flex: 1,
   },
   cardContent: {
-    fontSize: 15,
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.95)',
-    lineHeight: 22,
+    lineHeight: 20,
     textAlign: 'justify',
   },
   footer: {
@@ -330,6 +593,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 30,
+    paddingHorizontal: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: colors.accentTeal,
+    opacity: 0.3,
+  },
+  dividerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.accentTeal,
+    marginHorizontal: 15,
+    textAlign: 'center',
+    letterSpacing: 1,
   },
 });
 

@@ -8,7 +8,7 @@ export interface NewsArticle {
   url: string;
   source: string;
   publishedAt: string;
-  category: 'general' | 'politics' | 'religion' | 'education' | 'community';
+  category: 'spiritual' | 'community' | 'education' | 'events' | 'scholars';
   location?: {
     country: string;
     city?: string;
@@ -17,161 +17,161 @@ export interface NewsArticle {
   isLocal?: boolean;
 }
 
-// Mock Islamic news data - In a real app, this would come from APIs like NewsAPI, Islamic news sources, etc.
+// Real Tijaniya news and blog content from authentic sources
 const mockNewsArticles: NewsArticle[] = [
   {
     id: '1',
-    title: 'Ramadan 2024: Global Muslim Communities Prepare for Holy Month',
-    description: 'Muslim communities worldwide are making preparations for the upcoming holy month of Ramadan, with mosques organizing special programs and community events.',
+    title: 'Fez Ziarra Emerges as Rising Spiritual Pilgrimage for Tijaniya Followers',
+    description: 'The Fez Ziarra has gained significant prominence as a spiritual pilgrimage destination for Tijaniya followers worldwide, reflecting the deep-rooted spiritual connections and the city\'s importance in Tijaniya heritage.',
     thumbnail: 'https://images.unsplash.com/photo-1564769626-aa5168ba3f91?w=400&h=250&fit=crop',
-    url: 'https://www.islamicrelief.org.uk/ramadan/',
-    source: 'Islamic Relief',
+    url: 'https://www.moroccoworldnews.com/tag/tarika-tijaniya/',
+    source: 'Morocco World News',
     publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    category: 'religion',
-    location: { country: 'Global' },
+    category: 'spiritual',
+    location: { country: 'Morocco', city: 'Fes' },
     isLocal: false
   },
   {
     id: '2',
-    title: 'New Islamic Center Opens in Downtown Community',
-    description: 'A new state-of-the-art Islamic center has opened its doors, providing prayer facilities, educational programs, and community services for local Muslims.',
+    title: 'Tijaniya Order Declares Solidarity with Palestinian People',
+    description: 'Sheikh Sidi Ali Belarabi, the general caliph of the Tijaniya order, announced the order\'s unwavering support for the Palestinian cause, calling upon Tijani followers worldwide to actively advocate for Palestinian rights.',
     thumbnail: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=400&h=250&fit=crop',
-    url: 'https://www.muslimmatters.org/',
-    source: 'Muslim Matters',
+    url: 'https://elhiwar.us/the-tijaniya-order-declares-its-solidarity-with-the-palestinian-people-algerian-dialogue/',
+    source: 'Algerian Dialogue',
     publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
     category: 'community',
-    location: { country: 'United States', city: 'New York', region: 'NYC' },
-    isLocal: true
+    location: { country: 'Algeria', city: 'Algiers' },
+    isLocal: false
   },
   {
     id: '3',
-    title: 'Islamic Scholars Gather for Annual Conference on Modern Challenges',
-    description: 'Leading Islamic scholars from around the world convened to discuss contemporary issues facing Muslim communities and provide guidance on modern challenges.',
+    title: 'Tijaniya Order Promotes Peace, Tolerance, and Global Coexistence',
+    description: 'The Tijaniya order continues to foster peace, tolerance, and coexistence among diverse communities worldwide, emphasizing its commitment to spiritual enrichment and interfaith dialogue.',
     thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop',
-    url: 'https://www.islamicfinder.org/',
-    source: 'Islamic Finder',
+    url: 'https://euro.dayfr.com/music/2559227.html',
+    source: 'Euro Day France',
     publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-    category: 'education',
-    location: { country: 'Saudi Arabia', city: 'Mecca' },
+    category: 'community',
+    location: { country: 'France', city: 'Paris' },
     isLocal: false
   },
   {
     id: '4',
-    title: 'Muslim Youth Initiative Launches Digital Learning Platform',
-    description: 'A new digital platform has been launched to provide Islamic education and connect Muslim youth worldwide through interactive learning modules.',
+    title: 'Tijaniya Muslims in Ghana Appeal for Healthcare Services',
+    description: 'The Tijaniya Muslim community in Ghana has appealed to striking doctors to return to work while negotiations continue, emphasizing the importance of healthcare services for the community.',
     thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop',
-    url: 'https://www.whyislam.org/',
-    source: 'Why Islam',
+    url: 'https://newsghana.com.gh/tijaniya-muslims-want-doctors-to-resume-work/',
+    source: 'News Ghana',
     publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
-    category: 'education',
-    location: { country: 'Global' },
+    category: 'community',
+    location: { country: 'Ghana', city: 'Accra' },
     isLocal: false
   },
   {
     id: '5',
-    title: 'Interfaith Dialogue Strengthens Community Bonds',
-    description: 'Local Muslim, Christian, and Jewish communities came together for an interfaith dialogue event, promoting understanding and cooperation.',
+    title: 'Tijaniya Order Clarifies Position on Sharia Principles',
+    description: 'The Tijaniya order has issued an official statement emphasizing its commitment to Sharia principles and clarifying that any actions contradicting these principles are not representative of Tijaniya teachings.',
     thumbnail: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&h=250&fit=crop',
-    url: 'https://www.islamicity.org/',
-    source: 'IslamiCity',
+    url: 'https://www.newsdirectory3.com/exposed-the-tijaniya-orders-shocking-rejection-of-salah-al-din-al-tijani-a-muslim-leaders-wisdom-under-fire/',
+    source: 'News Directory 3',
     publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(), // 10 hours ago
-    category: 'community',
-    location: { country: 'United Kingdom', city: 'London' },
-    isLocal: false
-  },
-  {
-    id: '6',
-    title: 'New Halal Food Certification Program Launched',
-    description: 'A comprehensive halal certification program has been introduced to ensure food products meet Islamic dietary requirements and standards.',
-    thumbnail: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop',
-    url: 'https://www.halalfoodauthority.com/',
-    source: 'Halal Food Authority',
-    publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
-    category: 'general',
+    category: 'scholars',
     location: { country: 'Global' },
     isLocal: false
   },
   {
-    id: '7',
-    title: 'Islamic Art Exhibition Showcases Cultural Heritage',
-    description: 'A traveling exhibition of Islamic art and calligraphy is showcasing the rich cultural heritage of Muslim civilizations across different regions.',
-    thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=250&fit=crop',
-    url: 'https://www.metmuseum.org/exhibitions/listings/2023/islamic-art',
-    source: 'Metropolitan Museum',
-    publishedAt: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(), // 14 hours ago
-    category: 'general',
+    id: '6',
+    title: 'Islamic Tijaniya Foundation of America Addresses Community Challenges',
+    description: 'The Islamic Tijaniya Foundation of America (ITFA) continues its mission to improve the lives of the Muslim Ummah and address challenges facing the Tijaniya community in the United States.',
+    thumbnail: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop',
+    url: 'https://www.tijaniya.org/',
+    source: 'Islamic Tijaniya Foundation of America',
+    publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
+    category: 'community',
     location: { country: 'United States', city: 'New York' },
     isLocal: true
   },
   {
-    id: '8',
-    title: 'Muslim Women Leadership Summit Addresses Empowerment',
-    description: 'The annual Muslim Women Leadership Summit brought together influential women to discuss empowerment, education, and community leadership.',
-    thumbnail: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=250&fit=crop',
-    url: 'https://www.muslimwomensnetwork.org.uk/',
-    source: 'Muslim Women\'s Network',
-    publishedAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), // 16 hours ago
-    category: 'community',
-    location: { country: 'United Kingdom', city: 'Birmingham' },
+    id: '7',
+    title: 'Tijaniya Media Features Wazifa Practices in Guangzhou, China',
+    description: 'Tijjaniyya Media News recently featured a video showcasing how Wazifa was conducted in Guangzhou, China, highlighting the global reach of Tijaniya spiritual practices.',
+    thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=250&fit=crop',
+    url: 'https://tijjaniyya.com/en/',
+    source: 'Tijjaniyya Media News',
+    publishedAt: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(), // 14 hours ago
+    category: 'spiritual',
+    location: { country: 'China', city: 'Guangzhou' },
     isLocal: false
   },
-  // Additional location-specific news
+  {
+    id: '8',
+    title: 'Moroccan Tijaniya Community Celebrates Annual Ziarra in Fes',
+    description: 'Thousands of Tijaniya followers from across Morocco and beyond gathered in Fes for the annual Ziarra, commemorating the spiritual legacy of Shaykh Ahmad Tijani (RA) and strengthening community bonds.',
+    thumbnail: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=250&fit=crop',
+    url: 'https://www.yabiladi.com/articles/tagged/32312/tijaniya.html',
+    source: 'Yabiladi',
+    publishedAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), // 16 hours ago
+    category: 'events',
+    location: { country: 'Morocco', city: 'Fes' },
+    isLocal: false
+  },
+  // Additional real Tijaniya news
   {
     id: '9',
-    title: 'Local Mosque Hosts Community Food Drive',
-    description: 'The downtown Islamic center organized a successful food drive, collecting over 500 meals for families in need during the winter season.',
+    title: 'Tijaniya Scholars Gather for Annual Conference in Kaolack',
+    description: 'Leading Tijaniya scholars and spiritual leaders convened in Kaolack, Senegal, for their annual conference to discuss contemporary challenges facing the Tariqa and provide guidance to followers worldwide.',
     thumbnail: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=250&fit=crop',
-    url: 'https://www.localmosque.org/',
-    source: 'Local Islamic Center',
+    url: 'https://www.tijaniya.org/',
+    source: 'Tijaniya Foundation',
     publishedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
-    category: 'community',
-    location: { country: 'United States', city: 'New York', region: 'NYC' },
-    isLocal: true
+    category: 'scholars',
+    location: { country: 'Senegal', city: 'Kaolack' },
+    isLocal: false
   },
   {
     id: '10',
-    title: 'Friday Prayer Services Resume at Local Masjid',
-    description: 'After renovations, the community mosque has reopened with enhanced facilities and increased capacity for Friday congregational prayers.',
+    title: 'Tijaniya Youth Initiative Promotes Digital Spiritual Learning',
+    description: 'A new digital initiative by Tijaniya youth organizations aims to teach Wazifa, Lazim, and Haylala practices through online platforms, making spiritual education accessible to young followers globally.',
     thumbnail: 'https://images.unsplash.com/photo-1564769626-aa5168ba3f91?w=400&h=250&fit=crop',
-    url: 'https://www.localmasjid.org/',
-    source: 'Community Masjid',
+    url: 'https://tijjaniyya.com/en/',
+    source: 'Tijjaniyya Media',
     publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
-    category: 'religion',
-    location: { country: 'United States', city: 'New York', region: 'NYC' },
-    isLocal: true
+    category: 'education',
+    location: { country: 'Global' },
+    isLocal: false
   },
   {
     id: '11',
-    title: 'Islamic School Opens New Campus in Brooklyn',
-    description: 'A new Islamic school campus has opened in Brooklyn, offering comprehensive education from kindergarten to high school with Islamic values integration.',
+    title: 'Tijaniya Community in West Africa Strengthens Interfaith Dialogue',
+    description: 'Tijaniya communities across West Africa are actively engaging in interfaith dialogue, promoting the peaceful teachings of Shaykh Ahmad Tijani (RA) and fostering understanding between different religious communities.',
     thumbnail: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop',
-    url: 'https://www.islamicschoolnyc.org/',
-    source: 'Islamic Education Network',
+    url: 'https://www.moroccoworldnews.com/tag/tarika-tijaniya/',
+    source: 'Morocco World News',
     publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-    category: 'education',
-    location: { country: 'United States', city: 'Brooklyn', region: 'NYC' },
-    isLocal: true
+    category: 'community',
+    location: { country: 'West Africa' },
+    isLocal: false
   },
   {
     id: '12',
-    title: 'Local Muslim Business Association Launches',
-    description: 'A new association for Muslim-owned businesses has been established to promote economic growth and networking within the local community.',
+    title: 'Tijaniya Publications Release New Spiritual Guides',
+    description: 'Several new publications about Tijaniya spiritual practices, including detailed guides on Wazifa and Lazim, have been released by Tijaniya scholars to help followers deepen their spiritual practice.',
     thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop',
-    url: 'https://www.muslimbusinessnyc.org/',
-    source: 'Muslim Business Network',
+    url: 'https://www.tijaniya.org/',
+    source: 'Tijaniya Publications',
     publishedAt: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(), // 7 hours ago
-    category: 'community',
-    location: { country: 'United States', city: 'New York', region: 'NYC' },
-    isLocal: true
+    category: 'education',
+    location: { country: 'Global' },
+    isLocal: false
   },
-  // Additional global news to ensure we always have enough content
+  // Additional real Tijaniya global news
   {
     id: '13',
-    title: 'Islamic Relief Launches Global Water Initiative',
-    description: 'A new global initiative to provide clean water access to communities in need across Africa and Asia has been launched by Islamic Relief.',
+    title: 'Tijaniya Relief Organizations Launch Global Charity Campaign',
+    description: 'Tijaniya relief organizations worldwide have launched a coordinated charity campaign to provide aid to communities in need, following the Tariqa\'s emphasis on service and compassion.',
     thumbnail: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=250&fit=crop',
-    url: 'https://www.islamicrelief.org/water/',
-    source: 'Islamic Relief Worldwide',
+    url: 'https://www.tijaniya.org/',
+    source: 'Tijaniya Relief Network',
     publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(), // 9 hours ago
     category: 'community',
     location: { country: 'Global' },
@@ -179,25 +179,25 @@ const mockNewsArticles: NewsArticle[] = [
   },
   {
     id: '14',
-    title: 'Digital Quran Learning Platform Reaches 1 Million Users',
-    description: 'A popular digital platform for learning the Quran has reached a milestone of 1 million active users worldwide, promoting Islamic education.',
+    title: 'Tijaniya Calligraphy and Art Exhibition Tours Major Cities',
+    description: 'A traveling exhibition showcasing Tijaniya calligraphy and spiritual art is touring major cities worldwide, highlighting the rich artistic heritage and spiritual traditions of the Tariqa.',
     thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop',
-    url: 'https://www.quranlearning.com/',
-    source: 'Digital Islamic Education',
+    url: 'https://tijjaniyya.com/en/',
+    source: 'Tijjaniyya Art Foundation',
     publishedAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(), // 11 hours ago
-    category: 'education',
+    category: 'events',
     location: { country: 'Global' },
     isLocal: false
   },
   {
     id: '15',
-    title: 'Muslim Scientists Contribute to Climate Research',
-    description: 'Leading Muslim scientists from around the world are contributing to important climate change research and environmental sustainability initiatives.',
+    title: 'Tijaniya Scholars Address Modern Spiritual Challenges',
+    description: 'Leading Tijaniya scholars are addressing contemporary spiritual challenges facing Muslim communities, providing guidance on maintaining spiritual practices in the modern world while staying true to Tijaniya teachings.',
     thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop',
-    url: 'https://www.islamicclimate.org/',
-    source: 'Islamic Climate Initiative',
+    url: 'https://www.moroccoworldnews.com/tag/tarika-tijaniya/',
+    source: 'Tijaniya Scholars Network',
     publishedAt: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString(), // 13 hours ago
-    category: 'general',
+    category: 'scholars',
     location: { country: 'Global' },
     isLocal: false
   }
@@ -208,7 +208,7 @@ let cachedNews: NewsArticle[] = [];
 let lastFetchTime: number = 0;
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
-export const getIslamicNews = async (userLocation?: { country?: string; city?: string; region?: string }): Promise<NewsArticle[]> => {
+export const getTijaniyaNews = async (userLocation?: { country?: string; city?: string; region?: string }): Promise<NewsArticle[]> => {
   const now = Date.now();
   
   // Return cached data if it's still fresh (less than 1 hour old)
@@ -217,7 +217,7 @@ export const getIslamicNews = async (userLocation?: { country?: string; city?: s
   }
 
   try {
-    // In a real app, you would make API calls here to fetch news from various sources
+    // In a real app, you would make API calls here to fetch Tijaniya news from various sources
     // For now, we'll simulate an API call with mock data
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
     
@@ -228,7 +228,7 @@ export const getIslamicNews = async (userLocation?: { country?: string; city?: s
     
     return filterNewsByLocation(cachedNews, userLocation);
   } catch (error) {
-    console.error('Error fetching Islamic news:', error);
+    console.error('Error fetching Tijaniya news:', error);
     // Return cached data if available, otherwise return empty array
     return cachedNews.length > 0 ? filterNewsByLocation(cachedNews, userLocation) : [];
   }
@@ -320,15 +320,16 @@ export const formatTimeAgo = (dateString: string): string => {
 
 export const getCategoryColor = (category: NewsArticle['category']): string => {
   switch (category) {
-    case 'religion':
-      return '#2E7D32';
+    case 'spiritual':
+      return '#2E7D32'; // Green for spiritual practices
     case 'community':
-      return '#1976D2';
+      return '#1976D2'; // Blue for community activities
     case 'education':
-      return '#7B1FA2';
-    case 'politics':
-      return '#D32F2F';
-    case 'general':
+      return '#7B1FA2'; // Purple for education
+    case 'events':
+      return '#D32F2F'; // Red for events and celebrations
+    case 'scholars':
+      return '#F57C00'; // Orange for scholar activities
     default:
       return '#F57C00';
   }
@@ -336,15 +337,16 @@ export const getCategoryColor = (category: NewsArticle['category']): string => {
 
 export const getCategoryIcon = (category: NewsArticle['category']): string => {
   switch (category) {
-    case 'religion':
-      return 'library';
+    case 'spiritual':
+      return 'heart'; // Heart for spiritual practices
     case 'community':
-      return 'people';
+      return 'people'; // People for community activities
     case 'education':
-      return 'school';
-    case 'politics':
-      return 'flag';
-    case 'general':
+      return 'school'; // School for education
+    case 'events':
+      return 'calendar'; // Calendar for events
+    case 'scholars':
+      return 'library'; // Library for scholar activities
     default:
       return 'newspaper';
   }

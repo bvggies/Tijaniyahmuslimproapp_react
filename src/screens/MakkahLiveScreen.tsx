@@ -58,15 +58,17 @@ export default function MakkahLiveScreen() {
         <WebView
           style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
           source={{ 
-            uri: `https://www.youtube.com/embed/${active.youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0`
+            uri: `https://www.youtube.com/embed/${active.youtubeId}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1&origin=https://www.youtube.com`
           }}
           allowsFullscreenVideo={true}
           allowsInlineMediaPlayback={true}
-          mediaPlaybackRequiresUserAction={false}
+          mediaPlaybackRequiresUserAction={true}
           javaScriptEnabled={true}
           domStorageEnabled={true}
           startInLoadingState={true}
           scalesPageToFit={true}
+          mixedContentMode="compatibility"
+          thirdPartyCookiesEnabled={false}
           onLoadStart={() => setIsLoading(true)}
           onLoadEnd={() => setIsLoading(false)}
           onError={(syntheticEvent) => {
@@ -78,6 +80,10 @@ export default function MakkahLiveScreen() {
             const { nativeEvent } = syntheticEvent;
             console.warn('WebView HTTP error: ', nativeEvent);
             setIsLoading(false);
+          }}
+          onMessage={(event) => {
+            // Handle YouTube player messages
+            console.log('YouTube message:', event.nativeEvent.data);
           }}
         />
       </View>

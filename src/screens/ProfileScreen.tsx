@@ -1,438 +1,547 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  Alert,
-  Modal,
+  TouchableOpacity,
   TextInput,
+  Alert,
+  Image,
+  Modal,
+  Switch,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 import ProfileAvatar from '../components/ProfileAvatar';
 
-export default function ProfileScreen() {
-  const { authState, logout, updateProfile, continueAsGuest } = useAuth();
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editData, setEditData] = useState({
+const { width } = Dimensions.get('window');
+
+interface UserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  location: string | { city: string; country: string };
+  bio: string;
+  profilePicture?: string;
+  preferences: {
+    notifications: boolean;
+    darkMode: boolean;
+    timeFormat: '12h' | '24h';
+    language: string;
+    prayerMethod?: string;
+  };
+}
+
+export default function ProfileScreen({ navigation }: any) {
+  const { authState, updateProfile, logout } = useAuth();
+  const { t } = useLanguage();
+  const [profile, setProfile] = useState<UserProfile>({
     name: authState.user?.name || '',
+    email: authState.user?.email || '',
     phone: authState.user?.phone || '',
-    city: authState.user?.location?.city || '',
-    country: authState.user?.location?.country || '',
+    location: authState.user?.location || '',
+    bio: authState.user?.bio || '',
+    profilePicture: authState.user?.profilePicture,
+    preferences: {
+      notifications: true,
+      darkMode: false,
+      timeFormat: '24h',
+      language: 'en',
+    },
   });
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: logout },
-      ]
-    );
-  };
+  const [isEditing, setIsEditing] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [tempProfile, setTempProfile] = useState<UserProfile>(profile);
 
-  const handleUpdateProfile = async () => {
-    try {
-      await updateProfile({
-        name: editData.name.trim(),
-        phone: editData.phone.trim() || undefined,
-        location: (editData.city.trim() || editData.country.trim()) ? {
-          city: editData.city.trim(),
-          country: editData.country.trim(),
-        } : undefined,
-      });
-      setShowEditModal(false);
-      Alert.alert('Success', 'Profile updated successfully');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update profile');
-    }
-  };
-
-  const handleProfilePictureChange = async (imageUri: string) => {
-    try {
-      await updateProfile({
-        profilePicture: imageUri,
-      });
-      Alert.alert('Success', 'Profile picture updated successfully');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update profile picture');
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+  useEffect(() => {
+    setProfile({
+      name: authState.user?.name || '',
+      email: authState.user?.email || '',
+      phone: authState.user?.phone || '',
+      location: authState.user?.location || '',
+      bio: authState.user?.bio || '',
+      profilePicture: authState.user?.profilePicture,
+      preferences: {
+        notifications: true,
+        darkMode: false,
+        timeFormat: '24h',
+        language: 'en',
+      },
     });
+  }, [authState.user]);
+
+  const handleEdit = () => {
+    setTempProfile(profile);
+    setIsEditing(true);
   };
 
-  // Guest user view
-  if (authState.isGuest) {
-    return (
-      <View style={styles.container}>
-        <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
-          <Text style={styles.headerTitle}>Guest Mode</Text>
-          <Text style={styles.headerSubtitle}>Limited access to features</Text>
-        </LinearGradient>
+  const handleSave = async () => {
+    try {
+      await updateProfile({
+        ...authState.user,
+        ...tempProfile,
+      });
+      setProfile(tempProfile);
+      setIsEditing(false);
+      Alert.alert('Success', 'Profile updated successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    }
+  };
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Guest Profile Card */}
-          <View style={styles.profileCard}>
-            <View style={styles.avatarContainer}>
-              <ProfileAvatar 
-                size={80}
-                showBorder={false}
-              />
-            </View>
-            <Text style={styles.userName}>Guest User</Text>
-            <Text style={styles.userEmail}>Limited access mode</Text>
-          </View>
+  const handleCancel = () => {
+    setTempProfile(profile);
+    setIsEditing(false);
+  };
 
-          {/* Available Features */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Available Features</Text>
-            
-            <View style={styles.infoItem}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.accentGreen} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Prayer Times</Text>
-                <Text style={styles.infoValue}>Full access</Text>
-              </View>
-            </View>
+  const handleImagePicker = () => {
+    setShowImagePicker(true);
+  };
 
-            <View style={styles.infoItem}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.accentGreen} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Qibla Compass</Text>
-                <Text style={styles.infoValue}>Full access</Text>
-              </View>
-            </View>
+  const pickImage = async (source: 'camera' | 'library') => {
+    try {
+      let result;
+      if (source === 'camera') {
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        if (permissionResult.granted === false) {
+          Alert.alert('Permission Required', 'Camera permission is needed to take photos.');
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+      } else {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+          Alert.alert('Permission Required', 'Photo library permission is needed to select images.');
+          return;
+        }
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+      }
 
-            <View style={styles.infoItem}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.accentGreen} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Duas & Quran</Text>
-                <Text style={styles.infoValue}>Full access</Text>
-              </View>
-            </View>
+      if (!result.canceled && result.assets[0]) {
+        setTempProfile({
+          ...tempProfile,
+          profilePicture: result.assets[0].uri,
+        });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
+    }
+    setShowImagePicker(false);
+  };
 
-            <View style={styles.infoItem}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.accentGreen} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Digital Tasbih</Text>
-                <Text style={styles.infoValue}>Full access</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Limited Features */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Requires Account</Text>
-            
-            <View style={styles.infoItem}>
-              <Ionicons name="lock-closed" size={20} color={colors.textSecondary} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Islamic Journal</Text>
-                <Text style={styles.infoValue}>Personal reflections</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Ionicons name="lock-closed" size={20} color={colors.textSecondary} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Community</Text>
-                <Text style={styles.infoValue}>Connect with Muslims</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Ionicons name="lock-closed" size={20} color={colors.textSecondary} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>AI Noor</Text>
-                <Text style={styles.infoValue}>AI Islamic assistant</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Ionicons name="lock-closed" size={20} color={colors.textSecondary} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Makkah Live</Text>
-                <Text style={styles.infoValue}>Live streams from Kaaba</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Actions */}
-          <View style={styles.section}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="person-add" size={20} color={colors.accentTeal} />
-              <Text style={styles.actionButtonText}>Create Free Account</Text>
-              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="log-in" size={20} color={colors.accentTeal} />
-              <Text style={styles.actionButtonText}>Sign In</Text>
-              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.actionButton, styles.logoutButton]} onPress={() => {
-              Alert.alert(
-                'Exit Guest Mode',
-                'Are you sure you want to exit guest mode?',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Exit', style: 'destructive', onPress: () => {
-                    // This will take them back to the auth flow
-                    logout();
-                  }},
-                ]
-              );
-            }}>
-              <Ionicons name="exit" size={20} color="#FF6B6B" />
-              <Text style={[styles.actionButtonText, styles.logoutButtonText]}>Exit Guest Mode</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
-    );
-  }
-
-  if (!authState.user) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No user data available</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
+  const renderProfileHeader = () => (
+    <LinearGradient
+      colors={[colors.accentTeal, colors.accentGreen]}
+      style={styles.header}
+    >
+      <View style={styles.headerContent}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
-        <Text style={styles.headerSubtitle}>Manage your account</Text>
-      </LinearGradient>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={isEditing ? handleSave : handleEdit}
+        >
+          <Ionicons 
+            name={isEditing ? "checkmark" : "create-outline"} 
+            size={24} 
+            color="#FFFFFF" 
+          />
+        </TouchableOpacity>
+      </View>
+        </LinearGradient>
+  );
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Card */}
-        <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <ProfileAvatar 
-              profilePicture={authState.user.profilePicture}
-              name={authState.user.name}
-              size={80}
-              showBorder={false}
-              editable={true}
-              onImageChange={handleProfilePictureChange}
-            />
-            <TouchableOpacity style={styles.editButton} onPress={() => setShowEditModal(true)}>
-              <Ionicons name="create" size={16} color={colors.textPrimary} />
-            </TouchableOpacity>
+  const renderProfileInfo = () => (
+    <View style={styles.profileInfoContainer}>
+      <TouchableOpacity
+        style={styles.profilePictureContainer}
+        onPress={isEditing ? handleImagePicker : undefined}
+        disabled={!isEditing}
+      >
+              <ProfileAvatar 
+          profilePicture={isEditing ? tempProfile.profilePicture : profile.profilePicture}
+          name={isEditing ? tempProfile.name : profile.name}
+          size={120}
+          showBorder={true}
+        />
+        {isEditing && (
+          <View style={styles.editIconContainer}>
+            <Ionicons name="camera" size={20} color="#FFFFFF" />
           </View>
-          <Text style={styles.userName}>{authState.user.name}</Text>
-          <Text style={styles.userEmail}>{authState.user.email}</Text>
-        </View>
+        )}
+      </TouchableOpacity>
 
-        {/* Account Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Information</Text>
-          
-          <View style={styles.infoItem}>
-            <Ionicons name="person" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Full Name</Text>
-              <Text style={styles.infoValue}>{authState.user.name}</Text>
-            </View>
-          </View>
+      <View style={styles.profileDetails}>
+        {isEditing ? (
+          <TextInput
+            style={styles.nameInput}
+            value={tempProfile.name}
+            onChangeText={(text) => setTempProfile({ ...tempProfile, name: text })}
+            placeholder="Enter your name"
+            placeholderTextColor={colors.textSecondary}
+          />
+        ) : (
+          <Text style={styles.nameText}>{profile.name || 'User'}</Text>
+        )}
 
-          <View style={styles.infoItem}>
-            <Ionicons name="mail" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{authState.user.email}</Text>
-            </View>
-          </View>
-
-          {authState.user.phone && (
-            <View style={styles.infoItem}>
-              <Ionicons name="call" size={20} color={colors.accentTeal} />
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Phone</Text>
-                <Text style={styles.infoValue}>{authState.user.phone}</Text>
+        <Text style={styles.emailText}>{profile.email}</Text>
+        
+        {isEditing ? (
+          <TextInput
+            style={styles.bioInput}
+            value={tempProfile.bio}
+            onChangeText={(text) => setTempProfile({ ...tempProfile, bio: text })}
+            placeholder="Tell us about yourself..."
+            placeholderTextColor={colors.textSecondary}
+            multiline
+            numberOfLines={3}
+          />
+        ) : (
+          <Text style={styles.bioText}>{profile.bio || 'No bio available'}</Text>
+        )}
               </View>
             </View>
-          )}
+  );
 
-          {authState.user.location && (
+  const renderContactInfo = () => (
+          <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Contact Information</Text>
+            
             <View style={styles.infoItem}>
-              <Ionicons name="location" size={20} color={colors.accentTeal} />
+        <View style={styles.infoIcon}>
+          <Ionicons name="mail" size={20} color={colors.accentTeal} />
+            </View>
+              <View style={styles.infoContent}>
+          <Text style={styles.infoLabel}>Email</Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.infoInput}
+              value={tempProfile.email}
+              onChangeText={(text) => setTempProfile({ ...tempProfile, email: text })}
+              placeholder="Enter email"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="email-address"
+            />
+          ) : (
+            <Text style={styles.infoValue}>{profile.email}</Text>
+          )}
+              </View>
+            </View>
+
+            <View style={styles.infoItem}>
+        <View style={styles.infoIcon}>
+          <Ionicons name="call" size={20} color={colors.accentTeal} />
+            </View>
+              <View style={styles.infoContent}>
+          <Text style={styles.infoLabel}>Phone</Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.infoInput}
+              value={tempProfile.phone}
+              onChangeText={(text) => setTempProfile({ ...tempProfile, phone: text })}
+              placeholder="Enter phone number"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="phone-pad"
+            />
+          ) : (
+            <Text style={styles.infoValue}>{profile.phone || 'Not provided'}</Text>
+          )}
+            </View>
+          </View>
+
+          <View style={styles.infoItem}>
+        <View style={styles.infoIcon}>
+          <Ionicons name="location" size={20} color={colors.accentTeal} />
+            </View>
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Location</Text>
-                <Text style={styles.infoValue}>
-                  {authState.user.location.city && authState.user.location.country
-                    ? `${authState.user.location.city}, ${authState.user.location.country}`
-                    : authState.user.location.city || authState.user.location.country}
-                </Text>
-              </View>
-            </View>
+          {isEditing ? (
+            <TextInput
+              style={styles.infoInput}
+              value={typeof tempProfile.location === 'string' 
+                ? tempProfile.location 
+                : tempProfile.location?.city && tempProfile.location?.country 
+                  ? `${tempProfile.location.city}, ${tempProfile.location.country}`
+                  : ''
+              }
+              onChangeText={(text) => setTempProfile({ ...tempProfile, location: text })}
+              placeholder="Enter location"
+              placeholderTextColor={colors.textSecondary}
+            />
+          ) : (
+            <Text style={styles.infoValue}>
+              {typeof profile.location === 'string' 
+                ? profile.location 
+                : profile.location?.city && profile.location?.country 
+                  ? `${profile.location.city}, ${profile.location.country}`
+                  : 'Not provided'
+              }
+            </Text>
           )}
         </View>
+      </View>
+    </View>
+  );
 
-        {/* Preferences */}
+  const renderPreferences = () => (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           
-          <View style={styles.infoItem}>
-            <Ionicons name="calculator" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Prayer Method</Text>
-              <Text style={styles.infoValue}>{authState.user.preferences.prayerMethod}</Text>
+      <View style={styles.preferenceItem}>
+        <View style={styles.preferenceContent}>
+          <Ionicons name="notifications" size={20} color={colors.accentTeal} />
+          <Text style={styles.preferenceLabel}>Push Notifications</Text>
+            </View>
+        <Switch
+          value={isEditing ? tempProfile.preferences.notifications : profile.preferences.notifications}
+          onValueChange={(value) => isEditing && setTempProfile({
+            ...tempProfile,
+            preferences: { ...tempProfile.preferences, notifications: value }
+          })}
+          trackColor={{ false: colors.divider, true: colors.accentTeal }}
+          thumbColor={isEditing ? (tempProfile.preferences.notifications ? '#FFFFFF' : '#FFFFFF') : '#FFFFFF'}
+          disabled={!isEditing}
+        />
+          </View>
+
+      <View style={styles.preferenceItem}>
+        <View style={styles.preferenceContent}>
+          <Ionicons name="moon" size={20} color={colors.accentTeal} />
+          <Text style={styles.preferenceLabel}>Dark Mode</Text>
+            </View>
+        <Switch
+          value={isEditing ? tempProfile.preferences.darkMode : profile.preferences.darkMode}
+          onValueChange={(value) => isEditing && setTempProfile({
+            ...tempProfile,
+            preferences: { ...tempProfile.preferences, darkMode: value }
+          })}
+          trackColor={{ false: colors.divider, true: colors.accentTeal }}
+          thumbColor={isEditing ? (tempProfile.preferences.darkMode ? '#FFFFFF' : '#FFFFFF') : '#FFFFFF'}
+          disabled={!isEditing}
+        />
+          </View>
+
+      <View style={styles.preferenceItem}>
+        <View style={styles.preferenceContent}>
+          <Ionicons name="time" size={20} color={colors.accentTeal} />
+          <Text style={styles.preferenceLabel}>Time Format</Text>
+        </View>
+        <View style={styles.timeFormatContainer}>
+          <TouchableOpacity
+            style={[
+              styles.timeFormatButton,
+              (isEditing ? tempProfile.preferences.timeFormat : profile.preferences.timeFormat) === '12h' && styles.timeFormatButtonActive
+            ]}
+            onPress={() => isEditing && setTempProfile({
+              ...tempProfile,
+              preferences: { ...tempProfile.preferences, timeFormat: '12h' }
+            })}
+            disabled={!isEditing}
+          >
+            <Text style={[
+              styles.timeFormatText,
+              (isEditing ? tempProfile.preferences.timeFormat : profile.preferences.timeFormat) === '12h' && styles.timeFormatTextActive
+            ]}>
+              12h
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.timeFormatButton,
+              (isEditing ? tempProfile.preferences.timeFormat : profile.preferences.timeFormat) === '24h' && styles.timeFormatButtonActive
+            ]}
+            onPress={() => isEditing && setTempProfile({
+              ...tempProfile,
+              preferences: { ...tempProfile.preferences, timeFormat: '24h' }
+            })}
+            disabled={!isEditing}
+          >
+            <Text style={[
+              styles.timeFormatText,
+              (isEditing ? tempProfile.preferences.timeFormat : profile.preferences.timeFormat) === '24h' && styles.timeFormatTextActive
+            ]}>
+              24h
+            </Text>
+          </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.infoItem}>
-            <Ionicons name="language" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Language</Text>
-              <Text style={styles.infoValue}>
-                {authState.user.preferences.language === 'en' ? 'English' : 'Arabic'}
-              </Text>
+      <View style={styles.preferenceItem}>
+        <View style={styles.preferenceContent}>
+          <Ionicons name="language" size={20} color={colors.accentTeal} />
+          <Text style={styles.preferenceLabel}>Language</Text>
             </View>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Ionicons name="notifications" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Notifications</Text>
-              <Text style={styles.infoValue}>
-                {authState.user.preferences.notifications ? 'Enabled' : 'Disabled'}
-              </Text>
-            </View>
+        <LanguageSelector />
           </View>
         </View>
+  );
 
-        {/* Account Details */}
+  const renderActions = () => (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Details</Text>
-          
-          <View style={styles.infoItem}>
-            <Ionicons name="calendar" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Member Since</Text>
-              <Text style={styles.infoValue}>{formatDate(authState.user.createdAt)}</Text>
-            </View>
-          </View>
+      <Text style={styles.sectionTitle}>Account Actions</Text>
 
-          <View style={styles.infoItem}>
-            <Ionicons name="time" size={20} color={colors.accentTeal} />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Last Login</Text>
-              <Text style={styles.infoValue}>{formatDate(authState.user.lastLogin)}</Text>
-            </View>
-          </View>
+      <TouchableOpacity 
+        style={styles.actionButton}
+        onPress={() => {
+          Alert.alert(
+            'Export Data',
+            'This feature will export your profile data, preferences, and app settings.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Export', onPress: () => {
+                Alert.alert('Success', 'Data export feature will be implemented in a future update.');
+              }}
+            ]
+          );
+        }}
+      >
+        <Ionicons name="download" size={20} color={colors.accentTeal} />
+        <Text style={styles.actionButtonText}>Export Data</Text>
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.actionButton}
+        onPress={() => {
+          Alert.alert(
+            'Help & Support',
+            'Need help? Contact our support team or check our FAQ section.',
+            [
+              { text: 'FAQ', onPress: () => {
+                Alert.alert('FAQ', 'Frequently Asked Questions will be available soon.');
+              }},
+              { text: 'Contact Support', onPress: () => {
+                Alert.alert('Contact Support', 'Email: support@tijaniyahpro.com\nPhone: +1 (555) 123-4567');
+              }},
+              { text: 'Cancel', style: 'cancel' }
+            ]
+          );
+        }}
+      >
+        <Ionicons name="help-circle" size={20} color={colors.accentTeal} />
+        <Text style={styles.actionButtonText}>Help & Support</Text>
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.actionButton}
+        onPress={() => {
+          Alert.alert(
+            'About Tijaniyah Pro',
+            'Version: 1.0.0\n\nTijaniyah Pro is a comprehensive Islamic app for followers of the Tijaniyya Tariqa. It provides prayer times, Qibla direction, Islamic calendar, and spiritual guidance.\n\n© 2024 Tijaniyah Pro. All rights reserved.',
+            [{ text: 'OK' }]
+          );
+        }}
+      >
+        <Ionicons name="information-circle" size={20} color={colors.accentTeal} />
+        <Text style={styles.actionButtonText}>About</Text>
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={[styles.actionButton, styles.logoutButton]}
+        onPress={() => {
+          Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Logout', style: 'destructive', onPress: async () => {
+                try {
+                  await logout();
+                  Alert.alert('Success', 'You have been logged out successfully.');
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to logout. Please try again.');
+                }
+              }}
+            ]
+          );
+        }}
+      >
+        <Ionicons name="log-out" size={20} color="#FF5722" />
+        <Text style={[styles.actionButtonText, styles.logoutText]}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {renderProfileHeader()}
+      
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {renderProfileInfo()}
+        {renderContactInfo()}
+        {renderPreferences()}
+        {renderActions()}
+        
+        {isEditing && (
+          <View style={styles.editActions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Actions */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => setShowEditModal(true)}>
-            <Ionicons name="create" size={20} color={colors.accentTeal} />
-            <Text style={styles.actionButtonText}>Edit Profile</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="settings" size={20} color={colors.accentTeal} />
-            <Text style={styles.actionButtonText}>Settings</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="help-circle" size={20} color={colors.accentTeal} />
-            <Text style={styles.actionButtonText}>Help & Support</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.actionButton, styles.logoutButton]} onPress={handleLogout}>
-            <Ionicons name="log-out" size={20} color="#FF6B6B" />
-            <Text style={[styles.actionButtonText, styles.logoutButtonText]}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
+        )}
       </ScrollView>
 
-      {/* Edit Profile Modal */}
-      <Modal visible={showEditModal} transparent animationType="slide" onRequestClose={() => setShowEditModal(false)}>
+      {/* Image Picker Modal */}
+      <Modal
+        visible={showImagePicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowImagePicker(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Profile</Text>
-              <TouchableOpacity onPress={() => setShowEditModal(false)}>
-                <Ionicons name="close" size={24} color={colors.textSecondary} />
+            <Text style={styles.modalTitle}>Select Profile Picture</Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => pickImage('camera')}
+            >
+              <Ionicons name="camera" size={24} color={colors.accentTeal} />
+              <Text style={styles.modalButtonText}>Take Photo</Text>
               </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalBody}>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Full Name</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editData.name}
-                  onChangeText={(value) => setEditData(prev => ({ ...prev, name: value }))}
-                  placeholder="Enter your full name"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Phone Number</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editData.phone}
-                  onChangeText={(value) => setEditData(prev => ({ ...prev, phone: value }))}
-                  placeholder="Enter your phone number"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="phone-pad"
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>City</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editData.city}
-                  onChangeText={(value) => setEditData(prev => ({ ...prev, city: value }))}
-                  placeholder="Enter your city"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Country</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editData.country}
-                  onChangeText={(value) => setEditData(prev => ({ ...prev, country: value }))}
-                  placeholder="Enter your country"
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setShowEditModal(false)}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => pickImage('library')}
+            >
+              <Ionicons name="images" size={24} color={colors.accentTeal} />
+              <Text style={styles.modalButtonText}>Choose from Library</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setShowImagePicker(false)}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleUpdateProfile}>
-                <LinearGradient colors={[colors.accentTeal, colors.accentGreen]} style={styles.saveButtonGradient}>
-                  <Text style={styles.saveButtonText}>Save Changes</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
       </Modal>
@@ -450,64 +559,110 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  profileCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 24,
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  editButton: {
+    padding: 8,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  profileInfoContainer: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    margin: 20,
+    borderRadius: 16,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  avatarContainer: {
+  profilePictureContainer: {
     position: 'relative',
     marginBottom: 16,
   },
-  editButton: {
+  editIconContainer: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.mintSurface,
-    alignItems: 'center',
+    backgroundColor: colors.accentTeal,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.surface,
+    alignItems: 'center',
   },
-  userName: {
+  profileDetails: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  nameText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.textPrimary,
     marginBottom: 4,
   },
-  userEmail: {
+  nameInput: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 4,
+    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.accentTeal,
+    paddingBottom: 4,
+    width: '100%',
+  },
+  emailText: {
     fontSize: 16,
     color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  bioText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  bioInput: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.accentTeal,
+    paddingBottom: 4,
+    width: '100%',
+    minHeight: 60,
   },
   section: {
-    backgroundColor: colors.surface,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    margin: 20,
+    marginTop: 0,
     borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   sectionTitle: {
     fontSize: 18,
@@ -518,127 +673,166 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
+    marginBottom: 16,
+  },
+  infoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   infoContent: {
     flex: 1,
-    marginLeft: 12,
   },
   infoLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textSecondary,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 16,
     color: colors.textPrimary,
-    fontWeight: '500',
   },
-  actionButton: {
+  infoInput: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.accentTeal,
+    paddingBottom: 4,
+  },
+  preferenceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  preferenceContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
-  },
-  actionButtonText: {
     flex: 1,
+  },
+  preferenceLabel: {
     fontSize: 16,
     color: colors.textPrimary,
     marginLeft: 12,
   },
-  logoutButton: {
-    borderBottomWidth: 0,
-  },
-  logoutButtonText: {
-    color: '#FF6B6B',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  modalHeader: {
+  timeFormatContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#E8F5E8',
+    borderRadius: 8,
+    padding: 2,
+  },
+  timeFormatButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  timeFormatButtonActive: {
+    backgroundColor: colors.accentTeal,
+  },
+  timeFormatText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  timeFormatTextActive: {
+    color: '#FFFFFF',
+  },
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.divider,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  modalBody: {
-    padding: 20,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.divider,
-    borderRadius: 12,
-    padding: 16,
+  actionButtonText: {
     fontSize: 16,
     color: colors.textPrimary,
-    backgroundColor: colors.background,
+    marginLeft: 12,
+    flex: 1,
   },
-  modalFooter: {
+  logoutButton: {
+    borderBottomWidth: 0,
+  },
+  logoutText: {
+    color: '#FF5722',
+  },
+  editActions: {
     flexDirection: 'row',
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: colors.divider,
+    gap: 12,
   },
   cancelButton: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.accentTeal,
     alignItems: 'center',
-    marginRight: 12,
-    borderRadius: 12,
-    backgroundColor: colors.background,
   },
   cancelButtonText: {
     fontSize: 16,
+    color: colors.accentTeal,
     fontWeight: '600',
-    color: colors.textSecondary,
   },
   saveButton: {
     flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  saveButtonGradient: {
-    paddingVertical: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: colors.accentTeal,
     alignItems: 'center',
   },
   saveButtonText: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
+    fontWeight: '600',
   },
-  errorText: {
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 300,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#E8F5E8',
+    marginBottom: 12,
+  },
+  modalButtonText: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    marginLeft: 12,
+  },
+  modalCancelButton: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  modalCancelText: {
     fontSize: 16,
     color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 50,
   },
 });

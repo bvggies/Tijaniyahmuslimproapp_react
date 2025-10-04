@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tijaniyah Pro",
-    "slug": "tijaniyah-pro",
+    "slug": "tijaniyah-muslim-pro",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/appicon.png",
@@ -16,7 +16,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tijaniyahpro.app"
+      "bundleIdentifier": "com.tijaniyahpro.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,16 +28,20 @@
       },
       "package": "com.tijaniyahpro.app",
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "CAMERA",
-        "RECORD_AUDIO",
-        "WRITE_EXTERNAL_STORAGE",
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE"
       ]
     },
-    "web": {},
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
     "plugins": [
       [
         "expo-location",
@@ -61,6 +68,15 @@
           "cameraPermission": "The app accesses your camera to let you take a profile picture."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0c6679dc-cf6b-41f2-be84-fc83580cb435"
+      }
+    },
+    "packagerOpts": {
+      "config": "metro.config.js"
+    },
+    "owner": "techarenagroupe"
   }
 }

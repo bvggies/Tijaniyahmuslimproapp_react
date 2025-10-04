@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, Animated, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
@@ -7,10 +7,17 @@ import { colors } from '../utils/theme';
 export default function ScholarDetailScreen({ route }: any) {
   const { scholar } = route.params as { scholar: any };
   const fade = new Animated.Value(0);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
 
   React.useEffect(() => {
     Animated.timing(fade, { toValue: 1, duration: 600, useNativeDriver: true }).start();
   }, []);
+
+  const onImagePress = (image: any) => {
+    setSelectedImage(image);
+    setImageModalVisible(true);
+  };
 
   const getTimelineData = (scholarId: string) => {
     switch (scholarId) {
@@ -139,7 +146,9 @@ export default function ScholarDetailScreen({ route }: any) {
       <Animated.View style={{ flex: 1, opacity: fade }}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           {!!scholar?.image && (
-            <Image source={scholar.image} style={styles.hero} resizeMode="cover" />
+            <TouchableOpacity onPress={() => onImagePress(scholar.image)}>
+              <Image source={scholar.image} style={styles.hero} resizeMode="cover" />
+            </TouchableOpacity>
           )}
 
           {scholar?.bio ? (
@@ -287,6 +296,35 @@ export default function ScholarDetailScreen({ route }: any) {
           )}
         </ScrollView>
       </Animated.View>
+
+      {/* Image Modal */}
+      <Modal
+        visible={imageModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setImageModalVisible(false)}
+      >
+        <View style={styles.imageModalOverlay}>
+          <TouchableOpacity 
+            style={styles.imageModalCloseArea}
+            onPress={() => setImageModalVisible(false)}
+          >
+            <View style={styles.imageModalContent}>
+              <TouchableOpacity 
+                style={styles.imageModalCloseButton}
+                onPress={() => setImageModalVisible(false)}
+              >
+                <Ionicons name="close" size={30} color="#FFFFFF" />
+              </TouchableOpacity>
+              <Image 
+                source={selectedImage} 
+                style={styles.fullImage} 
+                resizeMode="contain"
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -409,6 +447,38 @@ const styles = StyleSheet.create({
     fontSize: 13, 
     lineHeight: 20, 
     marginBottom: 2 
+  },
+  imageModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageModalCloseArea: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageModalContent: {
+    width: '95%',
+    height: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  imageModalCloseButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 10,
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

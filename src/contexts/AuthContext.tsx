@@ -8,6 +8,7 @@ const USERS_STORAGE_KEY = 'tijaniyah_users_data';
 type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_USER'; payload: User | null }
+  | { type: 'UPDATE_USER'; payload: User }
   | { type: 'SET_GUEST'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CLEAR_ERROR' }
@@ -30,6 +31,15 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state,
         user: action.payload,
         isAuthenticated: !!action.payload,
+        isGuest: false,
+        isLoading: false,
+        error: null,
+      };
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
         isGuest: false,
         isLoading: false,
         error: null,

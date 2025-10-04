@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import NewsCard from './NewsCard';
 import { 
-  getIslamicNews, 
+  getTijaniyaNews, 
   openNewsArticle, 
   refreshNews, 
   NewsArticle 
@@ -48,7 +48,7 @@ export default function NewsSection({ onRefresh, userLocation }: NewsSectionProp
     if (!silent) setLoading(true);
     
     try {
-      const newsData = await getIslamicNews(userLocation);
+      const newsData = await getTijaniyaNews(userLocation);
       setNews(newsData);
     } catch (error) {
       console.error('Error loading news:', error);
@@ -96,7 +96,7 @@ export default function NewsSection({ onRefresh, userLocation }: NewsSectionProp
         <View style={styles.headerContent}>
           <View style={styles.titleContainer}>
             <Ionicons name="newspaper" size={24} color="#FFFFFF" />
-            <Text style={styles.title}>Islamic News & Blogs</Text>
+            <Text style={styles.title}>Tijaniya News & Updates</Text>
           </View>
           <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
             <Ionicons name="refresh" size={20} color="#FFFFFF" />

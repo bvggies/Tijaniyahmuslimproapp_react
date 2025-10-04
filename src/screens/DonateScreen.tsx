@@ -71,35 +71,13 @@ export default function DonateScreen() {
           <View style={styles.paymentDetails}>
             <View style={styles.paymentRow}>
               <Text style={styles.paymentLabel}>Number:</Text>
-              <TouchableOpacity onPress={() => copyToClipboard('0558415813')}>
-                <Text style={styles.paymentValue}>0558415813</Text>
+              <TouchableOpacity onPress={() => copyToClipboard('0542872101')}>
+                <Text style={styles.paymentValue}>0542872101</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.paymentRow}>
               <Text style={styles.paymentLabel}>Name:</Text>
-              <Text style={styles.paymentValue}>AISHA</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Vodafone */}
-        <View style={styles.paymentCard}>
-          <View style={styles.paymentHeader}>
-            <View style={[styles.paymentIcon, { backgroundColor: '#E60012' }]}>
-              <Text style={styles.paymentIconText}>VF</Text>
-            </View>
-            <Text style={styles.paymentTitle}>Vodafone Cash</Text>
-          </View>
-          <View style={styles.paymentDetails}>
-            <View style={styles.paymentRow}>
-              <Text style={styles.paymentLabel}>Number:</Text>
-              <TouchableOpacity onPress={() => copyToClipboard('0558415813')}>
-                <Text style={styles.paymentValue}>0558415813</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.paymentRow}>
-              <Text style={styles.paymentLabel}>Name:</Text>
-              <Text style={styles.paymentValue}>AISHA</Text>
+              <Text style={styles.paymentValue}>IYISHATU AWUDU</Text>
             </View>
           </View>
         </View>
@@ -115,21 +93,21 @@ export default function DonateScreen() {
           <View style={styles.paymentDetails}>
             <View style={styles.paymentRow}>
               <Text style={styles.paymentLabel}>Number:</Text>
-              <TouchableOpacity onPress={() => copyToClipboard('0558415813')}>
-                <Text style={styles.paymentValue}>0558415813</Text>
+              <TouchableOpacity onPress={() => copyToClipboard('0268856620')}>
+                <Text style={styles.paymentValue}>0268856620</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.paymentRow}>
               <Text style={styles.paymentLabel}>Name:</Text>
-              <Text style={styles.paymentValue}>AISHA</Text>
+              <Text style={styles.paymentValue}>IYISHATU AWUDU</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.referenceCard}>
           <Text style={styles.referenceLabel}>Reference:</Text>
-          <TouchableOpacity onPress={() => copyToClipboard('AI NOOR SUPPORT')}>
-            <Text style={styles.referenceValue}>AI NOOR SUPPORT</Text>
+          <TouchableOpacity onPress={() => copyToClipboard('Tijaniya App Support')}>
+            <Text style={styles.referenceValue}>Tijaniya App Support</Text>
           </TouchableOpacity>
         </View>
       </View>

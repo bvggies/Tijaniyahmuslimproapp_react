@@ -16,40 +16,40 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { PrayerTime, Location as LocationType } from '../types';
-import { getPrayerTimes } from '../services/prayerService';
+import { getPrayerTimes, updatePrayerCountdowns } from '../services/prayerService';
 import { getCurrentIslamicDate, getUpcomingIslamicEvents } from '../services/islamicCalendarService';
 import { colors } from '../utils/theme';
-import { searchApp, SearchResult, getSearchSuggestions } from '../services/searchService';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
 import IslamicBackground from '../components/IslamicBackground';
 import ProfileAvatar from '../components/ProfileAvatar';
 import NewsSection from '../components/NewsSection';
+import LanguageSelector from '../components/LanguageSelector';
 import { getDailyReminder, getCategoryColor, getCategoryIcon, DailyReminder } from '../services/dailyReminderService';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTimeFormat } from '../contexts/TimeFormatContext';
+import { useIslamicCalendar } from '../contexts/IslamicCalendarContext';
+import { Alert } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }: any) {
   const { authState } = useAuth();
+  const { t } = useLanguage();
+  const { timeFormat } = useTimeFormat();
+  const { getCurrentIslamicDate: getIslamicDate, getCalendarInfo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [islamicDate, setIslamicDate] = useState(getCurrentIslamicDate());
+  const [islamicDate, setIslamicDate] = useState(getIslamicDate());
   const [upcomingEvents] = useState(getUpcomingIslamicEvents());
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showAINoor, setShowAINoor] = useState(false);
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
+  const [currentTime, setCurrentTime] = useState(new Date());
   
   // Animation refs
-  const searchBarAnim = useRef(new Animated.Value(0)).current;
-  const searchIconAnim = useRef(new Animated.Value(1)).current;
-  const suggestionsAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadLocationAndPrayerTimes();
@@ -59,7 +59,24 @@ export default function HomeScreen({ navigation }: any) {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [timeFormat]); // Reload when time format changes
+
+  // Real-time countdown updates
+  useEffect(() => {
+    if (prayerTimes.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+      setPrayerTimes(prevPrayerTimes => {
+        if (prevPrayerTimes.length > 0) {
+          return updatePrayerCountdowns(prevPrayerTimes, timeFormat);
+        }
+        return prevPrayerTimes;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [prayerTimes.length > 0]); // Only run when we have prayer times
 
   // Refresh daily reminder at midnight in user's timezone
   useEffect(() => {
@@ -82,6 +99,28 @@ export default function HomeScreen({ navigation }: any) {
     return () => clearTimeout(timeout);
   }, [currentTimezone]);
 
+  // Update Islamic date when calendar type changes
+  useEffect(() => {
+    setIslamicDate(getIslamicDate());
+  }, [selectedCalendar, getIslamicDate]);
+
+  const showCalendarSelector = () => {
+    const calendars = getAllCalendars();
+    const options = calendars.map(calendar => ({
+      text: `${calendar.name} (${calendar.region})`,
+      onPress: () => setSelectedCalendar(calendar.type)
+    }));
+
+    Alert.alert(
+      'Select Islamic Calendar',
+      'Choose your preferred Islamic calendar type:',
+      [
+        ...options,
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
   const loadLocationAndPrayerTimes = async () => {
     try {
       const locationService = LocationService.getInstance();
@@ -102,7 +141,7 @@ export default function HomeScreen({ navigation }: any) {
       });
 
       // Get prayer times using location coordinates
-      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude);
+      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude, timeFormat);
       setPrayerTimes(times);
 
       // Schedule prayer notifications
@@ -160,98 +199,8 @@ export default function HomeScreen({ navigation }: any) {
 
   const currentPrayer = getCurrentPrayer();
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim()) {
-      const results = searchApp(query);
-      const suggestions = getSearchSuggestions(query);
-      setSearchResults(results);
-      setSearchSuggestions(suggestions);
-      
-      console.log('Search query:', query);
-      console.log('Search results:', results.length);
-      console.log('Suggestions:', suggestions);
-      
-      // Show suggestions animation
-      Animated.timing(suggestionsAnim, {
-        toValue: suggestions.length > 0 ? 1 : 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      setSearchResults([]);
-      setSearchSuggestions([]);
-      Animated.timing(suggestionsAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
 
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-    Animated.parallel([
-      Animated.timing(searchBarAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(searchIconAnim, {
-        toValue: 0.8,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    
-    // Show suggestions if there's a query
-    if (searchQuery.trim()) {
-      const suggestions = getSearchSuggestions(searchQuery);
-      setSearchSuggestions(suggestions);
-      Animated.timing(suggestionsAnim, {
-        toValue: suggestions.length > 0 ? 1 : 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
 
-  const handleSearchBlur = () => {
-    setIsSearchFocused(false);
-    Animated.parallel([
-      Animated.timing(searchBarAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(searchIconAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    
-    // Hide suggestions with a small delay to allow tapping
-    setTimeout(() => {
-      Animated.timing(suggestionsAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }, 150);
-  };
-
-  const handleSuggestionPress = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    handleSearch(suggestion);
-  };
-
-  const handleAINoorRedirect = () => {
-    const query = searchQuery.trim();
-    setShowSearch(false);
-    setSearchQuery('');
-    navigation.navigate('AI Noor', { searchQuery: query });
-  };
 
   const getCountryFlag = (country?: string): string => {
     if (!country) return '🌍';
@@ -482,17 +431,54 @@ export default function HomeScreen({ navigation }: any) {
 
   const getTimeUntil = (time: string): string => {
     if (!time) return '';
-    const now = new Date();
-    const [h, m] = time.split(':').map(Number);
-    const target = new Date();
-    target.setHours(h, m, 0, 0);
-    if (target <= now) {
-      target.setDate(target.getDate() + 1);
+    
+    try {
+      const now = new Date();
+      let target = new Date();
+      
+      // Handle both 12-hour and 24-hour formats
+      if (time.includes('AM') || time.includes('PM')) {
+        // 12-hour format (e.g., "2:30 PM")
+        const timeStr = time.replace(/\s*(AM|PM)/i, '');
+        const [h, m] = timeStr.split(':').map(Number);
+        const isPM = time.toUpperCase().includes('PM');
+        let hour24 = h;
+        
+        if (isPM && h !== 12) {
+          hour24 = h + 12;
+        } else if (!isPM && h === 12) {
+          hour24 = 0;
+        }
+        
+        target.setHours(hour24, m, 0, 0);
+      } else {
+        // 24-hour format (e.g., "14:30")
+        const [h, m] = time.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) {
+          console.error('Invalid time format:', time);
+          return '';
+        }
+        target.setHours(h, m, 0, 0);
+      }
+      
+      if (target <= now) {
+        target.setDate(target.getDate() + 1);
+      }
+      
+      const diffMs = target.getTime() - now.getTime();
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (isNaN(hours) || isNaN(minutes)) {
+        console.error('Invalid time calculation:', { hours, minutes, diffMs });
+        return '';
+      }
+      
+      return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    } catch (error) {
+      console.error('Error in getTimeUntil:', error, 'for time:', time);
+      return '';
     }
-    const diffMs = target.getTime() - now.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
 
   const getPrayerNameArabic = (prayerName: string) => {
@@ -530,7 +516,7 @@ export default function HomeScreen({ navigation }: any) {
 
   const quickActions = [
     { 
-      title: 'Lessons', 
+      title: t('home.lessons'), 
       titleArabic: 'الدروس',
       icon: 'school', 
       color: '#4CAF50', 
@@ -538,12 +524,20 @@ export default function HomeScreen({ navigation }: any) {
       description: 'Islamic lessons'
     },
     { 
-      title: 'AI Noor', 
+      title: t('ai_noor.title'), 
       titleArabic: 'الذكاء الاصطناعي',
       icon: 'bulb', 
       color: '#00BCD4', 
       screen: 'AI Noor',
       description: 'AI Islamic assistant'
+    },
+    { 
+      title: 'Azan', 
+      titleArabic: 'الأذان',
+      icon: 'volume-high', 
+      color: '#FF9800', 
+      screen: 'Azan',
+      description: 'Prayer call audio'
     },
     { 
       title: 'Scholars', 
@@ -578,7 +572,7 @@ export default function HomeScreen({ navigation }: any) {
       description: 'Find nearby mosques'
     },
     { 
-      title: 'Qibla', 
+      title: t('home.qibla_direction'), 
       titleArabic: 'القبلة',
       icon: 'compass', 
       color: '#FF5722', 
@@ -586,7 +580,7 @@ export default function HomeScreen({ navigation }: any) {
       description: 'Find prayer direction'
     },
     { 
-      title: 'Prayer Times', 
+      title: t('home.prayer_times'), 
       titleArabic: 'أوقات الصلاة',
       icon: 'time', 
       color: '#9C27B0', 
@@ -658,7 +652,7 @@ export default function HomeScreen({ navigation }: any) {
             <Animated.View 
               style={[
                 styles.prayerIconContainer,
-                { backgroundColor: prayer.isCurrent ? 'rgba(255,255,255,0.2)' : `${prayerColor}20` }
+                { backgroundColor: prayer.isCurrent ? 'rgba(255,255,255,0.16)' : `${prayerColor}14` }
               ]}
             >
               <Ionicons 
@@ -678,9 +672,16 @@ export default function HomeScreen({ navigation }: any) {
                   {arabicName}
                 </Text>
               </View>
+              <View style={styles.prayerTimeContainer}>
               <Text style={[styles.prayerTime, prayer.isCurrent && styles.currentPrayerTime]}>
-                {prayer.time}
+                  {prayer.timeWithSeconds || prayer.time}
               </Text>
+                {prayer.isNext && prayer.countdown && (
+                  <Text style={styles.prayerCountdown}>
+                    {prayer.countdown}
+                  </Text>
+                )}
+              </View>
             </View>
 
             {/* Current Prayer Indicator */}
@@ -755,25 +756,18 @@ export default function HomeScreen({ navigation }: any) {
     );
   };
 
-  const renderSearchResult = ({ item }: { item: SearchResult }) => (
-    <TouchableOpacity style={styles.searchResultItem}>
-      <View style={styles.searchResultContent}>
-        <Text style={styles.searchResultTitle}>{item.title}</Text>
-        {item.titleArabic && (
-          <Text style={styles.searchResultTitleArabic}>{item.titleArabic}</Text>
-        )}
-        <Text style={styles.searchResultDescription}>{item.description}</Text>
-        <Text style={styles.searchResultCategory}>{item.category}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color="#666" />
-    </TouchableOpacity>
-  );
 
   return (
     <IslamicBackground opacity={1.0}>
       <View style={styles.container}>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        data-scroll="true"
+        nestedScrollEnabled={true}
+        scrollEventThrottle={16}
+      >
         {/* Header with Islamic Design */}
         <LinearGradient
           colors={[colors.surface, colors.background]}
@@ -785,94 +779,20 @@ export default function HomeScreen({ navigation }: any) {
               <Image source={require('../../assets/appicon.png')} style={styles.headerLogo} />
             </View>
             
-            {/* Search Bar with Donate and Settings Buttons */}
-            <View style={styles.searchRow}>
-              <View style={styles.searchContainer}>
-                <Animated.View 
-                  style={[
-                    styles.searchBarContainer,
-                    {
-                      transform: [{
-                        scale: searchBarAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.8, 1],
-                        })
-                      }],
-                      opacity: searchBarAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.7, 1],
-                      })
-                    }
-                  ]}
-                >
-                  <Animated.View style={styles.searchBar}>
-                    <Animated.View 
-                      style={[
-                        styles.searchIconContainer,
-                        {
-                          transform: [{
-                            scale: searchIconAnim
-                          }]
-                        }
-                      ]}
-                    >
-                      <Ionicons name="search" size={20} color={colors.textSecondary} />
-                    </Animated.View>
-                    <TextInput
-                      style={styles.searchInput}
-                      placeholder="Search anything..."
-                      placeholderTextColor={colors.textSecondary}
-                      value={searchQuery}
-                      onChangeText={handleSearch}
-                      onFocus={handleSearchFocus}
-                      onBlur={handleSearchBlur}
-                    />
-                    {searchQuery.length > 0 && (
-                      <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
-                      </TouchableOpacity>
-                    )}
-                  </Animated.View>
-                  
-                  {/* Search Suggestions */}
-                  {searchSuggestions.length > 0 && isSearchFocused && (
-                    <Animated.View 
-                      style={[
-                        styles.suggestionsContainer,
-                        {
-                          transform: [{
-                            translateY: suggestionsAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [-10, 0],
-                            })
-                          }]
-                        }
-                      ]}
-                    >
-                      {searchSuggestions.map((suggestion, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          style={styles.suggestionItem}
-                          onPress={() => handleSuggestionPress(suggestion)}
-                        >
-                          <Ionicons name="search" size={16} color={colors.textSecondary} />
-                          <Text style={styles.suggestionText}>{suggestion}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </Animated.View>
-                  )}
-                </Animated.View>
-              </View>
               
-              {/* Actions - Donate, Profile, then Settings */}
+              {/* Actions - Donate, Profile, Language, then Settings */}
               <View style={styles.headerActionsInline}>
+                <View style={styles.headerButtonContainer}>
                 <TouchableOpacity 
                   style={[styles.iconPillButton, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
                   onPress={() => navigation.navigate('More', { screen: 'Donate' })}
                 >
-                  <Ionicons name="heart" size={18} color={colors.accentYellow} />
+                    <Ionicons name="heart" size={24} color={colors.accentYellow} />
                 </TouchableOpacity>
+                  <Text style={styles.headerButtonLabel}>Donate</Text>
+                </View>
 
+                <View style={styles.headerButtonContainer}>
                 <TouchableOpacity 
                   style={styles.iconPillButton} 
                   onPress={() => navigation.navigate('More', { screen: 'Profile' })}
@@ -880,14 +800,24 @@ export default function HomeScreen({ navigation }: any) {
                   <ProfileAvatar 
                     profilePicture={authState.user?.profilePicture}
                     name={authState.user?.name}
-                    size={20}
+                      size={24}
                     showBorder={false}
                   />
                 </TouchableOpacity>
+                  <Text style={styles.headerButtonLabel}>Profile</Text>
+                </View>
 
+                <View style={styles.headerButtonContainer}>
+                  <LanguageSelector compact />
+                  <Text style={styles.headerButtonLabel}>Language</Text>
+                </View>
+
+                <View style={styles.headerButtonContainer}>
                 <TouchableOpacity style={styles.iconPillButton} onPress={() => navigation.navigate('More', { screen: 'NotificationSettings' })}>
-                  <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
+                    <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
+                  <Text style={styles.headerButtonLabel}>Settings</Text>
+                </View>
               </View>
             </View>
             
@@ -908,7 +838,6 @@ export default function HomeScreen({ navigation }: any) {
                   <Text style={styles.locationText}>
                     {currentLocation ? `${currentLocation.city}, ${currentLocation.country}` : 'Loading...'}
                   </Text>
-                </View>
               </View>
             </View>
           </View>
@@ -921,20 +850,42 @@ export default function HomeScreen({ navigation }: any) {
             { opacity: fadeAnim, transform: [{ scale: fadeAnim }] }
           ]}
         >
-          <LinearGradient
-            colors={[colors.mintSurface, colors.mintSurfaceAlt]}
-            style={styles.calendarGradient}
+          <TouchableOpacity
+            onPress={showCalendarSelector}
+            activeOpacity={0.8}
           >
+            <LinearGradient
+              colors={[colors.mintSurface, colors.mintSurfaceAlt]}
+              style={styles.calendarGradient}
+            >
             <View style={styles.calendarHeader}>
               <Ionicons name="calendar" size={24} color={colors.textDark} />
-              <Text style={[styles.calendarTitle, { color: colors.textDark }]}>Islamic Calendar</Text>
+              <Text style={[styles.calendarTitle, { color: colors.textDark }]}>
+                Islamic Calendar ({getCalendarInfo(selectedCalendar).name})
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textDark} style={styles.calendarChevron} />
             </View>
             <View style={styles.calendarContent}>
-              <Text style={[styles.hijriDate, { color: colors.textDark }]}>{islamicDate.hijriDate}</Text>
-              <Text style={[styles.gregorianDate, { color: colors.textDark }]}>{islamicDate.gregorianDate}</Text>
-              <Text style={[styles.dayName, { color: colors.textDark }]}>{islamicDate.dayNameArabic} - {islamicDate.dayName}</Text>
+              <Text style={[styles.hijriDate, { color: colors.textDark }]}>
+                {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
+              </Text>
+              <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
+                {new Date().toLocaleDateString()}
+              </Text>
+              <Text style={[styles.dayName, { color: colors.textDark }]}>
+                {islamicDate.dayNameArabic} - {islamicDate.dayName}
+              </Text>
+              {islamicDate.isHoliday && (
+                <Text style={[styles.holidayText, { color: colors.accentTeal }]}>
+                  {islamicDate.holidayName}
+                </Text>
+              )}
+              <Text style={[styles.tapToChangeText, { color: colors.textDark }]}>
+                Tap to change calendar
+              </Text>
             </View>
-          </LinearGradient>
+            </LinearGradient>
+          </TouchableOpacity>
         </Animated.View>
 
         {/* Next Prayer Card - Redesigned */}
@@ -988,11 +939,15 @@ export default function HomeScreen({ navigation }: any) {
                 <View style={styles.prayerTimeSection}>
                   <View style={styles.timeDisplay}>
                     <Ionicons name="time-outline" size={28} color={colors.accentYellow} />
-                    <Text style={styles.prayerTimeLarge}>{currentPrayer.time}</Text>
+                    <Text style={styles.prayerTimeLarge}>
+                      {currentPrayer.timeWithSeconds || currentPrayer.time}
+                    </Text>
                   </View>
                   <View style={styles.countdownDisplay}>
                     <Ionicons name="hourglass-outline" size={20} color={colors.accentYellow} />
-                    <Text style={styles.countdownText}>{getTimeUntil(currentPrayer.time)}</Text>
+                    <Text style={styles.countdownText}>
+                      {currentPrayer.countdown || '00:00:00'}
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -1023,7 +978,7 @@ export default function HomeScreen({ navigation }: any) {
 
         {/* Prayer Times */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Prayer Times</Text>
+          <Text style={styles.sectionTitle}>{t('home.prayer_times')}</Text>
           <Text style={styles.sectionTitleArabic}>أوقات الصلاة</Text>
           
           {/* Next Prayer Display */}
@@ -1046,7 +1001,7 @@ export default function HomeScreen({ navigation }: any) {
                   </View>
                   <View style={styles.nextPrayerCountdown}>
                     <Text style={styles.countdownLabel}>In</Text>
-                    <Text style={styles.countdownTime}>{getTimeUntil(getNextPrayer().time)}</Text>
+                    <Text style={styles.countdownTime}>{getNextPrayer().countdown || '00:00:00'}</Text>
                   </View>
                 </View>
               </LinearGradient>
@@ -1078,7 +1033,13 @@ export default function HomeScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Events</Text>
           <Text style={styles.sectionTitleArabic}>الأحداث القادمة</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            data-scroll="true"
+            nestedScrollEnabled={true}
+            scrollEventThrottle={16}
+          >
             {upcomingEvents.slice(0, 3).map((event, index) => (
               <Animated.View
                 key={event.id}
@@ -1149,86 +1110,6 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </ScrollView>
 
-      {/* Search Modal */}
-      <Modal
-        visible={showSearch}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowSearch(false)}
-      >
-        <View style={styles.searchModalOverlay}>
-          <View style={styles.searchModalContent}>
-            <View style={styles.searchHeader}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search anything..."
-                placeholderTextColor="#999"
-                value={searchQuery}
-                onChangeText={handleSearch}
-                autoFocus
-              />
-              <TouchableOpacity onPress={() => setShowSearch(false)}>
-                <Ionicons name="close" size={24} color="#666" />
-              </TouchableOpacity>
-            </View>
-            {searchResults.length > 0 ? (
-              <FlatList
-                data={searchResults}
-                renderItem={renderSearchResult}
-                keyExtractor={(item) => item.id}
-                style={styles.searchResults}
-              />
-            ) : searchQuery.trim() ? (
-              <View style={styles.noResultsContainer}>
-                <Ionicons name="search-outline" size={64} color={colors.textSecondary} />
-                <Text style={styles.noResultsTitle}>No results found</Text>
-                <Text style={styles.noResultsSubtitle}>
-                  We couldn't find "{searchQuery}" in our content
-                </Text>
-                
-                <View style={styles.aiSearchContainer}>
-                  <Text style={styles.aiSearchTitle}>Search with AI Noor</Text>
-                  <Text style={styles.aiSearchSubtitle}>
-                    Ask our AI assistant about: "{searchQuery}"
-                  </Text>
-                  
-                  <TouchableOpacity 
-                    style={styles.aiNoorButton}
-                    onPress={handleAINoorRedirect}
-                  >
-                    <LinearGradient
-                      colors={[colors.accentTeal, colors.accentGreen]}
-                      style={styles.aiNoorGradient}
-                    >
-                      <Ionicons name="sparkles" size={20} color={colors.textPrimary} />
-                      <Text style={styles.aiNoorButtonText}>Ask AI Noor</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  
-                  <Text style={styles.aiNoorDescription}>
-                    AI Noor can help with Islamic questions, Quran, Hadith, Tijaniyya teachings, and more
-                  </Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.searchEmptyContainer}>
-                <Ionicons name="search-outline" size={64} color={colors.textSecondary} />
-                <Text style={styles.searchEmptyTitle}>Search Tijaniyah Pro</Text>
-                <Text style={styles.searchEmptySubtitle}>
-                  Find prayers, duas, Quran verses, and more
-                </Text>
-                
-                <View style={styles.aiSearchHint}>
-                  <Ionicons name="sparkles" size={20} color={colors.accentTeal} />
-                  <Text style={styles.aiSearchHintText}>
-                    Can't find what you're looking for? Try asking AI Noor!
-                  </Text>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
       </View>
     </IslamicBackground>
   );
@@ -1278,6 +1159,8 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     zIndex: 1,
+    overflow: 'auto',
+    WebkitOverflowScrolling: 'touch',
   },
   header: {
     paddingTop: 50,
@@ -1298,20 +1181,18 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
   },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 16,
-  },
-  searchContainer: {
-    flex: 1,
-    marginRight: 12,
-  },
   headerActionsInline: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 4,
+    flexShrink: 0,
+    justifyContent: 'space-between',
+    flex: 1,
+    marginTop: 0,
+  },
+  headerButtonContainer: {
     alignItems: 'center',
-    gap: 8,
+    flex: 1,
   },
   iconPillButton: {
     paddingVertical: 8,
@@ -1320,7 +1201,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    marginLeft: 4,
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  headerButtonLabel: {
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+    textAlign: 'center',
   },
   settingsButton: {
     padding: 8,
@@ -1330,6 +1221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
+    marginTop: 54,
     marginBottom: 8,
   },
   locationContainer: {
@@ -1368,28 +1260,6 @@ const styles = StyleSheet.create({
     fontSize: 6,
     color: colors.textSecondary,
     fontWeight: '500',
-  },
-  searchBarContainer: {
-    position: 'relative',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  searchIconContainer: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: 16,
-    paddingVertical: 4,
   },
   suggestionsContainer: {
     position: 'absolute',
@@ -1440,6 +1310,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  calendarChevron: {
+    marginLeft: 'auto',
+    opacity: 0.6,
+  },
   calendarTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -1461,6 +1335,19 @@ const styles = StyleSheet.create({
   dayName: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  holidayText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  tapToChangeText: {
+    fontSize: 10,
+    textAlign: 'center',
+    marginTop: 8,
+    opacity: 0.7,
+    fontStyle: 'italic',
   },
   // Redesigned Next Prayer Card Styles
   nextPrayerContainer: {
@@ -1743,19 +1630,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 12,
     overflow: 'hidden',
-    elevation: 2,
+    // Softer elevation on Android to avoid heavy banding/shades
+    elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
   },
   currentPrayerCard: {
-    elevation: 4,
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+    // Keep current card a bit elevated but still subtle on Android
+    elevation: 2,
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
   },
   prayerCardGradient: {
     padding: 12,
+    // Ensure no underlying background that mixes with gradient (prevents extra shades)
+    backgroundColor: 'transparent',
   },
   prayerCardContent: {
     flexDirection: 'row',
@@ -1802,6 +1693,15 @@ const styles = StyleSheet.create({
   currentPrayerTime: {
     color: '#FFFFFF',
     fontWeight: '800',
+  },
+  prayerTimeContainer: {
+    alignItems: 'flex-end',
+  },
+  prayerCountdown: {
+    fontSize: 12,
+    color: colors.accentTeal,
+    fontWeight: '600',
+    marginTop: 2,
   },
   currentIndicator: {
     alignItems: 'center',
@@ -2010,162 +1910,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0B3F39',
     fontStyle: 'italic',
-  },
-  searchModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  searchModalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '80%',
-  },
-  searchHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    marginRight: 12,
-  },
-  searchResults: {
-    maxHeight: 400,
-  },
-  searchResultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  searchResultContent: {
-    flex: 1,
-  },
-  searchResultTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
-  },
-  searchResultTitleArabic: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  searchResultDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2,
-  },
-  searchResultCategory: {
-    fontSize: 12,
-    color: '#999',
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 60,
-  },
-  noResultsTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  noResultsSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  aiNoorButton: {
-    marginBottom: 16,
-  },
-  aiNoorGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  aiNoorButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  aiNoorDescription: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  aiSearchContainer: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.accentTeal + '20',
-  },
-  aiSearchTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  aiSearchSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  searchEmptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 60,
-  },
-  searchEmptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  searchEmptySubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-  aiSearchHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: colors.accentTeal + '20',
-  },
-  aiSearchHintText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginLeft: 8,
-    fontWeight: '500',
   },
   reminderCard: {
     borderRadius: 16,

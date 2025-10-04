@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Dua } from '../types';
 
 // Mock data for Duas
@@ -159,6 +160,7 @@ const mockDuas: Dua[] = [
 const categories = ['All', 'Morning', 'Evening', 'Eating', 'Travel', 'Prayer', 'Forgiveness'];
 
 export default function DuasScreen() {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -238,6 +240,9 @@ export default function DuasScreen() {
         showsHorizontalScrollIndicator={false}
         style={styles.categoriesContainer}
         contentContainerStyle={styles.categoriesContent}
+        data-scroll="true"
+        nestedScrollEnabled={true}
+        scrollEventThrottle={16}
       >
         {categories.map((category) => (
           <TouchableOpacity
@@ -295,6 +300,9 @@ export default function DuasScreen() {
         contentContainerStyle={styles.duasList}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={renderHeader}
+        data-flatlist="true"
+        nestedScrollEnabled={true}
+        scrollEventThrottle={16}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="book-outline" size={48} color={colors.textSecondary} />

@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTimeFormat } from '../contexts/TimeFormatContext';
 
 type Message = {
   id: string;
@@ -36,6 +39,9 @@ Keep responses concise but informative, and always end with Islamic phrases like
 
 export default function AINoorScreen({ route }: any) {
   const { searchQuery } = route.params || {};
+  const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
+  const { formatTime } = useTimeFormat();
   
   const [messages, setMessages] = useState<Message[]>([
     { 
@@ -142,15 +148,15 @@ export default function AINoorScreen({ route }: any) {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
-        <Text style={styles.headerTitle}>AI Noor</Text>
-        <Text style={styles.headerSubtitle}>Ask Islamic questions with a gentle, helpful guide</Text>
+        <Text style={styles.headerTitle}>{t('ai_noor.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('ai_noor.subtitle')}</Text>
       </LinearGradient>
 
       <FlatList
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
         renderItem={({ item }) => (
           <View style={[styles.bubble, item.role === 'assistant' ? styles.bubbleAssistant : styles.bubbleUser]}>
             {item.role === 'assistant' ? (
@@ -160,24 +166,24 @@ export default function AINoorScreen({ route }: any) {
             )}
             <Text style={item.role === 'assistant' ? styles.textAssistant : styles.textUser}>{item.content}</Text>
             <Text style={styles.timestamp}>
-              {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {formatTime(item.timestamp)}
             </Text>
           </View>
         )}
       />
 
       {isLoading && (
-        <View style={styles.loadingContainer}>
+        <View style={[styles.loadingContainer, { bottom: 90 }]}>
           <ActivityIndicator size="small" color={colors.accentTeal} />
-          <Text style={styles.loadingText}>AI Noor is thinking...</Text>
+          <Text style={styles.loadingText}>{t('ai_noor.thinking')}</Text>
         </View>
       )}
 
-      <View style={styles.composer}>
+      <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 20) + 80 }]}>
         <TextInput
           value={input}
           onChangeText={setInput}
-          placeholder="Ask about Islam, prayer, Quran, Tijaniyya..."
+          placeholder={t('ai_noor.placeholder')}
           placeholderTextColor={colors.textSecondary}
           style={styles.input}
           returnKeyType="send"
@@ -259,7 +265,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     position: 'absolute',
-    bottom: 70,
     left: 16,
     right: 16,
     flexDirection: 'row',
@@ -280,7 +285,7 @@ const styles = StyleSheet.create({
     left: 0, 
     right: 0, 
     bottom: 0, 
-    padding: 10, 
+    padding: 10,
     flexDirection: 'row', 
     alignItems: 'flex-end', 
     backgroundColor: colors.surface,

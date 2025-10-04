@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
+import { searchApp, SearchResult, getSearchSuggestions } from '../services/searchService';
 
 const { width } = Dimensions.get('window');
 
@@ -34,6 +36,41 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, col
 );
 
 export default function MoreFeaturesScreen({ navigation }: any) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      const results = searchApp(query);
+      const suggestions = getSearchSuggestions(query);
+      setSearchResults(results);
+      setSearchSuggestions(suggestions);
+    } else {
+      setSearchResults([]);
+      setSearchSuggestions([]);
+    }
+  };
+
+  const handleSuggestionPress = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    handleSearch(suggestion);
+  };
+
+  const handleSearchResultPress = (result: SearchResult) => {
+    // Navigate to the appropriate screen based on the result
+    if (result.screen) {
+      navigation.navigate(result.screen);
+    }
+  };
+
+  const handleAINoorSearch = () => {
+    // Navigate to AI Noor with the search query
+    navigation.navigate('AI Noor', { searchQuery: searchQuery.trim() });
+  };
+
   const features = [
     {
       title: 'Digital Tasbih',
@@ -55,6 +92,20 @@ export default function MoreFeaturesScreen({ navigation }: any) {
       icon: 'list',
       color: '#2196F3',
       screen: 'Lazim',
+    },
+    {
+      title: 'Tijaniya Lazim',
+      description: 'Complete guide to performing the Lazim with step-by-step instructions',
+      icon: 'book',
+      color: colors.accentTeal,
+      screen: 'TijaniyaLazim',
+    },
+    {
+      title: 'Azan',
+      description: 'Listen to beautiful Azan from famous mosques around the world',
+      icon: 'volume-high',
+      color: colors.primary,
+      screen: 'Azan',
     },
     {
       title: 'Zikr Jumma',
@@ -137,11 +188,112 @@ export default function MoreFeaturesScreen({ navigation }: any) {
       >
         <Text style={styles.headerTitle}>More Features</Text>
         <Text style={styles.headerSubtitle}>Explore all Islamic tools and resources</Text>
+        
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color={colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search features, prayers, duas..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={handleSearch}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+            />
+          </View>
+          
+          {/* Search Suggestions */}
+          {searchSuggestions.length > 0 && isSearchFocused && (
+            <View style={styles.suggestionsContainer}>
+              {searchSuggestions.map((suggestion, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionItem}
+                  onPress={() => handleSuggestionPress(suggestion)}
+                >
+                  <Ionicons name="search" size={16} color={colors.textSecondary} />
+                  <Text style={styles.suggestionText}>{suggestion}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
       </LinearGradient>
 
-      {/* Features Grid */}
+      {/* Search Results or Features Grid */}
+      {searchResults.length > 0 ? (
+        <View style={styles.searchResultsContainer}>
+          <Text style={styles.searchResultsTitle}>Search Results</Text>
+          {searchResults.map((result, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.searchResultItem}
+              onPress={() => handleSearchResultPress(result)}
+            >
+              <View style={styles.searchResultContent}>
+                <Text style={styles.searchResultTitle}>{result.title}</Text>
+                {result.titleArabic && (
+                  <Text style={styles.searchResultTitleArabic}>{result.titleArabic}</Text>
+                )}
+                <Text style={styles.searchResultDescription}>{result.description}</Text>
+                <Text style={styles.searchResultCategory}>{result.category}</Text>
+                {result.specialties && (
+                  <View style={styles.specialtiesContainer}>
+                    {result.specialties.slice(0, 3).map((specialty, idx) => (
+                      <View key={idx} style={styles.specialtyTag}>
+                        <Text style={styles.specialtyText}>{specialty}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#666" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : searchQuery.trim() ? (
+        <View style={styles.noResultsContainer}>
+          <Ionicons name="search-outline" size={64} color={colors.textSecondary} />
+          <Text style={styles.noResultsTitle}>No results found</Text>
+          <Text style={styles.noResultsSubtitle}>
+            We couldn't find "{searchQuery}" in our content
+          </Text>
+          
+          <View style={styles.aiSearchContainer}>
+            <Text style={styles.aiSearchTitle}>Search with AI Noor</Text>
+            <Text style={styles.aiSearchSubtitle}>
+              Ask our AI assistant about: "{searchQuery}"
+            </Text>
+            
+            <TouchableOpacity 
+              style={styles.aiNoorButton}
+              onPress={handleAINoorSearch}
+            >
+              <LinearGradient
+                colors={[colors.accentTeal, colors.accentGreen]}
+                style={styles.aiNoorGradient}
+              >
+                <Ionicons name="sparkles" size={20} color={colors.textPrimary} />
+                <Text style={styles.aiNoorButtonText}>Ask AI Noor</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <Text style={styles.aiNoorDescription}>
+              AI Noor can help with Islamic questions, Quran, Hadith, Tijaniyya teachings, and more
+            </Text>
+          </View>
+        </View>
+      ) : (
       <View style={styles.featuresContainer}>
-        {features.map((feature, index) => (
+          {features
+            .filter(feature => 
+              !searchQuery.trim() || 
+              feature.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              feature.description.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((feature, index) => (
           <FeatureCard
             key={index}
             title={feature.title}
@@ -152,6 +304,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
           />
         ))}
       </View>
+      )}
 
       {/* App Info */}
       <View style={styles.appInfoContainer}>
@@ -188,6 +341,178 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
     marginTop: 4,
+    marginBottom: 16,
+  },
+  searchContainer: {
+    position: 'relative',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  searchInput: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginTop: 4,
+    maxHeight: 200,
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  suggestionText: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  searchResultsContainer: {
+    padding: 20,
+  },
+  searchResultsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 16,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  searchResultContent: {
+    flex: 1,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 2,
+  },
+  searchResultTitleArabic: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  searchResultDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  searchResultCategory: {
+    fontSize: 12,
+    color: colors.accentTeal,
+    fontWeight: '500',
+  },
+  specialtiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  specialtyTag: {
+    backgroundColor: colors.accentTeal + '20',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  specialtyText: {
+    fontSize: 10,
+    color: colors.accentTeal,
+    fontWeight: '500',
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 60,
+  },
+  noResultsTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  noResultsSubtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  aiSearchContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.accentTeal + '20',
+  },
+  aiSearchTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 8,
+  },
+  aiSearchSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  aiNoorButton: {
+    marginBottom: 16,
+  },
+  aiNoorGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  aiNoorButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  aiNoorDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   featuresContainer: {
     padding: 20,
