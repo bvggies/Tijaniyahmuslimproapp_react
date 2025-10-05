@@ -39,12 +39,12 @@ export default function HomeScreen({ navigation }: any) {
   const { authState } = useAuth();
   const { t } = useLanguage();
   const { timeFormat } = useTimeFormat();
-  const { getCurrentIslamicDate: getIslamicDate, getCalendar{t('home.in')}fo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
+  const { getCurrentIslamicDate: getIslamicDate, getCalendarInfo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [islamicDate, setIslamicDate] = useState(getIslamicDate());
-  const [upcomingEvents] = useState(get{t('home.upcoming')}IslamicEvents());
+  const [upcomingEvents] = useState(getUpcomingIslamicEvents());
   const [showAINoor, setShowAINoor] = useState(false);
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
