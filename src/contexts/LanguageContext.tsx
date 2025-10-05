@@ -51,6 +51,20 @@ const translations = {
     'home.tasbih': 'Digital Tasbih',
     'home.lessons': 'Islamic Lessons',
     'home.community': 'Community',
+    'home.quick_actions': 'Quick Actions',
+    'home.upcoming_events': 'Upcoming Events',
+    'home.islamic_calendar': 'Islamic Calendar',
+    'home.current_prayer': 'Current Prayer',
+    'home.upcoming': 'Upcoming',
+    'home.in': 'In',
+    
+    // More Features
+    'more.title': 'More Features',
+    'more.search_placeholder': 'Search features, prayers, duas...',
+    'more.search_results': 'Search Results',
+    'more.search_with_ai': 'Search with AI Noor',
+    'more.ai_search_subtitle': 'Ask AI Noor for answers to your questions',
+    'more.ask_ai_noor': 'Ask AI Noor',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
@@ -114,6 +128,20 @@ const translations = {
     'home.tasbih': 'Tasbih Numérique',
     'home.lessons': 'Leçons Islamiques',
     'home.community': 'Communauté',
+    'home.quick_actions': 'Actions Rapides',
+    'home.upcoming_events': 'Événements à Venir',
+    'home.islamic_calendar': 'Calendrier Islamique',
+    'home.current_prayer': 'Prière Actuelle',
+    'home.upcoming': 'À Venir',
+    'home.in': 'Dans',
+    
+    // More Features
+    'more.title': 'Plus de Fonctionnalités',
+    'more.search_placeholder': 'Rechercher des fonctionnalités, prières, douas...',
+    'more.search_results': 'Résultats de Recherche',
+    'more.search_with_ai': 'Rechercher avec AI Noor',
+    'more.ai_search_subtitle': 'Demandez à AI Noor des réponses à vos questions',
+    'more.ask_ai_noor': 'Demander à AI Noor',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
@@ -177,6 +205,20 @@ const translations = {
     'home.tasbih': 'التسبيح الرقمي',
     'home.lessons': 'الدروس الإسلامية',
     'home.community': 'المجتمع',
+    'home.quick_actions': 'الإجراءات السريعة',
+    'home.upcoming_events': 'الأحداث القادمة',
+    'home.islamic_calendar': 'التقويم الهجري',
+    'home.current_prayer': 'الصلاة الحالية',
+    'home.upcoming': 'قادم',
+    'home.in': 'في',
+    
+    // More Features
+    'more.title': 'المزيد من الميزات',
+    'more.search_placeholder': 'البحث في الميزات، الصلوات، الأدعية...',
+    'more.search_results': 'نتائج البحث',
+    'more.search_with_ai': 'البحث مع نور الذكي',
+    'more.ai_search_subtitle': 'اسأل نور الذكي للحصول على إجابات لأسئلتك',
+    'more.ask_ai_noor': 'اسأل نور الذكي',
     
     // Prayer Times
     'prayer.fajr': 'الفجر',
@@ -240,6 +282,20 @@ const translations = {
     'home.tasbih': 'Tasbih na Lantarki',
     'home.lessons': 'Darussan Musulunci',
     'home.community': 'Alumma',
+    'home.quick_actions': 'Ayyuka na Gaggawa',
+    'home.upcoming_events': 'Abubuwan da ke Zuwa',
+    'home.islamic_calendar': 'Kalandar Musulunci',
+    'home.current_prayer': 'Sallar Yanzu',
+    'home.upcoming': 'Mai Zuwa',
+    'home.in': 'A cikin',
+    
+    // More Features
+    'more.title': 'Ƙarin Fasali',
+    'more.search_placeholder': 'Nemo fasali, salloli, adduoi...',
+    'more.search_results': 'Sakamakon Bincike',
+    'more.search_with_ai': 'Bincike tare da AI Noor',
+    'more.ai_search_subtitle': 'Tambayi AI Noor don amsoshin tambayoyin ku',
+    'more.ask_ai_noor': 'Tambayi AI Noor',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',

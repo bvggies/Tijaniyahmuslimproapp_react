@@ -186,7 +186,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
         colors={[colors.surface, colors.background]}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>More Features</Text>
+        <Text style={styles.headerTitle}>{t('more.title')}</Text>
         <Text style={styles.headerSubtitle}>Explore all Islamic tools and resources</Text>
         
         {/* Search Bar */}
@@ -195,7 +195,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
             <Ionicons name="search" size={20} color={colors.textSecondary} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search features, prayers, duas..."
+              placeholder={t('more.search_placeholder')}
               placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={handleSearch}
@@ -225,7 +225,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
       {/* Search Results or Features Grid */}
       {searchResults.length > 0 ? (
         <View style={styles.searchResultsContainer}>
-          <Text style={styles.searchResultsTitle}>Search Results</Text>
+          <Text style={styles.searchResultsTitle}>{t('more.search_results')}</Text>
           {searchResults.map((result, index) => (
             <TouchableOpacity
               key={index}
@@ -262,9 +262,9 @@ export default function MoreFeaturesScreen({ navigation }: any) {
           </Text>
           
           <View style={styles.aiSearchContainer}>
-            <Text style={styles.aiSearchTitle}>Search with AI Noor</Text>
+            <Text style={styles.aiSearchTitle}>{t('more.search_with_ai')}</Text>
             <Text style={styles.aiSearchSubtitle}>
-              Ask our AI assistant about: "{searchQuery}"
+              {t('more.ai_search_subtitle')}
             </Text>
             
             <TouchableOpacity 

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  TextInput,
+  Text{t('home.in')}put,
   Modal,
   FlatList,
   Image,
@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { PrayerTime, Location as LocationType } from '../types';
 import { getPrayerTimes, updatePrayerCountdowns } from '../services/prayerService';
-import { getCurrentIslamicDate, getUpcomingIslamicEvents } from '../services/islamicCalendarService';
+import { getCurrentIslamicDate, get{t('home.upcoming')}IslamicEvents } from '../services/islamicCalendarService';
 import { colors } from '../utils/theme';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
@@ -38,12 +38,12 @@ export default function HomeScreen({ navigation }: any) {
   const { authState } = useAuth();
   const { t } = useLanguage();
   const { timeFormat } = useTimeFormat();
-  const { getCurrentIslamicDate: getIslamicDate, getCalendarInfo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
+  const { getCurrentIslamicDate: getIslamicDate, getCalendar{t('home.in')}fo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [islamicDate, setIslamicDate] = useState(getIslamicDate());
-  const [upcomingEvents] = useState(getUpcomingIslamicEvents());
+  const [upcomingEvents] = useState(get{t('home.upcoming')}IslamicEvents());
   const [showAINoor, setShowAINoor] = useState(false);
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
@@ -65,7 +65,7 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => {
     if (prayerTimes.length === 0) return;
     
-    const interval = setInterval(() => {
+    const interval = set{t('home.in')}terval(() => {
       setCurrentTime(new Date());
       setPrayerTimes(prevPrayerTimes => {
         if (prevPrayerTimes.length > 0) {
@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }: any) {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clear{t('home.in')}terval(interval);
   }, [prayerTimes.length > 0]); // Only run when we have prayer times
 
   // Refresh daily reminder at midnight in user's timezone
@@ -92,8 +92,8 @@ export default function HomeScreen({ navigation }: any) {
     const timeout = setTimeout(() => {
       loadDailyReminder(currentTimezone);
       // Set up interval to refresh every 24 hours
-      const interval = setInterval(() => loadDailyReminder(currentTimezone), 24 * 60 * 60 * 1000);
-      return () => clearInterval(interval);
+      const interval = set{t('home.in')}terval(() => loadDailyReminder(currentTimezone), 24 * 60 * 60 * 1000);
+      return () => clear{t('home.in')}terval(interval);
     }, timeUntilMidnight);
     
     return () => clearTimeout(timeout);
@@ -104,26 +104,15 @@ export default function HomeScreen({ navigation }: any) {
     setIslamicDate(getIslamicDate());
   }, [selectedCalendar, getIslamicDate]);
 
-  const showCalendarSelector = () => {
-    const calendars = getAllCalendars();
-    const options = calendars.map(calendar => ({
-      text: `${calendar.name} (${calendar.region})`,
-      onPress: () => setSelectedCalendar(calendar.type)
-    }));
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
 
-    Alert.alert(
-      'Select Islamic Calendar',
-      'Choose your preferred Islamic calendar type:',
-      [
-        ...options,
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
+  const showCalendarSelector = () => {
+    setShowCalendarModal(true);
   };
 
   const loadLocationAndPrayerTimes = async () => {
     try {
-      const locationService = LocationService.getInstance();
+      const locationService = LocationService.get{t('home.in')}stance();
       const locationData = await locationService.getCurrentLocation();
       
       if (!locationData) {
@@ -145,7 +134,7 @@ export default function HomeScreen({ navigation }: any) {
       setPrayerTimes(times);
 
       // Schedule prayer notifications
-      const notificationService = NotificationService.getInstance();
+      const notificationService = NotificationService.get{t('home.in')}stance();
       await notificationService.schedulePrayerNotifications(times);
 
       // Update Islamic date with location coordinates
@@ -455,7 +444,7 @@ export default function HomeScreen({ navigation }: any) {
         // 24-hour format (e.g., "14:30")
         const [h, m] = time.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) {
-          console.error('Invalid time format:', time);
+          console.error('{t('home.in')}valid time format:', time);
           return '';
         }
         target.setHours(h, m, 0, 0);
@@ -470,7 +459,7 @@ export default function HomeScreen({ navigation }: any) {
       const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       
       if (isNaN(hours) || isNaN(minutes)) {
-        console.error('Invalid time calculation:', { hours, minutes, diffMs });
+        console.error('{t('home.in')}valid time calculation:', { hours, minutes, diffMs });
         return '';
       }
       
@@ -662,8 +651,8 @@ export default function HomeScreen({ navigation }: any) {
               />
             </Animated.View>
 
-            {/* Prayer Info */}
-            <View style={styles.prayerInfo}>
+            {/* Prayer {t('home.in')}fo */}
+            <View style={styles.prayer{t('home.in')}fo}>
               <View style={styles.prayerNameContainer}>
                 <Text style={[styles.prayerName, prayer.isCurrent && styles.currentPrayerName]}>
                   {prayer.name}
@@ -684,11 +673,11 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             </View>
 
-            {/* Current Prayer Indicator */}
+            {/* Current Prayer {t('home.in')}dicator */}
             {prayer.isCurrent && (
               <Animated.View 
                 style={[
-                  styles.currentIndicator,
+                  styles.current{t('home.in')}dicator,
                   {
                     transform: [{
                       scale: fadeAnim.interpolate({
@@ -763,7 +752,7 @@ export default function HomeScreen({ navigation }: any) {
 
       <ScrollView 
         style={styles.scrollView} 
-        showsVerticalScrollIndicator={false}
+        showsVerticalScroll{t('home.in')}dicator={false}
         data-scroll="true"
         nestedScrollEnabled={true}
         scrollEventThrottle={16}
@@ -781,7 +770,7 @@ export default function HomeScreen({ navigation }: any) {
             
               
               {/* Actions - Donate, Profile, Language, then Settings */}
-              <View style={styles.headerActionsInline}>
+              <View style={styles.headerActions{t('home.in')}line}>
                 <View style={styles.headerButtonContainer}>
                 <TouchableOpacity 
                   style={[styles.iconPillButton, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
@@ -821,7 +810,7 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             </View>
             
-            {/* Inline Greetings and Location */}
+            {/* {t('home.in')}line Greetings and Location */}
             <View style={styles.greetingLocationContainer}>
               {/* Greetings on the left */}
               <View style={styles.greetingContainer}>
@@ -843,7 +832,7 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </LinearGradient>
 
-        {/* Islamic Calendar Card */}
+        {/* {t('home.islamic_calendar')} Card */}
         <Animated.View
           style={[
             styles.calendarCard,
@@ -861,7 +850,7 @@ export default function HomeScreen({ navigation }: any) {
             <View style={styles.calendarHeader}>
               <Ionicons name="calendar" size={24} color={colors.textDark} />
               <Text style={[styles.calendarTitle, { color: colors.textDark }]}>
-                Islamic Calendar ({getCalendarInfo(selectedCalendar).name})
+                {t('home.islamic_calendar')} ({getCalendar{t('home.in')}fo(selectedCalendar).name})
               </Text>
               <Ionicons name="chevron-forward" size={16} color={colors.textDark} style={styles.calendarChevron} />
             </View>
@@ -888,7 +877,7 @@ export default function HomeScreen({ navigation }: any) {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Next Prayer Card - Redesigned */}
+        {/* {t('prayer.next_prayer')} Card - Redesigned */}
         {currentPrayer && (
           <Animated.View
             style={[
@@ -919,18 +908,18 @@ export default function HomeScreen({ navigation }: any) {
                     <Ionicons name="moon" size={24} color={colors.accentYellow} />
                   </View>
                   <View>
-                    <Text style={styles.nextPrayerLabel}>Next Prayer</Text>
+                    <Text style={styles.nextPrayerLabel}>{t('prayer.next_prayer')}</Text>
                     <Text style={styles.nextPrayerLabelArabic}>الصلاة القادمة</Text>
                   </View>
                 </View>
                 <View style={styles.prayerStatusBadge}>
                   <Ionicons name="notifications" size={16} color={colors.textDark} />
-                  <Text style={styles.prayerStatusText}>Upcoming</Text>
+                  <Text style={styles.prayerStatusText}>{t('home.upcoming')}</Text>
                 </View>
               </View>
 
-              {/* Main Prayer Info */}
-              <View style={styles.prayerMainInfo}>
+              {/* Main Prayer {t('home.in')}fo */}
+              <View style={styles.prayerMain{t('home.in')}fo}>
                 <View style={styles.prayerNameSection}>
                   <Text style={styles.prayerNameLarge}>{currentPrayer.name}</Text>
                   <Text style={styles.prayerNameArabic}>{getPrayerNameArabic(currentPrayer.name)}</Text>
@@ -955,12 +944,12 @@ export default function HomeScreen({ navigation }: any) {
               {/* Footer with Location and Method */}
               <View style={styles.prayerFooter}>
                 {currentLocation && (
-                  <View style={styles.locationInfo}>
+                  <View style={styles.location{t('home.in')}fo}>
                     <Ionicons name="location" size={16} color={colors.textPrimary} />
                     <Text style={styles.locationText}>{currentLocation.city}</Text>
                   </View>
                 )}
-                <View style={styles.methodInfo}>
+                <View style={styles.method{t('home.in')}fo}>
                   <Ionicons name="calculator" size={16} color={colors.textPrimary} />
                   <Text style={styles.methodText}>MWL Method</Text>
                 </View>
@@ -981,7 +970,7 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>{t('home.prayer_times')}</Text>
           <Text style={styles.sectionTitleArabic}>أوقات الصلاة</Text>
           
-          {/* Next Prayer Display */}
+          {/* {t('prayer.next_prayer')} Display */}
           {prayerTimes.length > 0 && (
             <Animated.View style={[styles.nextPrayerCard, { opacity: fadeAnim }]}>
               <LinearGradient
@@ -992,15 +981,15 @@ export default function HomeScreen({ navigation }: any) {
                   <View style={styles.nextPrayerIcon}>
                     <Ionicons name="time" size={24} color="#FFFFFF" />
                   </View>
-                  <View style={styles.nextPrayerInfo}>
-                    <Text style={styles.nextPrayerLabel}>Next Prayer</Text>
+                  <View style={styles.nextPrayer{t('home.in')}fo}>
+                    <Text style={styles.nextPrayerLabel}>{t('prayer.next_prayer')}</Text>
                     <Text style={styles.nextPrayerLabelArabic}>الصلاة القادمة</Text>
                     <Text style={styles.nextPrayerName}>{getNextPrayer().name}</Text>
                     <Text style={styles.nextPrayerNameArabic}>{getPrayerNameArabic(getNextPrayer().name)}</Text>
                     <Text style={styles.nextPrayerTime}>{getNextPrayer().time}</Text>
                   </View>
                   <View style={styles.nextPrayerCountdown}>
-                    <Text style={styles.countdownLabel}>In</Text>
+                    <Text style={styles.countdownLabel}>{t('home.in')}</Text>
                     <Text style={styles.countdownTime}>{getNextPrayer().countdown || '00:00:00'}</Text>
                   </View>
                 </View>
@@ -1015,27 +1004,27 @@ export default function HomeScreen({ navigation }: any) {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <Text style={styles.sectionTitleArabic}>الإجراءات السريعة</Text>
+          <Text style={styles.sectionTitle}>{t('home.quick_actions')}</Text>
+          <Text style={styles.sectionTitleArabic}>{t('home.quick_actions')}</Text>
           <FlatList
             data={quickActions}
             renderItem={renderQuickActionCard}
             keyExtractor={(item) => item.title}
             numColumns={2}
             scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScroll{t('home.in')}dicator={false}
             contentContainerStyle={styles.quickActionsContainer}
             style={styles.quickActionsList}
           />
         </View>
 
-        {/* Upcoming Events */}
+        {/* {t('home.upcoming')} Events */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Events</Text>
-          <Text style={styles.sectionTitleArabic}>الأحداث القادمة</Text>
+          <Text style={styles.sectionTitle}>{t('home.upcoming_events')}</Text>
+          <Text style={styles.sectionTitleArabic}>{t('home.upcoming_events')}</Text>
           <ScrollView 
             horizontal 
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScroll{t('home.in')}dicator={false}
             data-scroll="true"
             nestedScrollEnabled={true}
             scrollEventThrottle={16}
@@ -1110,6 +1099,68 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </ScrollView>
 
+      {/* {t('home.islamic_calendar')} Selection Modal */}
+      <Modal
+        visible={showCalendarModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCalendarModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select {t('home.islamic_calendar')}</Text>
+              <TouchableOpacity
+                onPress={() => setShowCalendarModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {getAllCalendars().map((calendar) => (
+                <TouchableOpacity
+                  key={calendar.type}
+                  style={[
+                    styles.calendarOption,
+                    selectedCalendar === calendar.type && styles.selectedCalendarOption
+                  ]}
+                  onPress={() => {
+                    setSelectedCalendar(calendar.type);
+                    setShowCalendarModal(false);
+                  }}
+                >
+                  <View style={styles.calendarOptionContent}>
+                    <Text style={[
+                      styles.calendarOptionName,
+                      selectedCalendar === calendar.type && styles.selectedCalendarOptionName
+                    ]}>
+                      {calendar.name}
+                    </Text>
+                    <Text style={[
+                      styles.calendarOptionRegion,
+                      selectedCalendar === calendar.type && styles.selectedCalendarOptionRegion
+                    ]}>
+                      {calendar.region}
+                    </Text>
+                    <Text style={[
+                      styles.calendarOptionDescription,
+                      selectedCalendar === calendar.type && styles.selectedCalendarOptionDescription
+                    ]}>
+                      {calendar.description}
+                    </Text>
+                  </View>
+                  {selectedCalendar === calendar.type && (
+                    <Ionicons name="checkmark-circle" size={24} color={colors.accentTeal} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       </View>
     </IslamicBackground>
   );
@@ -1127,7 +1178,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0,
+    z{t('home.in')}dex: 0,
   },
   patternCircle1: {
     position: 'absolute',
@@ -1158,7 +1209,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    zIndex: 1,
+    z{t('home.in')}dex: 1,
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
   },
@@ -1181,7 +1232,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
   },
-  headerActionsInline: {
+  headerActions{t('home.in')}line: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 4,
@@ -1274,7 +1325,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    zIndex: 1000,
+    z{t('home.in')}dex: 1000,
   },
   suggestionItem: {
     flexDirection: 'row',
@@ -1349,7 +1400,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     fontStyle: 'italic',
   },
-  // Redesigned Next Prayer Card Styles
+  // Redesigned {t('prayer.next_prayer')} Card Styles
   nextPrayerContainer: {
     margin: 20,
     marginTop: 10,
@@ -1410,7 +1461,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 4,
   },
-  prayerMainInfo: {
+  prayerMain{t('home.in')}fo: {
     marginBottom: 20,
   },
   prayerNameSection: {
@@ -1465,7 +1516,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
-  locationInfo: {
+  location{t('home.in')}fo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1475,7 +1526,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontWeight: '500',
   },
-  methodInfo: {
+  method{t('home.in')}fo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1572,7 +1623,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ringInner: {
+  ring{t('home.in')}ner: {
     width: 90,
     height: 90,
     borderRadius: 45,
@@ -1660,7 +1711,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  prayerInfo: {
+  prayer{t('home.in')}fo: {
     flex: 1,
   },
   prayerNameContainer: {
@@ -1703,7 +1754,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 2,
   },
-  currentIndicator: {
+  current{t('home.in')}dicator: {
     alignItems: 'center',
     marginLeft: 8,
   },
@@ -1739,7 +1790,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  nextPrayerInfo: {
+  nextPrayer{t('home.in')}fo: {
     flex: 1,
   },
   nextPrayerLabel: {
