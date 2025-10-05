@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  Text{t('home.in')}put,
+  TextInput,
   Modal,
   FlatList,
   Image,
@@ -17,8 +17,9 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { PrayerTime, Location as LocationType } from '../types';
 import { getPrayerTimes, updatePrayerCountdowns } from '../services/prayerService';
-import { getCurrentIslamicDate, get{t('home.upcoming')}IslamicEvents } from '../services/islamicCalendarService';
+import { getCurrentIslamicDate, getUpcomingIslamicEvents } from '../services/islamicCalendarService';
 import { colors } from '../utils/theme';
+import { commonScreenStyles } from '../utils/screenStyles';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
 import IslamicBackground from '../components/IslamicBackground';
@@ -751,8 +752,9 @@ export default function HomeScreen({ navigation }: any) {
       <View style={styles.container}>
 
       <ScrollView 
-        style={styles.scrollView} 
-        showsVerticalScroll{t('home.in')}dicator={false}
+        style={commonScreenStyles.scrollContainer} 
+        contentContainerStyle={commonScreenStyles.scrollContent}
+        showsVerticalScrollIndicator={false}
         data-scroll="true"
         nestedScrollEnabled={true}
         scrollEventThrottle={16}
@@ -1012,7 +1014,7 @@ export default function HomeScreen({ navigation }: any) {
             keyExtractor={(item) => item.title}
             numColumns={2}
             scrollEnabled={false}
-            showsVerticalScroll{t('home.in')}dicator={false}
+            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.quickActionsContainer}
             style={styles.quickActionsList}
           />
@@ -1024,7 +1026,7 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.sectionTitleArabic}>{t('home.upcoming_events')}</Text>
           <ScrollView 
             horizontal 
-            showsHorizontalScroll{t('home.in')}dicator={false}
+            showsHorizontalScrollIndicator={false}
             data-scroll="true"
             nestedScrollEnabled={true}
             scrollEventThrottle={16}
@@ -1209,7 +1211,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    z{t('home.in')}dex: 1,
+    zIndex: 1,
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
   },
@@ -1232,7 +1234,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
   },
-  headerActions{t('home.in')}line: {
+  headerActionsInline: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 4,

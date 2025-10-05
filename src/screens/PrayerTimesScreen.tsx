@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
+import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { PrayerTime, Location as LocationType } from '../types';
@@ -296,7 +297,8 @@ export default function PrayerTimesScreen() {
   return (
     <IslamicBackground>
       <ScrollView
-        style={styles.container}
+        style={commonScreenStyles.scrollContainer}
+        contentContainerStyle={commonScreenStyles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
