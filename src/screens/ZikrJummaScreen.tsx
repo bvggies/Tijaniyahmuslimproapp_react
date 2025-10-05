@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Digital Counter Component
 const DigitalCounter = ({ count, onIncrement, onDecrement, onReset }: {
@@ -186,6 +187,7 @@ const fridayDuas = [
 ];
 
 export default function ZikrJummaScreen() {
+  const { t } = useLanguage();
   const [zikrItems, setZikrItems] = useState<ZikrItem[]>(fridayZikr);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'friday' | 'general' | 'surah'>('all');
   const [currentCounts, setCurrentCounts] = useState<{ [key: string]: number }>({});
@@ -598,7 +600,7 @@ export default function ZikrJummaScreen() {
 
       {/* Zikr Items */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Friday Dhikr</Text>
+        <Text style={styles.sectionTitle}>{t('zikr_jumma.friday_dhikr')}</Text>
         <FlatList
           data={filteredZikr}
           renderItem={renderZikrCard}
@@ -610,7 +612,7 @@ export default function ZikrJummaScreen() {
 
       {/* Friday Duas */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Friday Duas</Text>
+        <Text style={styles.sectionTitle}>{t('zikr_jumma.friday_duas')}</Text>
         <FlatList
           data={fridayDuas}
           renderItem={renderDuaCard}
@@ -628,7 +630,7 @@ export default function ZikrJummaScreen() {
           >
             <Ionicons name="bulb" size={24} color="#FFFFFF" />
             <View style={styles.reminderContent}>
-              <Text style={styles.reminderTitle}>Friday Reminder</Text>
+              <Text style={styles.reminderTitle}>{t('zikr_jumma.friday_reminder')}</Text>
               <Text style={styles.reminderText}>
                 "The best day on which the sun has risen is Friday; on it Adam was created, on it he was made to enter Paradise, and on it he was expelled from it."
               </Text>
@@ -647,7 +649,7 @@ export default function ZikrJummaScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Haylala Information</Text>
+              <Text style={styles.modalTitle}>{t('zikr_jumma.info')}</Text>
               <TouchableOpacity 
                 style={styles.modalCloseButton}
                 onPress={() => setShowHaylalaInfo(false)}
@@ -658,22 +660,22 @@ export default function ZikrJummaScreen() {
             
             <ScrollView style={styles.modalScrollView}>
               <Text style={styles.modalText}>
-                <Text style={styles.modalBoldText}>Time to perform:</Text>{'\n'}
+                <Text style={styles.modalBoldText}>{t('zikr_jumma.time_perform')}:</Text>{'\n'}
                 The Haylala (other names: Hadra, 'Asru) is the Friday's dhikr to perform between 'Asr and Maghreb Prayers.
               </Text>
               
               <Text style={styles.modalText}>
-                <Text style={styles.modalBoldText}>How to perform:</Text>{'\n'}
+                <Text style={styles.modalBoldText}>{t('zikr_jumma.how_perform')}:</Text>{'\n'}
                 Like the Wadhifa, the Friday's Hadra must be performed in congregation whenever it is possible, arranging the ranks properly, reciting loud. If there is no congregation to join, do it alone.
               </Text>
               
               <Text style={styles.modalText}>
-                <Text style={styles.modalBoldText}>Important timing:</Text>{'\n'}
+                <Text style={styles.modalBoldText}>{t('zikr_jumma.important_timing')}:</Text>{'\n'}
                 It is performed only the Friday, and only between 'Asr and Maghreb Prayers, the best time is just before the Azan of the Maghreb Prayer. If not accomplished during this lapse of time, we can't make up for it.
               </Text>
               
               <Text style={styles.modalText}>
-                <Text style={styles.modalBoldText}>Warning from Shaykh Ahmad Tijani:</Text>{'\n'}
+                <Text style={styles.modalBoldText}>{t('zikr_jumma.warning')}:</Text>{'\n'}
                 Seyyidina Ahmed Tijani (may ALLAH be satisfied with him) said that if it is not performed during this period (i.e. between the 'Asr and Maghreb Prayers of the Friday) without a valid excuse, the follower has to know that he has missed a huge blessing that he will not be able to make up.
               </Text>
             </ScrollView>

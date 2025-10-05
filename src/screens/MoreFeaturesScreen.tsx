@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { searchApp, SearchResult, getSearchSuggestions } from '../services/searchService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, col
 );
 
 export default function MoreFeaturesScreen({ navigation }: any) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);

@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Sensors from 'expo-sensors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -420,6 +421,59 @@ export default function QiblaScreen() {
     </View>
   );
 
+  const renderMap = () => {
+    const userRegion: Region | undefined = location
+      ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 10,
+          longitudeDelta: 10,
+        }
+      : undefined;
+
+    return (
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={userRegion || {
+            latitude: KAABA_LAT,
+            longitude: KAABA_LNG,
+            latitudeDelta: 10,
+            longitudeDelta: 10,
+          }}
+          showsUserLocation={!!location}
+          showsCompass
+        >
+          {/* User marker */}
+          {location && (
+            <Marker
+              coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+              title={'You'}
+              description={'Your current location'}
+            />
+          )}
+          {/* Kaaba marker */}
+          <Marker
+            coordinate={{ latitude: KAABA_LAT, longitude: KAABA_LNG }}
+            title={'Kaaba'}
+            description={'Masjid al-Haram, Makkah'}
+          />
+          {/* Direction line */}
+          {location && (
+            <Polyline
+              coordinates={[
+                { latitude: location.latitude, longitude: location.longitude },
+                { latitude: KAABA_LAT, longitude: KAABA_LNG },
+              ]}
+              strokeColor={colors.accentTeal}
+              strokeWidth={3}
+            />
+          )}
+        </MapView>
+      </View>
+    );
+  };
+
   const renderLocationInfo = () => (
     <View style={styles.infoCard}>
       <Text style={styles.infoCardTitle}>Location Information</Text>
@@ -686,6 +740,13 @@ export default function QiblaScreen() {
           </Animated.View>
         )}
         
+        {viewMode === 'map' && (
+          <Animated.View style={[{ opacity: fadeAnim }]}>
+            {renderMap()}
+            {renderControls()}
+          </Animated.View>
+        )}
+        
         {viewMode === 'info' && (
           <View style={styles.infoSection}>
             {renderLocationInfo()}
@@ -937,6 +998,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
     fontWeight: '500',
+  },
+  mapContainer: {
+    height: 300,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
   },
   kaabaInfo: {
     flexDirection: 'row',

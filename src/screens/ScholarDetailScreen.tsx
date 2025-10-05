@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Image, Animated, Modal, TouchableOp
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function ScholarDetailScreen({ route }: any) {
+  const { t } = useLanguage();
   const { scholar } = route.params as { scholar: any };
   const fade = new Animated.Value(0);
   const [imageModalVisible, setImageModalVisible] = useState(false);
@@ -133,7 +135,63 @@ export default function ScholarDetailScreen({ route }: any) {
   };
 
   const timelineData = getTimelineData(scholar?.id);
-  const keyInfo = getKeyInformation(scholar?.id);
+
+  // Heuristically extract key information from provided details/bio
+  const extractKeyInformation = (s: any) => {
+    const info: any = {};
+    const details: Array<{ heading: string; text: string }> = Array.isArray(s?.details) ? s.details : [];
+    const allText = [s?.bio, ...details.map(d => `${d.heading}: ${d.text}`)].filter(Boolean).join('\n');
+
+    const toPlain = (val?: string) => (val || '').trim();
+
+    // Born
+    const birthHeading = details.find(d => /birth|born/i.test(d.heading || ''));
+    if (birthHeading) {
+      info.born = toPlain(birthHeading.text)
+        .replace(/^\s*[-–—]\s*/, '')
+        .split('\n')[0];
+    } else {
+      const m = allText.match(/born (?:in|at)\s+([^.,\n]+)[,\s]*(?:on|in)?\s*([^\n\.]*)/i);
+      if (m) info.born = `${m[2] ? m[2].trim() + ' — ' : ''}${m[1].trim()}`;
+    }
+
+    // Passed Away / Death
+    const deathHeading = details.find(d => /(passing|passed|death|died)/i.test(d.heading || ''));
+    if (deathHeading) {
+      info.passed = toPlain(deathHeading.text).split('\n')[0];
+    } else {
+      const dm = allText.match(/(passed away|died)\s*(?:in|on)?\s*([^\n\.]*)/i);
+      if (dm) info.passed = dm[2].trim();
+    }
+
+    // Main Location / Burial
+    const locationHeading = details.find(d => /location|burial|buried|residence|fes|fez|medina|mecca|makkah|tunis|algiers|kaolack/i.test((d.heading||'') + ' ' + (d.text||'')));
+    if (locationHeading) {
+      const lm = locationHeading.text.match(/in\s+([^.,\n]+)/i);
+      info.location = toPlain(lm ? lm[1] : locationHeading.text.split('\n')[0]);
+    } else {
+      const lm2 = allText.match(/buried in\s+([^.,\n]+)/i) || allText.match(/resided in\s+([^.,\n]+)/i);
+      if (lm2) info.location = lm2[1].trim();
+    }
+
+    // Works
+    const worksHeading = details.find(d => /works|author|authored|jawahir|books|wrote/i.test((d.heading||'') + ' ' + (d.text||'')));
+    if (worksHeading) {
+      info.works = toPlain(worksHeading.text).split('\n')[0];
+    }
+
+    // Roles / Titles
+    const rolesHeading = details.find(d => /khalifa|imam|qutb|shaykh al-islam|renewer/i.test((d.heading||'') + ' ' + (d.text||'')));
+    if (rolesHeading) {
+      info.roles = toPlain(rolesHeading.text).split('\n')[0];
+    } else if (s?.title) {
+      info.roles = toPlain(s.title);
+    }
+
+    return info;
+  };
+
+  const keyInfo = extractKeyInformation(scholar);
   const familyInfo = getFamilyInfo(scholar?.id);
 
   return (
@@ -153,7 +211,7 @@ export default function ScholarDetailScreen({ route }: any) {
 
           {scholar?.bio ? (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Overview</Text>
+              <Text style={styles.cardTitle}>{t('scholar_detail.biography')}</Text>
               <Text style={styles.cardText}>{scholar.bio}</Text>
             </View>
           ) : null}
@@ -168,7 +226,7 @@ export default function ScholarDetailScreen({ route }: any) {
           {/* Timeline Card */}
           {timelineData.length > 0 && (
             <View style={styles.cardAlt}>
-              <Text style={styles.cardTitle}>Timeline</Text>
+              <Text style={styles.cardTitle}>{t('scholar_detail.details')}</Text>
               <View style={styles.timeline}>
                 {timelineData.map((item, index) => (
                   <View key={index} style={styles.timelineItem}>
@@ -190,54 +248,60 @@ export default function ScholarDetailScreen({ route }: any) {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Key Information</Text>
             <View style={styles.infoGrid}>
-              <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Ionicons name="calendar" size={16} color={colors.accentTeal} />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Born</Text>
-                  <Text style={styles.infoValue}>{keyInfo.born}</Text>
-                </View>
-              </View>
-              <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Ionicons name="heart" size={16} color={colors.accentTeal} />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Passed Away</Text>
-                  <Text style={styles.infoValue}>{keyInfo.passed}</Text>
-                </View>
-              </View>
-              <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Ionicons name="location" size={16} color={colors.accentTeal} />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Location</Text>
-                  <Text style={styles.infoValue}>{keyInfo.location}</Text>
-                </View>
-              </View>
-              {scholar?.id === 'sukayrij' && (
-                <>
-                  <View style={styles.infoItem}>
-                    <View style={styles.infoIconContainer}>
-                      <Ionicons name="book" size={16} color={colors.accentTeal} />
-                    </View>
-                    <View style={styles.infoContent}>
-                      <Text style={styles.infoLabel}>Works</Text>
-                      <Text style={styles.infoValue}>{keyInfo.works}</Text>
-                    </View>
+              {keyInfo.born && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIconContainer}>
+                    <Ionicons name="calendar" size={16} color={colors.accentTeal} />
                   </View>
-                  <View style={styles.infoItem}>
-                    <View style={styles.infoIconContainer}>
-                      <Ionicons name="school" size={16} color={colors.accentTeal} />
-                    </View>
-                    <View style={styles.infoContent}>
-                      <Text style={styles.infoLabel}>Ijazas</Text>
-                      <Text style={styles.infoValue}>{keyInfo.ijazas}</Text>
-                    </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Born</Text>
+                    <Text style={styles.infoValue}>{keyInfo.born}</Text>
                   </View>
-                </>
+                </View>
+              )}
+              {keyInfo.passed && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIconContainer}>
+                    <Ionicons name="heart" size={16} color={colors.accentTeal} />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Passed Away</Text>
+                    <Text style={styles.infoValue}>{keyInfo.passed}</Text>
+                  </View>
+                </View>
+              )}
+              {keyInfo.location && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIconContainer}>
+                    <Ionicons name="location" size={16} color={colors.accentTeal} />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Location</Text>
+                    <Text style={styles.infoValue}>{keyInfo.location}</Text>
+                  </View>
+                </View>
+              )}
+              {keyInfo.works && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIconContainer}>
+                    <Ionicons name="book" size={16} color={colors.accentTeal} />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Works</Text>
+                    <Text style={styles.infoValue}>{keyInfo.works}</Text>
+                  </View>
+                </View>
+              )}
+              {keyInfo.roles && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIconContainer}>
+                    <Ionicons name="ribbon" size={16} color={colors.accentTeal} />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Role</Text>
+                    <Text style={styles.infoValue}>{keyInfo.roles}</Text>
+                  </View>
+                </View>
               )}
             </View>
           </View>

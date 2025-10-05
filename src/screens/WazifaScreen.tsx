@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Digital Counter Component
 const DigitalCounter = ({ count, onIncrement, onDecrement, onReset }: {
@@ -93,6 +94,7 @@ const WazifaStepCard = ({
 );
 
 export default function WazifaScreen() {
+  const { t } = useLanguage();
   const [istighfarCount, setIstighfarCount] = useState(0);
   const [salatilFathiCount, setSalatilFathiCount] = useState(0);
   const [laIlahaCount, setLaIlahaCount] = useState(0);
@@ -124,8 +126,8 @@ export default function WazifaScreen() {
             <View style={styles.headerContent}>
               <Ionicons name="book" size={32} color={colors.accentYellow} />
               <View style={styles.headerText}>
-                <Text style={styles.headerTitle}>Tijaniya Wazifa</Text>
-                <Text style={styles.headerSubtitle}>The Unfolding of Wazifa</Text>
+                <Text style={styles.headerTitle}>{t('wazifa.title')}</Text>
+                <Text style={styles.headerSubtitle}>{t('wazifa.subtitle')}</Text>
               </View>
             </View>
           </LinearGradient>

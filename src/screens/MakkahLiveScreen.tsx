@@ -270,11 +270,14 @@ export default function MakkahLiveScreen() {
             const { nativeEvent } = syntheticEvent;
             console.warn('WebView error: ', nativeEvent);
             setIsLoading(false);
+            // If YouTube player throws config error (e.g., error 153), suggest opening in YouTube or switching streams
+            setShowStreamHelp(true);
           }}
           onHttpError={(syntheticEvent) => {
             const { nativeEvent } = syntheticEvent;
             console.warn('WebView HTTP error: ', nativeEvent);
             setIsLoading(false);
+            setShowStreamHelp(true);
           }}
           onMessage={(event) => {
             // Handle YouTube player messages

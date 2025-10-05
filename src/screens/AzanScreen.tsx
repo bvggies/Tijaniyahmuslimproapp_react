@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
 import { Audio } from 'expo-av';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -29,6 +30,7 @@ interface AzanOption {
 }
 
 const TijaniyaAzanScreen: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedAzan, setSelectedAzan] = useState<AzanOption | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -360,7 +362,7 @@ const TijaniyaAzanScreen: React.FC = () => {
           {/* Debug Info */}
           <View style={styles.debugContainer}>
             <Text style={styles.debugText}>
-              Status: {isLoading ? 'Loading...' : error ? 'Error' : selectedAzan ? 'Ready' : 'No audio selected'}
+              Status: {isLoading ? t('azan.loading') : error ? t('common.error') : selectedAzan ? 'Ready' : 'No audio selected'}
             </Text>
             <Text style={styles.debugText}>
               Audio Source: Local File
@@ -391,8 +393,8 @@ const TijaniyaAzanScreen: React.FC = () => {
           >
             <View style={styles.headerContent}>
               <Ionicons name="volume-high" size={40} color="white" />
-              <Text style={styles.headerTitle}>AZAN</Text>
-              <Text style={styles.headerSubtitle}>Sacred Call to Prayer</Text>
+              <Text style={styles.headerTitle}>{t('azan.title')}</Text>
+              <Text style={styles.headerSubtitle}>{t('azan.subtitle')}</Text>
               <Text style={styles.headerArabic}>الأذان</Text>
             </View>
           </LinearGradient>
@@ -402,9 +404,9 @@ const TijaniyaAzanScreen: React.FC = () => {
 
           {/* Azan Options */}
           <View style={styles.optionsContainer}>
-            <Text style={styles.sectionTitle}>Choose Your Azan</Text>
+            <Text style={styles.sectionTitle}>{t('azan.select_muezzin')}</Text>
             <Text style={styles.sectionSubtitle}>
-              Select from famous muezzins around the world
+              {t('azan.subtitle')}
             </Text>
             
             {azanOptions.map(renderAzanCard)}
