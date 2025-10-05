@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView } from 'react-native';
 import { colors } from '../utils/theme';
+import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { WebView } from 'react-native-webview';
@@ -219,25 +220,30 @@ export default function MakkahLiveScreen() {
         </View>
       </LinearGradient>
 
-      {/* Stream Help Notification */}
-      {showStreamHelp && (
-        <View style={styles.helpBanner}>
-          <View style={styles.helpContent}>
-            <Ionicons name="information-circle" size={20} color={colors.accentYellow} />
-            <View style={styles.helpText}>
-              <Text style={styles.helpTitle}>{t('makkah_live.help_title')}</Text>
-              <Text style={styles.helpDescription}>
-                {t('makkah_live.help_description')}
-              </Text>
+      <ScrollView 
+        style={commonScreenStyles.scrollContainer}
+        contentContainerStyle={commonScreenStyles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Stream Help Notification */}
+        {showStreamHelp && (
+          <View style={styles.helpBanner}>
+            <View style={styles.helpContent}>
+              <Ionicons name="information-circle" size={20} color={colors.accentYellow} />
+              <View style={styles.helpText}>
+                <Text style={styles.helpTitle}>{t('makkah_live.help_title')}</Text>
+                <Text style={styles.helpDescription}>
+                  {t('makkah_live.help_description')}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={toggleStreamHelp} style={styles.closeHelpButton}>
+                <Ionicons name="close" size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={toggleStreamHelp} style={styles.closeHelpButton}>
-              <Ionicons name="close" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
           </View>
-        </View>
-      )}
+        )}
 
-      <View style={styles.playerCard}>
+        <View style={styles.playerCard}>
         {isLoading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.accentTeal} />
@@ -329,9 +335,8 @@ export default function MakkahLiveScreen() {
             </TouchableOpacity>
           )}
         />
-      </View>
-
-      <View style={{ height: 16 }} />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -358,6 +363,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentYellow + '20',
     marginHorizontal: 16,
     marginTop: 8,
+    marginBottom: 8,
     borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: colors.accentYellow,
@@ -386,7 +392,7 @@ const styles = StyleSheet.create({
     padding: 4,
     marginLeft: 8,
   },
-  playerCard: { flex: 1, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
+  playerCard: { height: 250, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
   fallback: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   fallbackText: { color: colors.textSecondary, marginTop: 8, marginBottom: 12 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 6 as any, backgroundColor: colors.mintSurface, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
