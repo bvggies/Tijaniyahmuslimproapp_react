@@ -66,6 +66,14 @@ const translations = {
     'more.ai_search_subtitle': 'Ask AI Noor for answers to your questions',
     'more.ask_ai_noor': 'Ask AI Noor',
     
+    // Makkah Live
+    'makkah_live.title': 'Makkah Live',
+    'makkah_live.subtitle': 'Live streams from the Holy Mosques',
+    'makkah_live.help_title': 'Stream Not Working?',
+    'makkah_live.help_description': 'If the current stream isn\'t loading or has issues, try switching to another stream below. Different streams may work better depending on your internet connection.',
+    'makkah_live.open_youtube': 'Open in YouTube',
+    'makkah_live.loading': 'Loading live stream...',
+    
     // Prayer Times
     'prayer.fajr': 'Fajr',
     'prayer.dhuhr': 'Dhuhr',
@@ -142,6 +150,14 @@ const translations = {
     'more.search_with_ai': 'Rechercher avec AI Noor',
     'more.ai_search_subtitle': 'Demandez à AI Noor des réponses à vos questions',
     'more.ask_ai_noor': 'Demander à AI Noor',
+    
+    // Makkah Live
+    'makkah_live.title': 'Makkah en Direct',
+    'makkah_live.subtitle': 'Diffusions en direct des Mosquées Saintes',
+    'makkah_live.help_title': 'Le Stream ne Fonctionne Pas?',
+    'makkah_live.help_description': 'Si le stream actuel ne se charge pas ou a des problèmes, essayez de passer à un autre stream ci-dessous. Différents streams peuvent mieux fonctionner selon votre connexion internet.',
+    'makkah_live.open_youtube': 'Ouvrir dans YouTube',
+    'makkah_live.loading': 'Chargement du stream en direct...',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
@@ -220,6 +236,14 @@ const translations = {
     'more.ai_search_subtitle': 'اسأل نور الذكي للحصول على إجابات لأسئلتك',
     'more.ask_ai_noor': 'اسأل نور الذكي',
     
+    // Makkah Live
+    'makkah_live.title': 'مكة مباشر',
+    'makkah_live.subtitle': 'بث مباشر من المساجد المقدسة',
+    'makkah_live.help_title': 'البث لا يعمل؟',
+    'makkah_live.help_description': 'إذا كان البث الحالي لا يتم تحميله أو يواجه مشاكل، جرب التبديل إلى بث آخر أدناه. قد تعمل البثوث المختلفة بشكل أفضل حسب اتصالك بالإنترنت.',
+    'makkah_live.open_youtube': 'فتح في يوتيوب',
+    'makkah_live.loading': 'جاري تحميل البث المباشر...',
+    
     // Prayer Times
     'prayer.fajr': 'الفجر',
     'prayer.dhuhr': 'الظهر',
@@ -296,6 +320,14 @@ const translations = {
     'more.search_with_ai': 'Bincike tare da AI Noor',
     'more.ai_search_subtitle': 'Tambayi AI Noor don amsoshin tambayoyin ku',
     'more.ask_ai_noor': 'Tambayi AI Noor',
+    
+    // Makkah Live
+    'makkah_live.title': 'Makkah Kai Tsaye',
+    'makkah_live.subtitle': 'Watsa kai tsaye daga Masallatai Masu Tsarki',
+    'makkah_live.help_title': 'Watsa Ba Ya Aiki?',
+    'makkah_live.help_description': 'Idan watsa na yanzu ba ya loading ko yana da matsala, gwada canzawa zuwa wani watsa a ƙasa. Watsa daban-daban na iya aiki da kyau dangane da haɗin intanet ɗin ku.',
+    'makkah_live.open_youtube': 'Buɗe a YouTube',
+    'makkah_live.loading': 'Ana loading watsa kai tsaye...',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
