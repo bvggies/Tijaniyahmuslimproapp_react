@@ -9,12 +9,29 @@
       "distribution": "internal"
     },
     "preview": {
+      "developmentClient": false,
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
       "ios": {
         "simulator": false
+      }
+    },
+    "standalone": {
+      "developmentClient": false,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "env": {
+          "NODE_ENV": "production"
+        }
+      },
+      "ios": {
+        "simulator": false,
+        "env": {
+          "NODE_ENV": "production"
+        }
       }
     },
     "production": {
