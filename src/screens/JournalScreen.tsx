@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, S
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api, ensureDemoAuth } from '../services/api';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import UpgradePrompt from '../components/UpgradePrompt';
@@ -69,9 +70,28 @@ export default function JournalScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEY);
-        if (raw) setEntries(JSON.parse(raw));
-      } catch {}
+        // Load from API first
+        const list = await api.listJournal();
+        const mapped: Entry[] = (Array.isArray(list) ? list : []).map((e: any) => ({
+          id: e.id,
+          title: e.title || 'Untitled',
+          content: e.content || '',
+          mood: 'grateful',
+          tags: Array.isArray(e.tags) ? e.tags : [],
+          wordCount: String(e.content || '').trim().split(/\s+/).filter((w: string) => w.length > 0).length,
+          createdAt: e.createdAt ? new Date(e.createdAt).getTime() : Date.now(),
+          date: new Date(e.createdAt || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        }));
+        setEntries(mapped);
+        // persist local cache
+        try { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(mapped)); } catch {}
+      } catch {
+        // fallback to local cache
+        try {
+          const raw = await AsyncStorage.getItem(STORAGE_KEY);
+          if (raw) setEntries(JSON.parse(raw));
+        } catch {}
+      }
     })();
   }, []);
 
@@ -80,7 +100,7 @@ export default function JournalScreen() {
     try { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch {}
   };
 
-  const addEntry = () => {
+  const addEntry = async () => {
     if (authState.isGuest) {
       setShowUpgradePrompt(true);
       return;
@@ -88,8 +108,9 @@ export default function JournalScreen() {
     
     if (!title.trim() && !content.trim()) return;
     const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
-    const e: Entry = {
-      id: Date.now().toString(),
+    await ensureDemoAuth();
+    const optimistic: Entry = {
+      id: `tmp-${Date.now()}`,
       title: title.trim() || 'Untitled',
       content: content.trim(),
       mood,
@@ -98,8 +119,25 @@ export default function JournalScreen() {
       createdAt: Date.now(),
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     };
-    const list = [e, ...entries];
-    saveEntries(list);
+    saveEntries([optimistic, ...entries]);
+    try {
+      const created = await api.createJournal(optimistic.title, optimistic.content, optimistic.tags);
+      const mapped: Entry = {
+        id: created.id,
+        title: created.title || 'Untitled',
+        content: created.content || '',
+        mood: optimistic.mood,
+        tags: Array.isArray(created.tags) ? created.tags : [],
+        wordCount: String(created.content || '').trim().split(/\s+/).filter((w: string) => w.length > 0).length,
+        createdAt: created.createdAt ? new Date(created.createdAt).getTime() : Date.now(),
+        date: new Date(created.createdAt || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      };
+      saveEntries([mapped, ...entries]);
+    } catch (e) {
+      // rollback optimistic
+      saveEntries(entries);
+      Alert.alert('Error', 'Failed to save entry');
+    }
     setTitle('');
     setContent('');
     setMood('grateful');
@@ -203,9 +241,16 @@ export default function JournalScreen() {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const deleteEntry = (id: string) => {
-    const list = entries.filter(e => e.id !== id);
-    saveEntries(list);
+  const deleteEntry = async (id: string) => {
+    const prev = entries;
+    saveEntries(entries.filter(e => e.id !== id));
+    try {
+      if (!id.startsWith('tmp-')) await api.deleteJournal(id);
+    } catch (e) {
+      // rollback
+      saveEntries(prev);
+      Alert.alert('Error', 'Failed to delete entry');
+    }
   };
 
   const renderItem = ({ item }: { item: Entry }) => (

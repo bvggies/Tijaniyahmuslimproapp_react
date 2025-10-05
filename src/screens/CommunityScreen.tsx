@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { api, ensureDemoAuth } from '../services/api';
 
 interface User {
   id: string;
@@ -88,60 +89,7 @@ const sampleUsers: User[] = [
   },
 ];
 
-const samplePosts: Post[] = [
-  {
-    id: '1',
-    author: sampleUsers[0],
-    content: 'Alhamdulillah for another blessed day. May Allah accept our prayers and grant us His mercy. Remember to make dua for our brothers and sisters around the world. 🤲',
-    category: 'prayer',
-    likes: 45,
-    comments: [
-      {
-        id: '1',
-        author: sampleUsers[1],
-        content: 'Ameen! Beautiful reminder brother.',
-        date: '2 hours ago',
-        likes: 8,
-      },
-    ],
-    shares: 12,
-    date: '3 hours ago',
-    isLiked: false,
-    isBookmarked: false,
-  },
-  {
-    id: '2',
-    author: sampleUsers[1],
-    content: 'Just finished reading Surah Al-Fatiha with my children. The beauty of teaching the Quran to the next generation is indescribable. May Allah bless all parents who strive to raise their children upon the Quran. 📖✨',
-    category: 'quran',
-    likes: 67,
-    comments: [],
-    shares: 23,
-    date: '5 hours ago',
-    isLiked: true,
-    isBookmarked: true,
-  },
-  {
-    id: '3',
-    author: sampleUsers[2],
-    content: 'The Prophet (peace be upon him) said: "The best of people are those who benefit others." Let us strive to be a source of benefit to those around us today. 💚',
-    category: 'general',
-    likes: 89,
-    comments: [
-      {
-        id: '2',
-        author: sampleUsers[0],
-        content: 'Beautiful hadith. JazakAllah khair for sharing!',
-        date: '1 hour ago',
-        likes: 12,
-      },
-    ],
-    shares: 34,
-    date: '6 hours ago',
-    isLiked: false,
-    isBookmarked: false,
-  },
-];
+const samplePosts: Post[] = [];
 
 export default function CommunityScreen() {
   const { authState } = useAuth();
@@ -162,6 +110,58 @@ export default function CommunityScreen() {
     following: 0,
   });
 
+  const mapApiPost = (p: any): Post => {
+    const authorName = p?.user?.name || p?.user?.email?.split('@')[0] || 'User';
+    const authorUser: User = {
+      id: p?.user?.id || 'user',
+      name: authorName,
+      username: authorName.replace(/\s+/g, '_').toLowerCase(),
+      isVerified: false,
+      followers: 0,
+      following: 0,
+    };
+    const mappedComments: Comment[] = Array.isArray(p?.comments)
+      ? p.comments.map((c: any) => ({
+          id: c.id,
+          author: {
+            id: c.user?.id || 'user',
+            name: c.user?.name || c.user?.email?.split('@')[0] || 'User',
+            username: (c.user?.name || c.user?.email || 'user').split('@')[0].toLowerCase(),
+            isVerified: false,
+            followers: 0,
+            following: 0,
+          },
+          content: c.content,
+          date: new Date(c.createdAt || Date.now()).toLocaleString(),
+          likes: 0,
+        }))
+      : [];
+    return {
+      id: p.id,
+      author: authorUser,
+      content: p.content,
+      category: 'general',
+      likes: (p._count?.likes as number) || 0,
+      comments: mappedComments,
+      shares: 0,
+      date: new Date(p.createdAt || Date.now()).toLocaleString(),
+      isLiked: false,
+      isBookmarked: false,
+    };
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.listPosts(20);
+        const items = Array.isArray(data?.items) ? data.items : [];
+        setPosts(items.map(mapApiPost));
+      } catch (e) {
+        // keep empty or fallback to sample
+      }
+    })();
+  }, []);
+
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
     const matchesSearch = searchQuery === '' || 
@@ -170,11 +170,12 @@ export default function CommunityScreen() {
     return matchesCategory && matchesSearch;
   });
 
-  const createPost = () => {
+  const createPost = async () => {
     if (!newPostContent.trim()) return;
-    
-    const newPost: Post = {
-      id: Date.now().toString(),
+    // Ensure backend session (temporary demo fallback)
+    await ensureDemoAuth();
+    const optimistic: Post = {
+      id: `tmp-${Date.now()}`,
       author: currentUser,
       content: newPostContent.trim(),
       category: newPostCategory,
@@ -185,22 +186,27 @@ export default function CommunityScreen() {
       isLiked: false,
       isBookmarked: false,
     };
-    
-    setPosts([newPost, ...posts]);
+    setPosts([optimistic, ...posts]);
     setNewPostContent('');
     setShowCreatePost(false);
+    try {
+      const created = await api.createPost(optimistic.content, []);
+      setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
+    } catch (e: any) {
+      setPosts(prev => prev.filter(p => p.id !== optimistic.id));
+      Alert.alert('Error', e?.message ? String(e.message) : 'Failed to create post');
+    }
   };
 
-  const toggleLike = (postId: string) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            isLiked: !post.isLiked,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1
-          }
-        : post
-    ));
+  const toggleLike = async (postId: string) => {
+    setPosts(prev => prev.map(post => post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post));
+    try {
+      const liked = posts.find(p => p.id === postId)?.isLiked;
+      if (liked) await api.unlikePost(postId);
+      else await api.likePost(postId);
+    } catch (e) {
+      setPosts(prev => prev.map(post => post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post));
+    }
   };
 
   const toggleBookmark = (postId: string) => {
@@ -211,24 +217,24 @@ export default function CommunityScreen() {
     ));
   };
 
-  const addComment = (postId: string) => {
+  const addComment = async (postId: string) => {
     if (!newComment.trim()) return;
-    
-    const comment: Comment = {
-      id: Date.now().toString(),
+    const optimistic: Comment = {
+      id: `tmp-${Date.now()}`,
       author: currentUser,
       content: newComment.trim(),
       date: 'Just now',
       likes: 0,
     };
-    
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { ...post, comments: [...post.comments, comment] }
-        : post
-    ));
-    
+    setPosts(prev => prev.map(post => post.id === postId ? { ...post, comments: [...post.comments, optimistic] } : post));
     setNewComment('');
+    try {
+      await api.addComment(postId, optimistic.content);
+      // Optionally refetch single post to get real comment from server
+    } catch (e) {
+      setPosts(prev => prev.map(post => post.id === postId ? { ...post, comments: post.comments.filter(c => c.id !== optimistic.id) } : post));
+      Alert.alert('Error', 'Failed to add comment');
+    }
   };
 
   const formatDate = (dateString: string) => {

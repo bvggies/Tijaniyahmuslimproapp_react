@@ -11,45 +11,47 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
 const TijaniyahFeaturesScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   
   const features = [
     {
       id: '1',
-      title: "Tariqa Tijaniyyah",
-      description: "Learn about The Tijānī Path",
-      icon: "star",
+      title: 'Tariqa Tijaniyyah',
+      description: 'Learn about The Tijānī Path',
+      icon: 'star',
       color: colors.accentTeal,
-      screen: "TariqaTijaniyyah"
+      screen: 'TariqaTijaniyyah',
     },
     {
       id: '2',
-      title: "Tijaniya Fiqh",
-      description: "The Conditions of Tijaniya Fiqh",
-      icon: "book",
+      title: 'Tijaniya Fiqh',
+      description: 'The Conditions of Tijaniya Fiqh',
+      icon: 'book',
       color: colors.primary,
-      screen: "TijaniyaFiqh"
+      screen: 'TijaniyaFiqh',
     },
     {
       id: '3',
-      title: "Resources for Beginners",
-      description: "Islamic Terms & Phrases",
-      icon: "library",
+      title: 'Resources for Beginners',
+      description: 'Islamic Terms & Phrases',
+      icon: 'library',
       color: colors.success,
-      screen: "ResourcesForBeginners"
+      screen: 'ResourcesForBeginners',
     },
     {
       id: '4',
-      title: "Proof of Tasawwuf Part 1",
-      description: "Dhikr is the Greatest Obligation",
-      icon: "diamond",
+      title: 'Proof of Tasawwuf Part 1',
+      description: 'Dhikr is the Greatest Obligation',
+      icon: 'diamond',
       color: colors.warning,
-      screen: "ProofOfTasawwufPart1"
-    }
+      screen: 'ProofOfTasawwufPart1',
+    },
   ];
 
   const renderFeatureCard = ({ item }: { item: any }) => {
@@ -88,14 +90,14 @@ const TijaniyahFeaturesScreen: React.FC = () => {
       >
         <View style={styles.headerContent}>
           <Ionicons name="star" size={32} color="white" />
-          <Text style={styles.headerTitle}>Tijaniyah Features</Text>
+          <Text style={styles.headerTitle}>{t('tijaniyah.title')}</Text>
           <Text style={styles.headerSubtitle}>Authentic Tijaniyah Practices & Resources</Text>
         </View>
       </LinearGradient>
 
       {/* Features Section Title */}
       <View style={styles.featuresContainer}>
-        <Text style={styles.sectionTitle}>Tijaniyah Features</Text>
+        <Text style={styles.sectionTitle}>{t('tijaniyah.title')}</Text>
       </View>
     </View>
   );

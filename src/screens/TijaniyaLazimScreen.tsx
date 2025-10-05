@@ -13,10 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
 const TijaniyaLazimScreen: React.FC = () => {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [counter, setCounter] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -215,8 +217,8 @@ const TijaniyaLazimScreen: React.FC = () => {
           >
             <View style={styles.headerContent}>
               <Ionicons name="book" size={40} color="white" />
-              <Text style={styles.headerTitle}>TIJANIYA LAZIM</Text>
-              <Text style={styles.headerSubtitle}>The Unfolding of Lazim</Text>
+              <Text style={styles.headerTitle}>{t('lazim.title')}</Text>
+              <Text style={styles.headerSubtitle}>{t('lazim.subtitle')}</Text>
               <Text style={styles.headerArabic}>تطبيق الورد اللازم</Text>
             </View>
           </LinearGradient>
@@ -226,7 +228,7 @@ const TijaniyaLazimScreen: React.FC = () => {
 
           {/* Steps */}
           <View style={styles.stepsContainer}>
-            <Text style={styles.sectionTitle}>The Seven Steps of Lazim</Text>
+            <Text style={styles.sectionTitle}>{t('lazim.title')}</Text>
             {lazimSteps.map((step, index) => renderStepCard(step, index))}
           </View>
 
