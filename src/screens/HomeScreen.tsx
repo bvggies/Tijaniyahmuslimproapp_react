@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => {
     if (prayerTimes.length === 0) return;
     
-    const interval = set{t('home.in')}terval(() => {
+    const interval = setInterval(() => {
       setCurrentTime(new Date());
       setPrayerTimes(prevPrayerTimes => {
         if (prevPrayerTimes.length > 0) {
@@ -76,7 +76,7 @@ export default function HomeScreen({ navigation }: any) {
       });
     }, 1000);
 
-    return () => clear{t('home.in')}terval(interval);
+    return () => clearInterval(interval);
   }, [prayerTimes.length > 0]); // Only run when we have prayer times
 
   // Refresh daily reminder at midnight in user's timezone
@@ -93,8 +93,8 @@ export default function HomeScreen({ navigation }: any) {
     const timeout = setTimeout(() => {
       loadDailyReminder(currentTimezone);
       // Set up interval to refresh every 24 hours
-      const interval = set{t('home.in')}terval(() => loadDailyReminder(currentTimezone), 24 * 60 * 60 * 1000);
-      return () => clear{t('home.in')}terval(interval);
+      const interval = setInterval(() => loadDailyReminder(currentTimezone), 24 * 60 * 60 * 1000);
+      return () => clearInterval(interval);
     }, timeUntilMidnight);
     
     return () => clearTimeout(timeout);
@@ -113,7 +113,7 @@ export default function HomeScreen({ navigation }: any) {
 
   const loadLocationAndPrayerTimes = async () => {
     try {
-      const locationService = LocationService.get{t('home.in')}stance();
+      const locationService = LocationService.getInstance();
       const locationData = await locationService.getCurrentLocation();
       
       if (!locationData) {
@@ -135,7 +135,7 @@ export default function HomeScreen({ navigation }: any) {
       setPrayerTimes(times);
 
       // Schedule prayer notifications
-      const notificationService = NotificationService.get{t('home.in')}stance();
+      const notificationService = NotificationService.getInstance();
       await notificationService.schedulePrayerNotifications(times);
 
       // Update Islamic date with location coordinates
@@ -445,7 +445,7 @@ export default function HomeScreen({ navigation }: any) {
         // 24-hour format (e.g., "14:30")
         const [h, m] = time.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) {
-          console.error('{t('home.in')}valid time format:', time);
+          console.error('Invalid time format:', time);
           return '';
         }
         target.setHours(h, m, 0, 0);
@@ -460,7 +460,7 @@ export default function HomeScreen({ navigation }: any) {
       const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       
       if (isNaN(hours) || isNaN(minutes)) {
-        console.error('{t('home.in')}valid time calculation:', { hours, minutes, diffMs });
+        console.error('Invalid time calculation:', { hours, minutes, diffMs });
         return '';
       }
       
@@ -652,8 +652,8 @@ export default function HomeScreen({ navigation }: any) {
               />
             </Animated.View>
 
-            {/* Prayer {t('home.in')}fo */}
-            <View style={styles.prayer{t('home.in')}fo}>
+            {/* Prayer Info */}
+            <View style={styles.prayerInfo}>
               <View style={styles.prayerNameContainer}>
                 <Text style={[styles.prayerName, prayer.isCurrent && styles.currentPrayerName]}>
                   {prayer.name}
@@ -674,11 +674,11 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             </View>
 
-            {/* Current Prayer {t('home.in')}dicator */}
+            {/* Current Prayer Indicator */}
             {prayer.isCurrent && (
               <Animated.View 
                 style={[
-                  styles.current{t('home.in')}dicator,
+                  styles.currentIndicator,
                   {
                     transform: [{
                       scale: fadeAnim.interpolate({
@@ -772,7 +772,7 @@ export default function HomeScreen({ navigation }: any) {
             
               
               {/* Actions - Donate, Profile, Language, then Settings */}
-              <View style={styles.headerActions{t('home.in')}line}>
+              <View style={styles.headerActionsInline}>
                 <View style={styles.headerButtonContainer}>
                 <TouchableOpacity 
                   style={[styles.iconPillButton, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
@@ -812,7 +812,7 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             </View>
             
-            {/* {t('home.in')}line Greetings and Location */}
+            {/* Inline Greetings and Location */}
             <View style={styles.greetingLocationContainer}>
               {/* Greetings on the left */}
               <View style={styles.greetingContainer}>
@@ -852,7 +852,7 @@ export default function HomeScreen({ navigation }: any) {
             <View style={styles.calendarHeader}>
               <Ionicons name="calendar" size={24} color={colors.textDark} />
               <Text style={[styles.calendarTitle, { color: colors.textDark }]}>
-                {t('home.islamic_calendar')} ({getCalendar{t('home.in')}fo(selectedCalendar).name})
+                {t('home.islamic_calendar')} ({getCalendarInfo(selectedCalendar).name})
               </Text>
               <Ionicons name="chevron-forward" size={16} color={colors.textDark} style={styles.calendarChevron} />
             </View>
@@ -920,8 +920,8 @@ export default function HomeScreen({ navigation }: any) {
                 </View>
               </View>
 
-              {/* Main Prayer {t('home.in')}fo */}
-              <View style={styles.prayerMain{t('home.in')}fo}>
+              {/* Main Prayer Info */}
+              <View style={styles.prayerMainInfo}>
                 <View style={styles.prayerNameSection}>
                   <Text style={styles.prayerNameLarge}>{currentPrayer.name}</Text>
                   <Text style={styles.prayerNameArabic}>{getPrayerNameArabic(currentPrayer.name)}</Text>
@@ -946,12 +946,12 @@ export default function HomeScreen({ navigation }: any) {
               {/* Footer with Location and Method */}
               <View style={styles.prayerFooter}>
                 {currentLocation && (
-                  <View style={styles.location{t('home.in')}fo}>
+                  <View style={styles.locationInfo}>
                     <Ionicons name="location" size={16} color={colors.textPrimary} />
                     <Text style={styles.locationText}>{currentLocation.city}</Text>
                   </View>
                 )}
-                <View style={styles.method{t('home.in')}fo}>
+                <View style={styles.methodInfo}>
                   <Ionicons name="calculator" size={16} color={colors.textPrimary} />
                   <Text style={styles.methodText}>MWL Method</Text>
                 </View>
@@ -983,7 +983,7 @@ export default function HomeScreen({ navigation }: any) {
                   <View style={styles.nextPrayerIcon}>
                     <Ionicons name="time" size={24} color="#FFFFFF" />
                   </View>
-                  <View style={styles.nextPrayer{t('home.in')}fo}>
+                  <View style={styles.nextPrayerInfo}>
                     <Text style={styles.nextPrayerLabel}>{t('prayer.next_prayer')}</Text>
                     <Text style={styles.nextPrayerLabelArabic}>الصلاة القادمة</Text>
                     <Text style={styles.nextPrayerName}>{getNextPrayer().name}</Text>
@@ -1180,7 +1180,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    z{t('home.in')}dex: 0,
+    zIndex: 0,
   },
   patternCircle1: {
     position: 'absolute',
@@ -1327,7 +1327,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    z{t('home.in')}dex: 1000,
+    zIndex: 1000,
   },
   suggestionItem: {
     flexDirection: 'row',
@@ -1463,7 +1463,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 4,
   },
-  prayerMain{t('home.in')}fo: {
+  prayerMainInfo: {
     marginBottom: 20,
   },
   prayerNameSection: {
@@ -1518,7 +1518,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
-  location{t('home.in')}fo: {
+  locationInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1528,7 +1528,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontWeight: '500',
   },
-  method{t('home.in')}fo: {
+  methodInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1625,7 +1625,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ring{t('home.in')}ner: {
+  ringInner: {
     width: 90,
     height: 90,
     borderRadius: 45,
@@ -1713,7 +1713,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  prayer{t('home.in')}fo: {
+  prayerInfo: {
     flex: 1,
   },
   prayerNameContainer: {
@@ -1756,7 +1756,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 2,
   },
-  current{t('home.in')}dicator: {
+  currentIndicator: {
     alignItems: 'center',
     marginLeft: 8,
   },
@@ -1792,7 +1792,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  nextPrayer{t('home.in')}fo: {
+  nextPrayerInfo: {
     flex: 1,
   },
   nextPrayerLabel: {
