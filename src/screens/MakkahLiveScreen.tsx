@@ -13,6 +13,15 @@ type Channel = {
   youtubeId: string; // video id for watch/embed
 };
 
+type TVChannel = {
+  id: string;
+  title: string;
+  subtitle: string;
+  websiteUrl: string;
+  logo: string; // emoji or icon
+  category: 'islamic' | 'quran' | 'news' | 'educational';
+};
+
 const CHANNELS: Channel[] = [
   {
     id: 'makkah-live-24-7',
@@ -52,6 +61,106 @@ const CHANNELS: Channel[] = [
   },
 ];
 
+const TV_CHANNELS: TVChannel[] = [
+  // Quran Channels
+  {
+    id: 'quran-tv-saudi',
+    title: '📺 Quran TV Saudi Arabia',
+    subtitle: 'Official Saudi Quran TV Channel',
+    websiteUrl: 'https://qurantv.sa',
+    logo: '📺',
+    category: 'quran'
+  },
+  {
+    id: 'iqra-tv',
+    title: '📺 Iqra TV',
+    subtitle: 'International Islamic TV Network',
+    websiteUrl: 'https://iqra.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-majd-quran',
+    title: '📺 Al Majd Quran',
+    subtitle: 'Quran recitation and Islamic content',
+    websiteUrl: 'https://almajd.tv',
+    logo: '📺',
+    category: 'quran'
+  },
+  {
+    id: 'al-resalah-tv',
+    title: '📺 Al Resalah TV',
+    subtitle: 'Islamic educational and cultural content',
+    websiteUrl: 'https://alresalah.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-huda-tv',
+    title: '📺 Al Huda TV',
+    subtitle: 'Islamic guidance and education',
+    websiteUrl: 'https://alhuda.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'peace-tv',
+    title: '📺 Peace TV',
+    subtitle: 'Global Islamic television network',
+    websiteUrl: 'https://peacetv.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'islam-channel',
+    title: '📺 Islam Channel',
+    subtitle: 'UK-based Islamic television',
+    websiteUrl: 'https://islamchannel.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'huda-tv',
+    title: '📺 Huda TV',
+    subtitle: 'Islamic satellite television',
+    websiteUrl: 'https://hudatv.net',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-noor-tv',
+    title: '📺 Al Noor TV',
+    subtitle: 'Islamic educational programming',
+    websiteUrl: 'https://alnoortv.com',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-kawthar-tv',
+    title: '📺 Al Kawthar TV',
+    subtitle: 'Islamic cultural and educational content',
+    websiteUrl: 'https://alkawthartv.com',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-eman-tv',
+    title: '📺 Al Eman TV',
+    subtitle: 'Islamic faith and guidance',
+    websiteUrl: 'https://aleman.tv',
+    logo: '📺',
+    category: 'islamic'
+  },
+  {
+    id: 'al-fajr-tv',
+    title: '📺 Al Fajr TV',
+    subtitle: 'Islamic news and current affairs',
+    websiteUrl: 'https://alfajrtv.com',
+    logo: '📺',
+    category: 'news'
+  }
+];
+
 export default function MakkahLiveScreen() {
   const { t } = useLanguage();
   const [active, setActive] = useState<Channel>(CHANNELS[0]);
@@ -70,6 +179,30 @@ export default function MakkahLiveScreen() {
 
   const toggleStreamHelp = () => {
     setShowStreamHelp(!showStreamHelp);
+  };
+
+  const openTVChannel = (channel: TVChannel) => {
+    Linking.openURL(channel.websiteUrl);
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'quran': return colors.accentTeal + '20';
+      case 'islamic': return colors.accentYellow + '20';
+      case 'news': return colors.accentRed + '20';
+      case 'educational': return colors.accentGreen + '20';
+      default: return colors.textSecondary + '20';
+    }
+  };
+
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case 'quran': return t('makkah_live.category_quran');
+      case 'islamic': return t('makkah_live.category_islamic');
+      case 'news': return t('makkah_live.category_news');
+      case 'educational': return t('makkah_live.category_educational');
+      default: return category;
+    }
   };
 
   return (
@@ -164,6 +297,40 @@ export default function MakkahLiveScreen() {
         )}
       />
 
+      {/* TV Channels Section */}
+      <View style={styles.tvChannelsSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{t('makkah_live.tv_channels')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('makkah_live.tv_channels_subtitle')}</Text>
+        </View>
+
+        <FlatList
+          data={TV_CHANNELS}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.tvChannelsGrid}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.tvChannelCard}
+              onPress={() => openTVChannel(item)}
+            >
+              <View style={styles.tvChannelHeader}>
+                <Text style={styles.tvChannelLogo}>{item.logo}</Text>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+              </View>
+              <View style={styles.tvChannelContent}>
+                <Text style={styles.tvChannelTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={styles.tvChannelSubtitle} numberOfLines={2}>{item.subtitle}</Text>
+                <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(item.category) }]}>
+                  <Text style={styles.categoryText}>{getCategoryLabel(item.category)}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       <View style={{ height: 16 }} />
     </View>
   );
@@ -246,5 +413,74 @@ const styles = StyleSheet.create({
     marginTop: 12, 
     fontSize: 16, 
     fontWeight: '600' 
+  },
+  // TV Channels Section Styles
+  tvChannelsSection: {
+    marginTop: 24,
+    paddingHorizontal: 16,
+  },
+  sectionHeader: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    color: colors.textSecondary,
+    fontSize: 14,
+  },
+  tvChannelsGrid: {
+    paddingBottom: 16,
+  },
+  tvChannelCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 12,
+    margin: 6,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  tvChannelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  tvChannelLogo: {
+    fontSize: 24,
+  },
+  tvChannelContent: {
+    flex: 1,
+  },
+  tvChannelTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  tvChannelSubtitle: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginBottom: 8,
+    lineHeight: 16,
+  },
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  categoryText: {
+    color: colors.textPrimary,
+    fontSize: 10,
+    fontWeight: '600',
   },
 });

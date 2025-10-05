@@ -73,6 +73,12 @@ const translations = {
     'makkah_live.help_description': 'If the current stream isn\'t loading or has issues, try switching to another stream below. Different streams may work better depending on your internet connection.',
     'makkah_live.open_youtube': 'Open in YouTube',
     'makkah_live.loading': 'Loading live stream...',
+    'makkah_live.tv_channels': 'Islamic & Quran TV Channels',
+    'makkah_live.tv_channels_subtitle': 'Visit official websites to watch live',
+    'makkah_live.category_quran': 'Quran',
+    'makkah_live.category_islamic': 'Islamic',
+    'makkah_live.category_news': 'News',
+    'makkah_live.category_educational': 'Educational',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
@@ -158,6 +164,12 @@ const translations = {
     'makkah_live.help_description': 'Si le stream actuel ne se charge pas ou a des problèmes, essayez de passer à un autre stream ci-dessous. Différents streams peuvent mieux fonctionner selon votre connexion internet.',
     'makkah_live.open_youtube': 'Ouvrir dans YouTube',
     'makkah_live.loading': 'Chargement du stream en direct...',
+    'makkah_live.tv_channels': 'Chaînes TV Islamiques & Coraniques',
+    'makkah_live.tv_channels_subtitle': 'Visitez les sites officiels pour regarder en direct',
+    'makkah_live.category_quran': 'Coran',
+    'makkah_live.category_islamic': 'Islamique',
+    'makkah_live.category_news': 'Actualités',
+    'makkah_live.category_educational': 'Éducatif',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
@@ -243,6 +255,12 @@ const translations = {
     'makkah_live.help_description': 'إذا كان البث الحالي لا يتم تحميله أو يواجه مشاكل، جرب التبديل إلى بث آخر أدناه. قد تعمل البثوث المختلفة بشكل أفضل حسب اتصالك بالإنترنت.',
     'makkah_live.open_youtube': 'فتح في يوتيوب',
     'makkah_live.loading': 'جاري تحميل البث المباشر...',
+    'makkah_live.tv_channels': 'قنوات تلفزيونية إسلامية وقرآنية',
+    'makkah_live.tv_channels_subtitle': 'قم بزيارة المواقع الرسمية للمشاهدة المباشرة',
+    'makkah_live.category_quran': 'قرآن',
+    'makkah_live.category_islamic': 'إسلامي',
+    'makkah_live.category_news': 'أخبار',
+    'makkah_live.category_educational': 'تعليمي',
     
     // Prayer Times
     'prayer.fajr': 'الفجر',
@@ -328,6 +346,12 @@ const translations = {
     'makkah_live.help_description': 'Idan watsa na yanzu ba ya loading ko yana da matsala, gwada canzawa zuwa wani watsa a ƙasa. Watsa daban-daban na iya aiki da kyau dangane da haɗin intanet ɗin ku.',
     'makkah_live.open_youtube': 'Buɗe a YouTube',
     'makkah_live.loading': 'Ana loading watsa kai tsaye...',
+    'makkah_live.tv_channels': 'Gidajen Talabijin na Musulunci & Alkur\'ani',
+    'makkah_live.tv_channels_subtitle': 'Ziyarci shafukan hukuma don kallon kai tsaye',
+    'makkah_live.category_quran': 'Alkur\'ani',
+    'makkah_live.category_islamic': 'Musulunci',
+    'makkah_live.category_news': 'Labarai',
+    'makkah_live.category_educational': 'Ilimi',
     
     // Prayer Times
     'prayer.fajr': 'Fajr',
