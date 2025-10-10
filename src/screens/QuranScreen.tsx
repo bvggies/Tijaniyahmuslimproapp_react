@@ -14,10 +14,12 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   getQuranChapters, 
   getChapterById, 
   getVersesByChapter, 
+  getVersesByChapterAsync,
   searchQuran,
   addBookmark,
   removeBookmark,
@@ -27,12 +29,14 @@ import {
 } from '../services/quranService';
 
 export default function QuranScreen() {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'chapters' | 'verses' | 'search'>('chapters');
   const [chapters, setChapters] = useState<QuranChapter[]>([]);
   const [verses, setVerses] = useState<QuranVerse[]>([]);
+  const [isLoadingVerses, setIsLoadingVerses] = useState(false);
   const [searchResults, setSearchResults] = useState<{ chapters: QuranChapter[], verses: QuranVerse[] }>({ chapters: [], verses: [] });
 
   useEffect(() => {
@@ -44,11 +48,19 @@ export default function QuranScreen() {
     setChapters(quranChapters);
   };
 
-  const handleChapterSelect = (chapterId: number) => {
+  const handleChapterSelect = async (chapterId: number) => {
     setSelectedChapter(chapterId);
-    const chapterVerses = getVersesByChapter(chapterId);
-    setVerses(chapterVerses);
+    setIsLoadingVerses(true);
     setViewMode('verses');
+    try {
+      const full = await getVersesByChapterAsync(chapterId);
+      setVerses(full);
+    } catch {
+      const fallback = getVersesByChapter(chapterId);
+      setVerses(fallback);
+    } finally {
+      setIsLoadingVerses(false);
+    }
   };
 
   const handleSearch = (query: string) => {
@@ -81,7 +93,7 @@ export default function QuranScreen() {
       const shareText = `${chapter?.name} ${verse.surah}:${verse.verse}\n\n${verse.arabic}\n\n${verse.translation}`;
       await Share.share({
         message: shareText,
-        title: 'Quran Verse'
+        title: t('quran.title')
       });
     } catch (error) {
       console.error('Error sharing verse:', error);
@@ -92,7 +104,7 @@ export default function QuranScreen() {
     const chapter = getChapterById(verse.surah);
     const copyText = `${chapter?.name} ${verse.surah}:${verse.verse}\n\n${verse.arabic}\n\n${verse.translation}`;
     Clipboard.setString(copyText);
-    Alert.alert('Copied', 'Verse copied to clipboard');
+    Alert.alert(t('common.success'), t('quran.notes'));
   };
 
   const goBack = () => {
@@ -292,6 +304,13 @@ export default function QuranScreen() {
             </View>
           );
         }}
+        ListFooterComponent={() => (
+          viewMode === 'verses' && isLoadingVerses ? (
+            <View style={{ padding: 16, alignItems: 'center' }}>
+              <Text style={{ color: '#999' }}>Loading verses…</Text>
+            </View>
+          ) : null
+        )}
       />
     </View>
   );

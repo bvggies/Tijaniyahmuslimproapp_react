@@ -32,13 +32,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTimeFormat } from '../contexts/TimeFormatContext';
 import { useIslamicCalendar } from '../contexts/IslamicCalendarContext';
 import { Alert } from 'react-native';
+import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }: any) {
   const { authState } = useAuth();
-  const { t } = useLanguage();
-  const { timeFormat } = useTimeFormat();
+  const { t, language } = useLanguage();
+  const { timeFormat, formatTimeWithSeconds } = useTimeFormat();
   const { getCurrentIslamicDate: getIslamicDate, getCalendarInfo, selectedCalendar, setSelectedCalendar, getAllCalendars } = useIslamicCalendar();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
@@ -49,6 +50,23 @@ export default function HomeScreen({ navigation }: any) {
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(new Date());
+  // Azan mini player state
+  const [selectedAzanId, setSelectedAzanId] = useState<'makkah' | 'istanbul' | null>(null);
+  const [isAzanPlaying, setIsAzanPlaying] = useState(false);
+  const azanSoundRef = useRef<Audio.Sound | null>(null);
+
+  const azanOptions = [
+    {
+      id: 'makkah' as const,
+      label: 'Makkah',
+      file: require('../../assets/audio/azan/makkah.mp3'),
+    },
+    {
+      id: 'istanbul' as const,
+      label: 'Istanbul',
+      file: require('../../assets/audio/azan/istanbul.mp3'),
+    },
+  ];
   
   // Animation refs
 
@@ -62,22 +80,105 @@ export default function HomeScreen({ navigation }: any) {
     }).start();
   }, [timeFormat]); // Reload when time format changes
 
-  // Real-time countdown updates
+  // Always tick current time every second (independent of prayer times)
+  useEffect(() => {
+    const id = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Restore real-time countdown updates for next prayer
   useEffect(() => {
     if (prayerTimes.length === 0) return;
-    
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
+
+    const intervalId = setInterval(() => {
       setPrayerTimes(prevPrayerTimes => {
         if (prevPrayerTimes.length > 0) {
-          return updatePrayerCountdowns(prevPrayerTimes, timeFormat);
+          const updated = updatePrayerCountdowns(prevPrayerTimes, timeFormat);
+          return updated;
         }
         return prevPrayerTimes;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [prayerTimes.length > 0]); // Only run when we have prayer times
+    return () => clearInterval(intervalId);
+  }, [prayerTimes.length, timeFormat]);
+
+  // Cleanup Azan sound on unmount
+  useEffect(() => {
+    // Configure iOS/Android audio session so playback works in silent mode on iOS
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          playThroughEarpieceAndroid: false,
+        });
+      } catch (e) {
+        // no-op
+      }
+    })();
+
+    return () => {
+      if (azanSoundRef.current) {
+        azanSoundRef.current.unloadAsync().catch(() => {});
+        azanSoundRef.current = null;
+      }
+    };
+  }, []);
+
+  const handlePlayPauseAzan = async () => {
+    try {
+      if (!selectedAzanId) {
+        Alert.alert('Azan', 'Please select an azan audio first');
+        return;
+      }
+      // Stop if currently playing
+      if (isAzanPlaying && azanSoundRef.current) {
+        await azanSoundRef.current.stopAsync();
+        await azanSoundRef.current.unloadAsync();
+        azanSoundRef.current = null;
+        setIsAzanPlaying(false);
+        return;
+      }
+
+      // (re)load selected audio
+      const option = azanOptions.find(o => o.id === selectedAzanId);
+      if (!option) return;
+
+      if (azanSoundRef.current) {
+        try { await azanSoundRef.current.unloadAsync(); } catch {}
+        azanSoundRef.current = null;
+      }
+      // Ensure audio mode set (especially for iOS silent switch)
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          playThroughEarpieceAndroid: false,
+        });
+      } catch {}
+
+      const { sound } = await Audio.Sound.createAsync(option.file, { shouldPlay: true, volume: 1.0 });
+      azanSoundRef.current = sound;
+      setIsAzanPlaying(true);
+      sound.setOnPlaybackStatusUpdate((status: any) => {
+        if (status && status.didJustFinish) {
+          setIsAzanPlaying(false);
+        }
+      });
+    } catch (e) {
+      setIsAzanPlaying(false);
+      Alert.alert('Azan', 'Unable to play audio');
+    }
+  };
 
   // Refresh daily reminder at midnight in user's timezone
   useEffect(() => {
@@ -155,39 +256,14 @@ export default function HomeScreen({ navigation }: any) {
     setDailyReminder(reminder);
   };
 
-  const getCurrentPrayer = () => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    for (let i = 0; i < prayerTimes.length; i++) {
-      const prayerTime = prayerTimes[i];
-      const [hours, minutes] = prayerTime.time.split(':').map(Number);
-      const prayerMinutes = hours * 60 + minutes;
-      
-      if (currentTime < prayerMinutes) {
-        return prayerTime;
-      }
-    }
-    return prayerTimes[0]; // Fajr for next day
-  };
+  // Determine current and next prayers from flags maintained by prayerService
+  const currentPrayer = React.useMemo(() => {
+    return prayerTimes.find(p => p.isCurrent) || null;
+  }, [prayerTimes]);
 
-  const getNextPrayer = () => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    for (let i = 0; i < prayerTimes.length; i++) {
-      const prayerTime = prayerTimes[i];
-      const [hours, minutes] = prayerTime.time.split(':').map(Number);
-      const prayerMinutes = hours * 60 + minutes;
-      
-      if (currentTime < prayerMinutes) {
-        return prayerTime;
-      }
-    }
-    return prayerTimes[0]; // Fajr for next day
-  };
-
-  const currentPrayer = getCurrentPrayer();
+  const nextPrayer = React.useMemo(() => {
+    return prayerTimes.find(p => p.isNext) || null;
+  }, [prayerTimes]);
 
 
 
@@ -663,14 +739,9 @@ export default function HomeScreen({ navigation }: any) {
                 </Text>
               </View>
               <View style={styles.prayerTimeContainer}>
-              <Text style={[styles.prayerTime, prayer.isCurrent && styles.currentPrayerTime]}>
-                  {prayer.timeWithSeconds || prayer.time}
-              </Text>
-                {prayer.isNext && prayer.countdown && (
-                  <Text style={styles.prayerCountdown}>
-                    {prayer.countdown}
-                  </Text>
-                )}
+                <Text style={[styles.prayerTime, prayer.isCurrent && styles.currentPrayerTime]}>
+                  {prayer.time}
+                </Text>
               </View>
             </View>
 
@@ -861,7 +932,7 @@ export default function HomeScreen({ navigation }: any) {
                 {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
               </Text>
               <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
-                {new Date().toLocaleDateString()}
+              {new Date().toLocaleDateString()} — {formatTimeWithSeconds(currentTime)}
               </Text>
               <Text style={[styles.dayName, { color: colors.textDark }]}>
                 {islamicDate.dayNameArabic} - {islamicDate.dayName}
@@ -880,7 +951,7 @@ export default function HomeScreen({ navigation }: any) {
         </Animated.View>
 
         {/* {t('prayer.next_prayer')} Card - Redesigned */}
-        {currentPrayer && (
+        {nextPrayer && (
           <Animated.View
             style={[
               styles.nextPrayerContainer,
@@ -923,21 +994,21 @@ export default function HomeScreen({ navigation }: any) {
               {/* Main Prayer Info */}
               <View style={styles.prayerMainInfo}>
                 <View style={styles.prayerNameSection}>
-                  <Text style={styles.prayerNameLarge}>{currentPrayer.name}</Text>
-                  <Text style={styles.prayerNameArabic}>{getPrayerNameArabic(currentPrayer.name)}</Text>
+                  <Text style={styles.prayerNameLarge}>{nextPrayer.name}</Text>
+                  <Text style={styles.prayerNameArabic}>{getPrayerNameArabic(nextPrayer.name)}</Text>
                 </View>
                 
                 <View style={styles.prayerTimeSection}>
                   <View style={styles.timeDisplay}>
                     <Ionicons name="time-outline" size={28} color={colors.accentYellow} />
                     <Text style={styles.prayerTimeLarge}>
-                      {currentPrayer.timeWithSeconds || currentPrayer.time}
+                      {nextPrayer.timeWithSeconds || nextPrayer.time}
                     </Text>
                   </View>
                   <View style={styles.countdownDisplay}>
                     <Ionicons name="hourglass-outline" size={20} color={colors.accentYellow} />
                     <Text style={styles.countdownText}>
-                      {currentPrayer.countdown || '00:00:00'}
+                      {nextPrayer.countdown || '00:00:00'}
                     </Text>
                   </View>
                 </View>
@@ -973,7 +1044,7 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.sectionTitleArabic}>أوقات الصلاة</Text>
           
           {/* {t('prayer.next_prayer')} Display */}
-          {prayerTimes.length > 0 && (
+          {nextPrayer && (
             <Animated.View style={[styles.nextPrayerCard, { opacity: fadeAnim }]}>
               <LinearGradient
                 colors={['#4A90E2', '#357ABD']}
@@ -986,14 +1057,11 @@ export default function HomeScreen({ navigation }: any) {
                   <View style={styles.nextPrayerInfo}>
                     <Text style={styles.nextPrayerLabel}>{t('prayer.next_prayer')}</Text>
                     <Text style={styles.nextPrayerLabelArabic}>الصلاة القادمة</Text>
-                    <Text style={styles.nextPrayerName}>{getNextPrayer().name}</Text>
-                    <Text style={styles.nextPrayerNameArabic}>{getPrayerNameArabic(getNextPrayer().name)}</Text>
-                    <Text style={styles.nextPrayerTime}>{getNextPrayer().time}</Text>
+                    <Text style={styles.nextPrayerName}>{nextPrayer.name}</Text>
+                    <Text style={styles.nextPrayerNameArabic}>{getPrayerNameArabic(nextPrayer.name)}</Text>
+                    <Text style={styles.nextPrayerTime}>{nextPrayer.timeWithSeconds || nextPrayer.time}</Text>
                   </View>
-                  <View style={styles.nextPrayerCountdown}>
-                    <Text style={styles.countdownLabel}>{t('home.in')}</Text>
-                    <Text style={styles.countdownTime}>{getNextPrayer().countdown || '00:00:00'}</Text>
-                  </View>
+                  {/* Countdown removed per user request */}
                 </View>
               </LinearGradient>
             </Animated.View>
@@ -1008,6 +1076,31 @@ export default function HomeScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('home.quick_actions')}</Text>
           <Text style={styles.sectionTitleArabic}>{t('home.quick_actions')}</Text>
+
+          {/* Mini Azan Player */}
+          <View style={styles.miniAzanCard}>
+            <View style={styles.miniAzanHeader}>
+              <Ionicons name="volume-high" size={18} color={colors.accentTeal} />
+              <Text style={styles.miniAzanTitle}>Azan Player</Text>
+              <View style={{ flex: 1 }} />
+              <TouchableOpacity style={styles.miniAzanPlay} onPress={handlePlayPauseAzan}>
+                <Ionicons name={isAzanPlaying ? 'pause' : 'play'} size={16} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.miniAzanList}>
+              {azanOptions.map(opt => (
+                <TouchableOpacity
+                  key={opt.id}
+                  style={[styles.miniAzanItem, selectedAzanId === opt.id && styles.miniAzanItemActive]}
+                  onPress={() => setSelectedAzanId(opt.id)}
+                >
+                  <Text style={[styles.miniAzanItemText, selectedAzanId === opt.id && styles.miniAzanItemTextActive]}>
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
           <FlatList
             data={quickActions}
             renderItem={renderQuickActionCard}
@@ -1059,7 +1152,6 @@ export default function HomeScreen({ navigation }: any) {
         {dailyReminder && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Daily Reminder</Text>
-            <Text style={styles.sectionTitleArabic}>التذكير اليومي</Text>
             <Animated.View style={[styles.reminderCard, { opacity: fadeAnim }]}>
               <LinearGradient
                 colors={['#8B4513', '#D2691E', '#CD853F']}
@@ -1073,13 +1165,15 @@ export default function HomeScreen({ navigation }: any) {
                     style={styles.reminderIcon}
                   />
                   <View style={styles.reminderTitleContainer}>
-                    <Text style={styles.reminderTitle}>{dailyReminder.title}</Text>
-                    <Text style={styles.reminderTitleArabic}>{dailyReminder.titleArabic}</Text>
+                    <Text style={styles.reminderTitle}>
+                      {language === 'ar' ? (dailyReminder.titleArabic || dailyReminder.title) : dailyReminder.title}
+                    </Text>
                   </View>
                 </View>
                 <View style={styles.reminderContent}>
-                  <Text style={styles.reminderText}>{dailyReminder.content}</Text>
-                  <Text style={styles.reminderTextArabic}>{dailyReminder.contentArabic}</Text>
+                  <Text style={styles.reminderText}>
+                    {language === 'ar' ? (dailyReminder.contentArabic || dailyReminder.content) : dailyReminder.content}
+                  </Text>
                   {dailyReminder.source && (
                     <Text style={styles.reminderSource}>- {dailyReminder.source}</Text>
                   )}
@@ -1214,6 +1308,86 @@ const styles = StyleSheet.create({
     zIndex: 1,
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
+  },
+  // Calendar selection modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 520,
+    maxHeight: '80%',
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.06)'
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  modalCloseButton: {
+    padding: 6,
+  },
+  modalScrollView: {
+    paddingHorizontal: 12,
+  },
+  calendarOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 12,
+    marginVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.06)'
+  },
+  selectedCalendarOption: {
+    borderWidth: 1,
+    borderColor: colors.accentTeal,
+    backgroundColor: 'rgba(0,191,165,0.08)'
+  },
+  calendarOptionContent: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  calendarOptionName: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700'
+  },
+  selectedCalendarOptionName: {
+    color: colors.accentTeal,
+  },
+  calendarOptionRegion: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  selectedCalendarOptionRegion: {
+    color: colors.textPrimary,
+  },
+  calendarOptionDescription: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginTop: 4,
+    lineHeight: 16,
+  },
+  selectedCalendarOptionDescription: {
+    color: colors.textPrimary,
   },
   header: {
     paddingTop: 50,
@@ -2029,5 +2203,55 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     minHeight: 500,
+  },
+  // Mini Azan styles
+  miniAzanCard: {
+    backgroundColor: colors.mintSurface,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+  },
+  miniAzanHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  miniAzanTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.textDark,
+  },
+  miniAzanPlay: {
+    backgroundColor: colors.accentTeal,
+    borderRadius: 14,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniAzanList: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  miniAzanItem: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  miniAzanItemActive: {
+    backgroundColor: 'rgba(0,191,165,0.15)',
+    borderWidth: 1,
+    borderColor: colors.accentTeal,
+  },
+  miniAzanItemText: {
+    fontSize: 12,
+    color: colors.textDark,
+    fontWeight: '600',
+  },
+  miniAzanItemTextActive: {
+    color: colors.accentTeal,
   },
 });

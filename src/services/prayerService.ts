@@ -151,20 +151,24 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
     let nextPrayerIndex = -1;
     let currentPrayerIndex = -1;
 
+    // Find the next prayer by comparing actual Date objects
     for (let i = 0; i < prayerTimesList.length; i++) {
-      // Use the dateTime field for accurate calculations
       const prayerDate = prayerTimesList[i].dateTime!;
-      const prayerMinutes = prayerDate.getHours() * 60 + prayerDate.getMinutes();
       
-      if (currentTime < prayerMinutes) {
+      // If prayer time is in the future (including tomorrow)
+      if (prayerDate.getTime() > now.getTime()) {
         nextPrayerIndex = i;
         break;
       }
     }
 
-    // If no next prayer found, it means we're past Isha, so Fajr is next
+    // If no next prayer found, it means we're past Isha, so Fajr is next (tomorrow)
     if (nextPrayerIndex === -1) {
       nextPrayerIndex = 0;
+      // Set Fajr for tomorrow
+      const tomorrowFajr = new Date(prayerTimesList[0].dateTime!);
+      tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
+      prayerTimesList[0].dateTime = tomorrowFajr;
     }
 
     // Current prayer is the one before next prayer
@@ -215,12 +219,62 @@ export const updatePrayerCountdowns = (prayerTimes: PrayerTime[], timeFormat: '1
   try {
     const now = new Date();
     
-    return prayerTimes.map((prayer) => {
+    // Check if we need to recalculate next prayer (e.g., if current next prayer has passed)
+    let needsRecalculation = false;
+    const nextPrayer = prayerTimes.find(p => p.isNext);
+    
+    if (nextPrayer && nextPrayer.dateTime && nextPrayer.dateTime.getTime() <= now.getTime()) {
+      needsRecalculation = true;
+    }
+    
+    // If we need to recalculate, get fresh prayer times
+    if (needsRecalculation) {
+      console.log('Next prayer has passed, recalculating prayer times...');
+      // This will be handled by the calling component by reloading prayer times
+      return prayerTimes.map(prayer => ({
+        ...prayer,
+        countdown: '00:00:00',
+        secondsUntil: 0,
+        timeWithSeconds: formatTimeWithSeconds(prayer.dateTime || now, timeFormat),
+      }));
+    }
+    
+    // If there is no isNext set (or data came from storage), determine the next prayer here
+    let nextIndex = prayerTimes.findIndex(p => p.isNext);
+    if (nextIndex === -1) {
+      // Find earliest prayer time in the future
+      let minDiff = Number.POSITIVE_INFINITY;
+      let candidateIndex = -1;
+      prayerTimes.forEach((p, idx) => {
+        if (p.dateTime) {
+          let target = new Date(p.dateTime);
+          if (target.getTime() <= now.getTime()) {
+            // consider tomorrow for passed times (handles after-Isha case)
+            target.setDate(target.getDate() + 1);
+          }
+          const diff = target.getTime() - now.getTime();
+          if (diff > 0 && diff < minDiff) {
+            minDiff = diff;
+            candidateIndex = idx;
+          }
+        }
+      });
+      if (candidateIndex !== -1) nextIndex = candidateIndex;
+    }
+
+    return prayerTimes.map((prayer, index) => {
       try {
-        if (prayer.isNext && prayer.dateTime) {
+        const isNext = index === nextIndex;
+        if (isNext && prayer.dateTime) {
+          // Use a target that is guaranteed to be in the future (tomorrow if needed)
+          const target = new Date(prayer.dateTime);
+          if (target.getTime() <= now.getTime()) {
+            target.setDate(target.getDate() + 1);
+          }
           const countdownData = calculateCountdown(prayer.dateTime, now);
           return {
             ...prayer,
+            isNext: true,
             countdown: countdownData.countdown,
             secondsUntil: countdownData.secondsUntil,
             timeWithSeconds: formatTimeWithSeconds(prayer.dateTime, timeFormat),
@@ -228,12 +282,14 @@ export const updatePrayerCountdowns = (prayerTimes: PrayerTime[], timeFormat: '1
         }
         return {
           ...prayer,
+          isNext: index === nextIndex,
           timeWithSeconds: formatTimeWithSeconds(prayer.dateTime || now, timeFormat),
         };
       } catch (error) {
         console.error('Error updating prayer countdown for:', prayer.name, error);
         return {
           ...prayer,
+          isNext: index === nextIndex,
           countdown: '00:00:00',
           secondsUntil: 0,
           timeWithSeconds: prayer.time || '00:00',

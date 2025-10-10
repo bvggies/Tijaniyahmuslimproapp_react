@@ -1,0 +1,9 @@
+import { AuthModule } from './auth/auth.module';
+...
+imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule],
+import { CommunityModule } from './community/community.module';
+...
+imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, CommunityModule],
+import { JournalModule } from './journal/journal.module';
+...
+imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, CommunityModule, JournalModule],

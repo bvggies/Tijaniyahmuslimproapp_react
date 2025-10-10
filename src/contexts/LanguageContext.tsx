@@ -58,6 +58,38 @@ const translations = {
     'home.upcoming': 'Upcoming',
     'home.in': 'In',
     
+    // Tijaniyah Features
+    'tijaniyah.title': 'Tijaniyah Features',
+    'tijaniyah.tariqa': 'Tariqa Tijaniyyah',
+    'tijaniyah.tariqa_desc': 'Learn about the Tijani path',
+    'tijaniyah.fiqh': 'Tijaniya Fiqh',
+    'tijaniyah.fiqh_desc': 'Understanding Tijaniya jurisprudence',
+    'tijaniyah.lazim': 'Tijaniya Lazim',
+    'tijaniyah.lazim_desc': 'The obligatory litanies',
+    'tijaniyah.wazifa': 'Wazifa',
+    'tijaniyah.wazifa_desc': 'Daily Wazifa practice',
+    'tijaniyah.haylala': 'Haylala',
+    'tijaniyah.haylala_desc': 'Friday dhikr',
+    'tijaniyah.azan': 'Azan',
+    'tijaniyah.azan_desc': 'Call to prayer',
+    'tijaniyah.scholars': 'Scholars',
+    'tijaniyah.scholars_desc': 'Tijaniya scholars and biographies',
+    
+    // Scholars
+    'scholars.title': 'Tijaniya Scholars',
+    'scholars.subtitle': 'Learn about the great scholars of Tariqa Tijaniyya',
+    'scholars.search_placeholder': 'Search scholars...',
+    'scholar_detail.biography': 'Biography',
+    'scholar_detail.details': 'Details',
+    
+    // Donate
+    'donate.title': 'Donate',
+    'donate.subtitle': 'Support the Tijaniyah Pro App',
+    'donate.mtn_mobile': 'MTN Mobile Money',
+    'donate.airtel_tigo': 'Airtel/Tigo Money',
+    'donate.reference': 'Reference',
+    'donate.thank_you': 'Thank you for your support!',
+    
     // More Features
     'more.title': 'More Features',
     'more.search_placeholder': 'Search features, prayers, duas...',
@@ -94,6 +126,11 @@ const translations = {
     'ai_noor.subtitle': 'Ask Islamic questions with a gentle, helpful guide',
     'ai_noor.placeholder': 'Ask about Islam, prayer, Quran, Tijaniyya...',
     'ai_noor.thinking': 'AI Noor is thinking...',
+    
+    // Azan
+    'azan.title': 'Azan',
+    'azan.subtitle': 'Call to Prayer',
+    'azan.select_muezzin': 'Select Muezzin',
     
     // Settings
     'settings.language': 'Language',
@@ -149,6 +186,38 @@ const translations = {
     'home.upcoming': 'À Venir',
     'home.in': 'Dans',
     
+    // Tijaniyah Features
+    'tijaniyah.title': 'Fonctionnalités Tijaniyah',
+    'tijaniyah.tariqa': 'Tariqa Tijaniyya',
+    'tijaniyah.tariqa_desc': 'Découvrir la voie Tijaniyya',
+    'tijaniyah.fiqh': 'Fiqh Tijaniyya',
+    'tijaniyah.fiqh_desc': 'Comprendre la jurisprudence Tijaniyya',
+    'tijaniyah.lazim': 'Lazim Tijaniyya',
+    'tijaniyah.lazim_desc': 'Les litanies obligatoires',
+    'tijaniyah.wazifa': 'Wazifa',
+    'tijaniyah.wazifa_desc': 'Pratique quotidienne du Wazifa',
+    'tijaniyah.haylala': 'Haylala',
+    'tijaniyah.haylala_desc': 'Dhikr du vendredi',
+    'tijaniyah.azan': 'Adhan',
+    'tijaniyah.azan_desc': 'Appel à la prière',
+    'tijaniyah.scholars': 'Savants',
+    'tijaniyah.scholars_desc': 'Savants Tijaniyya et biographies',
+    
+    // Scholars
+    'scholars.title': 'Savants Tijaniyya',
+    'scholars.subtitle': 'Découvrez les grands savants de la Tariqa Tijaniyya',
+    'scholars.search_placeholder': 'Rechercher des savants...',
+    'scholar_detail.biography': 'Biographie',
+    'scholar_detail.details': 'Détails',
+    
+    // Donate
+    'donate.title': 'Faire un don',
+    'donate.subtitle': "Soutenez l'application Tijaniyah Pro",
+    'donate.mtn_mobile': 'MTN Mobile Money',
+    'donate.airtel_tigo': 'Airtel/Tigo Money',
+    'donate.reference': 'Référence',
+    'donate.thank_you': 'Merci pour votre soutien !',
+    
     // More Features
     'more.title': 'Plus de Fonctionnalités',
     'more.search_placeholder': 'Rechercher des fonctionnalités, prières, douas...',
@@ -185,6 +254,11 @@ const translations = {
     'ai_noor.subtitle': 'Posez des questions islamiques avec un guide doux et utile',
     'ai_noor.placeholder': 'Demandez sur l\'Islam, la prière, le Coran, Tijaniyya...',
     'ai_noor.thinking': 'AI Noor réfléchit...',
+    
+    // Azan
+    'azan.title': 'Adhan',
+    'azan.subtitle': 'Appel à la prière',
+    'azan.select_muezzin': 'Sélectionner un muezzin',
     
     // Settings
     'settings.language': 'Langue',
@@ -240,6 +314,38 @@ const translations = {
     'home.upcoming': 'قادم',
     'home.in': 'في',
     
+    // Tijaniyah Features
+    'tijaniyah.title': 'ميزات التجانية',
+    'tijaniyah.tariqa': 'الطريقة التجانية',
+    'tijaniyah.tariqa_desc': 'تعرّف على طريق التجانية',
+    'tijaniyah.fiqh': 'فقه التجانية',
+    'tijaniyah.fiqh_desc': 'فهم فقه التجانية',
+    'tijaniyah.lazim': 'لازم التجانية',
+    'tijaniyah.lazim_desc': 'الأوراد الواجبة',
+    'tijaniyah.wazifa': 'الوظيفة',
+    'tijaniyah.wazifa_desc': 'الوظيفة اليومية',
+    'tijaniyah.haylala': 'الهيلالة',
+    'tijaniyah.haylala_desc': 'ذكر الجمعة',
+    'tijaniyah.azan': 'الأذان',
+    'tijaniyah.azan_desc': 'نداء الصلاة',
+    'tijaniyah.scholars': 'العلماء',
+    'tijaniyah.scholars_desc': 'علماء التجانية والسير',
+    
+    // Scholars
+    'scholars.title': 'علماء التجانية',
+    'scholars.subtitle': 'تعرّف على كبار علماء الطريقة التجانية',
+    'scholars.search_placeholder': 'ابحث عن العلماء...',
+    'scholar_detail.biography': 'السيرة',
+    'scholar_detail.details': 'تفاصيل',
+    
+    // Donate
+    'donate.title': 'تبرع',
+    'donate.subtitle': 'ادعم تطبيق التجانية برو',
+    'donate.mtn_mobile': 'MTN موبايل موني',
+    'donate.airtel_tigo': 'Airtel/Tigo موني',
+    'donate.reference': 'المرجع',
+    'donate.thank_you': 'شكراً لدعمك!',
+    
     // More Features
     'more.title': 'المزيد من الميزات',
     'more.search_placeholder': 'البحث في الميزات، الصلوات، الأدعية...',
@@ -276,6 +382,11 @@ const translations = {
     'ai_noor.subtitle': 'اسأل أسئلة إسلامية مع دليل لطيف ومفيد',
     'ai_noor.placeholder': 'اسأل عن الإسلام، الصلاة، القرآن، التجانية...',
     'ai_noor.thinking': 'الذكاء الاصطناعي نور يفكر...',
+    
+    // Azan
+    'azan.title': 'الأذان',
+    'azan.subtitle': 'نداء الصلاة',
+    'azan.select_muezzin': 'اختر المؤذن',
     
     // Settings
     'settings.language': 'اللغة',
@@ -331,6 +442,38 @@ const translations = {
     'home.upcoming': 'Mai Zuwa',
     'home.in': 'A cikin',
     
+    // Tijaniyah Features
+    'tijaniyah.title': 'Fasalolin Tijaniyya',
+    'tijaniyah.tariqa': 'Tariqa Tijaniyya',
+    'tijaniyah.tariqa_desc': 'Koyi game da hanyar Tijaniyya',
+    'tijaniyah.fiqh': 'Fiqhun Tijaniyya',
+    'tijaniyah.fiqh_desc': 'Fahimtar dokokin Tijaniyya',
+    'tijaniyah.lazim': 'Lazim na Tijaniyya',
+    'tijaniyah.lazim_desc': 'Addu’o’in wajibai',
+    'tijaniyah.wazifa': 'Wazifa',
+    'tijaniyah.wazifa_desc': 'Aikin Wazifa na yau da kullum',
+    'tijaniyah.haylala': 'Haylala',
+    'tijaniyah.haylala_desc': 'Dhikrin Juma’a',
+    'tijaniyah.azan': 'Azani',
+    'tijaniyah.azan_desc': 'Kiran salla',
+    'tijaniyah.scholars': 'Malamai',
+    'tijaniyah.scholars_desc': 'Malamai na Tijaniyya da tarihin rayuwa',
+    
+    // Scholars
+    'scholars.title': 'Malamai na Tijaniyya',
+    'scholars.subtitle': 'Koyi game da manyan malamai na Tariqa Tijaniyya',
+    'scholars.search_placeholder': 'Nemo malamai...',
+    'scholar_detail.biography': 'Tarihin Rayuwa',
+    'scholar_detail.details': 'Cikakkun bayanai',
+    
+    // Donate
+    'donate.title': 'Ba da gudummawa',
+    'donate.subtitle': 'Tallafa wa Tijaniyah Pro App',
+    'donate.mtn_mobile': 'MTN Mobile Money',
+    'donate.airtel_tigo': 'Airtel/Tigo Money',
+    'donate.reference': 'Madaidaici',
+    'donate.thank_you': 'Mun gode da tallafinka!',
+    
     // More Features
     'more.title': 'Ƙarin Fasali',
     'more.search_placeholder': 'Nemo fasali, salloli, adduoi...',
@@ -367,6 +510,11 @@ const translations = {
     'ai_noor.subtitle': 'Yi tambayoyi na Musulunci tare da jagora mai taushi da taimako',
     'ai_noor.placeholder': 'Tambayi game da Musulunci, salla, Alkurani, Tijaniyya...',
     'ai_noor.thinking': 'AI Noor yana tunani...',
+    
+    // Azan
+    'azan.title': 'Azani',
+    'azan.subtitle': 'Kiran salla',
+    'azan.select_muezzin': 'Zaɓi mai kiran salla',
     
     // Settings
     'settings.language': 'Harshe',

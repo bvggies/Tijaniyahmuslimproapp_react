@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ScrollView, 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Scholar {
   id: string;
@@ -659,6 +660,7 @@ const SCHOLARS: Scholar[] = [
 ];
 
 export default function ScholarsScreen({ navigation }: any) {
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<Scholar | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [imageModalVisible, setImageModalVisible] = useState(false);
@@ -690,7 +692,7 @@ export default function ScholarsScreen({ navigation }: any) {
       </View>
       {!!item.image && (
         <TouchableOpacity onPress={() => onImagePress(item.image)}>
-          <Image source={item.image} style={styles.thumb} resizeMode="cover" />
+        <Image source={item.image} style={styles.thumb} resizeMode="cover" />
         </TouchableOpacity>
       )}
       <Text style={styles.bio} numberOfLines={2}>{item.bio}</Text>
@@ -705,15 +707,15 @@ export default function ScholarsScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
-        <Text style={styles.headerTitle}>Scholars</Text>
-        <Text style={styles.headerSubtitle}>Learn from Islamic scholars and teachers</Text>
+        <Text style={styles.headerTitle}>{t('scholars.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('scholars.subtitle')}</Text>
         
         {/* Search Input */}
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search scholars..."
+            placeholder={t('scholars.search_placeholder')}
             placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}

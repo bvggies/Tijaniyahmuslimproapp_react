@@ -12,8 +12,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function DonateScreen() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -28,10 +30,10 @@ export default function DonateScreen() {
 
   const handleSubmitReceipt = () => {
     if (!formData.fullName || !formData.email || !formData.amount) {
-      Alert.alert('Required Fields', 'Please fill in all required fields.');
+      Alert.alert(t('common.error'), 'Please fill in all required fields.');
       return;
     }
-    Alert.alert('Thank You', 'Your receipt has been submitted successfully!');
+    Alert.alert(t('common.success'), t('donate.thank_you'));
   };
 
   const openWhatsApp = () => {
@@ -39,7 +41,7 @@ export default function DonateScreen() {
     const message = 'Hello! I need help with my donation receipt.';
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'WhatsApp is not installed on this device.');
+      Alert.alert(t('common.error'), 'WhatsApp is not installed on this device.');
     });
   };
 
@@ -51,14 +53,14 @@ export default function DonateScreen() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
-        <Text style={styles.headerTitle}>Support Our Mission</Text>
-        <Text style={styles.headerSubtitle}>Help us keep the Tijaniyah Muslim App running and continue providing free Islamic resources to the community</Text>
+        <Text style={styles.headerTitle}>{t('donate.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('donate.subtitle')}</Text>
       </LinearGradient>
 
       {/* Mobile Money Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Donate via Mobile Money (Ghana)</Text>
-        <Text style={styles.sectionSubtitle}>Make payment below to help sustain the app and keep it running</Text>
+        <Text style={styles.sectionSubtitle}>{t('donate.subtitle')}</Text>
         
         {/* MTN */}
         <View style={styles.paymentCard}>
@@ -66,7 +68,7 @@ export default function DonateScreen() {
             <View style={[styles.paymentIcon, { backgroundColor: '#FFC107' }]}>
               <Text style={styles.paymentIconText}>MTN</Text>
             </View>
-            <Text style={styles.paymentTitle}>MTN Mobile Money</Text>
+            <Text style={styles.paymentTitle}>{t('donate.mtn_mobile')}</Text>
           </View>
           <View style={styles.paymentDetails}>
             <View style={styles.paymentRow}>
@@ -88,7 +90,7 @@ export default function DonateScreen() {
             <View style={[styles.paymentIcon, { backgroundColor: '#E30613' }]}>
               <Text style={styles.paymentIconText}>AT</Text>
             </View>
-            <Text style={styles.paymentTitle}>Airtel/Tigo Money</Text>
+            <Text style={styles.paymentTitle}>{t('donate.airtel_tigo')}</Text>
           </View>
           <View style={styles.paymentDetails}>
             <View style={styles.paymentRow}>
@@ -105,7 +107,7 @@ export default function DonateScreen() {
         </View>
 
         <View style={styles.referenceCard}>
-          <Text style={styles.referenceLabel}>Reference:</Text>
+          <Text style={styles.referenceLabel}>{t('donate.reference')}:</Text>
           <TouchableOpacity onPress={() => copyToClipboard('Tijaniya App Support')}>
             <Text style={styles.referenceValue}>Tijaniya App Support</Text>
           </TouchableOpacity>
