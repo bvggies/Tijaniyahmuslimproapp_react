@@ -131,6 +131,20 @@ export const api = {
   updateJournal: (id: string, data: Partial<{ title: string; content: string; tags: string[] }>) =>
     http(`/journal/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteJournal: (id: string) => http(`/journal/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  // Chat
+  getConversations: () => http('/chat/conversations'),
+  getOrCreateConversation: (otherUserId: string) =>
+    http(`/chat/conversations/${encodeURIComponent(otherUserId)}`, { method: 'POST' }),
+  getMessages: (conversationId: string, limit = 50, cursor?: string) =>
+    http(`/chat/conversations/${encodeURIComponent(conversationId)}/messages?limit=${limit}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`),
+  sendMessage: (conversationId: string, content: string, messageType = 'text') =>
+    http(`/chat/conversations/${encodeURIComponent(conversationId)}/messages`, { 
+      method: 'POST', 
+      body: JSON.stringify({ content, messageType }) 
+    }),
+  markAsRead: (conversationId: string) =>
+    http(`/chat/conversations/${encodeURIComponent(conversationId)}/read`, { method: 'POST' }),
 };
 
 export async function ensureDemoAuth() {
