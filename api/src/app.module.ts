@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
+import { HealthController } from './health.controller';
+import { AuthModule } from './auth/auth.module';
+import { CommunityModule } from './community/community.module';
+import { JournalModule } from './journal/journal.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    AuthModule,
+    CommunityModule,
+    JournalModule,
+    ChatModule,
+  ],
+  controllers: [HealthController],
 })
 export class AppModule {}
