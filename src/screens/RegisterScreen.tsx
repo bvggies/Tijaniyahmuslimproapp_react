@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import CountryPicker from '../components/CountryPicker';
 import ProfileAvatar from '../components/ProfileAvatar';
 
 interface RegisterScreenProps {
@@ -192,14 +193,10 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
               </View>
               <View style={[styles.inputContainer, styles.locationInput]}>
                 <Ionicons name="globe" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
+                <CountryPicker
+                  selectedCountry={formData.country}
+                  onCountrySelect={(country) => updateField('country', country)}
                   placeholder="Country"
-                  placeholderTextColor={colors.textSecondary}
-                  value={formData.country}
-                  onChangeText={(value) => updateField('country', value)}
-                  autoCapitalize="words"
-                  autoCorrect={false}
                 />
               </View>
             </View>
