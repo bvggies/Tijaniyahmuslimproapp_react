@@ -46,7 +46,14 @@ export const getVersesByChapterAsync = async (chapterId: number, language: strin
   // Fetch from public API (alquran.cloud) as a fallback
   try {
     // Determine which translation to fetch based on language
-    const translationId = language === 'fr' ? 'fr.hamidullah' : 'en.sahih';
+    let translationId = 'en.sahih';
+    if (language === 'fr') {
+      translationId = 'fr.hamidullah';
+    } else if (language === 'ha') {
+      // For Hausa, we'll use English as fallback since Hausa translation may not be available
+      translationId = 'en.sahih';
+    }
+    
     const res = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-simple,${translationId}`);
     if (!res.ok) throw new Error('network');
     const json = await res.json();
@@ -68,6 +75,7 @@ export const getVersesByChapterAsync = async (chapterId: number, language: strin
         arabic: a?.text || '',
         translation: t?.text || '',
         frenchTranslation: language === 'fr' ? t?.text : undefined,
+        hausaTranslation: language === 'ha' ? t?.text : undefined,
         transliteration: ''
       });
     }
