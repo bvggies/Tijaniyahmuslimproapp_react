@@ -250,7 +250,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'مندهشاً جداً من قدرة الغريب على تخمين محتوى أحلامه السابقة، أجاب سيدي علي: "نعم، هذا صحيح." فقال شيخ التجاني: "أنا هو." في ذلك الوقت لم يكن شيخ التجاني قد تلقى بعد طريقته المحمدية من النبي، لذلك علمه شيخ التجاني الطريقة الخلوتية.',
         hausaText: 'Ya yi mamaki sosai da ikon baƙon na tsinkayar abin da ke cikin mafarkansa na baya, Sidi Ali ya amsa: "Ee, haka ne." Sai Shaykh Tijani ya ce: "Ni ne shi." A wannan lokacin Shaykh Tijani bai karɓi Tariqa Muhammadiyya ta kansa daga Annabi ba tukuna, don haka Shaykh Tijani ya koya masa hanyar Khalwati.'
       },
-      { heading: 'Accompaniment to Fes', text: 'Sidi Ali accompanied the Shaykh when he settled in Fes (1798), and was responsible for composing the Jawahir al-Ma\'ani, which remains the primary source of Shaykh Tijani\'s life and teachings. This work became the foundational text of the Tariqa Tijaniyya.' },
+      { 
+        heading: 'Accompaniment to Fes', 
+        text: 'Sidi Ali accompanied the Shaykh when he settled in Fes (1798), and was responsible for composing the Jawahir al-Ma\'ani, which remains the primary source of Shaykh Tijani\'s life and teachings. This work became the foundational text of the Tariqa Tijaniyya.',
+        frenchText: 'Sidi Ali accompagna le Shaykh lorsqu\'il s\'installa à Fes (1798), et fut responsable de la composition du Jawahir al-Ma\'ani, qui reste la source principale de la vie et des enseignements de Shaykh Tijani. Cette œuvre devint le texte fondateur de la Tariqa Tijaniyya.',
+        arabicText: 'رافق سيدي علي الشيخ عندما استقر في فاس (1798)، وكان مسؤولاً عن تأليف جواهر المعاني، الذي يبقى المصدر الأساسي لحياة وتعاليم شيخ التجاني. أصبح هذا العمل النص التأسيسي للطريقة التجانية.',
+        hausaText: 'Sidi Ali ya raka Shaykh lokacin da ya zauna a Fes (1798), kuma ya kasance mai alhakin rubuta Jawahir al-Ma\'ani, wanda ya kasance tushen farko na rayuwa da koyarwar Shaykh Tijani. Wannan aikin ya zama rubutun tushe na Tariqa Tijaniyya.'
+      },
       { 
         heading: 'Jawahir al-Ma\'ani - The Masterpiece', 
         text: 'Of this book, the Prophet told Shaykh Tijani, "This book belongs to me"; and concerning the words of Sidi Ali more generally, the Shaykh used to say, "What my khalifa says, I also say that." The Jawahir al-Ma\'ani is considered the most authoritative source on the life and teachings of Shaykh Ahmad Tijani.',
