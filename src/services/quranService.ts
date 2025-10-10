@@ -26,7 +26,7 @@ export const getVersesByChapter = (chapterId: number): QuranVerse[] => {
 // Async version that fetches full chapter from a public API when local data is incomplete
 const VERSES_CACHE_PREFIX = 'quran_verses_cache_';
 
-export const getVersesByChapterAsync = async (chapterId: number): Promise<QuranVerse[]> => {
+export const getVersesByChapterAsync = async (chapterId: number, language: string = 'en'): Promise<QuranVerse[]> => {
   // If we already have full verses locally, use them
   const local = getVersesForChapter(chapterId);
   const chapterMeta = quranChapters.find(c => c.id === chapterId);
@@ -45,27 +45,29 @@ export const getVersesByChapterAsync = async (chapterId: number): Promise<QuranV
 
   // Fetch from public API (alquran.cloud) as a fallback
   try {
-    // English Saheeh International translation with Arabic text
-    const res = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-simple,en.sahih`);
+    // Determine which translation to fetch based on language
+    const translationId = language === 'fr' ? 'fr.hamidullah' : 'en.sahih';
+    const res = await fetch(`https://api.alquran.cloud/v1/surah/${chapterId}/editions/quran-simple,${translationId}`);
     if (!res.ok) throw new Error('network');
     const json = await res.json();
-    // API returns data as an array of editions; we need to merge arabic and english by verse number
+    // API returns data as an array of editions; we need to merge arabic and translation by verse number
     const editions = json.data || [];
     const arabic = editions.find((e: any) => e.edition && (e.edition.identifier === 'quran-simple' || e.edition.language === 'ar'));
-    const english = editions.find((e: any) => e.edition && (e.edition.identifier === 'en.sahih' || e.edition.language === 'en'));
+    const translation = editions.find((e: any) => e.edition && (e.edition.identifier === translationId || e.edition.language === language));
     const verses: QuranVerse[] = [];
     const max = Math.max(
       Array.isArray(arabic?.ayahs) ? arabic.ayahs.length : 0,
-      Array.isArray(english?.ayahs) ? english.ayahs.length : 0
+      Array.isArray(translation?.ayahs) ? translation.ayahs.length : 0
     );
     for (let i = 0; i < max; i++) {
       const a = arabic?.ayahs?.[i];
-      const e = english?.ayahs?.[i];
+      const t = translation?.ayahs?.[i];
       verses.push({
         surah: chapterId,
-        verse: (a?.numberInSurah || e?.numberInSurah || i + 1),
+        verse: (a?.numberInSurah || t?.numberInSurah || i + 1),
         arabic: a?.text || '',
-        translation: e?.text || '',
+        translation: t?.text || '',
+        frenchTranslation: language === 'fr' ? t?.text : undefined,
         transliteration: ''
       });
     }

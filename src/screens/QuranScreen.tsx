@@ -29,7 +29,7 @@ import {
 } from '../services/quranService';
 
 export default function QuranScreen() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
@@ -53,7 +53,7 @@ export default function QuranScreen() {
     setIsLoadingVerses(true);
     setViewMode('verses');
     try {
-      const full = await getVersesByChapterAsync(chapterId);
+      const full = await getVersesByChapterAsync(chapterId, language);
       setVerses(full);
     } catch {
       const fallback = getVersesByChapter(chapterId);
@@ -166,7 +166,9 @@ export default function QuranScreen() {
         <View style={styles.verseContent}>
           <Text style={styles.arabicText}>{item.arabic}</Text>
           <Text style={styles.transliterationText}>{item.transliteration}</Text>
-          <Text style={styles.translationText}>{item.translation}</Text>
+          <Text style={styles.translationText}>
+            {language === 'fr' && item.frenchTranslation ? item.frenchTranslation : item.translation}
+          </Text>
         </View>
         
         <View style={styles.verseFooter}>
@@ -227,7 +229,7 @@ export default function QuranScreen() {
           <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search chapters or verses..."
+            placeholder={t('quran.search_placeholder')}
             value={searchQuery}
             onChangeText={handleSearch}
             placeholderTextColor="#999"
