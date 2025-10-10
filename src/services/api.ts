@@ -13,33 +13,54 @@ export const clearToken = () => {
   accessToken = null;
 };
 
-async function http(path: string, init: RequestInit = {}) {
+async function http(path: string, init: RequestInit = {}, retryCount = 0): Promise<any> {
+  const maxRetries = 2;
+  const retryDelay = 1000; // 1 second
+  
   const headers = new Headers(init.headers || {});
   if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
   
-  console.log(`🌐 API Request: ${init.method || 'GET'} ${API_URL}${path}`);
+  console.log(`🌐 API Request: ${init.method || 'GET'} ${API_URL}${path}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
   if (init.body) console.log('📤 Request body:', init.body);
   
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
-  
-  console.log(`📥 Response: ${res.status} ${res.statusText}`);
-  
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    console.error('❌ API Error:', text || `HTTP ${res.status}`);
+  try {
+    const res = await fetch(`${API_URL}${path}`, { ...init, headers });
     
-    // Clear token on 401 errors
-    if (res.status === 401) {
-      console.log('🔐 Clearing token due to 401 error');
-      accessToken = null;
+    console.log(`📥 Response: ${res.status} ${res.statusText}`);
+    
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      console.error('❌ API Error:', text || `HTTP ${res.status}`);
+      
+      // Clear token on 401 errors
+      if (res.status === 401) {
+        console.log('🔐 Clearing token due to 401 error');
+        accessToken = null;
+      }
+      
+      // Retry on 502 errors (Railway intermittent issues)
+      if (res.status === 502 && retryCount < maxRetries) {
+        console.log(`🔄 Retrying in ${retryDelay}ms due to 502 error...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return http(path, init, retryCount + 1);
+      }
+      
+      throw new Error(text || `HTTP ${res.status}`);
     }
     
-    throw new Error(text || `HTTP ${res.status}`);
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) return res.json();
+    return res.text();
+  } catch (error: any) {
+    // Retry on network errors
+    if (retryCount < maxRetries && (error.message?.includes('Network') || error.message?.includes('fetch'))) {
+      console.log(`🔄 Retrying in ${retryDelay}ms due to network error...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      return http(path, init, retryCount + 1);
+    }
+    throw error;
   }
-  const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) return res.json();
-  return res.text();
 }
 
 export const api = {
