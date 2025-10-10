@@ -72,6 +72,14 @@ export interface JournalEntry {
   mood: 'grateful' | 'reflective' | 'hopeful' | 'peaceful';
 }
 
+export interface ScholarDetail {
+  heading: string;
+  text: string;
+  frenchText?: string;
+  arabicText?: string;
+  hausaText?: string;
+}
+
 export interface Scholar {
   id: string;
   name: string;
@@ -82,6 +90,7 @@ export interface Scholar {
   hausaBio?: string;
   image: string;
   specialties: string[];
+  details?: ScholarDetail[];
 }
 
 export interface Mosque {

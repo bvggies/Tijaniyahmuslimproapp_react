@@ -224,7 +224,12 @@ export default function ScholarDetailScreen({ route }: any) {
           {Array.isArray(scholar?.details) && scholar.details.map((d: any, idx: number) => (
             <View key={idx} style={styles.card}>
               <Text style={styles.cardTitle}>{d.heading}</Text>
-              <Text style={styles.cardText}>{d.text}</Text>
+              <Text style={styles.cardText}>
+                {language === 'fr' && d.frenchText ? d.frenchText :
+                 language === 'ar' && d.arabicText ? d.arabicText :
+                 language === 'ha' && d.hausaText ? d.hausaText :
+                 d.text}
+              </Text>
             </View>
           ))}
 
