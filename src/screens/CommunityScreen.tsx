@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
-import { api, ensureDemoAuth, setToken } from '../services/api';
+import { api, ensureDemoAuth, setToken, isAuthenticated, ensureAuthenticated } from '../services/api';
 
 interface User {
   id: string;
@@ -179,6 +179,12 @@ export default function CommunityScreen() {
     // Check if user is authenticated
     if (!authState.user) {
       Alert.alert('Authentication Required', 'Please sign in to create posts');
+      return;
+    }
+    
+    // Check if we have a valid API token
+    if (!isAuthenticated()) {
+      Alert.alert('Authentication Error', 'Please sign out and sign back in to refresh your session');
       return;
     }
     

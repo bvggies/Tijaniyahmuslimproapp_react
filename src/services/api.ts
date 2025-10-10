@@ -13,6 +13,32 @@ export const clearToken = () => {
   accessToken = null;
 };
 
+export const getToken = () => accessToken;
+
+export const isAuthenticated = () => !!accessToken;
+
+export const ensureAuthenticated = async () => {
+  if (!accessToken) {
+    throw new Error('Not authenticated. Please sign in.');
+  }
+  return true;
+};
+
+export const reAuthenticate = async (email: string, password: string) => {
+  try {
+    const data = await http('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    if (data?.accessToken) {
+      setToken(data.accessToken);
+      console.log('✅ Re-authentication successful');
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log('❌ Re-authentication failed:', error);
+    return false;
+  }
+};
+
 async function http(path: string, init: RequestInit = {}, retryCount = 0): Promise<any> {
   const maxRetries = 2;
   const retryDelay = 1000; // 1 second

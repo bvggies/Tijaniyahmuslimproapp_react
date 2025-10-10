@@ -194,8 +194,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Also authenticate with backend
       try {
         const { api } = await import('../services/api');
-        await api.login(credentials.email, credentials.password);
+        const response = await api.login(credentials.email, credentials.password);
         console.log('✅ Backend authentication successful');
+        // Store the token for future API calls
+        if (response?.accessToken) {
+          const { setToken } = await import('../services/api');
+          setToken(response.accessToken);
+        }
       } catch (backendError: any) {
         console.log('⚠️ Backend authentication failed:', backendError.message);
         // Continue with local login even if backend fails
