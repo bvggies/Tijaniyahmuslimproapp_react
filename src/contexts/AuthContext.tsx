@@ -191,6 +191,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Invalid password for demo account. Use: demo123');
       }
 
+      // Also authenticate with backend
+      try {
+        const { api } = await import('../services/api');
+        await api.login(credentials.email, credentials.password);
+        console.log('✅ Backend authentication successful');
+      } catch (backendError: any) {
+        console.log('⚠️ Backend authentication failed:', backendError.message);
+        // Continue with local login even if backend fails
+      }
+
       // Update last login
       const updatedUser = {
         ...user,
@@ -251,6 +261,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       };
+
+      // Also create account on backend
+      try {
+        const { api } = await import('../services/api');
+        await api.signup(data.email, data.password, data.name);
+        console.log('✅ Backend account created successfully');
+      } catch (backendError: any) {
+        console.log('⚠️ Backend account creation failed:', backendError.message);
+        // Continue with local registration even if backend fails
+      }
 
       // Store user
       const updatedUsers = [...users, newUser];

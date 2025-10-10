@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
-import { api, ensureDemoAuth } from '../services/api';
+import { api, ensureDemoAuth, setToken } from '../services/api';
 
 interface User {
   id: string;
@@ -155,9 +155,12 @@ export default function CommunityScreen() {
       try {
         const data = await api.listPosts(20);
         const items = Array.isArray(data?.items) ? data.items : [];
-        setPosts(items.map(mapApiPost));
+        const mappedPosts = items.map(mapApiPost);
+        console.log('📥 Loaded posts:', mappedPosts.length);
+        setPosts(mappedPosts);
       } catch (e) {
-        // keep empty or fallback to sample
+        console.log('⚠️ Failed to load posts, using sample data:', e);
+        // Keep sample posts as fallback
       }
     })();
   }, []);
@@ -172,8 +175,13 @@ export default function CommunityScreen() {
 
   const createPost = async () => {
     if (!newPostContent.trim()) return;
-    // Ensure backend session (temporary demo fallback)
-    await ensureDemoAuth();
+    
+    // Check if user is authenticated
+    if (!authState.user) {
+      Alert.alert('Authentication Required', 'Please sign in to create posts');
+      return;
+    }
+    
     const optimistic: Post = {
       id: `tmp-${Date.now()}`,
       author: currentUser,
@@ -189,6 +197,7 @@ export default function CommunityScreen() {
     setPosts([optimistic, ...posts]);
     setNewPostContent('');
     setShowCreatePost(false);
+    
     try {
       const created = await api.createPost(optimistic.content, []);
       setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
