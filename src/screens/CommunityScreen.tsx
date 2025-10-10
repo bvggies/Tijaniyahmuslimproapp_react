@@ -90,11 +90,31 @@ const sampleUsers: User[] = [
   },
 ];
 
-const samplePosts: Post[] = [];
+const samplePosts: Post[] = [
+  {
+    id: 'sample-1',
+    author: {
+      id: 'demo',
+      name: 'Demo User',
+      username: 'demo_user',
+      isVerified: true,
+      followers: 150,
+      following: 89,
+    },
+    content: 'Welcome to the Tijaniyah Community! Share your thoughts, ask questions, and connect with fellow Muslims around the world. 🌍',
+    category: 'general',
+    likes: 12,
+    comments: [],
+    shares: 3,
+    date: new Date().toLocaleString(),
+    isLiked: false,
+    isBookmarked: false,
+  },
+];
 
 export default function CommunityScreen() {
   const { authState } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(samplePosts);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -107,6 +127,7 @@ export default function CommunityScreen() {
   const [editPostContent, setEditPostContent] = useState('');
   const [showChat, setShowChat] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [currentUser] = useState<User>({
     id: 'current',
     name: authState.user?.email?.split('@')[0] || 'You',
@@ -158,22 +179,27 @@ export default function CommunityScreen() {
 
   const loadPosts = async () => {
     try {
-      console.log('🔄 Loading posts...');
+      console.log('🔄 Loading posts from API...');
       const data = await api.listPosts(20);
       console.log('📊 API Response:', data);
       
       // The API returns { data: [...], nextCursor: "...", hasNextPage: true }
       const items = Array.isArray(data?.data) ? data.data : [];
-      const mappedPosts = items.map(mapApiPost);
-      console.log('📥 Loaded posts:', mappedPosts.length);
-      setPosts(mappedPosts);
-    } catch (e) {
-      console.log('⚠️ Failed to load posts:', e);
-      // Keep existing posts or use sample data as fallback
-      if (posts.length === 0) {
-        console.log('📝 Using sample posts as fallback');
+      
+      if (items.length > 0) {
+        const mappedPosts = items.map(mapApiPost);
+        console.log('✅ Loaded', mappedPosts.length, 'posts from API');
+        setPosts(mappedPosts);
+      } else {
+        console.log('📝 No posts from API, using sample posts');
         setPosts(samplePosts);
       }
+    } catch (e) {
+      console.log('⚠️ Failed to load posts from API:', e);
+      console.log('📝 Using sample posts as fallback');
+      setPosts(samplePosts);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -584,24 +610,31 @@ export default function CommunityScreen() {
       </LinearGradient>
 
       {/* Posts List */}
-      <FlatList
-        data={filteredPosts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.postsContainer}
-        showsVerticalScrollIndicator={false}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyTitle}>No posts found</Text>
-            <Text style={styles.emptySubtitle}>
-              {searchQuery ? 'Try adjusting your search' : 'Be the first to share something inspiring'}
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Ionicons name="chatbubbles-outline" size={48} color={colors.accentTeal} />
+          <Text style={styles.loadingText}>Loading posts...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredPosts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.postsContainer}
+          showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
+              <Text style={styles.emptyTitle}>No posts found</Text>
+              <Text style={styles.emptySubtitle}>
+                {searchQuery ? 'Try adjusting your search' : 'Be the first to share something inspiring'}
+              </Text>
+            </View>
+          }
+        />
+      )}
 
       {/* Create Post Modal */}
       <Modal
@@ -1129,7 +1162,11 @@ const styles = StyleSheet.create({
   },
   chatButton: {
     marginRight: 8,
-    padding: 4,
+    padding: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentTeal,
   },
   // Chat Styles
   chatContainer: {
@@ -1217,5 +1254,18 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  // Loading Styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 12,
+    fontWeight: '500',
   },
 });
