@@ -114,6 +114,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const updatedUsers = [...users, demoUser];
         await storeUsers(updatedUsers);
       }
+
+      // Also ensure demo user exists in backend
+      try {
+        const { api } = await import('../services/api');
+        await api.signup('demo@tijaniyah.com', 'demo123', 'Demo User');
+        console.log('✅ Demo user created in backend');
+      } catch (backendError: any) {
+        if (backendError.message?.includes('User already exists')) {
+          console.log('✅ Demo user already exists in backend');
+        } else {
+          console.log('⚠️ Failed to create demo user in backend:', backendError.message);
+        }
+      }
     } catch (error) {
       console.error('Error initializing demo account:', error);
     }
@@ -203,7 +216,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (backendError: any) {
         console.log('⚠️ Backend authentication failed:', backendError.message);
-        // Continue with local login even if backend fails
+        
+        // If user doesn't exist in backend, try to create them
+        if (backendError.message?.includes('Invalid credentials') || backendError.message?.includes('User not found')) {
+          console.log('🔄 User not found in backend, attempting to create account...');
+          try {
+            const { api } = await import('../services/api');
+            await api.signup(credentials.email, credentials.password, user.name);
+            console.log('✅ Backend account created successfully');
+            
+            // Now try to login again
+            const loginResponse = await api.login(credentials.email, credentials.password);
+            if (loginResponse?.accessToken) {
+              const { setToken } = await import('../services/api');
+              setToken(loginResponse.accessToken);
+              console.log('✅ Backend login successful after account creation');
+            }
+          } catch (signupError: any) {
+            console.log('❌ Failed to create backend account:', signupError.message);
+            // Continue with local login even if backend fails
+          }
+        }
       }
 
       // Update last login
