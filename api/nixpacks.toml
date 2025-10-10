@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm"]
+nixPkgs = ["nodejs_18"]
 
 [phases.install]
-cmds = ["rm -rf node_modules/.cache", "npm ci"]
+cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npx prisma generate", "npm run build"]
