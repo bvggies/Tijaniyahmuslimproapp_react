@@ -132,6 +132,10 @@ const translations = {
     'azan.subtitle': 'Call to Prayer',
     'azan.select_muezzin': 'Select Muezzin',
     
+    // Wazifa
+    'wazifa.title': 'Wazifa',
+    'wazifa.subtitle': 'Daily Spiritual Practice',
+    
     // Settings
     'settings.language': 'Language',
     'settings.notifications': 'Notifications',
@@ -259,6 +263,10 @@ const translations = {
     'azan.title': 'Adhan',
     'azan.subtitle': 'Appel à la prière',
     'azan.select_muezzin': 'Sélectionner un muezzin',
+    
+    // Wazifa
+    'wazifa.title': 'Wazifa',
+    'wazifa.subtitle': 'Pratique Spirituelle Quotidienne',
     
     // Settings
     'settings.language': 'Langue',
@@ -388,6 +396,10 @@ const translations = {
     'azan.subtitle': 'نداء الصلاة',
     'azan.select_muezzin': 'اختر المؤذن',
     
+    // Wazifa
+    'wazifa.title': 'الوظيفة',
+    'wazifa.subtitle': 'الممارسة الروحية اليومية',
+    
     // Settings
     'settings.language': 'اللغة',
     'settings.notifications': 'الإشعارات',
@@ -515,6 +527,10 @@ const translations = {
     'azan.title': 'Azani',
     'azan.subtitle': 'Kiran salla',
     'azan.select_muezzin': 'Zaɓi mai kiran salla',
+    
+    // Wazifa
+    'wazifa.title': 'Wazifa',
+    'wazifa.subtitle': 'Aikin Ruhaniya na Yau da Kullum',
     
     // Settings
     'settings.language': 'Harshe',
