@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "chmod +x build.sh && ./build.sh"
 
 [deploy]
-startCommand = "chmod +x start.sh && ./start.sh"
+startCommand = "node start.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
