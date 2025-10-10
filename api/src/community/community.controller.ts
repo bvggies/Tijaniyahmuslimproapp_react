@@ -9,11 +9,19 @@ export class CommunityController {
   constructor(private communityService: CommunityService) {}
 
   @Get()
-  listPosts(@Query('limit') limit?: string, @Query('cursor') cursor?: string) {
-    return this.communityService.listPosts(
-      limit ? parseInt(limit) : 20,
-      cursor,
-    );
+  async listPosts(@Query('limit') limit?: string, @Query('cursor') cursor?: string) {
+    try {
+      console.log('🔍 CommunityController.listPosts called');
+      const result = await this.communityService.listPosts(
+        limit ? parseInt(limit) : 20,
+        cursor,
+      );
+      console.log('✅ CommunityController.listPosts returning:', result.data?.length, 'posts');
+      return result;
+    } catch (error) {
+      console.error('❌ Error in CommunityController.listPosts:', error);
+      throw error;
+    }
   }
 
   @Post()
