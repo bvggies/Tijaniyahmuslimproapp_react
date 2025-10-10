@@ -253,7 +253,8 @@ export default function MakkahLiveScreen() {
         <WebView
           style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
           source={{ 
-            uri: `https://www.youtube.com/embed/${active.youtubeId}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1&origin=https://www.youtube.com`
+            // Use privacy-enhanced mode to reduce prompts and tracking
+            uri: `https://www.youtube-nocookie.com/embed/${active.youtubeId}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1`
           }}
           allowsFullscreenVideo={true}
           allowsInlineMediaPlayback={true}
@@ -264,6 +265,7 @@ export default function MakkahLiveScreen() {
           scalesPageToFit={true}
           mixedContentMode="compatibility"
           thirdPartyCookiesEnabled={false}
+          setSupportMultipleWindows={false}
           onLoadStart={() => setIsLoading(true)}
           onLoadEnd={() => setIsLoading(false)}
           onError={(syntheticEvent) => {
@@ -278,6 +280,28 @@ export default function MakkahLiveScreen() {
             console.warn('WebView HTTP error: ', nativeEvent);
             setIsLoading(false);
             setShowStreamHelp(true);
+          }}
+          onShouldStartLoadWithRequest={(request) => {
+            const disallowedHosts = [
+              'accounts.google.com',
+              'consent.youtube.com',
+              'm.youtube.com',
+              'www.youtube.com',
+              'youtube.com',
+              'myaccount.google.com',
+            ];
+            try {
+              const url = new URL(request.url);
+              const host = url.hostname.toLowerCase();
+              // Allow the main embed host and static resources, block sign-in/consent pages
+              if (host.endsWith('youtube-nocookie.com') || host.endsWith('ytimg.com')) {
+                return true;
+              }
+              if (disallowedHosts.some(h => host.endsWith(h))) {
+                return false;
+              }
+            } catch {}
+            return true;
           }}
           onMessage={(event) => {
             // Handle YouTube player messages

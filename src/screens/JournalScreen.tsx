@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -360,71 +360,73 @@ export default function JournalScreen() {
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={60} style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>New Entry</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
-            <TextInput
-              placeholder="Title"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <TextInput
-              placeholder="Write your reflection..."
-              placeholderTextColor={colors.textSecondary}
-              style={[styles.input, styles.textArea]}
-              value={content}
-              onChangeText={setContent}
-              multiline
-            />
-            <View style={styles.moodRow}>
-              {(['grateful','reflective','hopeful','peaceful','struggling','inspired'] as Entry['mood'][]).map(m => (
-                <TouchableOpacity key={m} style={[styles.moodOption, mood === m && styles.moodSelected]} onPress={() => setMood(m)}>
-                  <Text style={styles.moodEmoji}>{MOOD_EMOJIS[m]}</Text>
-                  <Text style={[styles.moodOptionText, mood === m && styles.moodSelectedText]}>{m}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            
-            {/* Tags Section */}
-            <View style={styles.tagsSection}>
-              <Text style={styles.sectionLabel}>Tags (optional)</Text>
-              <View style={styles.tagsInputContainer}>
-                <TextInput
-                  style={styles.tagInput}
-                  placeholder="Add a tag..."
-                  placeholderTextColor={colors.textSecondary}
-                  onSubmitEditing={(e) => {
-                    addTag(e.nativeEvent.text);
-                    e.currentTarget.clear();
-                  }}
-                />
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 16 }}>
+              <TextInput
+                placeholder="Title"
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+                value={title}
+                onChangeText={setTitle}
+              />
+              <TextInput
+                placeholder="Write your reflection..."
+                placeholderTextColor={colors.textSecondary}
+                style={[styles.input, styles.textArea]}
+                value={content}
+                onChangeText={setContent}
+                multiline
+              />
+              <View style={styles.moodRow}>
+                {(['grateful','reflective','hopeful','peaceful','struggling','inspired'] as Entry['mood'][]).map(m => (
+                  <TouchableOpacity key={m} style={[styles.moodOption, mood === m && styles.moodSelected]} onPress={() => setMood(m)}>
+                    <Text style={styles.moodEmoji}>{MOOD_EMOJIS[m]}</Text>
+                    <Text style={[styles.moodOptionText, mood === m && styles.moodSelectedText]}>{m}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-              {tags.length > 0 && (
-                <View style={styles.selectedTags}>
-                  {tags.map((tag, index) => (
-                    <View key={index} style={styles.selectedTag}>
-                      <Text style={styles.selectedTagText}>{tag}</Text>
-                      <TouchableOpacity onPress={() => removeTag(tag)}>
-                        <Ionicons name="close" size={16} color={colors.textPrimary} />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+
+              {/* Tags Section */}
+              <View style={styles.tagsSection}>
+                <Text style={styles.sectionLabel}>Tags (optional)</Text>
+                <View style={styles.tagsInputContainer}>
+                  <TextInput
+                    style={styles.tagInput}
+                    placeholder="Add a tag..."
+                    placeholderTextColor={colors.textSecondary}
+                    onSubmitEditing={(e) => {
+                      addTag(e.nativeEvent.text);
+                      e.currentTarget.clear();
+                    }}
+                  />
                 </View>
-              )}
-            </View>
-            
-            <TouchableOpacity style={styles.saveBtn} onPress={addEntry}>
-              <LinearGradient colors={[colors.accentTeal, '#1BBFA7']} style={styles.saveBtnGrad}>
-                <Text style={styles.saveText}>Save Entry</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+                {tags.length > 0 && (
+                  <View style={styles.selectedTags}>
+                    {tags.map((tag, index) => (
+                      <View key={index} style={styles.selectedTag}>
+                        <Text style={styles.selectedTagText}>{tag}</Text>
+                        <TouchableOpacity onPress={() => removeTag(tag)}>
+                          <Ionicons name="close" size={16} color={colors.textPrimary} />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <TouchableOpacity style={styles.saveBtn} onPress={addEntry}>
+                <LinearGradient colors={[colors.accentTeal, '#1BBFA7']} style={styles.saveBtnGrad}>
+                  <Text style={styles.saveText}>Save Entry</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
