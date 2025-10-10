@@ -48,7 +48,8 @@ const WazifaStepCard = ({
   onDecrement, 
   onReset,
   isCompleted,
-  targetCount 
+  targetCount,
+  useWhiteYellow = false
 }: {
   stepNumber: number;
   title: string;
@@ -61,6 +62,7 @@ const WazifaStepCard = ({
   onReset: () => void;
   isCompleted: boolean;
   targetCount: number;
+  useWhiteYellow?: boolean;
 }) => (
   <View style={[styles.stepCard, isCompleted && styles.completedStepCard]}>
     <View style={styles.stepHeader}>
@@ -79,9 +81,9 @@ const WazifaStepCard = ({
     </View>
     
     <View style={styles.stepContent}>
-      <Text style={styles.arabicText}>{arabic}</Text>
+      <Text style={[styles.arabicText, useWhiteYellow && styles.arabicTextWhite]}>{arabic}</Text>
       <Text style={styles.transliterationText}>{transliteration}</Text>
-      <Text style={styles.englishText}>{english}</Text>
+      <Text style={[styles.englishText, useWhiteYellow && styles.englishTextYellow]}>{english}</Text>
     </View>
     
     <DigitalCounter
@@ -154,6 +156,7 @@ export default function WazifaScreen() {
             onReset={() => {}}
             isCompleted={true}
             targetCount={1}
+            useWhiteYellow={true}
           />
 
           {/* Step 2: Suratul Fatiha */}
@@ -169,6 +172,7 @@ export default function WazifaScreen() {
             onReset={() => {}}
             isCompleted={true}
             targetCount={1}
+            useWhiteYellow={true}
           />
 
           {/* Step 3: Istighfar */}
@@ -680,5 +684,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 24,
     fontStyle: 'italic',
+  },
+  // Conditional styles for first two cards
+  arabicTextWhite: {
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  englishTextYellow: {
+    color: '#FFD700',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });
