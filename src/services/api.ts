@@ -58,6 +58,14 @@ async function http(path: string, init: RequestInit = {}, retryCount = 0): Promi
     if (!res.ok) {
       const text = await res.text().catch(() => '');
       console.error('❌ API Error:', text || `HTTP ${res.status}`);
+      console.error('🔍 Request details:', {
+        url: `${API_URL}${path}`,
+        method: init.method || 'GET',
+        headers: Object.fromEntries(headers.entries()),
+        body: init.body,
+        status: res.status,
+        statusText: res.statusText
+      });
       
       // Clear token on 401 errors
       if (res.status === 401) {
@@ -92,6 +100,9 @@ async function http(path: string, init: RequestInit = {}, retryCount = 0): Promi
 export const api = {
   // Health
   health: () => http('/health'),
+  
+  // Test authentication
+  testAuth: () => http('/posts?limit=1'),
 
   // Auth
   signup: (email: string, password: string, name?: string) =>
