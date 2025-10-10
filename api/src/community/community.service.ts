@@ -8,51 +8,60 @@ export class CommunityService {
   constructor(private prisma: PrismaService) {}
 
   async listPosts(limit = 20, cursor?: string) {
-    const posts = await this.prisma.communityPost.findMany({
-      take: limit + 1,
-      cursor: cursor ? { id: cursor } : undefined,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatarUrl: true,
-          },
-        },
-        comments: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatarUrl: true,
-              },
+    try {
+      console.log('🔍 CommunityService.listPosts called with limit:', limit, 'cursor:', cursor);
+      
+      const posts = await this.prisma.communityPost.findMany({
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatarUrl: true,
             },
           },
-          orderBy: { createdAt: 'asc' },
-        },
-        likes: true,
-        _count: {
-          select: {
-            comments: true,
-            likes: true,
+          comments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          likes: true,
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const hasNextPage = posts.length > limit;
-    const nextCursor = hasNextPage ? posts[limit - 1].id : null;
-    const data = hasNextPage ? posts.slice(0, -1) : posts;
+      console.log('✅ Found posts:', posts.length);
 
-    return {
-      data,
-      nextCursor,
-      hasNextPage,
-    };
+      const hasNextPage = posts.length > limit;
+      const nextCursor = hasNextPage ? posts[limit - 1].id : null;
+      const data = hasNextPage ? posts.slice(0, -1) : posts;
+
+      return {
+        data,
+        nextCursor,
+        hasNextPage,
+      };
+    } catch (error) {
+      console.error('❌ Error in listPosts:', error);
+      throw error;
+    }
   }
 
   async createPost(userId: string, createPostDto: CreatePostDto) {
