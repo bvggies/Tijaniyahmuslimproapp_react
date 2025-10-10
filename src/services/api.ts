@@ -9,13 +9,32 @@ export const setToken = (token: string | null) => {
   accessToken = token;
 };
 
+export const clearToken = () => {
+  accessToken = null;
+};
+
 async function http(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers || {});
   if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
+  
+  console.log(`🌐 API Request: ${init.method || 'GET'} ${API_URL}${path}`);
+  if (init.body) console.log('📤 Request body:', init.body);
+  
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+  
+  console.log(`📥 Response: ${res.status} ${res.statusText}`);
+  
   if (!res.ok) {
     const text = await res.text().catch(() => '');
+    console.error('❌ API Error:', text || `HTTP ${res.status}`);
+    
+    // Clear token on 401 errors
+    if (res.status === 401) {
+      console.log('🔐 Clearing token due to 401 error');
+      accessToken = null;
+    }
+    
     throw new Error(text || `HTTP ${res.status}`);
   }
   const contentType = res.headers.get('content-type') || '';
@@ -57,12 +76,44 @@ export const api = {
 };
 
 export async function ensureDemoAuth() {
+  console.log('🔐 Ensuring demo authentication...');
+  
+  // Check if we already have a token
+  if (accessToken) {
+    console.log('✅ Already authenticated with token');
+    return;
+  }
+  
   try {
+    console.log('🔄 Attempting to login demo user...');
     await api.login('demo@tijaniyah.com', 'demo123');
-  } catch {
-    try {
-      await api.signup('demo@tijaniyah.com', 'demo123', 'Demo User');
-      await api.login('demo@tijaniyah.com', 'demo123');
-    } catch {}
+    console.log('✅ Demo user login successful');
+  } catch (error: any) {
+    console.log('❌ Demo login failed:', error.message);
+    
+    // If user already exists, try to login again
+    if (error.message?.includes('User already exists') || error.message?.includes('Invalid credentials')) {
+      console.log('🔄 User exists, trying signup then login...');
+      try {
+        await api.signup('demo@tijaniyah.com', 'demo123', 'Demo User');
+        console.log('✅ Demo user signup successful');
+        await api.login('demo@tijaniyah.com', 'demo123');
+        console.log('✅ Demo user login after signup successful');
+      } catch (signupError: any) {
+        if (signupError.message?.includes('User already exists')) {
+          console.log('🔄 User already exists, trying login again...');
+          try {
+            await api.login('demo@tijaniyah.com', 'demo123');
+            console.log('✅ Demo user login successful after retry');
+          } catch (retryError) {
+            console.error('❌ Final login attempt failed:', retryError);
+          }
+        } else {
+          console.error('❌ Demo signup failed:', signupError);
+        }
+      }
+    } else {
+      console.error('❌ Demo login failed with unexpected error:', error);
+    }
   }
 }
