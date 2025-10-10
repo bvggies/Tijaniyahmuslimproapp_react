@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci && npx prisma generate && npm run build"
+buildCommand = "chmod +x build.sh && ./build.sh"
 
 [deploy]
 startCommand = "node dist/main.js"
