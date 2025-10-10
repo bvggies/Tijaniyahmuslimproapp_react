@@ -43,6 +43,7 @@ import { Image, ActivityIndicator } from 'react-native';
 import ScholarDetailScreen from './src/screens/ScholarDetailScreen';
 import MoreFeaturesScreen from './src/screens/MoreFeaturesScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -274,6 +275,11 @@ function MoreStackNavigator() {
         name="Community" 
         component={CommunityScreen}
         options={{ title: 'Community' }}
+      />
+      <Stack.Screen 
+        name="Chat" 
+        component={ChatScreen}
+        options={{ title: 'Messages' }}
       />
       <Stack.Screen 
         name="Mosque" 

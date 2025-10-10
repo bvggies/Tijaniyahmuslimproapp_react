@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
@@ -114,6 +114,7 @@ const samplePosts: Post[] = [
 
 export default function CommunityScreen() {
   const { authState } = useAuth();
+  const navigation = useNavigation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,6 +129,9 @@ export default function CommunityScreen() {
   const [showChat, setShowChat] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [currentUser] = useState<User>({
     id: 'current',
     name: authState.user?.email?.split('@')[0] || 'You',
@@ -367,9 +371,61 @@ export default function CommunityScreen() {
     );
   };
 
-  const startChat = (user: User) => {
-    setSelectedUser(user);
-    setShowChat(true);
+  const startChat = async (user: User) => {
+    try {
+      setSelectedUser(user);
+      setShowChat(true);
+      
+      // Get or create conversation
+      const conversation = await api.getOrCreateConversation(user.id);
+      setCurrentConversationId(conversation.id);
+      
+      // Load messages
+      const messagesData = await api.getMessages(conversation.id, 50);
+      setChatMessages(messagesData.data || []);
+      
+      console.log('✅ Chat started with:', user.name);
+    } catch (error) {
+      console.error('❌ Failed to start chat:', error);
+      Alert.alert('Error', 'Failed to start chat. Please try again.');
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !currentConversationId) return;
+    
+    try {
+      const messageContent = newMessage.trim();
+      setNewMessage(''); // Clear input immediately
+      
+      // Add message optimistically
+      const optimisticMessage = {
+        id: `tmp-${Date.now()}`,
+        content: messageContent,
+        senderId: currentUser.id,
+        sender: currentUser,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      };
+      setChatMessages(prev => [...prev, optimisticMessage]);
+      
+      // Send to API
+      const sentMessage = await api.sendMessage(currentConversationId, messageContent);
+      
+      // Replace optimistic message with real one
+      setChatMessages(prev => 
+        prev.map(msg => 
+          msg.id === optimisticMessage.id ? sentMessage : msg
+        )
+      );
+      
+      console.log('✅ Message sent successfully');
+    } catch (error) {
+      console.error('❌ Failed to send message:', error);
+      // Remove optimistic message on error
+      setChatMessages(prev => prev.filter(msg => msg.id !== `tmp-${Date.now()}`));
+      Alert.alert('Error', 'Failed to send message. Please try again.');
+    }
   };
 
   const addComment = async (postId: string) => {
@@ -578,12 +634,20 @@ export default function CommunityScreen() {
             <Text style={styles.headerTitle}>Community</Text>
             <Text style={styles.headerSubtitle}>Connect with fellow Muslims worldwide</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.createPostButton}
-            onPress={() => setShowCreatePost(true)}
-          >
-            <Ionicons name="add" size={24} color={colors.textPrimary} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.messagesButton}
+              onPress={() => navigation.navigate('Chat' as never)}
+            >
+              <Ionicons name="chatbubbles-outline" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.createPostButton}
+              onPress={() => setShowCreatePost(true)}
+            >
+              <Ionicons name="add" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Search Bar */}
@@ -758,14 +822,35 @@ export default function CommunityScreen() {
           </View>
 
           <View style={styles.chatMessages}>
-            <View style={styles.chatMessage}>
-              <Text style={styles.chatMessageText}>Hello! How are you doing?</Text>
-              <Text style={styles.chatMessageTime}>2:30 PM</Text>
-            </View>
-            <View style={[styles.chatMessage, styles.chatMessageOwn]}>
-              <Text style={[styles.chatMessageText, styles.chatMessageTextOwn]}>I'm doing great, thank you!</Text>
-              <Text style={styles.chatMessageTime}>2:32 PM</Text>
-            </View>
+            {chatMessages.length === 0 ? (
+              <View style={styles.chatEmptyState}>
+                <Text style={styles.chatEmptyText}>No messages yet</Text>
+                <Text style={styles.chatEmptySubtext}>Start the conversation!</Text>
+              </View>
+            ) : (
+              chatMessages.map((message) => (
+                <View 
+                  key={message.id} 
+                  style={[
+                    styles.chatMessage,
+                    message.senderId === currentUser.id && styles.chatMessageOwn
+                  ]}
+                >
+                  <Text style={[
+                    styles.chatMessageText,
+                    message.senderId === currentUser.id && styles.chatMessageTextOwn
+                  ]}>
+                    {message.content}
+                  </Text>
+                  <Text style={styles.chatMessageTime}>
+                    {new Date(message.createdAt).toLocaleTimeString([], { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </Text>
+                </View>
+              ))
+            )}
           </View>
 
           <View style={styles.chatInput}>
@@ -773,9 +858,21 @@ export default function CommunityScreen() {
               style={styles.chatTextInput}
               placeholder="Type a message..."
               placeholderTextColor={colors.textSecondary}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              multiline
+              maxLength={500}
             />
-            <TouchableOpacity style={styles.chatSendButton}>
-              <Ionicons name="send" size={20} color={colors.textPrimary} />
+            <TouchableOpacity 
+              style={[styles.chatSendButton, !newMessage.trim() && styles.chatSendButtonDisabled]}
+              onPress={sendMessage}
+              disabled={!newMessage.trim()}
+            >
+              <Ionicons 
+                name="send" 
+                size={20} 
+                color={newMessage.trim() ? colors.textPrimary : colors.textSecondary} 
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -799,6 +896,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  messagesButton: {
+    backgroundColor: colors.accentTeal,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -1254,6 +1364,25 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chatSendButtonDisabled: {
+    backgroundColor: colors.surface,
+  },
+  chatEmptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  chatEmptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  chatEmptySubtext: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 4,
   },
   // Loading Styles
   loadingContainer: {
