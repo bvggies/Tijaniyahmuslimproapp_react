@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
@@ -101,6 +102,7 @@ export default function CommunityScreen() {
   const [newPostCategory, setNewPostCategory] = useState('general');
   const [showComments, setShowComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [currentUser] = useState<User>({
     id: 'current',
     name: authState.user?.email?.split('@')[0] || 'You',
@@ -150,20 +152,42 @@ export default function CommunityScreen() {
     };
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await api.listPosts(20);
-        const items = Array.isArray(data?.items) ? data.items : [];
-        const mappedPosts = items.map(mapApiPost);
-        console.log('📥 Loaded posts:', mappedPosts.length);
-        setPosts(mappedPosts);
-      } catch (e) {
-        console.log('⚠️ Failed to load posts, using sample data:', e);
-        // Keep sample posts as fallback
+  const loadPosts = async () => {
+    try {
+      console.log('🔄 Loading posts...');
+      const data = await api.listPosts(20);
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const mappedPosts = items.map(mapApiPost);
+      console.log('📥 Loaded posts:', mappedPosts.length);
+      setPosts(mappedPosts);
+    } catch (e) {
+      console.log('⚠️ Failed to load posts:', e);
+      // Keep existing posts or use sample data as fallback
+      if (posts.length === 0) {
+        console.log('📝 Using sample posts as fallback');
+        setPosts(samplePosts);
       }
-    })();
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPosts();
+    setRefreshing(false);
+  };
+
+  // Load posts when component mounts
+  useEffect(() => {
+    loadPosts();
   }, []);
+
+  // Reload posts when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🎯 Community screen focused, reloading posts...');
+      loadPosts();
+    }, [])
+  );
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
@@ -207,9 +231,11 @@ export default function CommunityScreen() {
     try {
       const created = await api.createPost(optimistic.content, []);
       setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
+      console.log('✅ Post created successfully');
     } catch (e: any) {
       setPosts(prev => prev.filter(p => p.id !== optimistic.id));
       Alert.alert('Error', e?.message ? String(e.message) : 'Failed to create post');
+      console.log('❌ Post creation failed:', e);
     }
   };
 
@@ -452,6 +478,8 @@ export default function CommunityScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.postsContainer}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
