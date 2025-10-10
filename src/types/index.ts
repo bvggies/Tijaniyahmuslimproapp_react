@@ -77,6 +77,9 @@ export interface Scholar {
   name: string;
   title: string;
   bio: string;
+  frenchBio?: string;
+  arabicBio?: string;
+  hausaBio?: string;
   image: string;
   specialties: string[];
 }

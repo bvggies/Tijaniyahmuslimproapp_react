@@ -22,6 +22,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Shaykh Ahmad Tijani (R.A)',
     title: 'Founder of Tariqa Tijaniyya & Seal of Muhammadan Sainthood',
     bio: 'Sidi Abu Abbas Ahmad al-Tijani (1737-1815), founder of the Tariqa Tijaniyya, was born in Ain Madi, Algeria. A descendant of the Prophet Muhammad through Hasan and Mawlay Idris, he established the most widespread Sufi order in West Africa and is recognized as the Seal of Muhammadan Sainthood.',
+    frenchBio: 'Sidi Abu Abbas Ahmad al-Tijani (1737-1815), fondateur de la Tariqa Tijaniyya, est né à Ain Madi, en Algérie. Descendant du Prophète Muhammad par Hasan et Mawlay Idris, il a établi l\'ordre soufi le plus répandu en Afrique de l\'Ouest et est reconnu comme le Sceau de la Sainteté Muhammadienne.',
+    arabicBio: 'سيدي أبو العباس أحمد التجاني (1737-1815)، مؤسس الطريقة التجانية، ولد في عين ماضي، الجزائر. من نسل النبي محمد صلى الله عليه وسلم من خلال الحسن ومولاي إدريس، أسس الطريقة الصوفية الأكثر انتشاراً في غرب أفريقيا وهو معترف به كخاتم الولاية المحمدية.',
+    hausaBio: 'Sidi Abu Abbas Ahmad al-Tijani (1737-1815), wanda ya kafa Tariqa Tijaniyya, an haife shi a Ain Madi, Algeria. Zuriyar Annabi Muhammadu ta hanyar Hasan da Mawlay Idris, ya kafa ƙungiyar Sufi mafi yaduwa a Yammacin Afirka kuma ana gane shi a matsayin Hatimin Waliyyin Muhammadu.',
     specialties: ['Tariqa Tijaniyya', 'Sufism', 'Islamic Law', 'Hadith', 'Tafsir', 'Spiritual Guidance', 'Seal of Sainthood'],
     details: [
       { heading: 'Birth & Noble Lineage', text: 'Sidi Abu Abbas Ahmad al-Tijani was born in the Southwest Algerian oasis town of Ain Madi on the twelfth of Safar in the year 1150 AH (1737 C.E.). He was a descendant of the Prophet Muhammad through Fatima Zahra\'s first son Hasan and later through Mawlay Idris, the celebrated founder of Morocco. His full name was Ahmad ibn Muhammad ibn al-Mukhtar ibn Ahmad ibn Muhammad ibn Salam al-Tijani al-Hasani.' },
@@ -59,6 +62,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Khalifat Al-Akbar, Sidi Ali Harazim Al-Barada (R.A)',
     title: 'Greatest Inheritor of Shaykh Ahmad Tijani & Author of Jawahir al-Ma\'ani',
     bio: 'Gifted with gnosis and consummate sainthood, Sidi Ali Harazim was known as the greatest inheritor (khalifa) of Shaykh Ahmad Tijani, and was commended to the Shaykh by the Prophet Muhammad himself. He authored the Jawahir al-Ma\'ani, the primary source of Shaykh Tijani\'s life and teachings.',
+    frenchBio: 'Doué de gnose et de sainteté accomplie, Sidi Ali Harazim était connu comme le plus grand héritier (khalifa) de Shaykh Ahmad Tijani, et fut recommandé au Shaykh par le Prophète Muhammad lui-même. Il a écrit le Jawahir al-Ma\'ani, la source principale de la vie et des enseignements de Shaykh Tijani.',
+    arabicBio: 'موهوب بالمعرفة والولاية التامة، كان سيدي علي حرازم معروفاً بأكبر خليفة لشيخ أحمد التجاني، وقد أوصى به النبي محمد صلى الله عليه وسلم للشيخ بنفسه. ألف جوهر المعاني، المصدر الأساسي لحياة وتعاليم شيخ التجاني.',
+    hausaBio: 'Mai baiwa da ilimi da cikakken waliyyi, Sidi Ali Harazim an san shi da babban magaji (khalifa) na Shaykh Ahmad Tijani, kuma Annabi Muhammadu da kansa ya ba shi shawara ga Shaykh. Ya rubuta Jawahir al-Ma\'ani, tushen farko na rayuwa da koyarwar Shaykh Tijani.',
     specialties: ['Tariqa Tijaniyya', 'Sufism', 'Spiritual Guidance', 'Jawahir al-Ma\'ani', 'Khalifa', 'Scholarship'],
     details: [
       { heading: 'Prophet\'s Commendation', text: 'In a waking vision, the Prophet told the Shaykh, "He is for you what Abu Bakr was for me." In another vision, the Prophet said, "O Ahmad, consult with your greatest servant (khadimik al-akbar) and your beloved, Harazim, for he is for you what Aaron was for Moses." This shows the special relationship between Shaykh Tijani and Sidi Ali Harazim.' },
@@ -84,6 +90,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Al-Qutb Sidi Al-Hajj Ali Ibn \'Isa Tamasini (R.A)',
     title: 'Khalifa of Shaykh Ahmad Tijani & Qutb',
     bio: 'Sidi Ali Tamasin (1766-1844) was the designated successor (khalifa) of Shaykh Ahmad Tijani (RA), and he became known as the world\'s highest spiritual authority (qutb) following the passing of Shaykh Tijani. He was from the eastern Algerian oasis of Tamasin.',
+    frenchBio: 'Sidi Ali Tamasin (1766-1844) était le successeur désigné (khalifa) de Shaykh Ahmad Tijani (RA), et il devint connu comme la plus haute autorité spirituelle mondiale (qutb) après le décès de Shaykh Tijani. Il était de l\'oasis algérienne orientale de Tamasin.',
+    arabicBio: 'كان سيدي علي تاماسين (1766-1844) الخليفة المعهود لشيخ أحمد التجاني (رضي الله عنه)، وأصبح معروفاً بأعلى سلطة روحية في العالم (قطب) بعد وفاة شيخ التجاني. كان من واحة تاماسين الشرقية الجزائرية.',
+    hausaBio: 'Sidi Ali Tamasin (1766-1844) shi ne magajin da aka zaɓa (khalifa) na Shaykh Ahmad Tijani (RA), kuma ya zama sananne da babban hukuma na ruhaniya a duniya (qutb) bayan mutuwar Shaykh Tijani. Ya kasance daga cikin oas na gabashin Algeria na Tamasin.',
     specialties: ['Tariqa Tijaniyya', 'Qutbaniyya', 'Spiritual Training', 'Karamat', 'Healing', 'Visionary Encounters'],
     details: [
       { heading: 'Birth & Succession', text: 'Sidi Ali Tamasin (1766-1844), may Allah be pleased with him, was the designated successor (khalifa) of Shaykh Ahmad Tijani (RA), and he became known as the world\'s highest spiritual authority (qutb) following the passing of Shaykh Tijani. He was from the eastern Algerian oasis of Tamasin, where his zawiya is still a center of Tijani notables.' },
@@ -113,6 +122,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Sidi Muhammad Al-Ghali (R.A)',
     title: 'Khalifa of Shaykh Ahmad Tijani & Teacher of Al-Hajj Umar',
     bio: 'Sidi Muhammad al-Ghali was a prominent student of Shaykh Ahmad Tijani and played a crucial role in the early spread of the Tariqa Tijaniyya. He was the teacher who gave Al-Hajj Umar al-Futi Tal his khalifa status and ijaza.',
+    frenchBio: 'Sidi Muhammad al-Ghali était un étudiant éminent de Shaykh Ahmad Tijani et a joué un rôle crucial dans la propagation précoce de la Tariqa Tijaniyya. Il était l\'enseignant qui a donné à Al-Hajj Umar al-Futi Tal son statut de khalifa et son ijaza.',
+    arabicBio: 'كان سيدي محمد الغالي طالباً بارزاً لشيخ أحمد التجاني ولعب دوراً حاسماً في الانتشار المبكر للطريقة التجانية. كان المعلم الذي منح الحاج عمر الفوتي تال منصبه كخليفة وإجازته.',
+    hausaBio: 'Sidi Muhammad al-Ghali ya kasance ɗalibi mai daraja na Shaykh Ahmad Tijani kuma ya taka muhimmiyar rawa a farkon yaduwar Tariqa Tijaniyya. Shi ne malamin da ya ba Al-Hajj Umar al-Futi Tal matsayinsa na khalifa da ijaza.',
     specialties: ['Tariqa Tijaniyya', 'Khalifa', 'Spiritual Training', 'West Africa', 'Ijaza'],
     details: [
       { heading: 'Relationship with Shaykh Tijani', text: 'Sidi Muhammad al-Ghali was one of the prominent students of Shaykh Ahmad Tijani in Fes. He received direct instruction and authorization from the Shaykh himself, making him a key figure in the early Tariqa Tijaniyya.' },
@@ -133,6 +145,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Shaykh Al-Islam Ibrahim Al-Riyahi (R.A)',
     title: 'Imam of Zaytuna University & Introducer of Tariqa Tijaniyya in Tunisia',
     bio: 'Shaykh Ibrahim al-Riyahi (1766-1850) was the Imam of Zaytuna University in Tunis and the Maliki Shaykh al-Islam of Tunisia. He was the first to introduce the Tariqa Tijaniyya in Tunisia and played a crucial role in its spread throughout North Africa.',
+    frenchBio: 'Shaykh Ibrahim al-Riyahi (1766-1850) était l\'Imam de l\'Université Zaytuna à Tunis et le Shaykh al-Islam Maliki de Tunisie. Il fut le premier à introduire la Tariqa Tijaniyya en Tunisie et joua un rôle crucial dans sa propagation à travers l\'Afrique du Nord.',
+    arabicBio: 'كان شيخ الإسلام إبراهيم الرياحي (1766-1850) إمام جامعة الزيتونة في تونس وشيخ الإسلام المالكي لتونس. كان أول من أدخل الطريقة التجانية في تونس ولعب دوراً حاسماً في انتشارها في جميع أنحاء شمال أفريقيا.',
+    hausaBio: 'Shaykh Ibrahim al-Riyahi (1766-1850) ya kasance Imam na Jami\'ar Zaytuna a Tunis da Shaykh al-Islam Maliki na Tunisia. Shi ne na farko da ya gabatar da Tariqa Tijaniyya a Tunisia kuma ya taka muhimmiyar rawa a yaduwarta a Arewacin Afirka.',
     specialties: ['Tariqa Tijaniyya', 'Maliki Fiqh', 'Zaytuna University', 'Tunisia', 'Islamic Law', 'Scholarship'],
     details: [
       { heading: 'Birth & Early Life', text: 'Shaykh Ibrahim al-Riyahi was born in 1180 AH (1766 CE) in Tunis, Tunisia. He came from a family of scholars and was raised in an environment of Islamic learning and piety.' },
@@ -155,6 +170,9 @@ const SCHOLARS: Scholar[] = [
     name: 'Sidi Muhammad Al-Hafiz Al-Shinqiti (R.A)',
     title: 'First Introducer of Tariqa Tijaniyya in Mauritania',
     bio: 'Muhammad al-Hafiz b. al-Mukhtar b. al-Habib (1759-1830) is credited with first introducing the Tariqa Tijaniyya in Mauritania, whereby it was introduced into sub-Saharan West Africa. He became the preeminent instructor (muqaddam) of the Tijaniyya in Mauritania after spending years with Shaykh Ahmad Tijani in Fes.',
+    frenchBio: 'Muhammad al-Hafiz b. al-Mukhtar b. al-Habib (1759-1830) est crédité d\'avoir introduit pour la première fois la Tariqa Tijaniyya en Mauritanie, par laquelle elle fut introduite en Afrique de l\'Ouest subsaharienne. Il devint l\'instructeur prééminent (muqaddam) de la Tijaniyya en Mauritanie après avoir passé des années avec Shaykh Ahmad Tijani à Fes.',
+    arabicBio: 'يُنسب إلى محمد الحافظ بن المختار بن الحبيب (1759-1830) أنه أول من أدخل الطريقة التجانية في موريتانيا، ومن خلالها تم إدخالها إلى أفريقيا الغربية جنوب الصحراء. أصبح المعلم البارز (مقدم) للتجانية في موريتانيا بعد قضاء سنوات مع شيخ أحمد التجاني في فاس.',
+    hausaBio: 'Muhammad al-Hafiz b. al-Mukhtar b. al-Habib (1759-1830) ana ba shi laifi da farkon gabatar da Tariqa Tijaniyya a Mauritania, ta hanyar da aka gabatar da ita a Yammacin Afirka na kudu da Sahara. Ya zama babban malamin (muqaddam) na Tijaniyya a Mauritania bayan ya shafe shekaru da Shaykh Ahmad Tijani a Fes.',
     specialties: ['Tariqa Tijaniyya', 'Mauritania', 'West Africa', 'Hadith', 'Fiqh', 'Sufism', 'Idaw Ali'],
     details: [
       { heading: 'Birth & Lineage', text: 'Muhammad al-Hafiz b. al-Mukhtar b. al-Habib (1759-1830) hailed from the noble Idaw \'Ali people in Mauritania, who trace descent from Muhammad Ibn Hanafiyya, a son of Ali b. Abi Talib. This noble lineage connected him to the Ahl al-Bayt (family of the Prophet).' },
