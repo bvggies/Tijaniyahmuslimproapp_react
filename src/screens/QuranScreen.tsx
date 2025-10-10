@@ -167,7 +167,9 @@ export default function QuranScreen() {
           <Text style={styles.arabicText}>{item.arabic}</Text>
           <Text style={styles.transliterationText}>{item.transliteration}</Text>
           <Text style={styles.translationText}>
-            {language === 'fr' && item.frenchTranslation ? item.frenchTranslation : item.translation}
+            {language === 'fr' && item.frenchTranslation ? item.frenchTranslation : 
+             language === 'ha' && item.hausaTranslation ? item.hausaTranslation : 
+             item.translation}
           </Text>
         </View>
         

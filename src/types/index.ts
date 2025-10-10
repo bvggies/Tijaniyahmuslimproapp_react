@@ -23,6 +23,7 @@ export interface Dua {
   transliteration: string;
   translation: string;
   frenchTranslation?: string;
+  hausaTranslation?: string;
   category: string;
   isFavorite?: boolean;
 }
@@ -33,6 +34,7 @@ export interface QuranVerse {
   arabic: string;
   translation: string;
   frenchTranslation?: string;
+  hausaTranslation?: string;
   transliteration: string;
 }
 
