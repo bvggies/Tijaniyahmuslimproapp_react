@@ -56,6 +56,15 @@ export class CommunityService {
   }
 
   async createPost(userId: string, createPostDto: CreatePostDto) {
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+
     const post = await this.prisma.communityPost.create({
       data: {
         userId,

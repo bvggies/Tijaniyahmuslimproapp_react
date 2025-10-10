@@ -211,6 +211,17 @@ export default function CommunityScreen() {
       Alert.alert('Authentication Error', 'Please sign out and sign back in to refresh your session');
       return;
     }
+
+    // Test authentication before creating post
+    try {
+      console.log('🔍 Testing authentication before creating post...');
+      await api.testAuth();
+      console.log('✅ Authentication test passed');
+    } catch (authError: any) {
+      console.error('❌ Authentication test failed:', authError);
+      Alert.alert('Authentication Error', 'Please sign out and sign back in to refresh your session');
+      return;
+    }
     
     const optimistic: Post = {
       id: `tmp-${Date.now()}`,
