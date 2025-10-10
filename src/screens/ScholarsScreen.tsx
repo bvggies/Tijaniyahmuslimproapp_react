@@ -174,9 +174,27 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'استقبل الشيخ وفداً من العلماء اختارهم السلطان. بعد سلسلة من الاختبارات لتأكيد صحة ادعاءات التجاني بالولاية، أصبح مولاي سليمان مرتبطاً ارتباطاً وثيقاً بالوافد الجديد، وعينه في مجلس العلماء الدينيين وأعطاه بيتاً كبيراً ("بيت المرايا").',
         hausaText: 'Shaykh ya gamu da wakilin malamai da Sultan ya zaɓa. Bayan jerin gwaje-gwaje don tabbatar da gaskiyar da\'awar Tijani na waliyyi, Mawlay Sulayman ya zama mai alaƙa ta kud da kud da sabon shigowa, ya naɗa shi a majalisar malamai na addini kuma ya ba shi babban gida ("Gidan Madubi").'
       },
-      { heading: 'The House of Mirrors', text: 'The House of Mirrors can still be visited today. It has an expansive courtyard decorated entirely with blue and yellow zellij tile work with a large fountain in the middle, flanked by a number of rooms that include what was the Shaykh\'s library, a room for khalwa (spiritual retreat), a salon, the bedroom, the kitchen, etc.' },
-      { heading: 'Construction of the Zawiya', text: 'Established in Fes, the Shaykh\'s following continued to grow, prompting him in 1215 (1800), by order of the Prophet, to begin construction of the Tijani zawiya that still serves as a place of congregation for the order to this day.' },
-      { heading: 'Muqaddams & Global Propagation', text: 'Before the end of his life, he had attracted thousands of followers and sent out muqaddams such as Ali Harazem al-Barada, Muhammad Ghali and Muhammad al-Hafiz as far away as the Hijaz and Mauritania. These muqaddams would spread the Tariqa throughout West Africa and beyond.' },
+      { 
+        heading: 'The House of Mirrors', 
+        text: 'The House of Mirrors can still be visited today. It has an expansive courtyard decorated entirely with blue and yellow zellij tile work with a large fountain in the middle, flanked by a number of rooms that include what was the Shaykh\'s library, a room for khalwa (spiritual retreat), a salon, the bedroom, the kitchen, etc.',
+        frenchText: 'La Maison des Miroirs peut encore être visitée aujourd\'hui. Elle a une cour spacieuse décorée entièrement de carreaux zellij bleus et jaunes avec une grande fontaine au milieu, flanquée d\'un certain nombre de pièces qui incluent ce qui était la bibliothèque du Shaykh, une pièce pour khalwa (retraite spirituelle), un salon, la chambre, la cuisine, etc.',
+        arabicText: 'يمكن زيارة بيت المرايا حتى اليوم. له فناء واسع مزين بالكامل بأعمال البلاط الزليج الأزرق والأصفر مع نافورة كبيرة في الوسط، محاط بعدد من الغرف التي تشمل ما كان مكتبة الشيخ، وغرفة للخلوة (الاعتكاف الروحي)، وصالون، وغرفة النوم، والمطبخ، إلخ.',
+        hausaText: 'Gidan Madubi har yanzu ana iya ziyartarsa a yau. Yana da babban tsakar gida wanda aka yi masa ado gaba ɗaya da fale-falen zellij shuɗi da rawaya tare da babban maɗaukaki a tsakiya, kewaye da ɗakuna da yawa waɗanda suka haɗa da abin da ya kasance ɗakin karatu na Shaykh, ɗaki don khalwa (ja da baya na ruhaniya), salon, ɗakin kwana, kicin, da sauransu.'
+      },
+      { 
+        heading: 'Construction of the Zawiya', 
+        text: 'Established in Fes, the Shaykh\'s following continued to grow, prompting him in 1215 (1800), by order of the Prophet, to begin construction of the Tijani zawiya that still serves as a place of congregation for the order to this day.',
+        frenchText: 'Établi à Fes, le nombre de disciples du Shaykh continua de croître, l\'incitant en 1215 (1800), sur ordre du Prophète, à commencer la construction de la zawiya Tijani qui sert encore aujourd\'hui de lieu de rassemblement pour l\'ordre.',
+        arabicText: 'بعد استقراره في فاس، استمر عدد أتباع الشيخ في النمو، مما دفعه في 1215 (1800)، بأمر من النبي، إلى بدء بناء الزاوية التجانية التي لا تزال تخدم كمكان للتجمع للطريقة حتى يومنا هذا.',
+        hausaText: 'Bayan ya zauna a Fes, yawan mabiyan Shaykh ya ci gaba da girma, wanda ya sa shi a 1215 (1800), bisa umarnin Annabi, ya fara gina zawiya Tijani wacce har yanzu tana aiki a matsayin wurin taro ga ƙungiyar har yau.'
+      },
+      { 
+        heading: 'Muqaddams & Global Propagation', 
+        text: 'Before the end of his life, he had attracted thousands of followers and sent out muqaddams such as Ali Harazem al-Barada, Muhammad Ghali and Muhammad al-Hafiz as far away as the Hijaz and Mauritania. These muqaddams would spread the Tariqa throughout West Africa and beyond.',
+        frenchText: 'Avant la fin de sa vie, il avait attiré des milliers de disciples et envoyé des muqaddams comme Ali Harazem al-Barada, Muhammad Ghali et Muhammad al-Hafiz aussi loin que le Hijaz et la Mauritanie. Ces muqaddams répandraient la Tariqa dans toute l\'Afrique de l\'Ouest et au-delà.',
+        arabicText: 'قبل نهاية حياته، كان قد اجتذب آلاف الأتباع وأرسل مقدمين مثل علي حرازم البرادة ومحمد غالي ومحمد الحافظ إلى أماكن بعيدة مثل الحجاز وموريتانيا. هؤلاء المقدمون سينشرون الطريقة في جميع أنحاء غرب أفريقيا وما بعدها.',
+        hausaText: 'Kafin ƙarshen rayuwarsa, ya jawo dubban mabiya kuma ya aika muqaddams kamar Ali Harazem al-Barada, Muhammad Ghali da Muhammad al-Hafiz zuwa nesa kamar Hijaz da Mauritania. Waɗannan muqaddams za su yada Tariqa a duk faɗin Yammacin Afirka da sauransu.'
+      },
       { 
         heading: 'The Seal of Muhammadan Sainthood', 
         text: 'Shaykh Ahmad Tijani is recognized by Tijanis as the Khātam al-Wilāyah al-Muhammadiyyah (Seal of Muhammadan Sainthood), meaning that none will appear in that rank in the complete way that he appeared. He is the Seal of the complete manifestation of that rank.',
