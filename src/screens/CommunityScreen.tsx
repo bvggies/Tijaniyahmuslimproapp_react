@@ -156,7 +156,10 @@ export default function CommunityScreen() {
     try {
       console.log('🔄 Loading posts...');
       const data = await api.listPosts(20);
-      const items = Array.isArray(data?.items) ? data.items : [];
+      console.log('📊 API Response:', data);
+      
+      // The API returns { data: [...], nextCursor: "...", hasNextPage: true }
+      const items = Array.isArray(data?.data) ? data.data : [];
       const mappedPosts = items.map(mapApiPost);
       console.log('📥 Loaded posts:', mappedPosts.length);
       setPosts(mappedPosts);
@@ -212,16 +215,7 @@ export default function CommunityScreen() {
       return;
     }
 
-    // Test authentication before creating post
-    try {
-      console.log('🔍 Testing authentication before creating post...');
-      await api.testAuth();
-      console.log('✅ Authentication test passed');
-    } catch (authError: any) {
-      console.error('❌ Authentication test failed:', authError);
-      Alert.alert('Authentication Error', 'Please sign out and sign back in to refresh your session');
-      return;
-    }
+    // Note: Authentication test removed since posts endpoint doesn't require auth
     
     const optimistic: Post = {
       id: `tmp-${Date.now()}`,
