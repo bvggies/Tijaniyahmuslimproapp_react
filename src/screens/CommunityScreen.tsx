@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { api, ensureDemoAuth, setToken, isAuthenticated, ensureAuthenticated } from '../services/api';
 
 interface User {
@@ -115,6 +116,7 @@ const samplePosts: Post[] = [
 export default function CommunityScreen() {
   const { authState } = useAuth();
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -607,7 +609,7 @@ export default function CommunityScreen() {
             </View>
             <TextInput
               style={styles.addCommentInput}
-              placeholder="Write a comment..."
+                    placeholder={t('community.write_comment')}
               placeholderTextColor={colors.textSecondary}
               value={newComment}
               onChangeText={setNewComment}
@@ -631,8 +633,8 @@ export default function CommunityScreen() {
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.headerTitle}>Community</Text>
-            <Text style={styles.headerSubtitle}>Connect with fellow Muslims worldwide</Text>
+            <Text style={styles.headerTitle}>{t('community.title')}</Text>
+            <Text style={styles.headerSubtitle}>{t('community.subtitle')}</Text>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity 
@@ -655,7 +657,7 @@ export default function CommunityScreen() {
           <Ionicons name="search" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search posts, users..."
+            placeholder={t('community.search_placeholder')}
             placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -677,7 +679,7 @@ export default function CommunityScreen() {
       {loading ? (
         <View style={styles.loadingContainer}>
           <Ionicons name="chatbubbles-outline" size={48} color={colors.accentTeal} />
-          <Text style={styles.loadingText}>Loading posts...</Text>
+                 <Text style={styles.loadingText}>{t('community.loading_posts')}</Text>
         </View>
       ) : (
         <FlatList
@@ -691,10 +693,10 @@ export default function CommunityScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
-              <Text style={styles.emptyTitle}>No posts found</Text>
-              <Text style={styles.emptySubtitle}>
-                {searchQuery ? 'Try adjusting your search' : 'Be the first to share something inspiring'}
-              </Text>
+                     <Text style={styles.emptyTitle}>{t('community.no_posts')}</Text>
+                     <Text style={styles.emptySubtitle}>
+                       {searchQuery ? t('community.try_search') : t('community.first_share')}
+                     </Text>
             </View>
           }
         />
@@ -714,7 +716,7 @@ export default function CommunityScreen() {
             <TouchableOpacity onPress={() => setShowCreatePost(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Create Post</Text>
+                   <Text style={styles.modalTitle}>{t('community.create_post')}</Text>
             <TouchableOpacity onPress={createPost}>
               <Text style={styles.modalPost}>Post</Text>
             </TouchableOpacity>
@@ -756,7 +758,7 @@ export default function CommunityScreen() {
 
             <TextInput
               style={styles.modalTextInput}
-              placeholder="What's on your mind? Share something inspiring..."
+                     placeholder={t('community.whats_on_mind')}
               placeholderTextColor={colors.textSecondary}
               value={newPostContent}
               onChangeText={setNewPostContent}
@@ -781,7 +783,7 @@ export default function CommunityScreen() {
             <TouchableOpacity onPress={cancelEditPost}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Edit Post</Text>
+                   <Text style={styles.modalTitle}>{t('community.edit_post')}</Text>
             <TouchableOpacity onPress={saveEditPost}>
               <Text style={styles.modalPost}>Save</Text>
             </TouchableOpacity>
@@ -790,7 +792,7 @@ export default function CommunityScreen() {
           <View style={styles.modalContent}>
             <TextInput
               style={styles.modalTextInput}
-              placeholder="Edit your post..."
+                     placeholder={t('community.edit_your_post')}
               placeholderTextColor={colors.textSecondary}
               value={editPostContent}
               onChangeText={setEditPostContent}
@@ -824,8 +826,8 @@ export default function CommunityScreen() {
           <View style={styles.chatMessages}>
             {chatMessages.length === 0 ? (
               <View style={styles.chatEmptyState}>
-                <Text style={styles.chatEmptyText}>No messages yet</Text>
-                <Text style={styles.chatEmptySubtext}>Start the conversation!</Text>
+                 <Text style={styles.chatEmptyText}>{t('community.no_messages')}</Text>
+                 <Text style={styles.chatEmptySubtext}>{t('community.start_conversation')}</Text>
               </View>
             ) : (
               chatMessages.map((message) => (
@@ -856,7 +858,7 @@ export default function CommunityScreen() {
           <View style={styles.chatInput}>
             <TextInput
               style={styles.chatTextInput}
-              placeholder="Type a message..."
+              placeholder={t('community.type_message')}
               placeholderTextColor={colors.textSecondary}
               value={newMessage}
               onChangeText={setNewMessage}

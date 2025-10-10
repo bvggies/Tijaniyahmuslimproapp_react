@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
 
 interface Conversation {
@@ -36,6 +37,7 @@ interface Conversation {
 
 export default function ChatScreen() {
   const { authState } = useAuth();
+  const { t } = useLanguage();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -102,7 +104,7 @@ export default function ChatScreen() {
             >
               {item.lastMessage 
                 ? `${item.lastMessage.sender.id === authState.user?.id ? 'You: ' : ''}${item.lastMessage.content}`
-                : 'No messages yet'
+                : t('chat.no_messages')
               }
             </Text>
             
@@ -123,7 +125,7 @@ export default function ChatScreen() {
     return (
       <View style={styles.loadingContainer}>
         <Ionicons name="chatbubbles-outline" size={48} color={colors.accentTeal} />
-        <Text style={styles.loadingText}>Loading conversations...</Text>
+        <Text style={styles.loadingText}>{t('chat.loading_conversations')}</Text>
       </View>
     );
   }
@@ -132,17 +134,17 @@ export default function ChatScreen() {
     <View style={styles.container}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Messages</Text>
-          <Text style={styles.headerSubtitle}>Your conversations</Text>
+          <Text style={styles.headerTitle}>{t('chat.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('chat.subtitle')}</Text>
         </View>
       </LinearGradient>
 
       {conversations.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
-          <Text style={styles.emptyTitle}>No conversations yet</Text>
+          <Text style={styles.emptyTitle}>{t('chat.no_conversations')}</Text>
           <Text style={styles.emptySubtitle}>
-            Start chatting with other community members by clicking the chat button on their posts
+            {t('chat.start_chatting')}
           </Text>
         </View>
       ) : (
