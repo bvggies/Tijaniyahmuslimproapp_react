@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 
 export const API_URL: string =
   ((Constants.expoConfig?.extra as any)?.API_URL as string) ||
-  'https://tijaniyahmuslimproappreact-production.up.railway.app';
+  'https://tijaniyahmuslimproappreact-production-1e25.up.railway.app';
 
 let accessToken: string | null = null;
 export const setToken = (token: string | null) => {
