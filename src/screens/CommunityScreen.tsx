@@ -103,6 +103,10 @@ export default function CommunityScreen() {
   const [showComments, setShowComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [editingPost, setEditingPost] = useState<string | null>(null);
+  const [editPostContent, setEditPostContent] = useState('');
+  const [showChat, setShowChat] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [currentUser] = useState<User>({
     id: 'current',
     name: authState.user?.email?.split('@')[0] || 'You',
@@ -263,6 +267,85 @@ export default function CommunityScreen() {
     ));
   };
 
+  const startEditPost = (postId: string) => {
+    const post = posts.find(p => p.id === postId);
+    if (post) {
+      setEditingPost(postId);
+      setEditPostContent(post.content);
+    }
+  };
+
+  const cancelEditPost = () => {
+    setEditingPost(null);
+    setEditPostContent('');
+  };
+
+  const saveEditPost = async () => {
+    if (!editingPost || !editPostContent.trim()) return;
+    
+    try {
+      // Update post optimistically
+      setPosts(prev => prev.map(post => 
+        post.id === editingPost 
+          ? { ...post, content: editPostContent.trim() }
+          : post
+      ));
+      
+      // TODO: Call API to update post
+      console.log('📝 Post updated:', editingPost);
+      
+      setEditingPost(null);
+      setEditPostContent('');
+    } catch (error) {
+      console.error('❌ Failed to update post:', error);
+      Alert.alert('Error', 'Failed to update post');
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Remove post optimistically
+              setPosts(prev => prev.filter(post => post.id !== postId));
+              
+              // TODO: Call API to delete post
+              console.log('🗑️ Post deleted:', postId);
+            } catch (error) {
+              console.error('❌ Failed to delete post:', error);
+              Alert.alert('Error', 'Failed to delete post');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const reportPost = (postId: string) => {
+    Alert.alert(
+      'Report Post',
+      'Why are you reporting this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Spam', onPress: () => console.log('📢 Reported as spam:', postId) },
+        { text: 'Inappropriate', onPress: () => console.log('📢 Reported as inappropriate:', postId) },
+        { text: 'Harassment', onPress: () => console.log('📢 Reported as harassment:', postId) },
+      ]
+    );
+  };
+
+  const startChat = (user: User) => {
+    setSelectedUser(user);
+    setShowChat(true);
+  };
+
   const addComment = async (postId: string) => {
     if (!newComment.trim()) return;
     const optimistic: Comment = {
@@ -331,9 +414,33 @@ export default function CommunityScreen() {
             <Text style={styles.postDate}>{formatDate(item.date)}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
+        <View style={styles.postHeaderActions}>
+          <TouchableOpacity 
+            style={styles.chatButton}
+            onPress={() => startChat(item.author)}
+          >
+            <Ionicons name="chatbubble-outline" size={18} color={colors.accentTeal} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.moreButton}
+            onPress={() => {
+              Alert.alert(
+                'Post Options',
+                'What would you like to do?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  ...(item.author.id === currentUser.id ? [
+                    { text: 'Edit', onPress: () => startEditPost(item.id) },
+                    { text: 'Delete', style: 'destructive', onPress: () => deletePost(item.id) },
+                  ] : []),
+                  { text: 'Report', style: 'destructive', onPress: () => reportPost(item.id) },
+                ]
+              );
+            }}
+          >
+            <Ionicons name="ellipsis-horizontal" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Post Content */}
@@ -561,6 +668,84 @@ export default function CommunityScreen() {
             />
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Edit Post Modal */}
+      <Modal
+        visible={!!editingPost}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <KeyboardAvoidingView 
+          style={styles.modalContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={cancelEditPost}>
+              <Text style={styles.modalCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Edit Post</Text>
+            <TouchableOpacity onPress={saveEditPost}>
+              <Text style={styles.modalPost}>Save</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.modalContent}>
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="Edit your post..."
+              placeholderTextColor={colors.textSecondary}
+              value={editPostContent}
+              onChangeText={setEditPostContent}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Chat Modal */}
+      <Modal
+        visible={showChat}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.chatContainer}>
+          <View style={styles.chatHeader}>
+            <TouchableOpacity onPress={() => setShowChat(false)}>
+              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <View style={styles.chatUserInfo}>
+              <Text style={styles.chatUserName}>{selectedUser?.name}</Text>
+              <Text style={styles.chatUserStatus}>Online</Text>
+            </View>
+            <TouchableOpacity>
+              <Ionicons name="call" size={24} color={colors.accentTeal} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.chatMessages}>
+            <View style={styles.chatMessage}>
+              <Text style={styles.chatMessageText}>Hello! How are you doing?</Text>
+              <Text style={styles.chatMessageTime}>2:30 PM</Text>
+            </View>
+            <View style={[styles.chatMessage, styles.chatMessageOwn]}>
+              <Text style={[styles.chatMessageText, styles.chatMessageTextOwn]}>I'm doing great, thank you!</Text>
+              <Text style={styles.chatMessageTime}>2:32 PM</Text>
+            </View>
+          </View>
+
+          <View style={styles.chatInput}>
+            <TextInput
+              style={styles.chatTextInput}
+              placeholder="Type a message..."
+              placeholderTextColor={colors.textSecondary}
+            />
+            <TouchableOpacity style={styles.chatSendButton}>
+              <Ionicons name="send" size={20} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -936,5 +1121,101 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlignVertical: 'top',
+  },
+  // Post Management Styles
+  postHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chatButton: {
+    marginRight: 8,
+    padding: 4,
+  },
+  // Chat Styles
+  chatContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingTop: 50,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  chatUserInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  chatUserName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  chatUserStatus: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  chatMessages: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  chatMessage: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginBottom: 8,
+    maxWidth: '80%',
+  },
+  chatMessageOwn: {
+    backgroundColor: colors.accentTeal,
+    alignSelf: 'flex-end',
+  },
+  chatMessageText: {
+    fontSize: 14,
+    color: colors.textPrimary,
+    lineHeight: 20,
+  },
+  chatMessageTextOwn: {
+    color: colors.textPrimary,
+  },
+  chatMessageTime: {
+    fontSize: 10,
+    color: colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'right',
+  },
+  chatInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+  },
+  chatTextInput: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: colors.textPrimary,
+    marginRight: 8,
+  },
+  chatSendButton: {
+    backgroundColor: colors.accentTeal,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

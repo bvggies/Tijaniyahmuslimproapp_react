@@ -5,6 +5,7 @@ import { HealthController } from './health.controller';
 import { AuthModule } from './auth/auth.module';
 import { CommunityModule } from './community/community.module';
 import { JournalModule } from './journal/journal.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { JournalModule } from './journal/journal.module';
     AuthModule,
     CommunityModule,
     JournalModule,
+    ChatModule,
   ],
   controllers: [HealthController],
 })
