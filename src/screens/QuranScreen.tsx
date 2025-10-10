@@ -19,6 +19,7 @@ import {
   getQuranChapters, 
   getChapterById, 
   getVersesByChapter, 
+  getVersesByChapterAsync,
   searchQuran,
   addBookmark,
   removeBookmark,
@@ -35,6 +36,7 @@ export default function QuranScreen() {
   const [viewMode, setViewMode] = useState<'chapters' | 'verses' | 'search'>('chapters');
   const [chapters, setChapters] = useState<QuranChapter[]>([]);
   const [verses, setVerses] = useState<QuranVerse[]>([]);
+  const [isLoadingVerses, setIsLoadingVerses] = useState(false);
   const [searchResults, setSearchResults] = useState<{ chapters: QuranChapter[], verses: QuranVerse[] }>({ chapters: [], verses: [] });
 
   useEffect(() => {
@@ -46,11 +48,19 @@ export default function QuranScreen() {
     setChapters(quranChapters);
   };
 
-  const handleChapterSelect = (chapterId: number) => {
+  const handleChapterSelect = async (chapterId: number) => {
     setSelectedChapter(chapterId);
-    const chapterVerses = getVersesByChapter(chapterId);
-    setVerses(chapterVerses);
+    setIsLoadingVerses(true);
     setViewMode('verses');
+    try {
+      const full = await getVersesByChapterAsync(chapterId);
+      setVerses(full);
+    } catch {
+      const fallback = getVersesByChapter(chapterId);
+      setVerses(fallback);
+    } finally {
+      setIsLoadingVerses(false);
+    }
   };
 
   const handleSearch = (query: string) => {
@@ -294,6 +304,13 @@ export default function QuranScreen() {
             </View>
           );
         }}
+        ListFooterComponent={() => (
+          viewMode === 'verses' && isLoadingVerses ? (
+            <View style={{ padding: 16, alignItems: 'center' }}>
+              <Text style={{ color: '#999' }}>Loading verses…</Text>
+            </View>
+          ) : null
+        )}
       />
     </View>
   );
