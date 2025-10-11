@@ -625,8 +625,20 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'مستوحى من لقائه مع سيدي علي حرازم، زار شيخ إبراهيم لاحقاً شيخ أحمد التجاني في فاس. عززت هذه الزيارة التزامه بالطريقة ودوره في نشرها في تونس.',
         hausaText: 'An yi wahayi daga saduwar sa da Sidi Ali Harazim, Shaykh Ibrahim daga baya ya ziyarci Shaykh Ahmad Tijani a Fes. Wannan ziyarar ta ƙarfafa sadaukarwar sa ga Tariqa da rawar sa a yadawa a Tunisia.'
       },
-      { heading: 'Scholarly Contributions', text: 'As a leading scholar, Shaykh Ibrahim wrote extensively on Islamic jurisprudence and other Islamic sciences. His works contributed to the scholarly tradition of North Africa and the Maliki school of law.' },
-      { heading: 'Teaching & Students', text: 'He taught numerous students at Zaytuna University, many of whom went on to become prominent scholars themselves. His teaching methods and scholarly approach influenced generations of Islamic scholars in Tunisia and beyond.' },
+      { 
+        heading: 'Scholarly Contributions', 
+        text: 'As a leading scholar, Shaykh Ibrahim wrote extensively on Islamic jurisprudence and other Islamic sciences. His works contributed to the scholarly tradition of North Africa and the Maliki school of law.',
+        frenchText: 'En tant que savant de premier plan, Shaykh Ibrahim a écrit abondamment sur la jurisprudence islamique et d\'autres sciences islamiques. Ses œuvres ont contribué à la tradition savante de l\'Afrique du Nord et à l\'école de droit malikite.',
+        arabicText: 'بصفته عالماً رائداً، كتب شيخ إبراهيم بشكل واسع في الفقه الإسلامي والعلوم الإسلامية الأخرى. ساهمت أعماله في التقليد العلمي لشمال أفريقيا والمدرسة المالكية للقانون.',
+        hausaText: 'A matsayin babban malamin, Shaykh Ibrahim ya rubuta da yawa game da shari\'ar Musulunci da sauran ilimin Musulunci. Ayyukansa sun ba da gudummawa ga al\'adar ilimi ta Arewacin Afirka da makarantar shari\'ar Maliki.'
+      },
+      { 
+        heading: 'Teaching & Students', 
+        text: 'He taught numerous students at Zaytuna University, many of whom went on to become prominent scholars themselves. His teaching methods and scholarly approach influenced generations of Islamic scholars in Tunisia and beyond.',
+        frenchText: 'Il a enseigné à de nombreux étudiants à l\'Université Zaytuna, dont beaucoup sont devenus des savants éminents eux-mêmes. Ses méthodes d\'enseignement et son approche savante ont influencé des générations de savants islamiques en Tunisie et au-delà.',
+        arabicText: 'درس العديد من الطلاب في جامعة الزيتونة، وكثير منهم أصبحوا علماء بارزين بأنفسهم. أثرت طرق تدريسه ومنهجه العلمي على أجيال من العلماء المسلمين في تونس وما بعدها.',
+        hausaText: 'Ya koyar da ɗalibai da yawa a Jami\'ar Zaytuna, yawancinsu sun zama fitattun malamai da kansu. Hanyoyin koyarwarsa da tsarin iliminsa sun yi tasiri a kan tsararraki na malamai na Musulunci a Tunisia da sauran wurare.'
+      },
       { heading: 'Recognition by Shaykh Ibrahim Niasse', text: 'Shaykh Ibrahim Niasse (d. 1975) said about him: "Were Shaykh Ahmad al-Tijani to have no other follower but Abu Ishaq Ibrahim al-Riyahi, it would suffice us as proof to also follow him." This shows the high regard in which he was held by later Tijani scholars.' },
       { heading: 'Death & Legacy', text: 'Shaykh Ibrahim al-Riyahi died shortly after his son, from the same cholera epidemic. The last of the many favors that he received from God was that he was destined to leave the world on the night of Ramadan 27th, 1266 (August 6th, 1850).' },
       { heading: 'Continuing Influence', text: 'As the Imam of Zaytuna University, Maliki Shaykh al-Islam of Tunis, and the man who introduced the Tariqa Tijaniyya in Tunisia, Shaykh Ibrahim al-Riyahi\'s influence continues to be felt in both the scholarly and spiritual traditions of North Africa.' }
