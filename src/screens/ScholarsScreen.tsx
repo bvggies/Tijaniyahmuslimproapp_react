@@ -639,9 +639,27 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'درس العديد من الطلاب في جامعة الزيتونة، وكثير منهم أصبحوا علماء بارزين بأنفسهم. أثرت طرق تدريسه ومنهجه العلمي على أجيال من العلماء المسلمين في تونس وما بعدها.',
         hausaText: 'Ya koyar da ɗalibai da yawa a Jami\'ar Zaytuna, yawancinsu sun zama fitattun malamai da kansu. Hanyoyin koyarwarsa da tsarin iliminsa sun yi tasiri a kan tsararraki na malamai na Musulunci a Tunisia da sauran wurare.'
       },
-      { heading: 'Recognition by Shaykh Ibrahim Niasse', text: 'Shaykh Ibrahim Niasse (d. 1975) said about him: "Were Shaykh Ahmad al-Tijani to have no other follower but Abu Ishaq Ibrahim al-Riyahi, it would suffice us as proof to also follow him." This shows the high regard in which he was held by later Tijani scholars.' },
-      { heading: 'Death & Legacy', text: 'Shaykh Ibrahim al-Riyahi died shortly after his son, from the same cholera epidemic. The last of the many favors that he received from God was that he was destined to leave the world on the night of Ramadan 27th, 1266 (August 6th, 1850).' },
-      { heading: 'Continuing Influence', text: 'As the Imam of Zaytuna University, Maliki Shaykh al-Islam of Tunis, and the man who introduced the Tariqa Tijaniyya in Tunisia, Shaykh Ibrahim al-Riyahi\'s influence continues to be felt in both the scholarly and spiritual traditions of North Africa.' }
+      { 
+        heading: 'Recognition by Shaykh Ibrahim Niasse', 
+        text: 'Shaykh Ibrahim Niasse (d. 1975) said about him: "Were Shaykh Ahmad al-Tijani to have no other follower but Abu Ishaq Ibrahim al-Riyahi, it would suffice us as proof to also follow him." This shows the high regard in which he was held by later Tijani scholars.',
+        frenchText: 'Shaykh Ibrahim Niasse (d. 1975) a dit de lui : "Si Shaykh Ahmad al-Tijani n\'avait d\'autre disciple qu\'Abu Ishaq Ibrahim al-Riyahi, cela nous suffirait comme preuve pour le suivre aussi." Cela montre la haute estime dans laquelle il était tenu par les savants Tijani ultérieurs.',
+        arabicText: 'قال شيخ إبراهيم نياس (ت. 1975) عنه: "لو لم يكن لشيخ أحمد التجاني تابع آخر غير أبي إسحاق إبراهيم الرياحي، لكفانا ذلك دليلاً على اتباعه أيضاً." هذا يظهر التقدير العالي الذي كان يحظى به من قبل العلماء التجانيين اللاحقين.',
+        hausaText: 'Shaykh Ibrahim Niasse (d. 1975) ya ce game da shi: "Da Shaykh Ahmad al-Tijani ba ya da wani mabiyi sai Abu Ishaq Ibrahim al-Riyahi, hakan zai isa mana a matsayin hujja don mu bi shi ma." Wannan yana nuna darajar da aka ke masa daga malamai na Tijani na baya.'
+      },
+      { 
+        heading: 'Death & Legacy', 
+        text: 'Shaykh Ibrahim al-Riyahi died shortly after his son, from the same cholera epidemic. The last of the many favors that he received from God was that he was destined to leave the world on the night of Ramadan 27th, 1266 (August 6th, 1850).',
+        frenchText: 'Shaykh Ibrahim al-Riyahi mourut peu après son fils, de la même épidémie de choléra. La dernière des nombreuses faveurs qu\'il reçut de Dieu fut qu\'il était destiné à quitter le monde dans la nuit du 27 Ramadan 1266 (6 août 1850).',
+        arabicText: 'توفي شيخ إبراهيم الرياحي بعد وفاة ابنه بقليل، من نفس وباء الكوليرا. كانت آخر النعم الكثيرة التي تلقاها من الله أنه كان مقدراً له أن يترك الدنيا في ليلة السابع والعشرين من رمضان 1266 (6 أغسطس 1850).',
+        hausaText: 'Shaykh Ibrahim al-Riyahi ya mutu jim kaɗan bayan ɗansa, daga wannan annobar kwalara. Na ƙarshe daga cikin yawancin ni\'imomin da ya karɓa daga Allah shi ne cewa an ƙaddara masa ya bar duniya a daren 27 na Ramadan 1266 (6 ga Agusta 1850).'
+      },
+      { 
+        heading: 'Continuing Influence', 
+        text: 'As the Imam of Zaytuna University, Maliki Shaykh al-Islam of Tunis, and the man who introduced the Tariqa Tijaniyya in Tunisia, Shaykh Ibrahim al-Riyahi\'s influence continues to be felt in both the scholarly and spiritual traditions of North Africa.',
+        frenchText: 'En tant qu\'Imam de l\'Université Zaytuna, Shaykh al-Islam Maliki de Tunis, et l\'homme qui a introduit la Tariqa Tijaniyya en Tunisie, l\'influence de Shaykh Ibrahim al-Riyahi continue d\'être ressentie dans les traditions savantes et spirituelles de l\'Afrique du Nord.',
+        arabicText: 'بصفته إمام جامعة الزيتونة وشيخ الإسلام المالكي لتونس، والرجل الذي أدخل الطريقة التجانية في تونس، يستمر تأثير شيخ إبراهيم الرياحي في الشعور به في كل من التقاليد العلمية والروحية لشمال أفريقيا.',
+        hausaText: 'A matsayin Imam na Jami\'ar Zaytuna, Shaykh al-Islam Maliki na Tunis, da mutumin da ya gabatar da Tariqa Tijaniyya a Tunisia, tasirin Shaykh Ibrahim al-Riyahi ya ci gaba da kasancewa a duk faɗin al\'adun ilimi da ruhaniya na Arewacin Afirka.'
+      }
     ],
   },
   // 6. Muhammad Hafiz Shinqiti
