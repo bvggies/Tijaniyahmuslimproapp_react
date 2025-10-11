@@ -715,7 +715,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'بعد وفاة جدته، سافر لدراسة النحو (nahw) من بين العلوم الأخرى مع الفقيه العالم، عبد الله بن أحمدان (ت. 1815). كان سيدي أحمدان أيضاً شيخاً للشاذلية الناصرية، لكن لا يوجد دليل على أن سيدي الحافظ أخذ الورد الشاذلي في ذلك الوقت.',
         hausaText: 'Bayan mutuwar kakarsa, ya yi tafiya don yin karatu na nahaw (nahw) daga cikin sauran ilimai tare da Faqih mai ilimi, Abd Allah b. Ahmaddan (d. 1815). Sidi Ahmaddan shi ma shaykh ne na Shadhiliyya Nasiriyya, amma babu wata shaida cewa Sidi al-Hafiz ya karɓi wird na Shadhili a wannan lokacin.'
       },
-      { heading: 'Advanced Studies', text: 'He next studied the Qur\'anic sciences, logic (mantiq) and theology (\'aqida) with Hurma b. Abd al-Jalil (d. 1827) and then completed his study of jurisprudence (fiqh) with Abd Allah b. Ahmad b. Mahham b. al-Qadi (d. 1826).' },
+      { 
+        heading: 'Advanced Studies', 
+        text: 'He next studied the Qur\'anic sciences, logic (mantiq) and theology (\'aqida) with Hurma b. Abd al-Jalil (d. 1827) and then completed his study of jurisprudence (fiqh) with Abd Allah b. Ahmad b. Mahham b. al-Qadi (d. 1826).',
+        frenchText: 'Il a ensuite étudié les sciences coraniques, la logique (mantiq) et la théologie (\'aqida) avec Hurma b. Abd al-Jalil (d. 1827) puis a terminé son étude de la jurisprudence (fiqh) avec Abd Allah b. Ahmad b. Mahham b. al-Qadi (d. 1826).',
+        arabicText: 'درس بعد ذلك العلوم القرآنية والمنطق (mantiq) والعقيدة (\'aqida) مع حرمة بن عبد الجليل (ت. 1827) ثم أكمل دراسته في الفقه مع عبد الله بن أحمد بن محهم بن القاضي (ت. 1826).',
+        hausaText: 'Daga baya ya yi karatu na ilimin Alkur\'ani, dabaru (mantiq) da tauhidi (\'aqida) tare da Hurma b. Abd al-Jalil (d. 1827) sannan ya kammala karatunsa na shari\'a (fiqh) tare da Abd Allah b. Ahmad b. Mahham b. al-Qadi (d. 1826).'
+      },
       { heading: 'Studies with Abd Allah b. al-Hajj Ibrahim', text: 'Continuing in the tradition of a traveling student in search of sacred knowledge, he next went to study with Abd Allah b. al-Hajj Ibrahim (d. 1818), a celebrated scholar in Mauritania who had studied in Fes and who had become a friend of the Moroccan Sultan, Mawlay Muhammad b. Abd Allah.' },
       { heading: 'Six Years of Intensive Study', text: 'Sidi al-Hafiz spent six years with Sidi Abd Allah, studying Prophetic traditions (hadith), legal principles (usul al-fiqh) and rhetoric (ilm al-bayan). He also married his teacher\'s daughter, further strengthening the bond between teacher and student.' },
       { heading: 'Respect for Teachers', text: 'The companions of Shaykh Tijani in Fes remarked that even after his submission to Shaykh Tijani, Sidi al-Hafiz maintained the utmost respect for his previous teachers; and for Sidi Abd Allah in particular. This demonstrates his character and adherence to Islamic etiquette.' },
