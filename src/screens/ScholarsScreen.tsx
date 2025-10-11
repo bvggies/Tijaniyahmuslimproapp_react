@@ -507,8 +507,20 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'لعب دوراً حاسماً في انتشار الطريقة التجانية في غرب أفريقيا، خاصة من خلال علاقته مع الحاج عمر الفوتي تال، الذي دربه وأذن له كخليفة.',
         hausaText: 'Ya taka muhimmiyar rawa a yaduwar Tariqa Tijaniyya a Yammacin Afirka, musamman ta hanyar dangantakarsa da Al-Hajj Umar al-Futi Tal, wanda ya horar da shi kuma ya ba shi izini a matsayin khalifa.'
       },
-      { heading: 'Meeting with Al-Hajj Umar', text: 'When Al-Hajj Umar arrived in Mecca in 1827, he became acquainted with Sidi Muhammad al-Ghali, who was a prominent student of Shaykh Ahmad Tijani. This meeting would prove pivotal for the spread of the Tariqa in West Africa.' },
-      { heading: 'Vision of Shaykh Tijani', text: 'Following a vision of Shaykh Ahmad Tijani in the Prophet\'s mosque in Medina, where Shaykh Tijani told al-Ghali, "I have given Shaykh Umar ibn Sa\'id all that he needs in this Tariqa in the way of litanies and secrets," al-Ghali gave Al-Hajj Umar full investiture in the Tariqa.' },
+      { 
+        heading: 'Meeting with Al-Hajj Umar', 
+        text: 'When Al-Hajj Umar arrived in Mecca in 1827, he became acquainted with Sidi Muhammad al-Ghali, who was a prominent student of Shaykh Ahmad Tijani. This meeting would prove pivotal for the spread of the Tariqa in West Africa.',
+        frenchText: 'Quand Al-Hajj Umar arriva à La Mecque en 1827, il fit connaissance avec Sidi Muhammad al-Ghali, qui était un étudiant éminent de Shaykh Ahmad Tijani. Cette rencontre s\'avérerait cruciale pour la propagation de la Tariqa en Afrique de l\'Ouest.',
+        arabicText: 'عندما وصل الحاج عمر إلى مكة في عام 1827، تعرف على سيدي محمد الغالي، الذي كان طالباً بارزاً لشيخ أحمد التجاني. هذا اللقاء سيثبت أنه محوري لانتشار الطريقة في غرب أفريقيا.',
+        hausaText: 'Lokacin da Al-Hajj Umar ya isa Makka a shekara ta 1827, ya sami sanin Sidi Muhammad al-Ghali, wanda ya kasance ɗalibi mai daraja na Shaykh Ahmad Tijani. Wannan saduwar za ta zama muhimmiya ga yaduwar Tariqa a Yammacin Afirka.'
+      },
+      { 
+        heading: 'Vision of Shaykh Tijani', 
+        text: 'Following a vision of Shaykh Ahmad Tijani in the Prophet\'s mosque in Medina, where Shaykh Tijani told al-Ghali, "I have given Shaykh Umar ibn Sa\'id all that he needs in this Tariqa in the way of litanies and secrets," al-Ghali gave Al-Hajj Umar full investiture in the Tariqa.',
+        frenchText: 'Suite à une vision de Shaykh Ahmad Tijani dans la mosquée du Prophète à Médine, où Shaykh Tijani dit à al-Ghali : "J\'ai donné à Shaykh Umar ibn Sa\'id tout ce dont il a besoin dans cette Tariqa en termes de litanies et de secrets," al-Ghali donna à Al-Hajj Umar l\'investiture complète dans la Tariqa.',
+        arabicText: 'بعد رؤية شيخ أحمد التجاني في مسجد النبي في المدينة، حيث قال شيخ التجاني للغالي: "لقد أعطيت شيخ عمر بن سعيد كل ما يحتاجه في هذه الطريقة من الأدعية والأسرار،" أعطى الغالي للحاج عمر الاستثمار الكامل في الطريقة.',
+        hausaText: 'Bayan hangen nesa na Shaykh Ahmad Tijani a masallacin Annabi a Madina, inda Shaykh Tijani ya ce wa al-Ghali: "Na ba Shaykh Umar ibn Sa\'id duk abin da yake buƙata a wannan Tariqa ta hanyar addu\'o\'i da sirri," al-Ghali ya ba Al-Hajj Umar cikakken izini a cikin Tariqa.'
+      },
       { heading: 'Authorization of Al-Hajj Umar', text: 'Sidi al-Ghali gave Hajj Umar the status of khalifa in the Tariqa, making him a representative of the Shaykh without restriction. This authorization was crucial for the establishment of the Tariqa Tijaniyya in West Africa.' },
       { heading: 'Mission to West Africa', text: 'Before Al-Hajj Umar left in 1830, al-Ghali confirmed his status as khalifa for West Africa and told him to "clean the lands of the stench of paganism." This directive would shape Al-Hajj Umar\'s mission in West Africa.' },
       { heading: 'Spiritual Authority', text: 'As a direct student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali held significant spiritual authority within the early Tariqa Tijaniyya. His authorization of Al-Hajj Umar demonstrates his role as a key transmitter of the Tariqa.' },
