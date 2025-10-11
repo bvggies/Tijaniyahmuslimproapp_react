@@ -901,31 +901,181 @@ const SCHOLARS: Scholar[] = [
     specialties: ['Tariqa Tijaniyya', 'Jihad', 'Islamic Law', 'Sufism', 'Political Leadership', 'Scholarship'],
     image: require('../../assets/Umar.jpg'),
     details: [
-      { heading: 'Birth & Lineage', text: 'Al-Hajj Umar was born in Helwar, Futa Toro, in present-day northern Senegal. He hailed from the noble Fulani, a people who had become renowned for their Islamic scholarship throughout West Africa by the seventeenth century. His father Cerno Saidu (Arabic, Sa\'id) studied at the famous Islamic university of Pir Sanikhor in Senegal.' },
-      { heading: 'Father\'s Character', text: 'Saidu lived the life of a simple farmer, devoting himself to studies and worship rather than participate in the Fulani jihad of Abd al-Qadir Kane in 1776. Al-Hajj Umar had great respect for his father, who taught all sorts of sciences to his disciples, farmed while reciting the Qur\'an, and had many saintly sons.' },
-      { heading: 'Mother\'s Piety', text: 'Soxna Adama Aise, the mother of al-Hajj Umar, likewise had a great reputation for piety. She was a niece of the famous Qadiri scholar and jihadist Sulayman Bal. A touching story relates that during a torrential downpour at Umar\'s birth, while everybody else became soaking wet, Soxna Adama and her son remained dry.' },
-      { heading: 'Early Education', text: 'Al-Hajj Umar was a precocious student of the Islamic sciences, memorizing the Qur\'an with his father at a young age. He was next trained to be a Qur\'an school master by his elder brother Alfa Ahmadu, until he began traveling in search of knowledge.' },
-      { heading: 'Love for the Prophet', text: 'From an early age, he developed a keen interest in books and poetry detailing the life and character of the Prophet Muhammad. He would later say: "Allah, from His bounty, endowed me with the love for His Prophet. I was confounded with love for him, a love permeating my interior and exterior."' },
-      { heading: 'Teachers in Futa Toro', text: 'Umar studied under many of the renowned teachers in Futa Toro of his day, such as Cerno Lamin Saxo, Amar Saydi, Yero Buso and Horefonde. He excelled in the study of jurisprudence (fiqh), and even after his establishment as a Sufi shaykh, scholars used to visit him in Dingiray to discuss points of jurisprudence.' },
-      { heading: 'Pir Sanikhor', text: 'His studies in Futa inevitably led him to the famous school of Pir Sanikhor, where his teacher, Serin Demba Fal, observed in him exceptional scholastic ability. His first stay outside of Futa in search of knowledge was in the Mauritanian town of Tagant.' },
-      { heading: 'Tijani Initiation', text: 'During a second visit to Mauritania, or perhaps during a visit to Futa Jallon (present-day Guinea), Umar was initiated into the Tariqa Tijaniyya by Abd al-Karim al-Naqil, a student of Mawlud Fal. The two became close companions, and traveled together to Futa Jallon where Umar spent years learning from him.' },
-      { heading: 'Journey to Mecca', text: 'Soon after the death of Abd al-Karim, Umar set off with his family to accomplish the pilgrimage to Mecca. He arrived in 1827 and soon became acquainted with the prominent student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali.' },
-      { heading: 'Meeting with Sidi al-Ghali', text: 'Al-Hajj Umar became Sidi al-Ghali\'s closest disciple, and al-Ghali gave him full investiture in the Tariqa following a vision of Shaykh Ahmad Tijani in the Prophet\'s mosque in Medina, where Shaykh Tijani told al-Ghali, "I have given Shaykh Umar ibn Sa\'id all that he needs in this Tariqa in the way of litanies and secrets."' },
-      { heading: 'Khalifa Status', text: 'Sidi al-Ghali thus gave Hajj Umar the status of khalifa in the Tariqa. Where Hajj Umar describes the degree of the muqaddam as someone commissioned to "teach the obligatory remembrances," he describes the position of khalifa as "a representative of the Shaykh without restriction."' },
-      { heading: 'Mission from Sidi al-Ghali', text: 'Before leaving the company of Sidi al-Ghali in 1830, al-Ghali confirmed his status as khalifa for West Africa and told him to "clean the lands of the stench of paganism." While in the Middle East, al-Hajj Umar also visited Jerusalem, Syria and Egypt.' },
-      { heading: 'Middle East Travels', text: 'It is said he led the prayer in the Dome of the Rock (Jerusalem), cured the son of a sultan from madness in Syria, and astonished scholars in Cairo by his vast erudition. His reputation for piety and learning were recognized throughout the region.' },
-      { heading: 'Return via Sokoto', text: 'Al-Hajj Umar returned from the Middle East by way of Sokoto (which he had also visited on the way to the Hijaz), arriving in 1831-2. He was accorded a grand reception by Sultan Muhammad Bello, the son of Shehu Usman dan Fodio.' },
-      { heading: 'Friendship with Sultan Bello', text: 'There is no evidence that Sultan Bello actually took the Tariqa Tijaniyya, but it is undeniable the two were the best of friends. Bello gave Shaykh Umar his daughter Maryam in marriage, and Umar accompanied Bello on various military campaigns.' },
-      { heading: 'Sultan Bello\'s Dream', text: 'In his Rimah, Shaykh Umar recorded a significant dream Sultan Bello had on the 14th of Rabi al-Awal in 1251 A.H. In the dream, Shaykh al-Tijani came to their land with Umar as his lieutenant. Bello expressed his love for the Shaykh and asked for assurance of meeting him in Paradise.' },
-      { heading: 'Settlement in Futa Jallon', text: 'After traveling widely throughout West Africa, Shaykh Umar settled in Futa Jallon, eventually founding the town of Dingiray. In Futa Jallon, Shaykh Umar spent ten years teaching his growing numbers of disciples, especially renowned for his teaching of jurisprudence, hadith and Sufism.' },
-      { heading: 'The Jihad', text: 'Resenting his growing influence, the non-Muslim leaders in the area attacked his settlement in 1851. Nearly a year later, Shaykh Umar received official permission for the jihad from the Prophet Muhammad and Shaykh Ahmad Tijani in a visionary encounter.' },
-      { heading: 'Military Campaigns', text: 'The jihad was first exclusively directed against the non-Muslim Bambara, whom al-Hajj Umar accused of grave injustices, enslaving Muslims and threatening the practice of Islam. When he conquered the Bambara city of Segu in 1861, he found evidence of an alliance against him.' },
-      { heading: 'Conflict with Masina', text: 'His resultant jihad against Masina, whose capital Hamdullahi he captured in 1864, touched off a virulent polemic between the supporters of al-Hajj Umar and the supporters of Masina, the latter which included the scholars of Timbuktu.' },
-      { heading: 'French Conflict', text: 'By 1854, Shaykh Umar\'s mobilization of Futa Toro led to direct conflict with advancing French commercial and military hegemony. Besieged on two fronts, Shaykh Umar died in battle in 1864 near Hamdulillahi.' },
-      { heading: 'The Rimah', text: 'His magnum opus, the Kitab rimah hizb al-rahim \'ala nuhur hizb al-rajim ("The book of the lances of the league of (Allah) the Merciful against the necks of the league of (Satan) the accursed"), is considered a "veritable compendium" and one of the most important works of the nineteenth century anywhere in the Muslim world.' },
-      { heading: 'Political Legacy', text: 'The "Umarian" state al-Hajj Umar had forged by 1860, although short-lived, was one of the largest ever seen in West Africa. His empire was held together by his son Ahmad until being dismantled by the French some twenty years after the Shaykh\'s death.' },
-      { heading: 'Scholarly Legacy', text: 'His scholarly legacy has far outlasted any temporary political role he endured. His descendent Seydou Nourou Tall became a key Muslim and Tijani figure in twentieth century West Africa. Later Tijani scholars such as Al-Hajj Abdoulaye Niasse and al-Hajj Malik Sy had important initiations through students of al-Hajj Umar.' },
-      { heading: 'Continuing Influence', text: 'Shaykh Umar\'s book, the Rimah, remains one of the mostly widely read books of the Tijaniyya order. His legacy of resistance to French colonial conquest has inspired West Africans from all walks of life to the present time.' }
+      { 
+        heading: 'Birth & Lineage', 
+        text: 'Al-Hajj Umar was born in Helwar, Futa Toro, in present-day northern Senegal. He hailed from the noble Fulani, a people who had become renowned for their Islamic scholarship throughout West Africa by the seventeenth century. His father Cerno Saidu (Arabic, Sa\'id) studied at the famous Islamic university of Pir Sanikhor in Senegal.',
+        frenchText: 'Al-Hajj Umar est né à Helwar, Futa Toro, dans le nord du Sénégal actuel. Il était issu des nobles Peuls, un peuple qui était devenu renommé pour son érudition islamique dans toute l\'Afrique de l\'Ouest au XVIIe siècle. Son père Cerno Saidu (arabe, Sa\'id) a étudié à la célèbre université islamique de Pir Sanikhor au Sénégal.',
+        arabicText: 'ولد الحاج عمر في هيلوار، فوتا تورو، في شمال السنغال الحالي. كان من أصل الفولاني النبلاء، شعب أصبح مشهوراً بدراسته الإسلامية في جميع أنحاء غرب أفريقيا بحلول القرن السابع عشر. درس والده سيرنو سعيدو (عربي، سعيد) في الجامعة الإسلامية الشهيرة في بير سانيكور في السنغال.',
+        hausaText: 'An haifi Al-Hajj Umar a Helwar, Futa Toro, a arewacin Senegal na yanzu. Ya fito daga Fulani masu daraja, mutane da suka zama sananne da iliminsu na addinin Musulunci a ko\'ina cikin Yammacin Afirka a ƙarni na sha bakwai. Mahaifinsa Cerno Saidu (Larabci, Sa\'id) ya yi karatu a sanannen jami\'ar Musulunci ta Pir Sanikhor a Senegal.'
+      },
+      { 
+        heading: 'Father\'s Character', 
+        text: 'Saidu lived the life of a simple farmer, devoting himself to studies and worship rather than participate in the Fulani jihad of Abd al-Qadir Kane in 1776. Al-Hajj Umar had great respect for his father, who taught all sorts of sciences to his disciples, farmed while reciting the Qur\'an, and had many saintly sons.',
+        frenchText: 'Saidu a vécu la vie d\'un simple fermier, se consacrant aux études et à l\'adoration plutôt que de participer au jihad peul d\'Abd al-Qadir Kane en 1776. Al-Hajj Umar avait un grand respect pour son père, qui enseignait toutes sortes de sciences à ses disciples, cultivait tout en récitant le Coran, et avait de nombreux fils saints.',
+        arabicText: 'عاش سعيدو حياة مزارع بسيط، مكرساً نفسه للدراسات والعبادة بدلاً من المشاركة في الجهاد الفولاني لعبد القادر كان في 1776. كان للحاج عمر احترام كبير لوالده، الذي علم جميع أنواع العلوم لتلاميذه، وزرع وهو يتلو القرآن، وكان له العديد من الأبناء الأتقياء.',
+        hausaText: 'Saidu ya rayu rayuwar manomi mai sauƙi, yana sadaukar da kansa ga karatu da ibada maimakon shiga cikin jihad na Fulani na Abd al-Qadir Kane a 1776. Al-Hajj Umar yana da girmamawa mai girma ga mahaifinsa, wanda ya koyar da kowane nau\'in ilimi ga almajiransa, ya noma yayin da yake karanta Alkur\'ani, kuma yana da \'ya\'ya maza masu tsarki da yawa.'
+      },
+      { 
+        heading: 'Mother\'s Piety', 
+        text: 'Soxna Adama Aise, the mother of al-Hajj Umar, likewise had a great reputation for piety. She was a niece of the famous Qadiri scholar and jihadist Sulayman Bal. A touching story relates that during a torrential downpour at Umar\'s birth, while everybody else became soaking wet, Soxna Adama and her son remained dry.',
+        frenchText: 'Soxna Adama Aise, la mère d\'al-Hajj Umar, avait également une grande réputation de piété. Elle était la nièce du célèbre érudit Qadiri et jihadiste Sulayman Bal. Une histoire touchante raconte que lors d\'une pluie torrentielle à la naissance d\'Umar, alors que tout le monde était trempé, Soxna Adama et son fils sont restés secs.',
+        arabicText: 'كانت سوكنا آدمه آيس، والدة الحاج عمر، تتمتع أيضاً بسمعة عظيمة في التقوى. كانت ابنة أخت العالم القادري الشهير والمجاهد سليمان بال. تحكي قصة مؤثرة أنه خلال هطول أمطار غزيرة عند ولادة عمر، بينما أصبح الجميع مبتلين، بقيت سوكنا آدمه وابنها جافين.',
+        hausaText: 'Soxna Adama Aise, mahaifiyar al-Hajj Umar, ita ma tana da babbar suna ta taqawa. Ita ce \'yar\'uwar sanannen malami na Qadiri kuma mai jihadi Sulayman Bal. Wani labari mai ban tausayi ya ba da labarin cewa a lokacin ruwan sama mai ƙarfi a haihuwar Umar, yayin da kowa ya ji ruwa, Soxna Adama da ɗanta sun kasance bushe.'
+      },
+      { 
+        heading: 'Early Education', 
+        text: 'Al-Hajj Umar was a precocious student of the Islamic sciences, memorizing the Qur\'an with his father at a young age. He was next trained to be a Qur\'an school master by his elder brother Alfa Ahmadu, until he began traveling in search of knowledge.',
+        frenchText: 'Al-Hajj Umar était un étudiant précoce des sciences islamiques, mémorisant le Coran avec son père à un jeune âge. Il a ensuite été formé pour être maître d\'école coranique par son frère aîné Alfa Ahmadu, jusqu\'à ce qu\'il commence à voyager à la recherche de connaissances.',
+        arabicText: 'كان الحاج عمر طالباً نابغاً في العلوم الإسلامية، يحفظ القرآن مع والده في سن مبكرة. ثم تم تدريبه ليكون معلماً في مدرسة القرآن من قبل أخيه الأكبر ألفا أحمدو، حتى بدأ في السفر بحثاً عن المعرفة.',
+        hausaText: 'Al-Hajj Umar ya kasance ɗalibi mai hazaka a fannin ilimin Musulunci, yana haddace Alkur\'ani tare da mahaifinsa tun yana ƙarami. Daga nan aka horar da shi ya zama malamin makarantar Alkur\'ani ta hanyar babban ɗan\'uwansa Alfa Ahmadu, har sai ya fara tafiya neman ilimi.'
+      },
+      { 
+        heading: 'Love for the Prophet', 
+        text: 'From an early age, he developed a keen interest in books and poetry detailing the life and character of the Prophet Muhammad. He would later say: "Allah, from His bounty, endowed me with the love for His Prophet. I was confounded with love for him, a love permeating my interior and exterior."',
+        frenchText: 'Dès son jeune âge, il a développé un vif intérêt pour les livres et la poésie détaillant la vie et le caractère du Prophète Muhammad. Il dira plus tard : "Allah, de Sa générosité, m\'a doté de l\'amour pour Son Prophète. J\'étais confondu d\'amour pour lui, un amour pénétrant mon intérieur et mon extérieur."',
+        arabicText: 'من سن مبكرة، طور اهتماماً حاداً بالكتب والشعر الذي يصف حياة وشخصية النبي محمد. وقال لاحقاً: "الله، من فضله، وهبني حب نبيه. كنت مشتتاً بحبه، حب يتخلل داخلي وخارجي."',
+        hausaText: 'Tun yana ƙarami, ya ɓullo da sha\'awar littattafai da waƙoƙi waɗanda suka bayyana rayuwa da halin Annabi Muhammadu. Daga baya zai ce: "Allah, daga falalarsa, ya ba ni ƙaunar Annabinsa. Na ruɗe da ƙaunarsa, ƙauna ta shiga ciki da waje na."'
+      },
+      { 
+        heading: 'Teachers in Futa Toro', 
+        text: 'Umar studied under many of the renowned teachers in Futa Toro of his day, such as Cerno Lamin Saxo, Amar Saydi, Yero Buso and Horefonde. He excelled in the study of jurisprudence (fiqh), and even after his establishment as a Sufi shaykh, scholars used to visit him in Dingiray to discuss points of jurisprudence.',
+        frenchText: 'Umar a étudié sous de nombreux enseignants renommés de Futa Toro de son époque, tels que Cerno Lamin Saxo, Amar Saydi, Yero Buso et Horefonde. Il excellait dans l\'étude de la jurisprudence (fiqh), et même après son établissement comme shaykh soufi, les érudits avaient l\'habitude de lui rendre visite à Dingiray pour discuter de points de jurisprudence.',
+        arabicText: 'درس عمر تحت العديد من المعلمين المشهورين في فوتا تورو في عصره، مثل سيرنو لامين ساكسو، وعمار سيدي، وييرو بوسو وهوريفوندي. تفوق في دراسة الفقه، وحتى بعد تأسيسه كشيخ صوفي، كان العلماء يزورونه في دينجيراي لمناقشة نقاط الفقه.',
+        hausaText: 'Umar ya yi karatu a ƙarƙashin malamai da yawa masu suna a Futa Toro na zamaninsa, kamar Cerno Lamin Saxo, Amar Saydi, Yero Buso da Horefonde. Ya yi fice a fannin karatun fiqh, har ma bayan kafuwar sa a matsayin shaykh na Sufi, malamai sun kasance suna ziyartarsa a Dingiray don tattaunawa kan batutuwan fiqh.'
+      },
+      { 
+        heading: 'Pir Sanikhor', 
+        text: 'His studies in Futa inevitably led him to the famous school of Pir Sanikhor, where his teacher, Serin Demba Fal, observed in him exceptional scholastic ability. His first stay outside of Futa in search of knowledge was in the Mauritanian town of Tagant.',
+        frenchText: 'Ses études à Futa l\'ont inévitablement conduit à la célèbre école de Pir Sanikhor, où son professeur, Serin Demba Fal, a observé en lui une capacité scolaire exceptionnelle. Son premier séjour en dehors de Futa à la recherche de connaissances était dans la ville mauritanienne de Tagant.',
+        arabicText: 'أدت دراسته في فوتا حتماً إلى المدرسة الشهيرة في بير سانيكور، حيث لاحظ معلمه سيرين ديمبا فال فيه قدرة مدرسية استثنائية. كان إقامته الأولى خارج فوتا بحثاً عن المعرفة في البلدة الموريتانية تاغانت.',
+        hausaText: 'Karatunsa a Futa ya kai shi ga sanannen makarantar Pir Sanikhor, inda malaminsa Serin Demba Fal ya lura da ƙwarewar ilimi ta musamman a gare shi. Zaman farko da ya yi a wajen Futa neman ilimi ya kasance a garin Tagant na Mauritania.'
+      },
+      { 
+        heading: 'Tijani Initiation', 
+        text: 'During a second visit to Mauritania, or perhaps during a visit to Futa Jallon (present-day Guinea), Umar was initiated into the Tariqa Tijaniyya by Abd al-Karim al-Naqil, a student of Mawlud Fal. The two became close companions, and traveled together to Futa Jallon where Umar spent years learning from him.',
+        frenchText: 'Lors d\'une deuxième visite en Mauritanie, ou peut-être lors d\'une visite à Futa Jallon (Guinée actuelle), Umar a été initié à la Tariqa Tijaniyya par Abd al-Karim al-Naqil, un étudiant de Mawlud Fal. Les deux sont devenus des compagnons proches et ont voyagé ensemble à Futa Jallon où Umar a passé des années à apprendre de lui.',
+        arabicText: 'خلال زيارة ثانية لموريتانيا، أو ربما خلال زيارة لفوتا جالون (غينيا الحالية)، تم إدخال عمر إلى الطريقة التجانية من قبل عبد الكريم الناقل، تلميذ مولود فال. أصبح الاثنان رفيقين مقربين وسافرا معاً إلى فوتا جالون حيث قضى عمر سنوات يتعلم منه.',
+        hausaText: 'A lokacin ziyara ta biyu zuwa Mauritania, ko watakila a lokacin ziyara zuwa Futa Jallon (Guinea na yanzu), Umar ya shiga cikin Tariqa Tijaniyya ta hanyar Abd al-Karim al-Naqil, ɗalibin Mawlud Fal. Su biyun sun zama abokan kusanci, kuma suka yi tafiya tare zuwa Futa Jallon inda Umar ya shafe shekaru yana koyo daga gare shi.'
+      },
+      { 
+        heading: 'Journey to Mecca', 
+        text: 'Soon after the death of Abd al-Karim, Umar set off with his family to accomplish the pilgrimage to Mecca. He arrived in 1827 and soon became acquainted with the prominent student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali.',
+        frenchText: 'Peu après la mort d\'Abd al-Karim, Umar est parti avec sa famille pour accomplir le pèlerinage à La Mecque. Il est arrivé en 1827 et a rapidement fait connaissance avec l\'étudiant éminent de Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali.',
+        arabicText: 'بعد وفاة عبد الكريم بوقت قصير، انطلق عمر مع عائلته لإنجاز الحج إلى مكة. وصل في 1827 وسرعان ما تعرف على الطالب البارز لشيخ أحمد التجاني، سيدي محمد الغالي.',
+        hausaText: 'Jim kaɗan bayan mutuwar Abd al-Karim, Umar ya tafi tare da iyalinsa don cika aikin hajji zuwa Makka. Ya isa a 1827 kuma nan da nan ya san sanannen ɗalibin Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali.'
+      },
+      { 
+        heading: 'Meeting with Sidi al-Ghali', 
+        text: 'Al-Hajj Umar became Sidi al-Ghali\'s closest disciple, and al-Ghali gave him full investiture in the Tariqa following a vision of Shaykh Ahmad Tijani in the Prophet\'s mosque in Medina, where Shaykh Tijani told al-Ghali, "I have given Shaykh Umar ibn Sa\'id all that he needs in this Tariqa in the way of litanies and secrets."',
+        frenchText: 'Al-Hajj Umar est devenu le disciple le plus proche de Sidi al-Ghali, et al-Ghali lui a donné l\'investiture complète dans la Tariqa suite à une vision de Shaykh Ahmad Tijani dans la mosquée du Prophète à Médine, où Shaykh Tijani a dit à al-Ghali : "J\'ai donné à Shaykh Umar ibn Sa\'id tout ce dont il a besoin dans cette Tariqa en termes de litanies et de secrets."',
+        arabicText: 'أصبح الحاج عمر أقرب تلميذ لسيدي الغالي، وأعطاه الغالي الاستثمار الكامل في الطريقة بعد رؤية لشيخ أحمد التجاني في مسجد النبي في المدينة، حيث قال شيخ التجاني للغالي: "لقد أعطيت شيخ عمر بن سعيد كل ما يحتاجه في هذه الطريقة من الوردات والأسرار."',
+        hausaText: 'Al-Hajj Umar ya zama almajiri na kusa na Sidi al-Ghali, kuma al-Ghali ya ba shi cikakken izini a cikin Tariqa bayan wahayin Shaykh Ahmad Tijani a masallacin Annabi a Madina, inda Shaykh Tijani ya ce wa al-Ghali: "Na ba Shaykh Umar ibn Sa\'id duk abin da yake buƙata a cikin wannan Tariqa ta hanyar addu\'o\'i da sirri."'
+      },
+      { 
+        heading: 'Khalifa Status', 
+        text: 'Sidi al-Ghali thus gave Hajj Umar the status of khalifa in the Tariqa. Where Hajj Umar describes the degree of the muqaddam as someone commissioned to "teach the obligatory remembrances," he describes the position of khalifa as "a representative of the Shaykh without restriction."',
+        frenchText: 'Sidi al-Ghali a ainsi donné à Hajj Umar le statut de khalifa dans la Tariqa. Là où Hajj Umar décrit le degré du muqaddam comme quelqu\'un chargé d\'"enseigner les remémorations obligatoires", il décrit la position de khalifa comme "un représentant du Shaykh sans restriction."',
+        arabicText: 'وهكذا أعطى سيدي الغالي للحاج عمر منصب الخليفة في الطريقة. حيث يصف الحاج عمر درجة المقدم بأنه شخص مكلف "بتعليم الذكر الواجب"، يصف منصب الخليفة بأنه "ممثل الشيخ بلا قيود."',
+        hausaText: 'Don haka Sidi al-Ghali ya ba Hajj Umar matsayin khalifa a cikin Tariqa. Inda Hajj Umar ya bayyana matakin muqaddam a matsayin wanda aka ba shi aikin "koyar da tunawa na wajibi," ya bayyana matsayin khalifa a matsayin "wakilin Shaykh ba tare da ƙuntatawa ba."'
+      },
+      { 
+        heading: 'Mission from Sidi al-Ghali', 
+        text: 'Before leaving the company of Sidi al-Ghali in 1830, al-Ghali confirmed his status as khalifa for West Africa and told him to "clean the lands of the stench of paganism." While in the Middle East, al-Hajj Umar also visited Jerusalem, Syria and Egypt.',
+        frenchText: 'Avant de quitter la compagnie de Sidi al-Ghali en 1830, al-Ghali a confirmé son statut de khalifa pour l\'Afrique de l\'Ouest et lui a dit de "nettoyer les terres de la puanteur du paganisme." Pendant qu\'il était au Moyen-Orient, al-Hajj Umar a également visité Jérusalem, la Syrie et l\'Égypte.',
+        arabicText: 'قبل مغادرة صحبة سيدي الغالي في 1830، أكد الغالي منصبه كخليفة لغرب أفريقيا وأمره "بتنظيف الأراضي من رائحة الوثنية." بينما كان في الشرق الأوسط، زار الحاج عمر أيضاً القدس وسوريا ومصر.',
+        hausaText: 'Kafin ya bar zaman Sidi al-Ghali a 1830, al-Ghali ya tabbatar da matsayinsa na khalifa na Yammacin Afirka kuma ya ce masa ya "tsabtace ƙasashe daga wari na shirku." Yayin da yake a Gabas ta Tsakiya, al-Hajj Umar shima ya ziyarci Urushalima, Siriya da Masar.'
+      },
+      { 
+        heading: 'Middle East Travels', 
+        text: 'It is said he led the prayer in the Dome of the Rock (Jerusalem), cured the son of a sultan from madness in Syria, and astonished scholars in Cairo by his vast erudition. His reputation for piety and learning were recognized throughout the region.',
+        frenchText: 'On dit qu\'il a dirigé la prière dans le Dôme du Rocher (Jérusalem), guéri le fils d\'un sultan de la folie en Syrie, et étonné les érudits au Caire par sa vaste érudition. Sa réputation de piété et d\'apprentissage était reconnue dans toute la région.',
+        arabicText: 'يقال أنه قاد الصلاة في قبة الصخرة (القدس)، وشفى ابن سلطان من الجنون في سوريا، وأذهل العلماء في القاهرة بمعرفته الواسعة. كانت سمعته في التقوى والتعلم معترفاً بها في جميع أنحاء المنطقة.',
+        hausaText: 'An ce ya jagoranci salla a cikin Dome of the Rock (Urushalima), ya warkar da ɗan sarki daga hauka a Siriya, kuma ya ba malamai a Alkahira mamaki da iliminsa mai yawa. Sunansa na taqawa da ilimi an gane shi a ko\'ina cikin yankin.'
+      },
+      { 
+        heading: 'Return via Sokoto', 
+        text: 'Al-Hajj Umar returned from the Middle East by way of Sokoto (which he had also visited on the way to the Hijaz), arriving in 1831-2. He was accorded a grand reception by Sultan Muhammad Bello, the son of Shehu Usman dan Fodio.',
+        frenchText: 'Al-Hajj Umar est retourné du Moyen-Orient par Sokoto (qu\'il avait également visité en route vers le Hijaz), arrivant en 1831-2. Il a reçu une grande réception par le Sultan Muhammad Bello, fils de Shehu Usman dan Fodio.',
+        arabicText: 'عاد الحاج عمر من الشرق الأوسط عبر سوكوتو (التي زارها أيضاً في طريقه إلى الحجاز)، ووصل في 1831-2. حظي باستقبال عظيم من قبل السلطان محمد بيلو، ابن الشيخ عثمان دان فوديو.',
+        hausaText: 'Al-Hajj Umar ya dawo daga Gabas ta Tsakiya ta hanyar Sokoto (wanda shima ya ziyarta a kan hanyar zuwa Hijaz), ya isa a 1831-2. Sarkin Muhammad Bello, ɗan Shehu Usman dan Fodio, ya yi masa babban liyafa.'
+      },
+      { 
+        heading: 'Friendship with Sultan Bello', 
+        text: 'There is no evidence that Sultan Bello actually took the Tariqa Tijaniyya, but it is undeniable the two were the best of friends. Bello gave Shaykh Umar his daughter Maryam in marriage, and Umar accompanied Bello on various military campaigns.',
+        frenchText: 'Il n\'y a aucune preuve que le Sultan Bello ait réellement pris la Tariqa Tijaniyya, mais il est indéniable que les deux étaient les meilleurs amis. Bello a donné sa fille Maryam en mariage à Shaykh Umar, et Umar a accompagné Bello dans diverses campagnes militaires.',
+        arabicText: 'لا يوجد دليل على أن السلطان بيلو قد أخذ الطريقة التجانية فعلاً، لكن لا يمكن إنكار أن الاثنين كانا أفضل الأصدقاء. أعطى بيلو ابنته مريم زوجة لشيخ عمر، ورافق عمر بيلو في حملات عسكرية مختلفة.',
+        hausaText: 'Babu shaidar cewa Sarkin Bello ya ɗauki Tariqa Tijaniyya a zahiri, amma ba za a iya musun cewa su biyun sun kasance abokan kusanci ba. Bello ya ba Shaykh Umar \'yarsa Maryam auren, kuma Umar ya raka Bello a yaƙe-yaƙe daban-daban.'
+      },
+      { 
+        heading: 'Sultan Bello\'s Dream', 
+        text: 'In his Rimah, Shaykh Umar recorded a significant dream Sultan Bello had on the 14th of Rabi al-Awal in 1251 A.H. In the dream, Shaykh al-Tijani came to their land with Umar as his lieutenant. Bello expressed his love for the Shaykh and asked for assurance of meeting him in Paradise.',
+        frenchText: 'Dans son Rimah, Shaykh Umar a enregistré un rêve significatif que le Sultan Bello a eu le 14 de Rabi al-Awal en 1251 A.H. Dans le rêve, Shaykh al-Tijani est venu sur leur terre avec Umar comme son lieutenant. Bello a exprimé son amour pour le Shaykh et a demandé l\'assurance de le rencontrer au Paradis.',
+        arabicText: 'في كتابه الرياح، سجل شيخ عمر حلماً مهماً كان للسلطان بيلو في 14 من ربيع الأول سنة 1251 هـ. في الحلم، جاء شيخ التجاني إلى أرضهم مع عمر كملازم له. عبر بيلو عن حبه للشيخ وطلب التأكيد على لقائه في الجنة.',
+        hausaText: 'A cikin littafinsa Rimah, Shaykh Umar ya rubuta wani muhimmin mafarki da Sarkin Bello ya yi a ranar 14 na Rabi al-Awal a 1251 A.H. A cikin mafarkin, Shaykh al-Tijani ya zo ƙasarsu tare da Umar a matsayin mataimakinsa. Bello ya bayyana ƙaunarsa ga Shaykh kuma ya nemi tabbacin saduwa da shi a Aljanna.'
+      },
+      { 
+        heading: 'Settlement in Futa Jallon', 
+        text: 'After traveling widely throughout West Africa, Shaykh Umar settled in Futa Jallon, eventually founding the town of Dingiray. In Futa Jallon, Shaykh Umar spent ten years teaching his growing numbers of disciples, especially renowned for his teaching of jurisprudence, hadith and Sufism.',
+        frenchText: 'Après avoir voyagé largement dans toute l\'Afrique de l\'Ouest, Shaykh Umar s\'est installé à Futa Jallon, fondant finalement la ville de Dingiray. À Futa Jallon, Shaykh Umar a passé dix ans à enseigner à ses disciples de plus en plus nombreux, particulièrement renommé pour son enseignement de la jurisprudence, du hadith et du soufisme.',
+        arabicText: 'بعد السفر على نطاق واسع في جميع أنحاء غرب أفريقيا، استقر شيخ عمر في فوتا جالون، وأسس في النهاية مدينة دينجيراي. في فوتا جالون، قضى شيخ عمر عشر سنوات في تعليم أعداد متزايدة من تلاميذه، مشهوراً خاصة بتعليمه للفقه والحديث والتصوف.',
+        hausaText: 'Bayan ya yi tafiya sosai a ko\'ina cikin Yammacin Afirka, Shaykh Umar ya zauna a Futa Jallon, daga ƙarshe ya kafa garin Dingiray. A Futa Jallon, Shaykh Umar ya shafe shekaru goma yana koyar da almajiransa masu ƙaruwa, musamman sananne da koyarwarsa na fiqh, hadisi da Sufanci.'
+      },
+      { 
+        heading: 'The Jihad', 
+        text: 'Resenting his growing influence, the non-Muslim leaders in the area attacked his settlement in 1851. Nearly a year later, Shaykh Umar received official permission for the jihad from the Prophet Muhammad and Shaykh Ahmad Tijani in a visionary encounter.',
+        frenchText: 'Ressentant son influence croissante, les dirigeants non-musulmans de la région ont attaqué son établissement en 1851. Près d\'un an plus tard, Shaykh Umar a reçu la permission officielle pour le jihad du Prophète Muhammad et Shaykh Ahmad Tijani dans une rencontre visionnaire.',
+        arabicText: 'مستاءً من نفوذه المتزايد، هاجم القادة غير المسلمين في المنطقة مستوطنة في 1851. بعد ما يقرب من عام، تلقى شيخ عمر الإذن الرسمي للجهاد من النبي محمد وشيخ أحمد التجاني في لقاء رؤيوي.',
+        hausaText: 'Sun ji haushi da tasirinsa mai ƙaruwa, shugabannin da ba Musulmi ba a yankin sun kai hari kan matsuguninsa a 1851. Kusan shekara guda bayan haka, Shaykh Umar ya karɓi izini na hukuma don jihadi daga Annabi Muhammadu da Shaykh Ahmad Tijani a cikin wani ganawa na wahayi.'
+      },
+      { 
+        heading: 'Military Campaigns', 
+        text: 'The jihad was first exclusively directed against the non-Muslim Bambara, whom al-Hajj Umar accused of grave injustices, enslaving Muslims and threatening the practice of Islam. When he conquered the Bambara city of Segu in 1861, he found evidence of an alliance against him.',
+        frenchText: 'Le jihad a d\'abord été dirigé exclusivement contre les Bambara non-musulmans, qu\'al-Hajj Umar accusait de graves injustices, d\'asservir les musulmans et de menacer la pratique de l\'islam. Quand il a conquis la ville bambara de Segu en 1861, il a trouvé des preuves d\'une alliance contre lui.',
+        arabicText: 'كان الجهاد موجهاً في البداية حصرياً ضد البامبارا غير المسلمين، الذين اتهمهم الحاج عمر بارتكاب ظلم شديد واستعباد المسلمين وتهديد ممارسة الإسلام. عندما غزا مدينة سيجو البامبارية في 1861، وجد دليلاً على تحالف ضده.',
+        hausaText: 'Jihadi ya fara ne kawai a kan Bambara da ba Musulmi ba, waɗanda al-Hajj Umar ya zarge su da zalunci mai tsanani, da bautar da Musulmi da kuma barazanar aikin Musulunci. Lokacin da ya ci garin Segu na Bambara a 1861, ya sami shaidar kawance a kansa.'
+      },
+      { 
+        heading: 'Conflict with Masina', 
+        text: 'His resultant jihad against Masina, whose capital Hamdullahi he captured in 1864, touched off a virulent polemic between the supporters of al-Hajj Umar and the supporters of Masina, the latter which included the scholars of Timbuktu.',
+        frenchText: 'Son jihad résultant contre Masina, dont il a capturé la capitale Hamdullahi en 1864, a déclenché une polémique virulente entre les partisans d\'al-Hajj Umar et les partisans de Masina, ces derniers incluant les érudits de Tombouctou.',
+        arabicText: 'أدى جهاده الناتج ضد ماسينا، التي استولى على عاصمتها حمد اللهي في 1864، إلى إثارة جدل حاد بين أنصار الحاج عمر وأنصار ماسينا، والأخير يشمل علماء تمبكتو.',
+        hausaText: 'Jihadinsa na sakamako a kan Masina, wanda ya ci babban birninta Hamdullahi a 1864, ya haifar da cece-kuce mai tsanani tsakanin magoya bayan al-Hajj Umar da magoya bayan Masina, na ƙarshen ya haɗa da malaman Timbuktu.'
+      },
+      { 
+        heading: 'French Conflict', 
+        text: 'By 1854, Shaykh Umar\'s mobilization of Futa Toro led to direct conflict with advancing French commercial and military hegemony. Besieged on two fronts, Shaykh Umar died in battle in 1864 near Hamdulillahi.',
+        frenchText: 'En 1854, la mobilisation de Futa Toro par Shaykh Umar a conduit à un conflit direct avec l\'hégémonie commerciale et militaire française croissante. Assiégé sur deux fronts, Shaykh Umar est mort au combat en 1864 près de Hamdulillahi.',
+        arabicText: 'بحلول 1854، أدت تعبئة شيخ عمر لفوتا تورو إلى صراع مباشر مع الهيمنة التجارية والعسكرية الفرنسية المتقدمة. محاصراً على جبهتين، مات شيخ عمر في المعركة في 1864 قرب حمد اللهي.',
+        hausaText: 'A 1854, tattarawar Shaykh Umar na Futa Toro ya haifar da rikici kai tsaye da ci gaban Faransanci na kasuwanci da soja. An kewaye shi a bangarori biyu, Shaykh Umar ya mutu a yaƙi a 1864 kusa da Hamdulillahi.'
+      },
+      { 
+        heading: 'The Rimah', 
+        text: 'His magnum opus, the Kitab rimah hizb al-rahim \'ala nuhur hizb al-rajim ("The book of the lances of the league of (Allah) the Merciful against the necks of the league of (Satan) the accursed"), is considered a "veritable compendium" and one of the most important works of the nineteenth century anywhere in the Muslim world.',
+        frenchText: 'Son magnum opus, le Kitab rimah hizb al-rahim \'ala nuhur hizb al-rajim ("Le livre des lances de la ligue d\'Allah le Miséricordieux contre les cous de la ligue de Satan le maudit"), est considéré comme un "véritable compendium" et l\'une des œuvres les plus importantes du XIXe siècle n\'importe où dans le monde musulman.',
+        arabicText: 'تحفته الفنية، كتاب رماح حزب الرحيم على نحور حزب الرجيم ("كتاب رماح حزب الله الرحمن ضد أعناق حزب الشيطان الرجيم")، يُعتبر "موسوعة حقيقية" وأحد أهم أعمال القرن التاسع عشر في أي مكان في العالم الإسلامي.',
+        hausaText: 'Babban aikinsa, Kitab rimah hizb al-rahim \'ala nuhur hizb al-rajim ("Littafin mashin ƙungiyar Allah Mai Rahama a kan wuyoyin ƙungiyar Shaidan mai la\'ana"), ana ɗaukarsa a matsayin "cikakken taro" kuma ɗaya daga cikin muhimman ayyukan ƙarni na sha tara a ko\'ina cikin duniyar Musulmi.'
+      },
+      { 
+        heading: 'Political Legacy', 
+        text: 'The "Umarian" state al-Hajj Umar had forged by 1860, although short-lived, was one of the largest ever seen in West Africa. His empire was held together by his son Ahmad until being dismantled by the French some twenty years after the Shaykh\'s death.',
+        frenchText: 'L\'État "Umarian" qu\'al-Hajj Umar avait forgé en 1860, bien que de courte durée, était l\'un des plus grands jamais vus en Afrique de l\'Ouest. Son empire a été maintenu par son fils Ahmad jusqu\'à être démantelé par les Français environ vingt ans après la mort du Shaykh.',
+        arabicText: 'كانت الدولة "العمرية" التي أسسها الحاج عمر بحلول 1860، رغم قصر عمرها، واحدة من أكبر الدول التي شوهدت في غرب أفريقيا. تم الحفاظ على إمبراطوريته من قبل ابنه أحمد حتى تم تفكيكها من قبل الفرنسيين بعد حوالي عشرين عاماً من وفاة الشيخ.',
+        hausaText: 'Jihar "Umarian" da al-Hajj Umar ya kafa a 1860, ko da yake ta daɗe kaɗan, ta kasance ɗaya daga cikin mafi girma da aka taɓa gani a Yammacin Afirka. Daularsa ta kasance tare da ɗansa Ahmad har sai Faransawa suka rushe ta kusan shekaru ashirin bayan mutuwar Shaykh.'
+      },
+      { 
+        heading: 'Scholarly Legacy', 
+        text: 'His scholarly legacy has far outlasted any temporary political role he endured. His descendent Seydou Nourou Tall became a key Muslim and Tijani figure in twentieth century West Africa. Later Tijani scholars such as Al-Hajj Abdoulaye Niasse and al-Hajj Malik Sy had important initiations through students of al-Hajj Umar.',
+        frenchText: 'Son héritage savant a largement dépassé tout rôle politique temporaire qu\'il a enduré. Son descendant Seydou Nourou Tall est devenu une figure musulmane et Tijani clé en Afrique de l\'Ouest au XXe siècle. Plus tard, des érudits Tijani comme Al-Hajj Abdoulaye Niasse et al-Hajj Malik Sy ont eu des initiations importantes par des étudiants d\'al-Hajj Umar.',
+        arabicText: 'إرثه العلمي فاق بكثير أي دور سياسي مؤقت تحمله. أصبح نسله سيدو نورو تال شخصية مسلمة وتجانية رئيسية في غرب أفريقيا في القرن العشرين. لاحقاً، حصل علماء تجانيون مثل الحاج عبد الله نياس والحاج مالك سي على بدايات مهمة من خلال طلاب الحاج عمر.',
+        hausaText: 'Gadonsa na ilimi ya fi duk wani rawar siyasa na ɗan lokaci da ya sha. Zuriyarsa Seydou Nourou Tall ya zama babban mutum na Musulmi da Tijani a Yammacin Afirka a ƙarni na ashirin. Daga baya, malaman Tijani kamar Al-Hajj Abdoulaye Niasse da al-Hajj Malik Sy sun sami muhimman farkon ta hanyar ɗaliban al-Hajj Umar.'
+      },
+      { 
+        heading: 'Continuing Influence', 
+        text: 'Shaykh Umar\'s book, the Rimah, remains one of the mostly widely read books of the Tijaniyya order. His legacy of resistance to French colonial conquest has inspired West Africans from all walks of life to the present time.',
+        frenchText: 'Le livre de Shaykh Umar, le Rimah, reste l\'un des livres les plus largement lus de l\'ordre Tijaniyya. Son héritage de résistance à la conquête coloniale française a inspiré les Africains de l\'Ouest de tous horizons jusqu\'à nos jours.',
+        arabicText: 'كتاب شيخ عمر، الرياح، يبقى واحداً من أكثر الكتب قراءة على نطاق واسع في الطريقة التجانية. إرثه من المقاومة للغزو الاستعماري الفرنسي ألهم الأفارقة الغربيين من جميع مناحي الحياة حتى الوقت الحاضر.',
+        hausaText: 'Littafin Shaykh Umar, Rimah, ya kasance ɗaya daga cikin littattafan da aka fi karantawa a cikin ƙungiyar Tijaniyya. Gadonsa na tsayin daka ga mamayar mulkin mallaka na Faransa ya ƙarfafa Afirka ta Yamma daga kowane fanni har zuwa yau.'
+      }
     ],
   },
   // 8. Muhammad Arabi ibn Sa'ih
