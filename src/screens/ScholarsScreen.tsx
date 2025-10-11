@@ -535,10 +535,34 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'قبل أن يغادر الحاج عمر في عام 1830، أكد الغالي منصبه كخليفة لغرب أفريقيا وقال له أن "ينظف الأراضي من رائحة الوثنية." هذه التوجيهات ستشكل مهمة الحاج عمر في غرب أفريقيا.',
         hausaText: 'Kafin Al-Hajj Umar ya tafi a shekara ta 1830, al-Ghali ya tabbatar da matsayinsa na khalifa na Yammacin Afirka kuma ya ce masa ya "tsabtace ƙasashe daga wari na shirku." Wannan umarni zai tsara aikin Al-Hajj Umar a Yammacin Afirka.'
       },
-      { heading: 'Spiritual Authority', text: 'As a direct student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali held significant spiritual authority within the early Tariqa Tijaniyya. His authorization of Al-Hajj Umar demonstrates his role as a key transmitter of the Tariqa.' },
-      { heading: 'Legacy in West Africa', text: 'Through his authorization of Al-Hajj Umar, Sidi Muhammad al-Ghali indirectly influenced the entire development of the Tariqa Tijaniyya in West Africa, as Al-Hajj Umar became one of the most important figures in spreading the Tariqa throughout the region.' },
-      { heading: 'Connection to Hijaz', text: 'His presence in the Hijaz and his role in authorizing Al-Hajj Umar shows the international reach of the early Tariqa Tijaniyya and the importance of the Hijaz as a center for Tijani authorization.' },
-      { heading: 'Continuing Influence', text: 'Sidi Muhammad al-Ghali\'s influence continues to be felt through the many West African Tijani communities that trace their spiritual lineage back to Al-Hajj Umar, who received his authorization from al-Ghali.' }
+      { 
+        heading: 'Spiritual Authority', 
+        text: 'As a direct student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali held significant spiritual authority within the early Tariqa Tijaniyya. His authorization of Al-Hajj Umar demonstrates his role as a key transmitter of the Tariqa.',
+        frenchText: 'En tant qu\'étudiant direct de Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali détenait une autorité spirituelle significative au sein de la Tariqa Tijaniyya primitive. Son autorisation d\'Al-Hajj Umar démontre son rôle de transmetteur clé de la Tariqa.',
+        arabicText: 'بصفته طالباً مباشراً لشيخ أحمد التجاني، كان سيدي محمد الغالي يتمتع بسلطة روحية كبيرة في الطريقة التجانية المبكرة. ترخيصه للحاج عمر يوضح دوره كحامل أساسي للطريقة.',
+        hausaText: 'A matsayin ɗalibi kai tsaye na Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali yana da babban iko na ruhaniya a cikin farkon Tariqa Tijaniyya. Izininsa na Al-Hajj Umar yana nuna rawar sa na babban mai watsa Tariqa.'
+      },
+      { 
+        heading: 'Legacy in West Africa', 
+        text: 'Through his authorization of Al-Hajj Umar, Sidi Muhammad al-Ghali indirectly influenced the entire development of the Tariqa Tijaniyya in West Africa, as Al-Hajj Umar became one of the most important figures in spreading the Tariqa throughout the region.',
+        frenchText: 'Par son autorisation d\'Al-Hajj Umar, Sidi Muhammad al-Ghali a indirectement influencé tout le développement de la Tariqa Tijaniyya en Afrique de l\'Ouest, car Al-Hajj Umar est devenu l\'une des figures les plus importantes dans la propagation de la Tariqa dans toute la région.',
+        arabicText: 'من خلال ترخيصه للحاج عمر، أثر سيدي محمد الغالي بشكل غير مباشر على التطور الكامل للطريقة التجانية في غرب أفريقيا، حيث أصبح الحاج عمر أحد أهم الشخصيات في نشر الطريقة في جميع أنحاء المنطقة.',
+        hausaText: 'Ta hanyar izininsa na Al-Hajj Umar, Sidi Muhammad al-Ghali ya yi tasiri a kai tsaye ga dukkan ci gaban Tariqa Tijaniyya a Yammacin Afirka, yayin da Al-Hajj Umar ya zama ɗaya daga cikin mafi muhimman mutane a yaduwar Tariqa a duk faɗin yankin.'
+      },
+      { 
+        heading: 'Connection to Hijaz', 
+        text: 'His presence in the Hijaz and his role in authorizing Al-Hajj Umar shows the international reach of the early Tariqa Tijaniyya and the importance of the Hijaz as a center for Tijani authorization.',
+        frenchText: 'Sa présence dans le Hijaz et son rôle dans l\'autorisation d\'Al-Hajj Umar montrent la portée internationale de la Tariqa Tijaniyya primitive et l\'importance du Hijaz comme centre d\'autorisation Tijani.',
+        arabicText: 'وجوده في الحجاز ودوره في ترخيص الحاج عمر يظهر المدى الدولي للطريقة التجانية المبكرة وأهمية الحجاز كمركز للترخيص التجاني.',
+        hausaText: 'Kasancewarsa a Hijaz da rawar sa a ba Al-Hajj Umar izini yana nuna faɗin duniya na farkon Tariqa Tijaniyya da muhimmancin Hijaz a matsayin cibiyar izini na Tijani.'
+      },
+      { 
+        heading: 'Continuing Influence', 
+        text: 'Sidi Muhammad al-Ghali\'s influence continues to be felt through the many West African Tijani communities that trace their spiritual lineage back to Al-Hajj Umar, who received his authorization from al-Ghali.',
+        frenchText: 'L\'influence de Sidi Muhammad al-Ghali continue d\'être ressentie à travers les nombreuses communautés Tijani d\'Afrique de l\'Ouest qui retracent leur lignée spirituelle jusqu\'à Al-Hajj Umar, qui a reçu son autorisation d\'al-Ghali.',
+        arabicText: 'يستمر تأثير سيدي محمد الغالي في الشعور به من خلال العديد من المجتمعات التجانية في غرب أفريقيا التي تتبع نسبها الروحي إلى الحاج عمر، الذي تلقى ترخيصه من الغالي.',
+        hausaText: 'Tasirin Sidi Muhammad al-Ghali ya ci gaba da kasancewa ta hanyar yawancin al\'ummomin Tijani na Yammacin Afirka waɗanda ke bin zuriyar ruhaniya zuwa Al-Hajj Umar, wanda ya karɓi izininsa daga al-Ghali.'
+      }
     ],
   },
   // 5. Ibrahim Riyahi
