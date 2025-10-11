@@ -604,9 +604,27 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'كان أيضاً معترفاً به كشيخ الإسلام المالكي لتونس، مما جعله أعلى سلطة دينية في المدرسة المالكية للفقه في البلاد. منحه هذا المنصب نفوذاً كبيراً في الأمور الدينية والقانونية.',
         hausaText: 'An kuma amince da shi a matsayin Shaykh al-Islam Maliki na Tunisia, ya sa ya zama babban hali na addini a makarantar shari\'ar Maliki a ƙasar. Wannan matsayi ya ba shi tasiri mai mahimmanci a cikin al\'amuran addini da shari\'a.'
       },
-      { heading: 'Introduction to Tariqa Tijaniyya', text: 'Shaykh Ibrahim al-Riyahi was the first to introduce the Tariqa Tijaniyya in Tunisia. His acceptance and promotion of the Tariqa played a crucial role in its establishment and growth in North Africa.' },
-      { heading: 'Meeting with Sidi Ali Harazim', text: 'He hosted Sidi Ali Harazim for several months in Tunis during the latter\'s journey to Mecca. This meeting had a profound impact on Shaykh Ibrahim and influenced his eventual embrace of the Tariqa Tijaniyya.' },
-      { heading: 'Visit to Shaykh Tijani', text: 'Inspired by his meeting with Sidi Ali Harazim, Shaykh Ibrahim later visited Shaykh Ahmad Tijani in Fes. This visit solidified his commitment to the Tariqa and his role in spreading it in Tunisia.' },
+      { 
+        heading: 'Introduction to Tariqa Tijaniyya', 
+        text: 'Shaykh Ibrahim al-Riyahi was the first to introduce the Tariqa Tijaniyya in Tunisia. His acceptance and promotion of the Tariqa played a crucial role in its establishment and growth in North Africa.',
+        frenchText: 'Shaykh Ibrahim al-Riyahi fut le premier à introduire la Tariqa Tijaniyya en Tunisie. Son acceptation et sa promotion de la Tariqa ont joué un rôle crucial dans son établissement et sa croissance en Afrique du Nord.',
+        arabicText: 'كان شيخ إبراهيم الرياحي أول من أدخل الطريقة التجانية في تونس. لعب قبوله وترويجه للطريقة دوراً حاسماً في تأسيسها ونموها في شمال أفريقيا.',
+        hausaText: 'Shaykh Ibrahim al-Riyahi shi ne na farko da ya gabatar da Tariqa Tijaniyya a Tunisia. Karɓar sa da tallata Tariqa ya taka muhimmiyar rawa a kafarta da ci gabanta a Arewacin Afirka.'
+      },
+      { 
+        heading: 'Meeting with Sidi Ali Harazim', 
+        text: 'He hosted Sidi Ali Harazim for several months in Tunis during the latter\'s journey to Mecca. This meeting had a profound impact on Shaykh Ibrahim and influenced his eventual embrace of the Tariqa Tijaniyya.',
+        frenchText: 'Il a hébergé Sidi Ali Harazim pendant plusieurs mois à Tunis lors du voyage de ce dernier à La Mecque. Cette rencontre eut un impact profond sur Shaykh Ibrahim et influença son adoption ultérieure de la Tariqa Tijaniyya.',
+        arabicText: 'استضاف سيدي علي حرازم لعدة أشهر في تونس أثناء رحلة الأخير إلى مكة. كان لهذا اللقاء تأثير عميق على شيخ إبراهيم وأثر على تبنيته النهائية للطريقة التجانية.',
+        hausaText: 'Ya ba Sidi Ali Harazim masauki na watanni da yawa a Tunis yayin tafiyar na ƙarshe zuwa Makka. Wannan saduwar ta yi tasiri mai zurfi a kan Shaykh Ibrahim kuma ta yi tasiri a kan karɓar sa na Tariqa Tijaniyya daga baya.'
+      },
+      { 
+        heading: 'Visit to Shaykh Tijani', 
+        text: 'Inspired by his meeting with Sidi Ali Harazim, Shaykh Ibrahim later visited Shaykh Ahmad Tijani in Fes. This visit solidified his commitment to the Tariqa and his role in spreading it in Tunisia.',
+        frenchText: 'Inspiré par sa rencontre avec Sidi Ali Harazim, Shaykh Ibrahim visita plus tard Shaykh Ahmad Tijani à Fes. Cette visite solidifia son engagement envers la Tariqa et son rôle dans sa propagation en Tunisie.',
+        arabicText: 'مستوحى من لقائه مع سيدي علي حرازم، زار شيخ إبراهيم لاحقاً شيخ أحمد التجاني في فاس. عززت هذه الزيارة التزامه بالطريقة ودوره في نشرها في تونس.',
+        hausaText: 'An yi wahayi daga saduwar sa da Sidi Ali Harazim, Shaykh Ibrahim daga baya ya ziyarci Shaykh Ahmad Tijani a Fes. Wannan ziyarar ta ƙarfafa sadaukarwar sa ga Tariqa da rawar sa a yadawa a Tunisia.'
+      },
       { heading: 'Scholarly Contributions', text: 'As a leading scholar, Shaykh Ibrahim wrote extensively on Islamic jurisprudence and other Islamic sciences. His works contributed to the scholarly tradition of North Africa and the Maliki school of law.' },
       { heading: 'Teaching & Students', text: 'He taught numerous students at Zaytuna University, many of whom went on to become prominent scholars themselves. His teaching methods and scholarly approach influenced generations of Islamic scholars in Tunisia and beyond.' },
       { heading: 'Recognition by Shaykh Ibrahim Niasse', text: 'Shaykh Ibrahim Niasse (d. 1975) said about him: "Were Shaykh Ahmad al-Tijani to have no other follower but Abu Ishaq Ibrahim al-Riyahi, it would suffice us as proof to also follow him." This shows the high regard in which he was held by later Tijani scholars.' },
