@@ -306,10 +306,34 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'في اللحظة الدقيقة لدفنه، قال شيخ التجاني لأصحابه في فاس: "لو لم يدفنوه، لسمعوا منه علوماً ومعارف وأسراراً لم يسمعوا بها من قبل ولم يجدوها في أي كتاب." هذا يظهر عمق المعرفة الروحية لسيدي علي.',
         hausaText: 'A daidai lokacin binne shi, Shaykh Tijani ya ce wa sahabbansa a Fes: "Da ba su binne shi ba, da sun ji daga gare shi ilimai, gano da sirri irin waɗanda ba su taɓa ji ba a baya kuma ba su taɓa samu a kowane littafi ba." Wannan yana nuna zurfin ilimin ruhaniya na Sidi Ali.'
       },
-      { heading: 'Grave at Badr & Modern Visitation', text: 'His grave at Badr is no longer distinguishable, like many other tombs destroyed in the last two centuries. But Shaykh Hassan Cisse, when visiting Badr some years ago, reports having been indicated the exact spot in a visionary encounter with Sidi Ali Harazem himself.' },
-      { heading: 'Literary Legacy', text: 'The Jawahir al-Ma\'ani remains one of the most important works in the Tijaniyya tradition, providing detailed accounts of Shaykh Tijani\'s life, teachings, and spiritual experiences. It serves as the primary reference for understanding the early development of the Tariqa.' },
-      { heading: 'Spiritual Lineage', text: 'As the greatest inheritor of Shaykh Ahmad Tijani, Sidi Ali Harazim established a spiritual lineage that continues to influence the Tijaniyya order. His role as the primary transmitter of Shaykh Tijani\'s teachings ensures his lasting importance in the tradition.' },
-      { heading: 'Legacy & Continuing Influence', text: 'As the greatest inheritor of Shaykh Ahmad Tijani and the author of the Jawahir al-Ma\'ani, Sidi Ali Harazim\'s influence continues to be felt throughout the Tijaniyya order. His spiritual authority and scholarly contributions remain central to the understanding of the Tariqa and its foundational principles.' }
+      { 
+        heading: 'Grave at Badr & Modern Visitation', 
+        text: 'His grave at Badr is no longer distinguishable, like many other tombs destroyed in the last two centuries. But Shaykh Hassan Cisse, when visiting Badr some years ago, reports having been indicated the exact spot in a visionary encounter with Sidi Ali Harazem himself.',
+        frenchText: 'Sa tombe à Badr n\'est plus distinguable, comme beaucoup d\'autres tombes détruites au cours des deux derniers siècles. Mais Shaykh Hassan Cisse, lors de sa visite à Badr il y a quelques années, rapporte avoir été indiqué l\'endroit exact dans une rencontre visionnaire avec Sidi Ali Harazem lui-même.',
+        arabicText: 'قبره في بدر لم يعد مميزاً، مثل العديد من القبور الأخرى التي دُمرت في القرنين الماضيين. لكن شيخ حسن سيس، عند زيارته لبدر قبل بضع سنوات، يروي أنه تم إرشاده إلى المكان الدقيق في لقاء رؤيوي مع سيدي علي حرازم نفسه.',
+        hausaText: 'Kabarin sa a Badr ba ya iya bambanta, kamar yawancin sauran kaburbura da aka lalata a cikin ƙarnuka biyu da suka gabata. Amma Shaykh Hassan Cisse, lokacin da ya ziyarci Badr shekaru da yawa da suka wuce, ya ruwaito cewa an nuna masa daidai wurin a cikin saduwar hangen nesa da Sidi Ali Harazem da kansa.'
+      },
+      { 
+        heading: 'Literary Legacy', 
+        text: 'The Jawahir al-Ma\'ani remains one of the most important works in the Tijaniyya tradition, providing detailed accounts of Shaykh Tijani\'s life, teachings, and spiritual experiences. It serves as the primary reference for understanding the early development of the Tariqa.',
+        frenchText: 'Le Jawahir al-Ma\'ani reste l\'une des œuvres les plus importantes de la tradition Tijaniyya, fournissant des comptes rendus détaillés de la vie, des enseignements et des expériences spirituelles de Shaykh Tijani. Il sert de référence principale pour comprendre le développement précoce de la Tariqa.',
+        arabicText: 'يبقى جوهر المعاني من أهم الأعمال في التقليد التجاني، حيث يقدم روايات مفصلة عن حياة وتعاليم وتجارب شيخ التجاني الروحية. إنه يخدم كمرجع أساسي لفهم التطور المبكر للطريقة.',
+        hausaText: 'Jawahir al-Ma\'ani ya kasance ɗaya daga cikin muhimman ayyuka a al\'adar Tijaniyya, yana ba da cikakkun labarai game da rayuwa, koyarwa da kuma abubuwan ruhaniya na Shaykh Tijani. Yana aiki a matsayin babban tushe don fahimtar ci gaban farko na Tariqa.'
+      },
+      { 
+        heading: 'Spiritual Lineage', 
+        text: 'As the greatest inheritor of Shaykh Ahmad Tijani, Sidi Ali Harazim established a spiritual lineage that continues to influence the Tijaniyya order. His role as the primary transmitter of Shaykh Tijani\'s teachings ensures his lasting importance in the tradition.',
+        frenchText: 'En tant que plus grand héritier de Shaykh Ahmad Tijani, Sidi Ali Harazim a établi une lignée spirituelle qui continue d\'influencer l\'ordre Tijaniyya. Son rôle de transmetteur principal des enseignements de Shaykh Tijani assure son importance durable dans la tradition.',
+        arabicText: 'بصفته أعظم وارث لشيخ أحمد التجاني، أسس سيدي علي حرازم سلالة روحية تستمر في التأثير على الطريقة التجانية. دوره كحامل أساسي لتعاليم شيخ التجاني يضمن أهميته الدائمة في التقليد.',
+        hausaText: 'A matsayin babban magajin Shaykh Ahmad Tijani, Sidi Ali Harazim ya kafa zuriyar ruhaniya wacce ta ci gaba da yin tasiri a kan ƙungiyar Tijaniyya. Rawar sa na farko na watsa koyarwar Shaykh Tijani yana tabbatar da muhimmancinsa na dindindin a al\'ada.'
+      },
+      { 
+        heading: 'Legacy & Continuing Influence', 
+        text: 'As the greatest inheritor of Shaykh Ahmad Tijani and the author of the Jawahir al-Ma\'ani, Sidi Ali Harazim\'s influence continues to be felt throughout the Tijaniyya order. His spiritual authority and scholarly contributions remain central to the understanding of the Tariqa and its foundational principles.',
+        frenchText: 'En tant que plus grand héritier de Shaykh Ahmad Tijani et auteur du Jawahir al-Ma\'ani, l\'influence de Sidi Ali Harazim continue d\'être ressentie dans tout l\'ordre Tijaniyya. Son autorité spirituelle et ses contributions savantes restent centrales pour la compréhension de la Tariqa et de ses principes fondamentaux.',
+        arabicText: 'بصفته أعظم وارث لشيخ أحمد التجاني ومؤلف جوهر المعاني، يستمر تأثير سيدي علي حرازم في الشعور به في جميع أنحاء الطريقة التجانية. سلطته الروحية ومساهماته العلمية تبقى مركزية لفهم الطريقة ومبادئها الأساسية.',
+        hausaText: 'A matsayin babban magajin Shaykh Ahmad Tijani kuma marubucin Jawahir al-Ma\'ani, tasirin Sidi Ali Harazim ya ci gaba da kasancewa a duk faɗin ƙungiyar Tijaniyya. Ikon sa na ruhaniya da gudummawar sa na ilimi sun kasance tsakiyar fahimtar Tariqa da ka\'idojinta na asali.'
+      }
     ],
   },
   // 3. Sidi Ali Tamasini
