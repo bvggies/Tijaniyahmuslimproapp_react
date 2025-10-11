@@ -431,8 +431,20 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'التقى بشيخ التجاني لأول مرة في عام 1790، قبل تأسيس الشيخ في فاس وبعد سنوات قليلة من تأسيس التجانية. سرعان ما أدرك شيخ التجاني الكفاءة الروحية لسيدي علي.',
         hausaText: 'Ya fara saduwa da Shaykh Tijani a shekara ta 1790, kafin kafa Shaykh a Fes da wasu shekaru bayan kafa Tijaniyya. Shaykh Tijani ya gane da sauri ƙwarewar ruhaniya na Sidi Ali.'
       },
-      { heading: 'Founding of Tamasin Zawiya', text: 'Shaykh Tijani ordered him to found his own Tijani zawiya in Tamasin in 1803. Such was his trust in Sidi Ali that Shaykh Tijani entrusted his own sons to Sidi Ali\'s care upon his passing.' },
-      { heading: 'Care for Shaykh Tijani\'s Children', text: 'Shaykh Tijani asked him to install his sons in Ain Madi in all comfort, saying, "Only the Sahara will do for my children." This shows the deep trust and responsibility placed upon Sidi Ali.' },
+      { 
+        heading: 'Founding of Tamasin Zawiya', 
+        text: 'Shaykh Tijani ordered him to found his own Tijani zawiya in Tamasin in 1803. Such was his trust in Sidi Ali that Shaykh Tijani entrusted his own sons to Sidi Ali\'s care upon his passing.',
+        frenchText: 'Shaykh Tijani lui ordonna de fonder sa propre zawiya Tijani à Tamasin en 1803. Telle était sa confiance en Sidi Ali que Shaykh Tijani confia ses propres fils aux soins de Sidi Ali à sa mort.',
+        arabicText: 'أمره شيخ التجاني بتأسيس زاويته التجانية الخاصة في تاماسين عام 1803. كانت ثقته في سيدي علي كبيرة لدرجة أن شيخ التجاني أوكل أبناءه إلى رعاية سيدي علي عند وفاته.',
+        hausaText: 'Shaykh Tijani ya umurce shi ya kafa nasa zawiya na Tijani a Tamasin a shekara ta 1803. Amincinsa ga Sidi Ali ya kasance mai girma har Shaykh Tijani ya ba Sidi Ali kulawar \'ya\'yansa da kansa a lokacin mutuwarsa.'
+      },
+      { 
+        heading: 'Care for Shaykh Tijani\'s Children', 
+        text: 'Shaykh Tijani asked him to install his sons in Ain Madi in all comfort, saying, "Only the Sahara will do for my children." This shows the deep trust and responsibility placed upon Sidi Ali.',
+        frenchText: 'Shaykh Tijani lui demanda d\'installer ses fils à Ain Madi dans tout le confort, disant : "Seul le Sahara conviendra à mes enfants." Cela montre la profonde confiance et responsabilité placées sur Sidi Ali.',
+        arabicText: 'طلب منه شيخ التجاني أن يثبت أبناءه في عين ماضي بكل راحة، قائلاً: "الصحراء فقط تناسب أطفالي." هذا يظهر الثقة العميقة والمسؤولية الموضوعة على سيدي علي.',
+        hausaText: 'Shaykh Tijani ya tambaye shi ya sanya \'ya\'yansa a Ain Madi cikin dukkan jin daɗi, yana cewa: "Hamada kawai za ta dace da \'ya\'yana." Wannan yana nuna amincin zurfi da alhakin da aka sanya a kan Sidi Ali.'
+      },
       { heading: 'Practical Approach to Leadership', text: 'Charged with the formidable task of succeeding to the leadership of the Tariqa, he took a practical approach relying on scholarship, physical work and spiritual purification. He is reported as saying, "I recommend to you the writing board, the hoe and rosary until the soul should leave the body."' },
       { heading: 'Visits from Scholars', text: 'In Tamasin, he received visits from Shaykh Ibrahim Riyahi of Tunis and other scholars from Mauritania and Sudan, demonstrating his recognition as a leading authority in the Tariqa.' },
       { heading: 'Correspondence & Instruction', text: 'He was also in frequent correspondence with Sidi al-\'Arabi ibn Sa\'ih, and personally instructed Sidi Ahmad Abdalawi, showing his role in training other important figures in the Tariqa.' },
