@@ -722,7 +722,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'درس بعد ذلك العلوم القرآنية والمنطق (mantiq) والعقيدة (\'aqida) مع حرمة بن عبد الجليل (ت. 1827) ثم أكمل دراسته في الفقه مع عبد الله بن أحمد بن محهم بن القاضي (ت. 1826).',
         hausaText: 'Daga baya ya yi karatu na ilimin Alkur\'ani, dabaru (mantiq) da tauhidi (\'aqida) tare da Hurma b. Abd al-Jalil (d. 1827) sannan ya kammala karatunsa na shari\'a (fiqh) tare da Abd Allah b. Ahmad b. Mahham b. al-Qadi (d. 1826).'
       },
-      { heading: 'Studies with Abd Allah b. al-Hajj Ibrahim', text: 'Continuing in the tradition of a traveling student in search of sacred knowledge, he next went to study with Abd Allah b. al-Hajj Ibrahim (d. 1818), a celebrated scholar in Mauritania who had studied in Fes and who had become a friend of the Moroccan Sultan, Mawlay Muhammad b. Abd Allah.' },
+      { 
+        heading: 'Studies with Abd Allah b. al-Hajj Ibrahim', 
+        text: 'Continuing in the tradition of a traveling student in search of sacred knowledge, he next went to study with Abd Allah b. al-Hajj Ibrahim (d. 1818), a celebrated scholar in Mauritania who had studied in Fes and who had become a friend of the Moroccan Sultan, Mawlay Muhammad b. Abd Allah.',
+        frenchText: 'Continuant dans la tradition d\'un étudiant voyageur à la recherche de connaissances sacrées, il est ensuite allé étudier avec Abd Allah b. al-Hajj Ibrahim (d. 1818), un savant célèbre en Mauritanie qui avait étudié à Fes et qui était devenu ami du Sultan marocain, Mawlay Muhammad b. Abd Allah.',
+        arabicText: 'مستمراً في تقليد الطالب المسافر بحثاً عن المعرفة المقدسة، ذهب بعد ذلك لدراسة مع عبد الله بن الحاج إبراهيم (ت. 1818)، عالم مشهور في موريتانيا كان قد درس في فاس وأصبح صديقاً للسلطان المغربي، مولاي محمد بن عبد الله.',
+        hausaText: 'Ya ci gaba da al\'adar ɗalibi mai tafiya neman ilimi mai tsarki, daga baya ya tafi yin karatu tare da Abd Allah b. al-Hajj Ibrahim (d. 1818), fitaccen malami a Mauritania wanda ya yi karatu a Fes kuma ya zama abokin Sarkin Morocco, Mawlay Muhammad b. Abd Allah.'
+      },
       { heading: 'Six Years of Intensive Study', text: 'Sidi al-Hafiz spent six years with Sidi Abd Allah, studying Prophetic traditions (hadith), legal principles (usul al-fiqh) and rhetoric (ilm al-bayan). He also married his teacher\'s daughter, further strengthening the bond between teacher and student.' },
       { heading: 'Respect for Teachers', text: 'The companions of Shaykh Tijani in Fes remarked that even after his submission to Shaykh Tijani, Sidi al-Hafiz maintained the utmost respect for his previous teachers; and for Sidi Abd Allah in particular. This demonstrates his character and adherence to Islamic etiquette.' },
       { heading: 'Journey to Fes', text: 'Indeed, it was following Sidi Abd Allah\'s example that Sidi al-Hafiz embarked on his journey seeking knowledge in Fes. But there was also a more immediate reason for his journey to Fes.' },
