@@ -743,7 +743,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'لاحظ رفقاء شيخ التجاني في فاس أنه حتى بعد خضوعه لشيخ التجاني، حافظ سيدي الحافظ على أقصى درجات الاحترام لمعلميه السابقين؛ ولسيدي عبد الله على وجه الخصوص. هذا يوضح شخصيته والتزامه بآداب الإسلام.',
         hausaText: 'Abokan Shaykh Tijani a Fes sun lura cewa ko da bayan mika wuya ga Shaykh Tijani, Sidi al-Hafiz ya ci gaba da nuna matuƙar girmamawa ga malamansa na baya; musamman ga Sidi Abd Allah. Wannan yana nuna halinsa da bin ka\'idojin Musulunci.'
       },
-      { heading: 'Journey to Fes', text: 'Indeed, it was following Sidi Abd Allah\'s example that Sidi al-Hafiz embarked on his journey seeking knowledge in Fes. But there was also a more immediate reason for his journey to Fes.' },
+      { 
+        heading: 'Journey to Fes', 
+        text: 'Indeed, it was following Sidi Abd Allah\'s example that Sidi al-Hafiz embarked on his journey seeking knowledge in Fes. But there was also a more immediate reason for his journey to Fes.',
+        frenchText: 'En effet, c\'était en suivant l\'exemple de Sidi Abd Allah que Sidi al-Hafiz s\'est lancé dans son voyage à la recherche de connaissances à Fes. Mais il y avait aussi une raison plus immédiate pour son voyage à Fes.',
+        arabicText: 'في الواقع، كان اتباعاً لمثال سيدي عبد الله أن سيدي الحافظ انطلق في رحلته بحثاً عن المعرفة في فاس. لكن كان هناك أيضاً سبب أكثر إلحاحاً لرحلته إلى فاس.',
+        hausaText: 'Lallai, bin misalin Sidi Abd Allah ne Sidi al-Hafiz ya fara tafiyarsa neman ilimi a Fes. Amma akwai kuma wani dalili na gaggawa don tafiyarsa zuwa Fes.'
+      },
       { heading: 'Supplication During Hajj', text: 'Sidi al-Hafiz had made persistent supplication while performing Hajj to be united with a perfected spiritual master. As he was circumambulating the Holy House in Mecca, an unknown man approached him to tell him that Shaykh Ahmad Tijani was to be his spiritual master.' },
       { heading: 'Meeting Shaykh Ahmad Tijani', text: 'After learning the identity of this mysterious Shaykh from a group of Moroccan pilgrims, Sidi al-Hafiz traveled to Fes to meet him. He spent four years with Shaykh Tijani in Fes, from 1800-1804/5. The ijaza he received, still preserved among his descendents in Mauritania, was dictated by Shaykh Tijani and written in the hand of Muhammad b. Mishry, the close companion of Shaykh Tijani and author of Kitab al-Jami\'.' },
       { heading: 'Shaykh Tijani\'s Advice', text: 'Before leaving to return home, Shaykh Tijani advised him, "Do not seek to appear (before the people) until Allah makes you appear." This advice reflects the principle of spiritual humility and divine timing in the Sufi tradition.' },
