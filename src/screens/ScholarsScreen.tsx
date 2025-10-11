@@ -729,7 +729,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'مستمراً في تقليد الطالب المسافر بحثاً عن المعرفة المقدسة، ذهب بعد ذلك لدراسة مع عبد الله بن الحاج إبراهيم (ت. 1818)، عالم مشهور في موريتانيا كان قد درس في فاس وأصبح صديقاً للسلطان المغربي، مولاي محمد بن عبد الله.',
         hausaText: 'Ya ci gaba da al\'adar ɗalibi mai tafiya neman ilimi mai tsarki, daga baya ya tafi yin karatu tare da Abd Allah b. al-Hajj Ibrahim (d. 1818), fitaccen malami a Mauritania wanda ya yi karatu a Fes kuma ya zama abokin Sarkin Morocco, Mawlay Muhammad b. Abd Allah.'
       },
-      { heading: 'Six Years of Intensive Study', text: 'Sidi al-Hafiz spent six years with Sidi Abd Allah, studying Prophetic traditions (hadith), legal principles (usul al-fiqh) and rhetoric (ilm al-bayan). He also married his teacher\'s daughter, further strengthening the bond between teacher and student.' },
+      { 
+        heading: 'Six Years of Intensive Study', 
+        text: 'Sidi al-Hafiz spent six years with Sidi Abd Allah, studying Prophetic traditions (hadith), legal principles (usul al-fiqh) and rhetoric (ilm al-bayan). He also married his teacher\'s daughter, further strengthening the bond between teacher and student.',
+        frenchText: 'Sidi al-Hafiz a passé six ans avec Sidi Abd Allah, étudiant les traditions prophétiques (hadith), les principes juridiques (usul al-fiqh) et la rhétorique (ilm al-bayan). Il a également épousé la fille de son professeur, renforçant davantage le lien entre professeur et étudiant.',
+        arabicText: 'قضى سيدي الحافظ ست سنوات مع سيدي عبد الله، يدرس التقاليد النبوية (الحديث) والمبادئ القانونية (أصول الفقه) والبلاغة (علم البيان). كما تزوج ابنة معلمه، مما عزز الرابطة بين المعلم والطالب.',
+        hausaText: 'Sidi al-Hafiz ya shafe shekaru shida tare da Sidi Abd Allah, yana karatu na al\'adun Annabi (hadisi), ka\'idojin shari\'a (usul al-fiqh) da fasahar magana (ilm al-bayan). Ya kuma auri \'yar malaminsa, ya ƙara ƙarfafa dangantaka tsakanin malami da ɗalibi.'
+      },
       { heading: 'Respect for Teachers', text: 'The companions of Shaykh Tijani in Fes remarked that even after his submission to Shaykh Tijani, Sidi al-Hafiz maintained the utmost respect for his previous teachers; and for Sidi Abd Allah in particular. This demonstrates his character and adherence to Islamic etiquette.' },
       { heading: 'Journey to Fes', text: 'Indeed, it was following Sidi Abd Allah\'s example that Sidi al-Hafiz embarked on his journey seeking knowledge in Fes. But there was also a more immediate reason for his journey to Fes.' },
       { heading: 'Supplication During Hajj', text: 'Sidi al-Hafiz had made persistent supplication while performing Hajj to be united with a perfected spiritual master. As he was circumambulating the Holy House in Mecca, an unknown man approached him to tell him that Shaykh Ahmad Tijani was to be his spiritual master.' },
