@@ -813,7 +813,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'اتباعاً لنصيحة شيخ التجاني، اختلف تعليم سيدي الحافظ الصوفي عن الممارسة الصوفية الموجودة في موريتانيا بغياب الخلوة وتقليل التركيز على العلوم التمائمية. هذا مثل نهجاً جديداً للممارسة الصوفية في المنطقة.',
         hausaText: 'Biyan shawarar Shaykh Tijani, koyarwar Sufi ta Sidi al-Hafiz ta bambanta da aikin Sufi da ke akwai a Mauritania ta hanyar rashin khalwa da rage ma\'ana kan ilimin sihiri. Wannan ya wakilci sabuwar hanya ta aikin Sufi a yankin.'
       },
-      { heading: 'Idaw Ali Propagation', text: 'Through Muhammad al-Hafiz the Idaw \'Ali quickly became the principle propagators of the Tijaniyya in West Africa. The "Hafiziyya" tradition was marked by many great scholars after the passing of Sidi al-Hafiz.' },
+      { 
+        heading: 'Idaw Ali Propagation', 
+        text: 'Through Muhammad al-Hafiz the Idaw \'Ali quickly became the principle propagators of the Tijaniyya in West Africa. The "Hafiziyya" tradition was marked by many great scholars after the passing of Sidi al-Hafiz.',
+        frenchText: 'Grâce à Muhammad al-Hafiz, les Idaw \'Ali sont rapidement devenus les principaux propagateurs de la Tijaniyya en Afrique de l\'Ouest. La tradition "Hafiziyya" a été marquée par de nombreux grands savants après le décès de Sidi al-Hafiz.',
+        arabicText: 'من خلال محمد الحافظ، أصبح إداو علي بسرعة المبشرين الرئيسيين للتجانية في غرب أفريقيا. تميزت تقاليد "الحافظية" بالعديد من العلماء العظماء بعد وفاة سيدي الحافظ.',
+        hausaText: 'Ta hanyar Muhammad al-Hafiz, Idaw \'Ali sun zama da sauri manyan masu yada Tijaniyya a Yammacin Afirka. Al\'adar "Hafiziyya" ta kasance da yawancin manyan malamai bayan mutuwar Sidi al-Hafiz.'
+      },
       { heading: 'Hafiziyya Legacy', text: 'The book of Ubayda ibn Muhammad al-Saghir al-Tashit, Mizab al-Rahma al-Rabbaniyya fi al-Tarbiya bi al-Tariqa al-Tijaniyya (1851), is considered a masterful synthesis of the Tijani legacy left by Muhammad al-Hafiz. It describes the essence of the Tariqa as gratitude (shukr) to Allah and details a methodology of spiritual training (tarbiya) through the three stages of Islam (submission), Iman (faith) and Ihsan (spiritual excellence).' },
       { heading: 'Mawlud Fal', text: 'The most famous disciple of Muhammad al-Hafiz was Mawlud Fal, who is credited with the expansion of al-Hafiz\'s teachings outside of the Idaw \'Ali. Mawlud Fal was from the Id-Ayqub, a people of Mauritania famous for their expertise in jurisprudence.' },
       { heading: 'Mawlud Fal\'s Journey', text: 'He became a close disciple of Shaykh al-Hafiz and eventually married his sister. He left for Fes in 1815 hoping to meet Shaykh Tijani in person, but arrived just after his passing. The Tijani notables of Fes nonetheless renewed his ijaza originally given him by al-Hafiz.' },
