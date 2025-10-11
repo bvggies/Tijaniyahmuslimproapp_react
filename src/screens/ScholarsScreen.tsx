@@ -590,8 +590,20 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'تلقى تعليمه في جامعة الزيتونة المرموقة في تونس، حيث درس تحت إشراف كبار العلماء في عصره. تفوق في مختلف العلوم الإسلامية، خاصة في الفقه المالكي والحديث.',
         hausaText: 'Ya karɓi iliminsa a Jami\'ar Zaytuna mai daraja a Tunis, inda ya yi karatu a ƙarƙashin fitattun malamai na zamaninsa. Ya yi fice a fannoni daban-daban na ilimin Musulunci, musamman a fannin shari\'ar Maliki da hadisi.'
       },
-      { heading: 'Appointment as Imam', text: 'Due to his exceptional knowledge and piety, he was appointed as the Imam of Zaytuna University, one of the most prestigious positions in the Islamic world. This appointment reflected his standing as a leading Islamic scholar.' },
-      { heading: 'Maliki Shaykh al-Islam', text: 'He was also recognized as the Maliki Shaykh al-Islam of Tunisia, making him the highest religious authority in the Maliki school of jurisprudence in the country. This position gave him significant influence in religious and legal matters.' },
+      { 
+        heading: 'Appointment as Imam', 
+        text: 'Due to his exceptional knowledge and piety, he was appointed as the Imam of Zaytuna University, one of the most prestigious positions in the Islamic world. This appointment reflected his standing as a leading Islamic scholar.',
+        frenchText: 'En raison de sa connaissance exceptionnelle et de sa piété, il fut nommé Imam de l\'Université Zaytuna, l\'une des positions les plus prestigieuses du monde islamique. Cette nomination reflétait sa position de savant islamique de premier plan.',
+        arabicText: 'نظراً لمعرفته الاستثنائية وتقواه، تم تعيينه إماماً لجامعة الزيتونة، إحدى أرقى المناصب في العالم الإسلامي. عكس هذا التعيين مكانته كعالم إسلامي رائد.',
+        hausaText: 'Saboda iliminsa na musamman da taqawarsa, an naɗa shi Imam na Jami\'ar Zaytuna, ɗaya daga cikin mafi daraja matsayi a duniyar Musulunci. Wannan naɗi ya nuna matsayinsa na babban malamin Musulunci.'
+      },
+      { 
+        heading: 'Maliki Shaykh al-Islam', 
+        text: 'He was also recognized as the Maliki Shaykh al-Islam of Tunisia, making him the highest religious authority in the Maliki school of jurisprudence in the country. This position gave him significant influence in religious and legal matters.',
+        frenchText: 'Il fut également reconnu comme le Shaykh al-Islam Maliki de Tunisie, faisant de lui la plus haute autorité religieuse de l\'école de jurisprudence malikite du pays. Cette position lui donna une influence significative dans les affaires religieuses et juridiques.',
+        arabicText: 'كان أيضاً معترفاً به كشيخ الإسلام المالكي لتونس، مما جعله أعلى سلطة دينية في المدرسة المالكية للفقه في البلاد. منحه هذا المنصب نفوذاً كبيراً في الأمور الدينية والقانونية.',
+        hausaText: 'An kuma amince da shi a matsayin Shaykh al-Islam Maliki na Tunisia, ya sa ya zama babban hali na addini a makarantar shari\'ar Maliki a ƙasar. Wannan matsayi ya ba shi tasiri mai mahimmanci a cikin al\'amuran addini da shari\'a.'
+      },
       { heading: 'Introduction to Tariqa Tijaniyya', text: 'Shaykh Ibrahim al-Riyahi was the first to introduce the Tariqa Tijaniyya in Tunisia. His acceptance and promotion of the Tariqa played a crucial role in its establishment and growth in North Africa.' },
       { heading: 'Meeting with Sidi Ali Harazim', text: 'He hosted Sidi Ali Harazim for several months in Tunis during the latter\'s journey to Mecca. This meeting had a profound impact on Shaykh Ibrahim and influenced his eventual embrace of the Tariqa Tijaniyya.' },
       { heading: 'Visit to Shaykh Tijani', text: 'Inspired by his meeting with Sidi Ali Harazim, Shaykh Ibrahim later visited Shaykh Ahmad Tijani in Fes. This visit solidified his commitment to the Tariqa and his role in spreading it in Tunisia.' },
