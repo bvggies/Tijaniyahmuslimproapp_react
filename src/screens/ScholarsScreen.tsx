@@ -792,7 +792,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'جذبت تعاليمه عدداً كبيراً من الطلاب، وبالإضافة إلى أوراق اعتماده كشيخ صوفي، كان مشهوراً بشكل خاص كعالم متميز في الحديث، يمتلك سلسلة نقل (إسناد) مرغوبة جداً من خلال صالح الفولاني في المدينة.',
         hausaText: 'Koyarwarsa ta jawo ɗalibai da yawa, kuma ban da shaidar sa a matsayin shaykh na Sufi, ya kasance sananne musamman a matsayin fitaccen malamin hadisi, yana da sarkar watsawa (isnad) mai matuƙar kyawu ta hanyar Salih al-Fulani a Madina.'
       },
-      { heading: 'Literary Works', text: 'He wrote a commentary on the Alfiyya discussing the rules of hadith transmission. He was also known for his teaching of jurisprudence and grammar. His instruction in tasawwuf emphasized the Kitab al-Hikam of Ibn \'Ata Allah in addition to Tijani sources.' },
+      { 
+        heading: 'Literary Works', 
+        text: 'He wrote a commentary on the Alfiyya discussing the rules of hadith transmission. He was also known for his teaching of jurisprudence and grammar. His instruction in tasawwuf emphasized the Kitab al-Hikam of Ibn \'Ata Allah in addition to Tijani sources.',
+        frenchText: 'Il a écrit un commentaire sur l\'Alfiyya discutant des règles de transmission du hadith. Il était également connu pour son enseignement de la jurisprudence et de la grammaire. Son instruction en tasawwuf mettait l\'accent sur le Kitab al-Hikam d\'Ibn \'Ata Allah en plus des sources Tijani.',
+        arabicText: 'كتب تعليقاً على الألفية يناقش قواعد نقل الحديث. كان معروفاً أيضاً بتدريسه للفقه والنحو. كان تعليمه في التصوف يركز على كتاب الحكم لابن عطاء الله بالإضافة إلى المصادر التجانية.',
+        hausaText: 'Ya rubuta sharhi akan Alfiyya yana tattaunawa kan ka\'idojin watsa hadisi. Ya kuma kasance sananne da koyarwarsa na shari\'a da nahaw. Koyarwarsa a cikin tasawwuf ta mai da hankali kan Kitab al-Hikam na Ibn \'Ata Allah ban da tushen Tijani.'
+      },
       { heading: 'Tolerance & Respect', text: 'Sidi al-Hafiz discouraged conflict between Sufi orders and advised his disciples not to disrespect the followers of other Sufi paths, saying "Do not ask him who follows another Sufi order to abandon his litany and do not seek to dampen his enthusiasm for it. Tell him instead that all the litanies (awrad) are paths that lead to Allah."' },
       { heading: 'Innovation in Sufi Practice', text: 'Following the advice of Shaykh Tijani, Sidi al-Hafiz\'s own Sufi instruction differed from existing Sufi practice in Mauritania by its absence of khalwa and a de-emphasis of talismanic sciences. This represented a new approach to Sufi practice in the region.' },
       { heading: 'Idaw Ali Propagation', text: 'Through Muhammad al-Hafiz the Idaw \'Ali quickly became the principle propagators of the Tijaniyya in West Africa. The "Hafiziyya" tradition was marked by many great scholars after the passing of Sidi al-Hafiz.' },
