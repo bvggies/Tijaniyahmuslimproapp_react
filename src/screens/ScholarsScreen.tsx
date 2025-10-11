@@ -445,11 +445,41 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'طلب منه شيخ التجاني أن يثبت أبناءه في عين ماضي بكل راحة، قائلاً: "الصحراء فقط تناسب أطفالي." هذا يظهر الثقة العميقة والمسؤولية الموضوعة على سيدي علي.',
         hausaText: 'Shaykh Tijani ya tambaye shi ya sanya \'ya\'yansa a Ain Madi cikin dukkan jin daɗi, yana cewa: "Hamada kawai za ta dace da \'ya\'yana." Wannan yana nuna amincin zurfi da alhakin da aka sanya a kan Sidi Ali.'
       },
-      { heading: 'Practical Approach to Leadership', text: 'Charged with the formidable task of succeeding to the leadership of the Tariqa, he took a practical approach relying on scholarship, physical work and spiritual purification. He is reported as saying, "I recommend to you the writing board, the hoe and rosary until the soul should leave the body."' },
-      { heading: 'Visits from Scholars', text: 'In Tamasin, he received visits from Shaykh Ibrahim Riyahi of Tunis and other scholars from Mauritania and Sudan, demonstrating his recognition as a leading authority in the Tariqa.' },
-      { heading: 'Correspondence & Instruction', text: 'He was also in frequent correspondence with Sidi al-\'Arabi ibn Sa\'ih, and personally instructed Sidi Ahmad Abdalawi, showing his role in training other important figures in the Tariqa.' },
-      { heading: 'Current Leadership', text: 'The Tamasin zawiya is currently led by Sidi Ali\'s descendent, Sidi Muhammad al-\'Id, ensuring the continuity of his spiritual legacy.' },
-      { heading: 'Legacy & Continuing Influence', text: 'As the designated successor of Shaykh Ahmad Tijani and the Qutb who succeeded him, Sidi Ali Tamasin\'s influence continues to be felt throughout the Tijaniyya order, with his zawiya in Tamasin remaining a center of spiritual guidance and learning.' }
+      { 
+        heading: 'Practical Approach to Leadership', 
+        text: 'Charged with the formidable task of succeeding to the leadership of the Tariqa, he took a practical approach relying on scholarship, physical work and spiritual purification. He is reported as saying, "I recommend to you the writing board, the hoe and rosary until the soul should leave the body."',
+        frenchText: 'Chargé de la tâche redoutable de succéder à la direction de la Tariqa, il adopta une approche pratique s\'appuyant sur l\'érudition, le travail physique et la purification spirituelle. Il est rapporté qu\'il a dit : "Je vous recommande la planche à écrire, la houe et le chapelet jusqu\'à ce que l\'âme quitte le corps."',
+        arabicText: 'مكلفاً بالمهمة الهائلة لخلافة قيادة الطريقة، اتخذ نهجاً عملياً يعتمد على العلم والعمل البدني والتطهير الروحي. يُروى أنه قال: "أنصحكم باللوح والمنجل والمسبحة حتى تخرج الروح من الجسد."',
+        hausaText: 'An ba shi aikin girma na gajiye shugabancin Tariqa, ya ɗauki tsari na aiki wanda ya dogara da ilimi, aikin jiki da tsarkakewar ruhaniya. An ruwaito cewa ya ce: "Ina ba ku shawara da allon rubutu, garma da tasbihi har sai ruhi ya fita daga jiki."'
+      },
+      { 
+        heading: 'Visits from Scholars', 
+        text: 'In Tamasin, he received visits from Shaykh Ibrahim Riyahi of Tunis and other scholars from Mauritania and Sudan, demonstrating his recognition as a leading authority in the Tariqa.',
+        frenchText: 'À Tamasin, il reçut des visites de Shaykh Ibrahim Riyahi de Tunis et d\'autres savants de Mauritanie et du Soudan, démontrant sa reconnaissance en tant qu\'autorité dirigeante dans la Tariqa.',
+        arabicText: 'في تاماسين، استقبل زيارات من شيخ إبراهيم الرياحي من تونس وعلماء آخرين من موريتانيا والسودان، مما يظهر اعترافهم به كسلطة رائدة في الطريقة.',
+        hausaText: 'A Tamasin, ya karɓi ziyarce daga Shaykh Ibrahim Riyahi na Tunis da sauran malamai daga Mauritania da Sudan, yana nuna amincewa da shi a matsayin babban hali a cikin Tariqa.'
+      },
+      { 
+        heading: 'Correspondence & Instruction', 
+        text: 'He was also in frequent correspondence with Sidi al-\'Arabi ibn Sa\'ih, and personally instructed Sidi Ahmad Abdalawi, showing his role in training other important figures in the Tariqa.',
+        frenchText: 'Il était également en correspondance fréquente avec Sidi al-\'Arabi ibn Sa\'ih, et instruisait personnellement Sidi Ahmad Abdalawi, montrant son rôle dans la formation d\'autres figures importantes de la Tariqa.',
+        arabicText: 'كان أيضاً في مراسلات متكررة مع سيدي العربي بن صائح، وأرشد شخصياً سيدي أحمد عبداللاوي، مما يظهر دوره في تدريب شخصيات مهمة أخرى في الطريقة.',
+        hausaText: 'Ya kuma kasance cikin sadarwa akai-akai da Sidi al-\'Arabi ibn Sa\'ih, kuma ya horar da Sidi Ahmad Abdalawi da kansa, yana nuna rawar sa a horar da sauran muhimman mutane a cikin Tariqa.'
+      },
+      { 
+        heading: 'Current Leadership', 
+        text: 'The Tamasin zawiya is currently led by Sidi Ali\'s descendent, Sidi Muhammad al-\'Id, ensuring the continuity of his spiritual legacy.',
+        frenchText: 'La zawiya de Tamasin est actuellement dirigée par le descendant de Sidi Ali, Sidi Muhammad al-\'Id, assurant la continuité de son héritage spirituel.',
+        arabicText: 'زاوية تاماسين يقودها حالياً نسل سيدي علي، سيدي محمد العيد، مما يضمن استمرارية إرثه الروحي.',
+        hausaText: 'Zawiya na Tamasin a halin yanzu Sidi Muhammad al-\'Id, zuriyar Sidi Ali ne ke jagoranta, yana tabbatar da ci gaba da gadon ruhaniya.'
+      },
+      { 
+        heading: 'Legacy & Continuing Influence', 
+        text: 'As the designated successor of Shaykh Ahmad Tijani and the Qutb who succeeded him, Sidi Ali Tamasin\'s influence continues to be felt throughout the Tijaniyya order, with his zawiya in Tamasin remaining a center of spiritual guidance and learning.',
+        frenchText: 'En tant que successeur désigné de Shaykh Ahmad Tijani et le Qutb qui lui a succédé, l\'influence de Sidi Ali Tamasin continue d\'être ressentie dans tout l\'ordre Tijaniyya, avec sa zawiya à Tamasin restant un centre de guidance spirituelle et d\'apprentissage.',
+        arabicText: 'بصفته الخليفة المحدد لشيخ أحمد التجاني والقطب الذي خلفه، يستمر تأثير سيدي علي تاماسين في الشعور به في جميع أنحاء الطريقة التجانية، مع بقاء زاويته في تاماسين مركزاً للإرشاد الروحي والتعلم.',
+        hausaText: 'A matsayin magajin da aka naɗa na Shaykh Ahmad Tijani da Qutb wanda ya gaje shi, tasirin Sidi Ali Tamasin ya ci gaba da kasancewa a duk faɗin ƙungiyar Tijaniyya, tare da zawiyarsa a Tamasin ta kasance cibiyar jagorar ruhaniya da koyo.'
+      }
     ],
   },
   // 4. Sidi Muhammad Ghali
