@@ -771,7 +771,13 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'قبل مغادرته للعودة إلى دياره، نصحه شيخ التجاني: "لا تسع للظهور (أمام الناس) حتى يجعلك الله تظهر." هذه النصيحة تعكس مبدأ التواضع الروحي والتوقيت الإلهي في التقليد الصوفي.',
         hausaText: 'Kafin ya tafi don ya koma gida, Shaykh Tijani ya ba shi shawara: "Kada ka nemi ka bayyana (a gaban mutane) har sai Allah ya sa ka bayyana." Wannan shawarar tana nuna ka\'idar tawali\'u na ruhaniya da lokacin Allah a cikin al\'adar Sufi.'
       },
-      { heading: 'Discrete Practice', text: 'For the first year after his return, Sidi al-Hafiz thus practiced the Tariqa with great discretion as he taught the Islamic sciences, neither informing others of the Tariqa nor of his appointment as propagator (muqaddam).' },
+      { 
+        heading: 'Discrete Practice', 
+        text: 'For the first year after his return, Sidi al-Hafiz thus practiced the Tariqa with great discretion as he taught the Islamic sciences, neither informing others of the Tariqa nor of his appointment as propagator (muqaddam).',
+        frenchText: 'Pour la première année après son retour, Sidi al-Hafiz a ainsi pratiqué la Tariqa avec une grande discrétion tout en enseignant les sciences islamiques, n\'informant ni les autres de la Tariqa ni de sa nomination comme propagateur (muqaddam).',
+        arabicText: 'في السنة الأولى بعد عودته، مارس سيدي الحافظ الطريقة بحذر شديد وهو يعلم العلوم الإسلامية، دون إخبار الآخرين بالطريقة أو بتعيينه كمبشر (مقدم).',
+        hausaText: 'A shekara ta farko bayan komawarsa, Sidi al-Hafiz ya yi amfani da Tariqa da hankali yayin da yake koyar da ilimin Musulunci, ba ya sanar da wasu game da Tariqa ko naɗin sa a matsayin mai yadawa (muqaddam).'
+      },
       { heading: 'Divine Sign', text: 'Then he received a surprise visit from an ascetic famous for his visionary encounters with Khidr, the mystical instructor of Moses as mentioned in the Qur\'an. The ascetic told him to give him the wird he was hiding. With this sign, Sidi al-Hafiz began to speak openly of the Tariqa Tijaniyya.' },
       { heading: 'Teaching & Scholarship', text: 'His teachings attracted a great many students and, besides his credentials as a Sufi shaykh, he was particularly renowned as a distinguished scholar of hadith, possessing a highly desirable chain (isnad) of transmission through Salih al-Fulani in Medina.' },
       { heading: 'Literary Works', text: 'He wrote a commentary on the Alfiyya discussing the rules of hadith transmission. He was also known for his teaching of jurisprudence and grammar. His instruction in tasawwuf emphasized the Kitab al-Hikam of Ibn \'Ata Allah in addition to Tijani sources.' },
