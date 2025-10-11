@@ -389,9 +389,27 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'كان لديه حب ساحق لشيخ أحمد التجاني يسبق أسلافه. وفقاً للسكايرج: "لم يتبع نسبه لأحد إلا شيخ أحمد التجاني، رضي الله عنه." عندما سُئل عن نسبه، قال: "بالتأكيد، أنا علي، ابن أحمد التجاني، رضي الله عنه."',
         hausaText: 'Yana da ƙauna mai ƙarfi ga Shaykh Ahmad Tijani wacce ta gabaci kakanninsa. A cewar Sukayrij: "Bai bi zuriyarsa ga kowa ba sai Shaykh Ahmad Tijani, Allah ya yarda da shi." Lokacin da aka tambaye shi game da zuriyarsa, ya ce: "Tabbas, ni ne Ali, ɗan Ahmad al-Tijani, Allah ya yarda da shi."'
       },
-      { heading: 'Station of Polehood', text: 'It is widely reported that Ali Tamasin attained the station of polehood after the passing of Shaykh Tijani. He thus became a primary propagator of the Tariqa Tijaniyya and responsible for the spiritual training of initiates.' },
-      { heading: 'Spiritual Training & Ecstatic Flood', text: 'Ahmad Sukayrij writes, "After the passing of the Shaykh, may Allah be pleased with him, the indications of the grand illumination appeared on Ali Tamasin, and he undertook the spiritual training (tarbiya) in the Tariqa. An ecstatic flood (fayadan wijdani) appeared on him such that his like was not found among the perfected shaykhs."' },
-      { heading: 'Global Recognition', text: 'People came to him from the farthest horizons to take (the Tariqa) from him and get blessing from him. His spiritual authority was recognized throughout the Islamic world.' },
+      { 
+        heading: 'Station of Polehood', 
+        text: 'It is widely reported that Ali Tamasin attained the station of polehood after the passing of Shaykh Tijani. He thus became a primary propagator of the Tariqa Tijaniyya and responsible for the spiritual training of initiates.',
+        frenchText: 'Il est largement rapporté qu\'Ali Tamasin a atteint la station de pôle après le décès de Shaykh Tijani. Il est ainsi devenu un propagateur principal de la Tariqa Tijaniyya et responsable de la formation spirituelle des initiés.',
+        arabicText: 'يُذكر على نطاق واسع أن علي تاماسين حقق مقام القطب بعد وفاة شيخ التجاني. وهكذا أصبح ناشراً رئيسياً للطريقة التجانية ومسؤولاً عن التدريب الروحي للمبتدئين.',
+        hausaText: 'An ruwaito da yawa cewa Ali Tamasin ya sami matsayin Pole bayan mutuwar Shaykh Tijani. Don haka ya zama babban mai yadawa na Tariqa Tijaniyya kuma mai alhakin horar da masu fara aiki na ruhaniya.'
+      },
+      { 
+        heading: 'Spiritual Training & Ecstatic Flood', 
+        text: 'Ahmad Sukayrij writes, "After the passing of the Shaykh, may Allah be pleased with him, the indications of the grand illumination appeared on Ali Tamasin, and he undertook the spiritual training (tarbiya) in the Tariqa. An ecstatic flood (fayadan wijdani) appeared on him such that his like was not found among the perfected shaykhs."',
+        frenchText: 'Ahmad Sukayrij écrit : "Après le décès du Shaykh, qu\'Allah soit satisfait de lui, les indications de la grande illumination sont apparues sur Ali Tamasin, et il a entrepris la formation spirituelle (tarbiya) dans la Tariqa. Un déluge extatique (fayadan wijdani) est apparu sur lui tel que son pareil ne se trouvait pas parmi les shaykhs parfaits."',
+        arabicText: 'يكتب أحمد السكايرج: "بعد وفاة الشيخ، رضي الله عنه، ظهرت على علي تاماسين دلائل الإشراق العظيم، وتولى التدريب الروحي (التربية) في الطريقة. ظهر عليه فيضان وجداني (فيضان وجداني) بحيث لم يوجد مثله بين الشيوخ المكملين."',
+        hausaText: 'Ahmad Sukayrij ya rubuta: "Bayan mutuwar Shaykh, Allah ya yarda da shi, alamomin babban haske sun bayyana a kan Ali Tamasin, kuma ya ɗauki horar da ruhaniya (tarbiya) a cikin Tariqa. Wani ambaliya mai farin ciki (fayadan wijdani) ya bayyana a kansa har irinsa ba a samu a tsakanin shaykhs masu cikakke ba."'
+      },
+      { 
+        heading: 'Global Recognition', 
+        text: 'People came to him from the farthest horizons to take (the Tariqa) from him and get blessing from him. His spiritual authority was recognized throughout the Islamic world.',
+        frenchText: 'Les gens venaient à lui des horizons les plus lointains pour prendre (la Tariqa) de lui et obtenir sa bénédiction. Son autorité spirituelle était reconnue dans tout le monde islamique.',
+        arabicText: 'جاء الناس إليه من أبعد الآفاق ليأخذوا (الطريقة) منه ويحصلوا على بركته. كانت سلطته الروحية معترفاً بها في جميع أنحاء العالم الإسلامي.',
+        hausaText: 'Mutane sun zo gare shi daga mafi nisa na sararin samaniya don su ɗauki (Tariqa) daga gare shi kuma su sami albarka daga gare shi. Ikon sa na ruhaniya an amince da shi a duk faɗin duniyar Musulunci.'
+      },
       { heading: 'Early Piety & Scholarship', text: 'Sidi Ali Tamasin was known from an early age for his piety and scholarship, and was first trained by his father, al-Hajj Isa, himself renowned for his virtuosity and learning.' },
       { heading: 'Successful Entrepreneur', text: 'Sidi Ali was also a successful entrepreneur, and became a wealthy date farmer in the desert of Algeria, showing his practical approach to life alongside his spiritual pursuits.' },
       { heading: 'First Meeting with Shaykh Tijani', text: 'He first met Shaykh Tijani in 1790 before the Shaykh\'s establishment in Fes and some years after the founding of the Tijaniyya. Shaykh Tijani quickly recognized Sidi Ali\'s spiritual aptitude.' },
