@@ -410,9 +410,27 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'جاء الناس إليه من أبعد الآفاق ليأخذوا (الطريقة) منه ويحصلوا على بركته. كانت سلطته الروحية معترفاً بها في جميع أنحاء العالم الإسلامي.',
         hausaText: 'Mutane sun zo gare shi daga mafi nisa na sararin samaniya don su ɗauki (Tariqa) daga gare shi kuma su sami albarka daga gare shi. Ikon sa na ruhaniya an amince da shi a duk faɗin duniyar Musulunci.'
       },
-      { heading: 'Early Piety & Scholarship', text: 'Sidi Ali Tamasin was known from an early age for his piety and scholarship, and was first trained by his father, al-Hajj Isa, himself renowned for his virtuosity and learning.' },
-      { heading: 'Successful Entrepreneur', text: 'Sidi Ali was also a successful entrepreneur, and became a wealthy date farmer in the desert of Algeria, showing his practical approach to life alongside his spiritual pursuits.' },
-      { heading: 'First Meeting with Shaykh Tijani', text: 'He first met Shaykh Tijani in 1790 before the Shaykh\'s establishment in Fes and some years after the founding of the Tijaniyya. Shaykh Tijani quickly recognized Sidi Ali\'s spiritual aptitude.' },
+      { 
+        heading: 'Early Piety & Scholarship', 
+        text: 'Sidi Ali Tamasin was known from an early age for his piety and scholarship, and was first trained by his father, al-Hajj Isa, himself renowned for his virtuosity and learning.',
+        frenchText: 'Sidi Ali Tamasin était connu dès son jeune âge pour sa piété et son érudition, et fut d\'abord formé par son père, al-Hajj Isa, lui-même renommé pour sa virtuosité et son apprentissage.',
+        arabicText: 'كان سيدي علي تاماسين معروفاً منذ صغره بتقواه ودراسته، وتدرب أولاً على يد والده الحاج عيسى، الذي كان مشهوراً ببراعته وتعلمه.',
+        hausaText: 'Sidi Ali Tamasin ya kasance sananne tun yana ƙarami da taqawa da ilimi, kuma an horar da shi da farko ta wurin mahaifinsa, al-Hajj Isa, wanda shi kansa ya kasance sananne da ƙwarewarsa da koyo.'
+      },
+      { 
+        heading: 'Successful Entrepreneur', 
+        text: 'Sidi Ali was also a successful entrepreneur, and became a wealthy date farmer in the desert of Algeria, showing his practical approach to life alongside his spiritual pursuits.',
+        frenchText: 'Sidi Ali était également un entrepreneur prospère, et devint un riche cultivateur de dattes dans le désert d\'Algérie, montrant son approche pratique de la vie aux côtés de ses poursuites spirituelles.',
+        arabicText: 'كان سيدي علي أيضاً رائد أعمال ناجح، وأصبح مزارع تمر ثري في صحراء الجزائر، مما يظهر نهجه العملي في الحياة إلى جانب مساعيه الروحية.',
+        hausaText: 'Sidi Ali ya kuma kasance mai kasuwanci mai nasara, kuma ya zama mai noman dabino mai arziki a cikin hamada na Algeria, yana nuna tsarin sa na rayuwa tare da ayyukansa na ruhaniya.'
+      },
+      { 
+        heading: 'First Meeting with Shaykh Tijani', 
+        text: 'He first met Shaykh Tijani in 1790 before the Shaykh\'s establishment in Fes and some years after the founding of the Tijaniyya. Shaykh Tijani quickly recognized Sidi Ali\'s spiritual aptitude.',
+        frenchText: 'Il rencontra Shaykh Tijani pour la première fois en 1790, avant l\'établissement du Shaykh à Fes et quelques années après la fondation de la Tijaniyya. Shaykh Tijani reconnut rapidement l\'aptitude spirituelle de Sidi Ali.',
+        arabicText: 'التقى بشيخ التجاني لأول مرة في عام 1790، قبل تأسيس الشيخ في فاس وبعد سنوات قليلة من تأسيس التجانية. سرعان ما أدرك شيخ التجاني الكفاءة الروحية لسيدي علي.',
+        hausaText: 'Ya fara saduwa da Shaykh Tijani a shekara ta 1790, kafin kafa Shaykh a Fes da wasu shekaru bayan kafa Tijaniyya. Shaykh Tijani ya gane da sauri ƙwarewar ruhaniya na Sidi Ali.'
+      },
       { heading: 'Founding of Tamasin Zawiya', text: 'Shaykh Tijani ordered him to found his own Tijani zawiya in Tamasin in 1803. Such was his trust in Sidi Ali that Shaykh Tijani entrusted his own sons to Sidi Ali\'s care upon his passing.' },
       { heading: 'Care for Shaykh Tijani\'s Children', text: 'Shaykh Tijani asked him to install his sons in Ain Madi in all comfort, saying, "Only the Sahara will do for my children." This shows the deep trust and responsibility placed upon Sidi Ali.' },
       { heading: 'Practical Approach to Leadership', text: 'Charged with the formidable task of succeeding to the leadership of the Tariqa, he took a practical approach relying on scholarship, physical work and spiritual purification. He is reported as saying, "I recommend to you the writing board, the hoe and rosary until the soul should leave the body."' },
