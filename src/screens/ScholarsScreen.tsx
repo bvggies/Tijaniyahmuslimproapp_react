@@ -521,8 +521,20 @@ const SCHOLARS: Scholar[] = [
         arabicText: 'بعد رؤية شيخ أحمد التجاني في مسجد النبي في المدينة، حيث قال شيخ التجاني للغالي: "لقد أعطيت شيخ عمر بن سعيد كل ما يحتاجه في هذه الطريقة من الأدعية والأسرار،" أعطى الغالي للحاج عمر الاستثمار الكامل في الطريقة.',
         hausaText: 'Bayan hangen nesa na Shaykh Ahmad Tijani a masallacin Annabi a Madina, inda Shaykh Tijani ya ce wa al-Ghali: "Na ba Shaykh Umar ibn Sa\'id duk abin da yake buƙata a wannan Tariqa ta hanyar addu\'o\'i da sirri," al-Ghali ya ba Al-Hajj Umar cikakken izini a cikin Tariqa.'
       },
-      { heading: 'Authorization of Al-Hajj Umar', text: 'Sidi al-Ghali gave Hajj Umar the status of khalifa in the Tariqa, making him a representative of the Shaykh without restriction. This authorization was crucial for the establishment of the Tariqa Tijaniyya in West Africa.' },
-      { heading: 'Mission to West Africa', text: 'Before Al-Hajj Umar left in 1830, al-Ghali confirmed his status as khalifa for West Africa and told him to "clean the lands of the stench of paganism." This directive would shape Al-Hajj Umar\'s mission in West Africa.' },
+      { 
+        heading: 'Authorization of Al-Hajj Umar', 
+        text: 'Sidi al-Ghali gave Hajj Umar the status of khalifa in the Tariqa, making him a representative of the Shaykh without restriction. This authorization was crucial for the establishment of the Tariqa Tijaniyya in West Africa.',
+        frenchText: 'Sidi al-Ghali donna à Hajj Umar le statut de khalifa dans la Tariqa, faisant de lui un représentant du Shaykh sans restriction. Cette autorisation fut cruciale pour l\'établissement de la Tariqa Tijaniyya en Afrique de l\'Ouest.',
+        arabicText: 'أعطى سيدي الغالي للحاج عمر منصب خليفة في الطريقة، مما جعله ممثلاً للشيخ دون قيود. كان هذا الترخيص حاسماً لتأسيس الطريقة التجانية في غرب أفريقيا.',
+        hausaText: 'Sidi al-Ghali ya ba Hajj Umar matsayin khalifa a cikin Tariqa, ya sa ya zama wakilin Shaykh ba tare da ƙuntatawa ba. Wannan izini ya kasance muhimmiya ga kafa Tariqa Tijaniyya a Yammacin Afirka.'
+      },
+      { 
+        heading: 'Mission to West Africa', 
+        text: 'Before Al-Hajj Umar left in 1830, al-Ghali confirmed his status as khalifa for West Africa and told him to "clean the lands of the stench of paganism." This directive would shape Al-Hajj Umar\'s mission in West Africa.',
+        frenchText: 'Avant qu\'Al-Hajj Umar ne parte en 1830, al-Ghali confirma son statut de khalifa pour l\'Afrique de l\'Ouest et lui dit de "nettoyer les terres de la puanteur du paganisme." Cette directive façonnerait la mission d\'Al-Hajj Umar en Afrique de l\'Ouest.',
+        arabicText: 'قبل أن يغادر الحاج عمر في عام 1830، أكد الغالي منصبه كخليفة لغرب أفريقيا وقال له أن "ينظف الأراضي من رائحة الوثنية." هذه التوجيهات ستشكل مهمة الحاج عمر في غرب أفريقيا.',
+        hausaText: 'Kafin Al-Hajj Umar ya tafi a shekara ta 1830, al-Ghali ya tabbatar da matsayinsa na khalifa na Yammacin Afirka kuma ya ce masa ya "tsabtace ƙasashe daga wari na shirku." Wannan umarni zai tsara aikin Al-Hajj Umar a Yammacin Afirka.'
+      },
       { heading: 'Spiritual Authority', text: 'As a direct student of Shaykh Ahmad Tijani, Sidi Muhammad al-Ghali held significant spiritual authority within the early Tariqa Tijaniyya. His authorization of Al-Hajj Umar demonstrates his role as a key transmitter of the Tariqa.' },
       { heading: 'Legacy in West Africa', text: 'Through his authorization of Al-Hajj Umar, Sidi Muhammad al-Ghali indirectly influenced the entire development of the Tariqa Tijaniyya in West Africa, as Al-Hajj Umar became one of the most important figures in spreading the Tariqa throughout the region.' },
       { heading: 'Connection to Hijaz', text: 'His presence in the Hijaz and his role in authorizing Al-Hajj Umar shows the international reach of the early Tariqa Tijaniyya and the importance of the Hijaz as a center for Tijani authorization.' },
