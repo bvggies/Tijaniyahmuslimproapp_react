@@ -218,6 +218,7 @@ export default function CommunityScreen() {
   // Load posts when component mounts
   useEffect(() => {
     loadPosts();
+    testApiConnection();
   }, []);
 
   // Reload posts when screen comes into focus
@@ -373,23 +374,88 @@ export default function CommunityScreen() {
     );
   };
 
+  const testApiConnection = async () => {
+    try {
+      console.log('🔄 Testing API connection...');
+      const health = await api.health();
+      console.log('✅ API health check:', health);
+      
+      if (authState.isAuthenticated) {
+        console.log('🔄 Testing authentication...');
+        const testAuth = await api.testAuth();
+        console.log('✅ Authentication test:', testAuth);
+      }
+    } catch (error) {
+      console.error('❌ API connection test failed:', error);
+    }
+  };
+
+  const loadMessagesWithRetry = async (conversationId: string, retryCount = 0) => {
+    const maxRetries = 3;
+    try {
+      console.log(`🔄 Loading messages (attempt ${retryCount + 1}/${maxRetries + 1})...`);
+      const messagesData = await api.getMessages(conversationId, 50);
+      console.log('✅ Messages loaded:', messagesData.data?.length || 0, 'messages');
+      return messagesData.data || [];
+    } catch (error: any) {
+      console.error(`❌ Failed to load messages (attempt ${retryCount + 1}):`, error);
+      
+      if (retryCount < maxRetries) {
+        console.log(`🔄 Retrying in 1 second... (${retryCount + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return loadMessagesWithRetry(conversationId, retryCount + 1);
+      }
+      
+      throw error;
+    }
+  };
+
   const startChat = async (user: User) => {
     try {
       setSelectedUser(user);
       setShowChat(true);
       
+      console.log('🔄 Starting chat with user:', user.name, 'ID:', user.id);
+      
+      // Check authentication first
+      if (!authState.user || !authState.isAuthenticated) {
+        throw new Error('User not authenticated');
+      }
+      
+      console.log('🔐 User authenticated:', authState.user.name);
+      
       // Get or create conversation
+      console.log('🔄 Getting or creating conversation...');
       const conversation = await api.getOrCreateConversation(user.id);
+      console.log('✅ Conversation created/found:', conversation.id);
       setCurrentConversationId(conversation.id);
       
-      // Load messages
-      const messagesData = await api.getMessages(conversation.id, 50);
-      setChatMessages(messagesData.data || []);
+      // Load messages with retry
+      const messages = await loadMessagesWithRetry(conversation.id);
+      setChatMessages(messages);
       
-      console.log('✅ Chat started with:', user.name);
-    } catch (error) {
+      console.log('✅ Chat started successfully with:', user.name);
+    } catch (error: any) {
       console.error('❌ Failed to start chat:', error);
-      Alert.alert('Error', 'Failed to start chat. Please try again.');
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        user: user.name,
+        userId: user.id,
+        isAuthenticated: authState.isAuthenticated,
+        currentUser: authState.user?.name
+      });
+      
+      let errorMessage = 'Failed to load messages. Please try again.';
+      if (error.message?.includes('Not authenticated')) {
+        errorMessage = 'Please sign in to start a chat.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message?.includes('401')) {
+        errorMessage = 'Authentication expired. Please sign in again.';
+      }
+      
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -399,6 +465,8 @@ export default function CommunityScreen() {
     try {
       const messageContent = newMessage.trim();
       setNewMessage(''); // Clear input immediately
+      
+      console.log('🔄 Sending message:', messageContent);
       
       // Add message optimistically
       const optimisticMessage = {
@@ -413,6 +481,7 @@ export default function CommunityScreen() {
       
       // Send to API
       const sentMessage = await api.sendMessage(currentConversationId, messageContent);
+      console.log('✅ Message sent successfully:', sentMessage.id);
       
       // Replace optimistic message with real one
       setChatMessages(prev => 
@@ -422,11 +491,28 @@ export default function CommunityScreen() {
       );
       
       console.log('✅ Message sent successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to send message:', error);
+      console.error('❌ Send message error details:', {
+        message: error.message,
+        conversationId: currentConversationId,
+        messageContent: newMessage.trim(),
+        isAuthenticated: authState.isAuthenticated
+      });
+      
+      let errorMessage = 'Failed to send message. Please try again.';
+      if (error.message?.includes('Not authenticated')) {
+        errorMessage = 'Please sign in to send messages.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message?.includes('401')) {
+        errorMessage = 'Authentication expired. Please sign in again.';
+      }
+      
+      Alert.alert('Error', errorMessage);
+      
       // Remove optimistic message on error
-      setChatMessages(prev => prev.filter(msg => msg.id !== `tmp-${Date.now()}`));
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      setChatMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
     }
   };
 
