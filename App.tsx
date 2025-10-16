@@ -44,6 +44,10 @@ import ScholarDetailScreen from './src/screens/ScholarDetailScreen';
 import MoreFeaturesScreen from './src/screens/MoreFeaturesScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
 import ChatScreen from './src/screens/ChatScreen';
+import ZakatCalculatorScreen from './src/screens/ZakatCalculatorScreen';
+import HajjScreen from './src/screens/HajjScreen';
+import HajjUmrahScreen from './src/screens/HajjUmrahScreen';
+import HajjJourneyScreen from './src/screens/HajjJourneyScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -301,6 +305,14 @@ function MoreStackNavigator() {
         name="Profile" 
         component={ProfileScreen}
         options={{ title: 'Profile' }}
+      />
+      <Stack.Screen name="Hajj" component={HajjScreen} options={{ title: 'Hajj' }} />
+      <Stack.Screen name="HajjUmrah" component={HajjUmrahScreen} options={{ title: 'Hajj & Umrah' }} />
+      <Stack.Screen name="HajjJourney" component={HajjJourneyScreen} options={{ title: 'Hajj Journey' }} />
+      <Stack.Screen
+        name="ZakatCalculator"
+        component={ZakatCalculatorScreen}
+        options={{ title: 'Zakat Calculator' }}
       />
     </Stack.Navigator>
   );

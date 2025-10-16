@@ -54,6 +54,7 @@ export default function HomeScreen({ navigation }: any) {
   const [selectedAzanId, setSelectedAzanId] = useState<'makkah' | 'istanbul' | null>(null);
   const [isAzanPlaying, setIsAzanPlaying] = useState(false);
   const azanSoundRef = useRef<Audio.Sound | null>(null);
+  const [openHajj, setOpenHajj] = useState<'live' | 'guide' | 'journey' | null>(null);
 
   const azanOptions = [
     {
@@ -1148,6 +1149,55 @@ export default function HomeScreen({ navigation }: any) {
           </ScrollView>
         </View>
 
+        {/* Hajj Section Quick Access */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Hajj</Text>
+          <View style={styles.hajjQuickRow}>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='live'?null:'live')}>
+              <Ionicons name="videocam" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Watch Live</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='guide'?null:'guide')}>
+              <Ionicons name="walk" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Hajj Guide</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='journey'?null:'journey')}>
+              <Ionicons name="map" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Journey</Text>
+            </TouchableOpacity>
+          </View>
+          {openHajj === 'live' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Makkah Live</Text>
+              <Text style={styles.hajjDropdownText}>24/7 HD stream of the Kaaba with prayer times and special events. Virtually connect to Masjid al‑Haram.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'Makkah Live' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {openHajj === 'guide' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Hajj & Umrah</Text>
+              <Text style={styles.hajjDropdownText}>Step‑by‑step rites, essential duas, packing list, visa info, health & safety tips, and FAQs.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'HajjUmrah' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {openHajj === 'journey' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Hajj Journey</Text>
+              <Text style={styles.hajjDropdownText}>Day‑by‑day timeline with reminders, mark‑done checklist, and quick map links to key locations.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'HajjJourney' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
         {/* Daily Reminder */}
         {dailyReminder && (
           <View style={styles.section}>
@@ -1843,6 +1893,14 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 16,
   },
+  hajjQuickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 },
+  hajjQuickBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.accentTeal + '66', backgroundColor: colors.surface },
+  hajjQuickText: { color: colors.textPrimary, fontWeight: '700', fontSize: 12 },
+  hajjDropdownCard: { marginTop: 8, backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.divider, padding: 12 },
+  hajjDropdownTitle: { color: colors.textPrimary, fontWeight: '700', fontSize: 14, marginBottom: 4 },
+  hajjDropdownText: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+  hajjCta: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.accentTeal + '66', borderRadius: 10, paddingVertical: 6, paddingHorizontal: 10, marginTop: 8 },
+  hajjCtaText: { color: colors.accentTeal, fontWeight: '700' },
   prayerTimesContainer: {
     backgroundColor: colors.surface,
     borderRadius: 16,
