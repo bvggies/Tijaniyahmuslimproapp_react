@@ -173,6 +173,20 @@ export default function MoreFeaturesScreen({ navigation }: any) {
       screen: 'Donate',
     },
     {
+      title: 'Zakat Calculator',
+      description: 'Calculate your obligatory charity (Zakat)',
+      icon: 'calculator',
+      color: '#4CAF50',
+      screen: 'ZakatCalculator',
+    },
+    {
+      title: 'Hajj',
+      description: 'Makkah Live, Hajj & Umrah, Hajj Journey',
+      icon: 'walk',
+      color: colors.accentGreen,
+      screen: 'Hajj',
+    },
+    {
       title: 'Notifications',
       description: 'Manage prayer and reminder notifications',
       icon: 'notifications',
