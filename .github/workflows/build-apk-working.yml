@@ -1,0 +1,84 @@
+name: Build APK (Working Version)
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean and generate Android project
+      run: |
+        # Remove existing android directory if it exists
+        if [ -d "android" ]; then
+          echo "Removing existing android directory"
+          rm -rf android
+        fi
+        
+        # Generate Android project (without --clear flag)
+        echo "Generating Android project..."
+        npx expo prebuild --platform android
+        
+        # Verify the project was created
+        if [ -d "android" ]; then
+          echo "✅ Android project generated successfully"
+          ls -la android/
+        else
+          echo "❌ Android project generation failed"
+          exit 1
+        fi
+        
+    - name: Make gradlew executable
+      run: |
+        cd android
+        chmod +x gradlew
+        echo "Gradle wrapper is now executable"
+        
+    - name: Build APK
+      run: |
+        cd android
+        echo "Building APK..."
+        ./gradlew assembleRelease --no-daemon
+        
+    - name: Check for APK
+      run: |
+        echo "Checking for generated APK..."
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "✅ APK found: android/app/build/outputs/apk/release/app-release.apk"
+          ls -la android/app/build/outputs/apk/release/
+        else
+          echo "❌ APK not found. Checking all APK files:"
+          find android/app/build/outputs/apk/ -name "*.apk" -type f || echo "No APK files found"
+          exit 1
+        fi
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk
+        path: android/app/build/outputs/apk/release/*.apk
+        retention-days: 30
