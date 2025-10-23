@@ -81,21 +81,21 @@ jobs:
       run: |
         cd ios
         # Try workspace first, fallback to project
-        if [ -f "Tijaniyahmuslimproapp.xcworkspace" ]; then
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
           echo "Building with workspace..."
-          xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace \
-                     -scheme Tijaniyahmuslimproapp \
+          xcodebuild -workspace TijaniyahPro.xcworkspace \
+                     -scheme TijaniyahPro \
                      -configuration Release \
                      -destination generic/platform=iOS \
-                     -archivePath Tijaniyahmuslimproapp.xcarchive \
+                     -archivePath TijaniyahPro.xcarchive \
                      archive
-        elif [ -d "Tijaniyahmuslimproapp.xcodeproj" ]; then
+        elif [ -d "TijaniyahPro.xcodeproj" ]; then
           echo "Building with project..."
-          xcodebuild -project Tijaniyahmuslimproapp.xcodeproj \
-                     -scheme Tijaniyahmuslimproapp \
+          xcodebuild -project TijaniyahPro.xcodeproj \
+                     -scheme TijaniyahPro \
                      -configuration Release \
                      -destination generic/platform=iOS \
-                     -archivePath Tijaniyahmuslimproapp.xcarchive \
+                     -archivePath TijaniyahPro.xcarchive \
                      archive
         else
           echo "❌ No workspace or project found!"
@@ -108,7 +108,7 @@ jobs:
       run: |
         cd ios
         xcodebuild -exportArchive \
-                   -archivePath Tijaniyahmuslimproapp.xcarchive \
+                   -archivePath TijaniyahPro.xcarchive \
                    -exportPath ./build \
                    -exportOptionsPlist ExportOptions.plist
                    
@@ -136,8 +136,8 @@ jobs:
     - name: Check for IPA
       run: |
         echo "Checking for generated IPA..."
-        if [ -f "ios/build/Tijaniyahmuslimproapp.ipa" ]; then
-          echo "✅ IPA found: ios/build/Tijaniyahmuslimproapp.ipa"
+        if [ -f "ios/build/TijaniyahPro.ipa" ]; then
+          echo "✅ IPA found: ios/build/TijaniyahPro.ipa"
           ls -la ios/build/
         else
           echo "❌ IPA not found. Checking all IPA files:"

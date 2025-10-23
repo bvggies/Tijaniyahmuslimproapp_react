@@ -75,18 +75,18 @@ jobs:
       run: |
         cd ios
         # Try workspace first, fallback to project
-        if [ -f "Tijaniyahmuslimproapp.xcworkspace" ]; then
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
           echo "Building with workspace..."
-          xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace \
-                     -scheme Tijaniyahmuslimproapp \
+          xcodebuild -workspace TijaniyahPro.xcworkspace \
+                     -scheme TijaniyahPro \
                      -configuration Debug \
                      -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
                      -derivedDataPath ./build \
                      build
-        elif [ -d "Tijaniyahmuslimproapp.xcodeproj" ]; then
+        elif [ -d "TijaniyahPro.xcodeproj" ]; then
           echo "Building with project..."
-          xcodebuild -project Tijaniyahmuslimproapp.xcodeproj \
-                     -scheme Tijaniyahmuslimproapp \
+          xcodebuild -project TijaniyahPro.xcodeproj \
+                     -scheme TijaniyahPro \
                      -configuration Debug \
                      -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
                      -derivedDataPath ./build \

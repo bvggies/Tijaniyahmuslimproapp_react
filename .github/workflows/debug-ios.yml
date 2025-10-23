@@ -85,10 +85,10 @@ jobs:
         echo "=== Workspace files ==="
         find . -name "*.xcworkspace" -o -name "*.xcodeproj"
         echo "=== Scheme info ==="
-        if [ -f "Tijaniyahmuslimproapp.xcworkspace" ]; then
-          xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace -list
-        elif [ -d "Tijaniyahmuslimproapp.xcodeproj" ]; then
-          xcodebuild -project Tijaniyahmuslimproapp.xcodeproj -list
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
+          xcodebuild -workspace TijaniyahPro.xcworkspace -list
+        elif [ -d "TijaniyahPro.xcodeproj" ]; then
+          xcodebuild -project TijaniyahPro.xcodeproj -list
         fi
         
     - name: Upload debug logs
