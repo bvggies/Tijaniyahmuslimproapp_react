@@ -151,19 +151,6 @@ export default function DonateScreen() {
         </View>
       </View>
 
-      {/* Bank Account Details Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Bank Account Details</Text>
-        <Text style={styles.sectionSubtitle}>Alternative banking options for your donations</Text>
-        
-        <View style={styles.imageContainer}>
-          <Image 
-            source={require('../../assets/bankaccount.jpg')} 
-            style={styles.bankImage}
-            resizeMode="contain"
-          />
-        </View>
-      </View>
 
       {/* Help Section */}
       <View style={styles.section}>
@@ -406,11 +393,6 @@ const styles = StyleSheet.create({
   procedureImage: {
     width: '100%',
     height: 300,
-    borderRadius: 8,
-  },
-  bankImage: {
-    width: '100%',
-    height: 250,
     borderRadius: 8,
   },
 });
