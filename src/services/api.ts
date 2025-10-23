@@ -1,16 +1,52 @@
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const API_URL: string =
   ((Constants.expoConfig?.extra as any)?.API_URL as string) ||
   'https://tijaniyahmuslimproappreact-production-1e25.up.railway.app';
 
+const TOKEN_STORAGE_KEY = 'tijaniyah_auth_token';
+
 let accessToken: string | null = null;
-export const setToken = (token: string | null) => {
-  accessToken = token;
+
+// Load token from storage on startup
+export const loadStoredToken = async () => {
+  try {
+    const storedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
+    if (storedToken) {
+      accessToken = storedToken;
+      console.log('✅ Loaded stored authentication token');
+      return storedToken;
+    }
+  } catch (error) {
+    console.error('❌ Error loading stored token:', error);
+  }
+  return null;
 };
 
-export const clearToken = () => {
+export const setToken = async (token: string | null) => {
+  accessToken = token;
+  try {
+    if (token) {
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
+      console.log('✅ Token saved to storage');
+    } else {
+      await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
+      console.log('✅ Token removed from storage');
+    }
+  } catch (error) {
+    console.error('❌ Error saving token:', error);
+  }
+};
+
+export const clearToken = async () => {
   accessToken = null;
+  try {
+    await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
+    console.log('✅ Token cleared from storage');
+  } catch (error) {
+    console.error('❌ Error clearing token:', error);
+  }
 };
 
 export const getToken = () => accessToken;
@@ -28,7 +64,7 @@ export const reAuthenticate = async (email: string, password: string) => {
   try {
     const data = await http('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
     if (data?.accessToken) {
-      setToken(data.accessToken);
+      await setToken(data.accessToken);
       console.log('✅ Re-authentication successful');
       return true;
     }
@@ -109,7 +145,7 @@ export const api = {
     http('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, name }) }),
   login: async (email: string, password: string) => {
     const data = await http('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-    if (data?.accessToken) setToken(data.accessToken);
+    if (data?.accessToken) await setToken(data.accessToken);
     return data;
   },
 

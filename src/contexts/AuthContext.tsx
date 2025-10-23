@@ -85,7 +85,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     loadStoredUser();
     initializeDemoAccount();
+    loadStoredToken();
   }, []);
+
+  const loadStoredToken = async () => {
+    try {
+      const { loadStoredToken } = await import('../services/api');
+      await loadStoredToken();
+    } catch (error) {
+      console.error('Error loading stored token:', error);
+    }
+  };
 
   const initializeDemoAccount = async () => {
     try {
@@ -212,7 +222,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Store the token for future API calls
         if (response?.accessToken) {
           const { setToken } = await import('../services/api');
-          setToken(response.accessToken);
+          await setToken(response.accessToken);
         }
       } catch (backendError: any) {
         console.log('⚠️ Backend authentication failed:', backendError.message);
@@ -229,7 +239,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const loginResponse = await api.login(credentials.email, credentials.password);
             if (loginResponse?.accessToken) {
               const { setToken } = await import('../services/api');
-              setToken(loginResponse.accessToken);
+              await setToken(loginResponse.accessToken);
               console.log('✅ Backend login successful after account creation');
             }
           } catch (signupError: any) {
@@ -325,6 +335,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await removeStoredUser();
+      // Clear the authentication token
+      try {
+        const { clearToken } = await import('../services/api');
+        await clearToken();
+      } catch (tokenError) {
+        console.error('Error clearing token:', tokenError);
+      }
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
       console.error('Error during logout:', error);
