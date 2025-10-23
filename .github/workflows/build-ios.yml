@@ -69,15 +69,40 @@ jobs:
         cd ios
         pod install --repo-update
         
+    - name: Verify iOS project structure
+      run: |
+        cd ios
+        echo "=== iOS Project Structure ==="
+        ls -la
+        echo "=== Looking for workspace files ==="
+        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+        
     - name: Build iOS App
       run: |
         cd ios
-        xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace \
-                   -scheme Tijaniyahmuslimproapp \
-                   -configuration Release \
-                   -destination generic/platform=iOS \
-                   -archivePath Tijaniyahmuslimproapp.xcarchive \
-                   archive
+        # Try workspace first, fallback to project
+        if [ -f "Tijaniyahmuslimproapp.xcworkspace" ]; then
+          echo "Building with workspace..."
+          xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace \
+                     -scheme Tijaniyahmuslimproapp \
+                     -configuration Release \
+                     -destination generic/platform=iOS \
+                     -archivePath Tijaniyahmuslimproapp.xcarchive \
+                     archive
+        elif [ -d "Tijaniyahmuslimproapp.xcodeproj" ]; then
+          echo "Building with project..."
+          xcodebuild -project Tijaniyahmuslimproapp.xcodeproj \
+                     -scheme Tijaniyahmuslimproapp \
+                     -configuration Release \
+                     -destination generic/platform=iOS \
+                     -archivePath Tijaniyahmuslimproapp.xcarchive \
+                     archive
+        else
+          echo "❌ No workspace or project found!"
+          echo "Available files:"
+          ls -la
+          exit 1
+        fi
                    
     - name: Export IPA
       run: |
