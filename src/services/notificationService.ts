@@ -10,7 +10,7 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: true,
+    shouldPlaySound: false, // Disable sound by default to prevent loops
     shouldSetBadge: false,
   }),
 });
@@ -412,9 +412,18 @@ class NotificationService {
   // Play Azan audio for prayer notifications
   async playAzanAudio(): Promise<void> {
     try {
+      // Check if sound is enabled in settings
+      if (!this.settings.soundEnabled) {
+        return;
+      }
+
       const { sound } = await Audio.Sound.createAsync(
         require('../../assets/audio/azan/makkah.mp3'),
-        { shouldPlay: true, volume: 1.0 }
+        { 
+          shouldPlay: true, 
+          volume: 0.5, // Reduced volume to prevent issues
+          isLooping: false // Ensure no looping
+        }
       );
       
       sound.setOnPlaybackStatusUpdate((status: any) => {
@@ -422,6 +431,11 @@ class NotificationService {
           sound.unloadAsync();
         }
       });
+
+      // Auto-unload after 30 seconds to prevent hanging
+      setTimeout(() => {
+        sound.unloadAsync();
+      }, 30000);
     } catch (error) {
       console.error('Error playing Azan audio:', error);
     }
@@ -447,6 +461,38 @@ class NotificationService {
       },
       trigger: null, // Immediate
     });
+  }
+
+  // Emergency: Stop all audio and clear all notifications
+  async emergencyStop(): Promise<void> {
+    try {
+      // Cancel all scheduled notifications
+      await this.cancelAllNotifications();
+      
+      // Stop all audio playback
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: false,
+        playsInSilentModeIOS: false,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+      
+      console.log('Emergency stop: All notifications and audio stopped');
+    } catch (error) {
+      console.error('Error in emergency stop:', error);
+    }
+  }
+
+  // Disable all notifications temporarily
+  async disableAllNotifications(): Promise<void> {
+    this.settings.prayerNotifications = false;
+    this.settings.reminderNotifications = false;
+    this.settings.soundEnabled = false;
+    this.settings.vibrationEnabled = false;
+    
+    await this.cancelAllNotifications();
+    console.log('All notifications disabled');
   }
 }
 
