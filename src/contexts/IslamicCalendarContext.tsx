@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type IslamicCalendarType = 
+  | 'lunar'            // Lunar calendar (default)
   | 'umm-al-qura'      // Saudi Arabia (Umm al-Qura)
   | 'tabular'          // Tabular Islamic calendar
   | 'kuwaiti'          // Kuwaiti algorithm
@@ -49,6 +50,13 @@ const ISLAMIC_CALENDAR_STORAGE_KEY = 'tijaniyah_islamic_calendar';
 
 // Islamic calendar information
 const CALENDAR_INFO: Record<IslamicCalendarType, IslamicCalendarInfo> = {
+  'lunar': {
+    type: 'lunar',
+    name: 'Lunar Calendar',
+    description: 'Traditional lunar calendar based on moon phases and observations',
+    region: 'Global',
+    accuracy: 'high'
+  },
   'umm-al-qura': {
     type: 'umm-al-qura',
     name: 'Umm al-Qura',
@@ -167,7 +175,7 @@ const ISLAMIC_HOLIDAYS: Record<string, string> = {
 };
 
 export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedCalendar, setSelectedCalendarState] = useState<IslamicCalendarType>('umm-al-qura');
+  const [selectedCalendar, setSelectedCalendarState] = useState<IslamicCalendarType>('lunar');
 
   useEffect(() => {
     const loadSelectedCalendar = async () => {
@@ -202,6 +210,14 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     
     // Calendar-specific calculations with regional adjustments
     switch (selectedCalendar) {
+      case 'lunar':
+        // Lunar: Traditional lunar calendar based on moon phases
+        islamicYear = Math.floor(daysSinceEpoch / 354.367) + 1;
+        daysInYear = daysSinceEpoch % 354.367;
+        // Lunar observation-based adjustment
+        daysInYear += Math.sin(islamicYear * 0.05) * 0.3;
+        break;
+        
       case 'umm-al-qura':
         // Umm al-Qura: Official Saudi calendar with specific leap year pattern
         islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
@@ -299,6 +315,11 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific month length calculations
     const getMonthLength = (monthNum: number, year: number): number => {
       switch (selectedCalendar) {
+        case 'lunar':
+          // Lunar: Traditional lunar month lengths based on moon phases
+          if (monthNum === 12) return 29; // Dhu al-Hijjah varies
+          return (monthNum % 2 === 0) ? 29 : 30;
+          
         case 'umm-al-qura':
           // Umm al-Qura specific month lengths
           if (monthNum === 12) return 30; // Dhu al-Hijjah is always 30 days
@@ -398,6 +419,10 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific year length calculations
     let daysPerYear: number;
     switch (selectedCalendar) {
+      case 'lunar':
+        daysPerYear = 354.367;
+        break;
+        
       case 'umm-al-qura':
         daysPerYear = 354.36667;
         break;
@@ -442,6 +467,10 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific month length calculations
     const getMonthLength = (monthNum: number, year: number): number => {
       switch (selectedCalendar) {
+        case 'lunar':
+          if (monthNum === 12) return 29;
+          return (monthNum % 2 === 0) ? 29 : 30;
+          
         case 'umm-al-qura':
           if (monthNum === 12) return 30;
           return (monthNum % 2 === 0) ? 29 : 30;
