@@ -58,7 +58,7 @@ jobs:
     - name: Generate Android project
       run: |
         echo "Starting Android project generation..."
-        npx expo prebuild --platform android --clear
+        npx expo prebuild --platform android
         echo "Android project generation completed"
         
     - name: Verify project structure
