@@ -1,0 +1,91 @@
+name: Build iOS (Development)
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean and generate iOS project
+      run: |
+        # Remove existing ios directory if it exists
+        if [ -d "ios" ]; then
+          echo "Removing existing ios directory"
+          rm -rf ios
+        fi
+        
+        # Generate iOS project
+        echo "Generating iOS project..."
+        npx expo prebuild --platform ios
+        
+        # Verify the project was created
+        if [ -d "ios" ]; then
+          echo "✅ iOS project generated successfully"
+          ls -la ios/
+        else
+          echo "❌ iOS project generation failed"
+          exit 1
+        fi
+        
+    - name: Install iOS dependencies
+      run: |
+        cd ios
+        pod install --repo-update
+        
+    - name: Build for iOS Simulator
+      run: |
+        cd ios
+        xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace \
+                   -scheme Tijaniyahmuslimproapp \
+                   -configuration Debug \
+                   -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                   -derivedDataPath ./build \
+                   build
+                   
+    - name: Check for build artifacts
+      run: |
+        echo "Checking for iOS build artifacts..."
+        if [ -d "ios/build" ]; then
+          echo "✅ iOS build completed successfully"
+          ls -la ios/build/
+          find ios/build/ -name "*.app" -type d
+        else
+          echo "❌ iOS build failed"
+          exit 1
+        fi
+        
+    - name: Upload iOS build
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-ios-build
+        path: ios/build/
+        retention-days: 30
+        
+    - name: Upload build logs (on failure)
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: ios-build-logs
+        path: ios/
+        retention-days: 7
