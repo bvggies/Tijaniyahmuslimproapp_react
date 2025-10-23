@@ -57,7 +57,7 @@ jobs:
           xcodebuild -workspace TijaniyahPro.xcworkspace \
                      -scheme TijaniyahPro \
                      -configuration Debug \
-                     -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0' \
                      -derivedDataPath ./build \
                      build
         else
