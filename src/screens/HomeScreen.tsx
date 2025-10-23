@@ -78,9 +78,16 @@ export default function HomeScreen({ navigation }: any) {
   // Animation refs
 
   useEffect(() => {
+    console.log('🚀 HomeScreen: Starting location and prayer time loading...');
     loadLocationAndPrayerTimes();
     loadLocationBasedDateTime();
     loadDailyReminder();
+    
+    // Test location service after a short delay
+    setTimeout(() => {
+      testLocationService();
+    }, 2000);
+    
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
@@ -244,24 +251,33 @@ export default function HomeScreen({ navigation }: any) {
   const loadLocationAndPrayerTimes = async () => {
     try {
       const locationService = LocationService.getInstance();
-      const locationData = await locationService.getCurrentLocation();
+      const userLocation = await locationService.getUserLocation();
       
-      if (!locationData) {
-        console.log('Unable to get location data');
+      if (!userLocation) {
+        console.log('Unable to get location data, using fallback');
+        // Fallback to default location (Makkah)
+        const fallbackLocation = {
+          latitude: 21.3891,
+          longitude: 39.8579,
+          city: 'Makkah',
+          country: 'Saudi Arabia',
+        };
+        setCurrentLocation(fallbackLocation);
+        
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
         return;
       }
 
-      const { coordinates, address } = locationData;
-
       setCurrentLocation({
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        city: address.city,
-        country: address.country,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        city: userLocation.city,
+        country: userLocation.country,
       });
 
       // Get prayer times using location coordinates
-      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude, timeFormat);
+      const times = await getPrayerTimes(userLocation.latitude, userLocation.longitude, timeFormat);
       setPrayerTimes(times);
 
       // Schedule prayer notifications
@@ -269,14 +285,33 @@ export default function HomeScreen({ navigation }: any) {
       await notificationService.schedulePrayerNotifications(times);
 
       // Update Islamic date with location coordinates
-      const locationBasedIslamicDate = getCurrentIslamicDate(coordinates.latitude, coordinates.longitude);
+      const locationBasedIslamicDate = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
       setIslamicDate(locationBasedIslamicDate);
 
       // Store timezone and load daily reminder
-      setCurrentTimezone(locationData.timezone);
-      loadDailyReminder(locationData.timezone);
+      setCurrentTimezone(userLocation.timezone);
+      loadDailyReminder(userLocation.timezone);
+      
+      console.log('✅ Location and prayer times loaded successfully:', userLocation.city, userLocation.country);
     } catch (error) {
-      console.error('Error loading location and prayer times:', error);
+      console.error('❌ Error loading location and prayer times:', error);
+      
+      // Fallback to default location
+      const fallbackLocation = {
+        latitude: 21.3891,
+        longitude: 39.8579,
+        city: 'Makkah',
+        country: 'Saudi Arabia',
+      };
+      setCurrentLocation(fallbackLocation);
+      
+      try {
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
+        console.log('✅ Using fallback location (Makkah)');
+      } catch (fallbackError) {
+        console.error('❌ Error with fallback location:', fallbackError);
+      }
     }
   };
 
@@ -288,6 +323,7 @@ export default function HomeScreen({ navigation }: any) {
   // Load location-based date and time
   const loadLocationBasedDateTime = async () => {
     try {
+      console.log('🌙 HomeScreen: Loading location-based date and time...');
       const locationService = LocationService.getInstance();
       const hijriService = HijriService.getInstance();
       
@@ -295,22 +331,47 @@ export default function HomeScreen({ navigation }: any) {
       const location = await locationService.getUserLocation();
       if (location) {
         setUserLocation(location);
-        console.log('📍 Location detected:', location.city, location.country);
+        console.log('📍 Location detected for date/time:', location.city, location.country);
+      } else {
+        console.log('⚠️ No location available for date/time');
       }
       
       // Get location-based Hijri date
       const hijriDate = await hijriService.getCurrentHijriDate();
       if (hijriDate) {
         setLocationBasedDate(hijriDate);
-        console.log('🌙 Hijri date:', hijriDate.hijri.fullDate);
+        console.log('🌙 Hijri date loaded:', hijriDate.hijri.fullDate);
+      } else {
+        console.log('⚠️ No Hijri date available');
       }
       
       // Get local time
       const localTimeString = locationService.getLocalTime();
       setLocalTime(localTimeString);
+      console.log('🕐 Local time:', localTimeString);
       
     } catch (error) {
       console.error('❌ Error loading location-based date/time:', error);
+    }
+  };
+
+  // Test location service manually
+  const testLocationService = async () => {
+    try {
+      console.log('🧪 Testing location service...');
+      const locationService = LocationService.getInstance();
+      
+      // Test getting location
+      const location = await locationService.getUserLocation();
+      console.log('🧪 Location result:', location);
+      
+      if (location) {
+        console.log('✅ Location service working:', location.city, location.country);
+      } else {
+        console.log('❌ Location service not working');
+      }
+    } catch (error) {
+      console.error('❌ Location service test failed:', error);
     }
   };
 
@@ -956,7 +1017,7 @@ export default function HomeScreen({ navigation }: any) {
                     {getCountryFlag(currentLocation?.country)}
                   </Text>
                   <Text style={styles.locationText}>
-                    {currentLocation ? `${currentLocation.city}, ${currentLocation.country}` : 'Loading...'}
+                    {currentLocation ? `${currentLocation.city}, ${currentLocation.country}` : 'Detecting location...'}
                   </Text>
               </View>
             </View>
