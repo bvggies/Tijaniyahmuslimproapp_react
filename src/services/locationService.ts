@@ -1,195 +1,240 @@
 import * as Location from 'expo-location';
-import { Location as LocationType } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export interface LocationData {
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  address: {
-    city: string;
-    country: string;
-    region?: string;
-    street?: string;
-  };
-  timezone?: string;
+export interface UserLocation {
+  latitude: number;
+  longitude: number;
+  country: string;
+  timezone: string;
+  city?: string;
+  region?: string;
 }
+
+export interface LocationCache {
+  location: UserLocation;
+  timestamp: number;
+  expiresAt: number;
+}
+
+const LOCATION_CACHE_KEY = 'user_location_cache';
+const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
 class LocationService {
   private static instance: LocationService;
-  private cachedLocation: LocationData | null = null;
-  private lastLocationUpdate: number = 0;
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private currentLocation: UserLocation | null = null;
+  private locationCache: LocationCache | null = null;
 
-  private constructor() {}
-
-  public static getInstance(): LocationService {
+  static getInstance(): LocationService {
     if (!LocationService.instance) {
       LocationService.instance = new LocationService();
     }
     return LocationService.instance;
   }
 
-  // Request location permissions
-  async requestPermissions(): Promise<boolean> {
+  /**
+   * Get user's current location with caching
+   */
+  async getUserLocation(): Promise<UserLocation | null> {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      return status === 'granted';
-    } catch (error) {
-      console.error('Error requesting location permissions:', error);
-      return false;
-    }
-  }
-
-  // Get current location with caching
-  async getCurrentLocation(forceRefresh: boolean = false): Promise<LocationData | null> {
-    try {
-      // Check if we have cached location and it's still valid
-      if (!forceRefresh && this.cachedLocation && this.isCacheValid()) {
-        return this.cachedLocation;
+      // Check if we have a valid cached location
+      const cachedLocation = await this.getCachedLocation();
+      if (cachedLocation && Date.now() < cachedLocation.expiresAt) {
+        console.log('📍 Using cached location:', cachedLocation.location.city, cachedLocation.location.country);
+        this.currentLocation = cachedLocation.location;
+        return cachedLocation.location;
       }
 
-      // Request permissions
-      const hasPermission = await this.requestPermissions();
-      if (!hasPermission) {
-        throw new Error('Location permission denied');
+      // Request location permission
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('❌ Location permission denied');
+        return null;
       }
 
       // Get current position
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
+        timeout: 10000,
       });
 
-      const coords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
+      const { latitude, longitude } = location.coords;
+      console.log('📍 Current coordinates:', latitude, longitude);
 
-      // Get reverse geocoding for address information
-      const reverseGeocode = await Location.reverseGeocodeAsync(coords);
-      const addressInfo = reverseGeocode[0];
+      // Reverse geocode to get address information
+      const address = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
 
-      const locationData: LocationData = {
-        coordinates: coords,
-        address: {
-          city: addressInfo?.city || 'Unknown',
-          country: addressInfo?.country || 'Unknown',
-          region: addressInfo?.region || undefined,
-          street: addressInfo?.street || undefined,
-        },
-        timezone: await this.getTimezoneFromCoordinates(coords.latitude, coords.longitude),
+      if (address.length === 0) {
+        console.log('❌ Could not get address from coordinates');
+        return null;
+      }
+
+      const addressInfo = address[0];
+      const timezone = this.getTimezoneFromCoordinates(latitude, longitude);
+      
+      const userLocation: UserLocation = {
+        latitude,
+        longitude,
+        country: addressInfo.country || 'Unknown',
+        timezone,
+        city: addressInfo.city || addressInfo.district || 'Unknown',
+        region: addressInfo.region || addressInfo.subregion,
       };
 
       // Cache the location
-      this.cachedLocation = locationData;
-      this.lastLocationUpdate = Date.now();
+      await this.cacheLocation(userLocation);
+      this.currentLocation = userLocation;
 
-      return locationData;
+      console.log('✅ Location detected:', userLocation.city, userLocation.country, userLocation.timezone);
+      return userLocation;
+
     } catch (error) {
-      console.error('Error getting current location:', error);
+      console.error('❌ Error getting user location:', error);
+      
+      // Try to use cached location even if expired
+      const cachedLocation = await this.getCachedLocation();
+      if (cachedLocation) {
+        console.log('📍 Using expired cached location as fallback');
+        this.currentLocation = cachedLocation.location;
+        return cachedLocation.location;
+      }
+      
       return null;
     }
   }
 
-  // Get timezone from coordinates
-  private async getTimezoneFromCoordinates(latitude: number, longitude: number): Promise<string> {
+  /**
+   * Get cached location from storage
+   */
+  private async getCachedLocation(): Promise<LocationCache | null> {
     try {
-      // Use a simple timezone calculation based on longitude
-      // In production, you might want to use a more sophisticated timezone service
-      const timezoneOffset = Math.round(longitude / 15);
-      return `GMT${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-    } catch (error) {
-      console.error('Error getting timezone:', error);
-      return 'GMT+0';
-    }
-  }
-
-  // Check if cached location is still valid
-  private isCacheValid(): boolean {
-    return Date.now() - this.lastLocationUpdate < this.CACHE_DURATION;
-  }
-
-  // Clear cached location
-  clearCache(): void {
-    this.cachedLocation = null;
-    this.lastLocationUpdate = 0;
-  }
-
-  // Get cached location
-  getCachedLocation(): LocationData | null {
-    return this.cachedLocation;
-  }
-
-  // Check if location services are enabled
-  async isLocationEnabled(): Promise<boolean> {
-    try {
-      const enabled = await Location.hasServicesEnabledAsync();
-      return enabled;
-    } catch (error) {
-      console.error('Error checking location services:', error);
-      return false;
-    }
-  }
-
-  // Get location accuracy
-  async getLocationAccuracy(): Promise<Location.Accuracy> {
-    try {
-      const hasPermission = await this.requestPermissions();
-      if (!hasPermission) {
-        return Location.Accuracy.Lowest;
-      }
-
-      // Try to get a high accuracy location first
-      try {
-        await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Highest,
-        });
-        return Location.Accuracy.Highest;
-      } catch {
-        // Fall back to balanced accuracy
-        return Location.Accuracy.Balanced;
+      const cached = await AsyncStorage.getItem(LOCATION_CACHE_KEY);
+      if (cached) {
+        return JSON.parse(cached);
       }
     } catch (error) {
-      console.error('Error getting location accuracy:', error);
-      return Location.Accuracy.Lowest;
+      console.error('❌ Error reading cached location:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Cache location to storage
+   */
+  private async cacheLocation(location: UserLocation): Promise<void> {
+    try {
+      const cache: LocationCache = {
+        location,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + CACHE_DURATION,
+      };
+      await AsyncStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify(cache));
+      console.log('💾 Location cached successfully');
+    } catch (error) {
+      console.error('❌ Error caching location:', error);
     }
   }
 
-  // Format location for display
-  formatLocationForDisplay(locationData: LocationData): string {
-    const { address } = locationData;
-    if (address.street && address.city) {
-      return `${address.street}, ${address.city}, ${address.country}`;
-    } else if (address.city) {
-      return `${address.city}, ${address.country}`;
-    } else {
-      return `${address.country}`;
+  /**
+   * Get timezone from coordinates (simplified)
+   */
+  private getTimezoneFromCoordinates(lat: number, lng: number): string {
+    // This is a simplified timezone detection
+    // In a production app, you might want to use a more sophisticated library
+    
+    // Africa timezones
+    if (lat >= -35 && lat <= 37 && lng >= -25 && lng <= 60) {
+      if (lng >= -20 && lng <= 20) return 'Africa/Lagos'; // West Africa
+      if (lng >= 20 && lng <= 40) return 'Africa/Cairo'; // North Africa
+      if (lng >= 40 && lng <= 60) return 'Asia/Dubai'; // Middle East
+    }
+    
+    // Asia timezones
+    if (lat >= 0 && lat <= 50 && lng >= 60 && lng <= 180) {
+      if (lng >= 60 && lng <= 80) return 'Asia/Karachi';
+      if (lng >= 80 && lng <= 100) return 'Asia/Dhaka';
+      if (lng >= 100 && lng <= 120) return 'Asia/Jakarta';
+    }
+    
+    // Europe timezones
+    if (lat >= 35 && lat <= 70 && lng >= -10 && lng <= 40) {
+      return 'Europe/London';
+    }
+    
+    // Americas timezones
+    if (lat >= -60 && lat <= 70 && lng >= -180 && lng <= -30) {
+      if (lng >= -80 && lng <= -30) return 'America/New_York';
+      if (lng >= -120 && lng <= -80) return 'America/Los_Angeles';
+    }
+    
+    // Default fallback
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
+  /**
+   * Get current location (cached or fresh)
+   */
+  getCurrentLocation(): UserLocation | null {
+    return this.currentLocation;
+  }
+
+  /**
+   * Clear location cache
+   */
+  async clearLocationCache(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(LOCATION_CACHE_KEY);
+      this.currentLocation = null;
+      this.locationCache = null;
+      console.log('🗑️ Location cache cleared');
+    } catch (error) {
+      console.error('❌ Error clearing location cache:', error);
     }
   }
 
-  // Get distance between two coordinates (in kilometers)
-  getDistanceBetween(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = this.deg2rad(lat2 - lat1);
-    const dLon = this.deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) *
-        Math.cos(this.deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance;
+  /**
+   * Get local time for current location
+   */
+  getLocalTime(): string {
+    if (!this.currentLocation) {
+      return new Date().toLocaleString();
+    }
+
+    try {
+      return new Date().toLocaleString('en-US', {
+        timeZone: this.currentLocation.timezone,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+    } catch (error) {
+      console.error('❌ Error getting local time:', error);
+      return new Date().toLocaleString();
+    }
   }
 
-  private deg2rad(deg: number): number {
-    return deg * (Math.PI / 180);
+  /**
+   * Get timezone offset for current location
+   */
+  getTimezoneOffset(): number {
+    if (!this.currentLocation) {
+      return new Date().getTimezoneOffset();
+    }
+
+    try {
+      const now = new Date();
+      const utc = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+      const local = new Date(utc.toLocaleString('en-US', { timeZone: this.currentLocation.timezone }));
+      return (local.getTime() - utc.getTime()) / 60000;
+    } catch (error) {
+      console.error('❌ Error getting timezone offset:', error);
+      return new Date().getTimezoneOffset();
+    }
   }
 }
 

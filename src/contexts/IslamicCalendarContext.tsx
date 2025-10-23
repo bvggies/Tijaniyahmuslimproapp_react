@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LocationService from '../services/locationService';
+import HijriService from '../services/hijriService';
 
 export type IslamicCalendarType = 
   | 'lunar'            // Lunar calendar (default)
@@ -38,10 +40,12 @@ interface IslamicCalendarContextType {
   selectedCalendar: IslamicCalendarType;
   setSelectedCalendar: (calendar: IslamicCalendarType) => void;
   getCurrentIslamicDate: () => IslamicDate;
+  getCurrentIslamicDateWithLocation: () => Promise<IslamicDate | null>;
   getCalendarInfo: (type: IslamicCalendarType) => IslamicCalendarInfo;
   getAllCalendars: () => IslamicCalendarInfo[];
   convertToIslamic: (gregorianDate: Date) => IslamicDate;
   convertToGregorian: (islamicDate: IslamicDate) => Date;
+  getLocationBasedDate: () => Promise<any>;
 }
 
 const IslamicCalendarContext = createContext<IslamicCalendarContextType | undefined>(undefined);
@@ -504,6 +508,44 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     return convertToIslamic(new Date());
   };
 
+  // Get Islamic date with location-based calculations
+  const getCurrentIslamicDateWithLocation = async (): Promise<IslamicDate | null> => {
+    try {
+      const hijriService = HijriService.getInstance();
+      const hijriDate = await hijriService.getCurrentHijriDate();
+      
+      if (hijriDate) {
+        return {
+          day: hijriDate.hijri.day,
+          month: hijriDate.hijri.month,
+          year: hijriDate.hijri.year,
+          monthName: hijriDate.hijri.monthName,
+          monthNameArabic: hijriDate.hijri.monthName, // You might want to add Arabic names
+          dayName: hijriDate.hijri.dayName,
+          dayNameArabic: hijriDate.hijri.dayName, // You might want to add Arabic names
+          isHoliday: false, // You can enhance this with holiday detection
+          holidayName: undefined
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('❌ Error getting location-based Islamic date:', error);
+      return null;
+    }
+  };
+
+  // Get location-based date information
+  const getLocationBasedDate = async () => {
+    try {
+      const hijriService = HijriService.getInstance();
+      return await hijriService.getCurrentHijriDate();
+    } catch (error) {
+      console.error('❌ Error getting location-based date:', error);
+      return null;
+    }
+  };
+
   const getCalendarInfo = (type: IslamicCalendarType): IslamicCalendarInfo => {
     return CALENDAR_INFO[type];
   };
@@ -518,10 +560,12 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
         selectedCalendar,
         setSelectedCalendar,
         getCurrentIslamicDate,
+        getCurrentIslamicDateWithLocation,
         getCalendarInfo,
         getAllCalendars,
         convertToIslamic,
-        convertToGregorian
+        convertToGregorian,
+        getLocationBasedDate
       }}
     >
       {children}

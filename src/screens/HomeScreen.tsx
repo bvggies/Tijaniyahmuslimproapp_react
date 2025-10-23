@@ -22,6 +22,7 @@ import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
+import HijriService from '../services/hijriService';
 import IslamicBackground from '../components/IslamicBackground';
 import ProfileAvatar from '../components/ProfileAvatar';
 import NewsSection from '../components/NewsSection';
@@ -50,6 +51,11 @@ export default function HomeScreen({ navigation }: any) {
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Location-based date and time
+  const [locationBasedDate, setLocationBasedDate] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<any>(null);
+  const [localTime, setLocalTime] = useState<string>('');
   // Azan mini player state
   const [selectedAzanId, setSelectedAzanId] = useState<'makkah' | 'istanbul' | null>(null);
   const [isAzanPlaying, setIsAzanPlaying] = useState(false);
@@ -73,6 +79,7 @@ export default function HomeScreen({ navigation }: any) {
 
   useEffect(() => {
     loadLocationAndPrayerTimes();
+    loadLocationBasedDateTime();
     loadDailyReminder();
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -276,6 +283,35 @@ export default function HomeScreen({ navigation }: any) {
   const loadDailyReminder = (timezone?: string) => {
     const reminder = getDailyReminder(timezone);
     setDailyReminder(reminder);
+  };
+
+  // Load location-based date and time
+  const loadLocationBasedDateTime = async () => {
+    try {
+      const locationService = LocationService.getInstance();
+      const hijriService = HijriService.getInstance();
+      
+      // Get user location
+      const location = await locationService.getUserLocation();
+      if (location) {
+        setUserLocation(location);
+        console.log('📍 Location detected:', location.city, location.country);
+      }
+      
+      // Get location-based Hijri date
+      const hijriDate = await hijriService.getCurrentHijriDate();
+      if (hijriDate) {
+        setLocationBasedDate(hijriDate);
+        console.log('🌙 Hijri date:', hijriDate.hijri.fullDate);
+      }
+      
+      // Get local time
+      const localTimeString = locationService.getLocalTime();
+      setLocalTime(localTimeString);
+      
+    } catch (error) {
+      console.error('❌ Error loading location-based date/time:', error);
+    }
   };
 
   // Determine current and next prayers from flags maintained by prayerService
@@ -950,15 +986,32 @@ export default function HomeScreen({ navigation }: any) {
               <Ionicons name="chevron-forward" size={16} color={colors.textDark} style={styles.calendarChevron} />
             </View>
             <View style={styles.calendarContent}>
-              <Text style={[styles.hijriDate, { color: colors.textDark }]}>
-                {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
-              </Text>
-              <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
-              {new Date().toLocaleDateString()} — {formatTimeWithSeconds(currentTime)}
-              </Text>
-              <Text style={[styles.dayName, { color: colors.textDark }]}>
-                {islamicDate.dayNameArabic} - {islamicDate.dayName}
-              </Text>
+              {/* Location-based Hijri date */}
+              {locationBasedDate ? (
+                <>
+                  <Text style={[styles.hijriDate, { color: colors.textDark }]}>
+                    {locationBasedDate.hijri.day} {locationBasedDate.hijri.monthName} {locationBasedDate.hijri.year} AH
+                  </Text>
+                  <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
+                    {locationBasedDate.gregorian.fullDate} — {locationBasedDate.localTime}
+                  </Text>
+                  <Text style={[styles.dayName, { color: colors.textDark }]}>
+                    {locationBasedDate.hijri.dayName} - {locationBasedDate.location.city}, {locationBasedDate.location.country}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.hijriDate, { color: colors.textDark }]}>
+                    {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
+                  </Text>
+                  <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
+                    {new Date().toLocaleDateString()} — {formatTimeWithSeconds(currentTime)}
+                  </Text>
+                  <Text style={[styles.dayName, { color: colors.textDark }]}>
+                    {islamicDate.dayNameArabic} - {islamicDate.dayName}
+                  </Text>
+                </>
+              )}
               {islamicDate.isHoliday && (
                 <Text style={[styles.holidayText, { color: colors.accentTeal }]}>
                   {islamicDate.holidayName}
