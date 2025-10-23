@@ -1,0 +1,101 @@
+name: Debug iOS Project Generation
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  debug-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Show environment info
+      run: |
+        echo "Node version:"
+        node --version
+        echo "NPM version:"
+        npm --version
+        echo "Expo CLI version:"
+        npx expo --version
+        echo "Xcode version:"
+        xcodebuild -version
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        echo "Dependencies installed successfully"
+        
+    - name: Fix Expo dependencies
+      run: |
+        npx expo install --fix
+        echo "Expo dependencies fixed"
+        
+    - name: Clean any existing ios directory
+      run: |
+        if [ -d "ios" ]; then
+          echo "Removing existing ios directory"
+          rm -rf ios
+        fi
+        echo "Clean slate ready"
+        
+    - name: Generate iOS project with debug info
+      run: |
+        echo "Starting iOS project generation..."
+        npx expo prebuild --platform ios --verbose
+        echo "iOS project generation completed"
+        
+    - name: Verify project structure
+      run: |
+        echo "=== Project Structure ==="
+        ls -la
+        echo "=== iOS Directory ==="
+        ls -la ios/
+        echo "=== iOS App Directory ==="
+        ls -la ios/Tijaniyahmuslimproapp/
+        echo "=== Xcode Files ==="
+        find ios/ -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "Podfile"
+        echo "=== Podfile Contents ==="
+        cat ios/Podfile || echo "No Podfile found"
+        
+    - name: Install iOS dependencies
+      run: |
+        cd ios
+        echo "Installing pods..."
+        pod install --verbose
+        echo "Pod install completed"
+        
+    - name: Check for workspace after pod install
+      run: |
+        cd ios
+        echo "=== After pod install ==="
+        ls -la
+        echo "=== Workspace files ==="
+        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+        echo "=== Scheme info ==="
+        if [ -f "Tijaniyahmuslimproapp.xcworkspace" ]; then
+          xcodebuild -workspace Tijaniyahmuslimproapp.xcworkspace -list
+        elif [ -d "Tijaniyahmuslimproapp.xcodeproj" ]; then
+          xcodebuild -project Tijaniyahmuslimproapp.xcodeproj -list
+        fi
+        
+    - name: Upload debug logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-debug-logs
+        path: |
+          ios/
+          *.log
+        retention-days: 7
