@@ -125,8 +125,14 @@ export default function HomeScreen({ navigation }: any) {
 
     return () => {
       if (azanSoundRef.current) {
-        azanSoundRef.current.unloadAsync().catch(() => {});
+        try {
+          azanSoundRef.current.stopAsync();
+          azanSoundRef.current.unloadAsync();
+        } catch (error) {
+          console.log('Error cleaning up azan audio:', error);
+        }
         azanSoundRef.current = null;
+        setIsAzanPlaying(false);
       }
     };
   }, []);
@@ -167,14 +173,29 @@ export default function HomeScreen({ navigation }: any) {
         });
       } catch {}
 
-      const { sound } = await Audio.Sound.createAsync(option.file, { shouldPlay: true, volume: 1.0 });
+      const { sound } = await Audio.Sound.createAsync(option.file, { 
+        shouldPlay: true, 
+        volume: 0.5, // Reduced volume to prevent issues
+        isLooping: false // Ensure no looping
+      });
       azanSoundRef.current = sound;
       setIsAzanPlaying(true);
       sound.setOnPlaybackStatusUpdate((status: any) => {
         if (status && status.didJustFinish) {
           setIsAzanPlaying(false);
+          sound.unloadAsync();
+          azanSoundRef.current = null;
         }
       });
+
+      // Auto-unload after 30 seconds to prevent hanging
+      setTimeout(() => {
+        if (azanSoundRef.current) {
+          azanSoundRef.current.unloadAsync();
+          azanSoundRef.current = null;
+          setIsAzanPlaying(false);
+        }
+      }, 30000);
     } catch (e) {
       setIsAzanPlaying(false);
       Alert.alert('Azan', 'Unable to play audio');
