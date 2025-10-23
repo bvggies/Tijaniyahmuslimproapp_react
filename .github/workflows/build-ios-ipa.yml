@@ -1,0 +1,73 @@
+name: Build iOS IPA (Requires Code Signing)
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-ios-ipa:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean and generate iOS project
+      run: |
+        if [ -d "ios" ]; then
+          rm -rf ios
+        fi
+        npx expo prebuild --platform ios
+        
+    - name: Install iOS dependencies
+      run: |
+        cd ios
+        pod install --repo-update
+        
+    - name: Setup Code Signing
+      run: |
+        echo "⚠️  This workflow requires manual code signing setup"
+        echo "You need to:"
+        echo "1. Add your Apple Developer Team ID to the workflow"
+        echo "2. Add your provisioning profile"
+        echo "3. Configure signing in Xcode project"
+        echo ""
+        echo "For now, this will build for simulator instead..."
+        
+    - name: Build for iOS Simulator (No Signing Required)
+      run: |
+        cd ios
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
+          echo "Building with workspace for iOS Simulator..."
+          xcodebuild -workspace TijaniyahPro.xcworkspace \
+                     -scheme TijaniyahPro \
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                     -derivedDataPath ./build \
+                     build
+        else
+          echo "❌ No workspace found!"
+          exit 1
+        fi
+        
+    - name: Upload iOS build
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-ios-simulator
+        path: ios/build/
+        retention-days: 30

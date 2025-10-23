@@ -77,26 +77,26 @@ jobs:
         echo "=== Looking for workspace files ==="
         find . -name "*.xcworkspace" -o -name "*.xcodeproj"
         
-    - name: Build iOS App
+    - name: Build iOS App for Simulator (No Code Signing Required)
       run: |
         cd ios
         # Try workspace first, fallback to project
         if [ -f "TijaniyahPro.xcworkspace" ]; then
-          echo "Building with workspace..."
+          echo "Building with workspace for iOS Simulator..."
           xcodebuild -workspace TijaniyahPro.xcworkspace \
                      -scheme TijaniyahPro \
-                     -configuration Release \
-                     -destination generic/platform=iOS \
-                     -archivePath TijaniyahPro.xcarchive \
-                     archive
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                     -derivedDataPath ./build \
+                     build
         elif [ -d "TijaniyahPro.xcodeproj" ]; then
-          echo "Building with project..."
+          echo "Building with project for iOS Simulator..."
           xcodebuild -project TijaniyahPro.xcodeproj \
                      -scheme TijaniyahPro \
-                     -configuration Release \
-                     -destination generic/platform=iOS \
-                     -archivePath TijaniyahPro.xcarchive \
-                     archive
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+                     -derivedDataPath ./build \
+                     build
         else
           echo "❌ No workspace or project found!"
           echo "Available files:"
@@ -104,52 +104,23 @@ jobs:
           exit 1
         fi
                    
-    - name: Export IPA
+    - name: Check for iOS build artifacts
       run: |
-        cd ios
-        xcodebuild -exportArchive \
-                   -archivePath TijaniyahPro.xcarchive \
-                   -exportPath ./build \
-                   -exportOptionsPlist ExportOptions.plist
-                   
-    - name: Create ExportOptions.plist
-      run: |
-        cat > ios/ExportOptions.plist << EOF
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>method</key>
-            <string>development</string>
-            <key>teamID</key>
-            <string>YOUR_TEAM_ID</string>
-            <key>uploadBitcode</key>
-            <false/>
-            <key>uploadSymbols</key>
-            <true/>
-            <key>compileBitcode</key>
-            <false/>
-        </dict>
-        </plist>
-        EOF
-        
-    - name: Check for IPA
-      run: |
-        echo "Checking for generated IPA..."
-        if [ -f "ios/build/TijaniyahPro.ipa" ]; then
-          echo "✅ IPA found: ios/build/TijaniyahPro.ipa"
+        echo "Checking for iOS build artifacts..."
+        if [ -d "ios/build" ]; then
+          echo "✅ iOS build completed successfully"
           ls -la ios/build/
+          find ios/build/ -name "*.app" -type d
         else
-          echo "❌ IPA not found. Checking all IPA files:"
-          find ios/build/ -name "*.ipa" -type f || echo "No IPA files found"
+          echo "❌ iOS build failed"
           exit 1
         fi
         
-    - name: Upload IPA
+    - name: Upload iOS build
       uses: actions/upload-artifact@v4
       with:
-        name: tijaniyah-pro-ipa
-        path: ios/build/*.ipa
+        name: tijaniyah-pro-ios-build
+        path: ios/build/
         retention-days: 30
         
     - name: Upload build logs (on failure)
