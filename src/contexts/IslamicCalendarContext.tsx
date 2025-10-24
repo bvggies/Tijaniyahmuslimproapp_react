@@ -511,6 +511,13 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
   // Get Islamic date with location-based calculations
   const getCurrentIslamicDateWithLocation = async (): Promise<IslamicDate | null> => {
     try {
+      // TEMPORARILY DISABLE location-based Hijri date calculation
+      // This prevents the wrong Muharram 1 date from overriding the correct date
+      console.log('🚫 Location-based Islamic date calculation temporarily disabled');
+      return null;
+      
+      // Original code (commented out for now):
+      /*
       const hijriService = HijriService.getInstance();
       const hijriDate = await hijriService.getCurrentHijriDate();
       
@@ -535,6 +542,7 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
       }
       
       return null;
+      */
     } catch (error) {
       console.error('❌ Error getting location-based Islamic date:', error);
       return null;
@@ -544,8 +552,16 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
   // Get location-based date information
   const getLocationBasedDate = async () => {
     try {
+      // TEMPORARILY DISABLE location-based date calculation
+      // This prevents the wrong Muharram 1 date from overriding the correct date
+      console.log('🚫 Location-based date calculation temporarily disabled');
+      return null;
+      
+      // Original code (commented out for now):
+      /*
       const hijriService = HijriService.getInstance();
       return await hijriService.getCurrentHijriDate();
+      */
     } catch (error) {
       console.error('❌ Error getting location-based date:', error);
       return null;
