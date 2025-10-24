@@ -44,7 +44,7 @@ const translations = {
     'common.previous': 'Previous',
     
     // Home Screen
-    'home.welcome': 'Welcome to Tijaniyah Pro',
+    'home.welcome': 'Welcome to Tijaniyah Muslim Pro',
     'home.prayer_times': 'Prayer Times',
     'home.qibla_direction': 'Qibla Direction',
     'home.quran_reading': 'Quran Reading',

@@ -130,7 +130,7 @@ export default function GuestModeScreen({ navigation }: GuestModeScreenProps) {
             <View style={styles.logoContainer}>
               <Image source={require('../../assets/appicon.png')} style={styles.logo} />
             </View>
-            <Text style={styles.title}>Welcome to Tijaniyah Pro</Text>
+            <Text style={styles.title}>Welcome to Tijaniyah Muslim Pro</Text>
             <Text style={styles.subtitle}>Explore Islamic features as a guest</Text>
           </View>
 
