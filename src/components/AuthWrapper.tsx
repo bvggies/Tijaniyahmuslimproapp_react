@@ -20,7 +20,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
             <View style={styles.logoContainer}>
               <Image source={require('../../assets/appicon.png')} style={styles.logo} />
             </View>
-            <Text style={styles.appName}>Tijaniyah Pro</Text>
+            <Text style={styles.appName}>Tijaniyah Muslim Pro</Text>
             <ActivityIndicator size="large" color={colors.accentTeal} style={styles.loader} />
             <Text style={styles.loadingText}>Loading your spiritual journey...</Text>
           </View>

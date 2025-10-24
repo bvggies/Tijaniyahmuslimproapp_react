@@ -45,7 +45,7 @@ jobs:
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: tijaniyah-pro-apk
+        name: tijaniyah-muslim-pro-apk
         path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 30
         
@@ -54,9 +54,9 @@ jobs:
       with:
         files: android/app/build/outputs/apk/release/app-release.apk
         tag_name: v1.0.0
-        name: Tijaniyah Pro v1.0.0
+        name: Tijaniyah Muslim Pro v1.0.0
         body: |
-          🕌 **Tijaniyah Pro - Final Release**
+          🕌 **Tijaniyah Muslim Pro - Final Release**
           
           ## Features
           - ✅ Prayer Times with Location Detection

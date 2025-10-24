@@ -65,7 +65,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             <View style={styles.logoContainer}>
               <Image source={require('../../assets/appicon.png')} style={styles.logo} />
             </View>
-            <Text style={styles.title}>Tijaniyah Pro</Text>
+            <Text style={styles.title}>Tijaniyah Muslim Pro</Text>
             <Text style={styles.subtitle}>Welcome back to your spiritual journey</Text>
           </View>
 

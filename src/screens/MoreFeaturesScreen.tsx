@@ -327,7 +327,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
         <View style={styles.appInfoCard}>
           <Ionicons name="information-circle" size={24} color={colors.accentTeal} />
           <View style={styles.appInfoContent}>
-            <Text style={styles.appInfoTitle}>Tijaniyah Pro</Text>
+            <Text style={styles.appInfoTitle}>Tijaniyah Muslim Pro</Text>
             <Text style={styles.appInfoDescription}>
               Your comprehensive Islamic companion app with all the tools you need for spiritual growth and daily practice.
             </Text>

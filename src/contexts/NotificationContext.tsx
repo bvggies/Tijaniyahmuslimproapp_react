@@ -88,7 +88,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const sendTestNotification = async (): Promise<void> => {
     try {
       await notificationService.sendImmediateNotification(
-        '🕌 Tijaniyah Pro',
+        '🕌 Tijaniyah Muslim Pro',
         'This is a test notification from your Islamic app!',
         { type: 'test' }
       );
