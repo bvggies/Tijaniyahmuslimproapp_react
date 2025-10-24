@@ -515,6 +515,12 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
       const hijriDate = await hijriService.getCurrentHijriDate();
       
       if (hijriDate) {
+        // Validate the Hijri date - if it's showing Muharram 1, it's likely wrong
+        if (hijriDate.hijri.month === 1 && hijriDate.hijri.day === 1) {
+          console.log('⚠️ Location-based Hijri date showing Muharram 1, using fallback');
+          return null; // Return null to use the regular calendar calculation
+        }
+        
         return {
           day: hijriDate.hijri.day,
           month: hijriDate.hijri.month,

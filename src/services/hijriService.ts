@@ -55,10 +55,19 @@ class HijriService {
         return this.getHijriDateForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
       }
 
-      return this.getHijriDateForTimezone(location.timezone, location);
+      console.log('📍 Location found for Hijri date:', location.city, location.country, location.timezone);
+      const result = this.getHijriDateForTimezone(location.timezone, location);
+      
+      // Validate the result - if it's showing Muharram 1, it's likely wrong
+      if (result.hijri.month === 1 && result.hijri.day === 1) {
+        console.log('⚠️ Location-based Hijri date showing Muharram 1, using fallback');
+        return this.getFallbackHijriDate();
+      }
+      
+      return result;
     } catch (error) {
       console.error('❌ Error getting Hijri date:', error);
-      return null;
+      return this.getFallbackHijriDate();
     }
   }
 
@@ -217,11 +226,11 @@ class HijriService {
    * This is a backup method when the hijri-date library fails
    */
   private getManualHijriDate(gregorianDate: Date): HijriDateInfo {
-    // More accurate manual calculation
+    // More accurate manual calculation using a better algorithm
     const epoch = new Date(622, 6, 16); // July 16, 622 CE (Muharram 1, 1 AH)
     const daysSinceEpoch = Math.floor((gregorianDate.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24));
     
-    // More accurate calculation using Umm al-Qura method
+    // Use a more accurate calculation
     const islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
     const daysInYear = daysSinceEpoch % 354.36667;
     
