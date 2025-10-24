@@ -22,6 +22,7 @@ import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
+import HijriService from '../services/hijriService';
 import IslamicBackground from '../components/IslamicBackground';
 import ProfileAvatar from '../components/ProfileAvatar';
 import NewsSection from '../components/NewsSection';
@@ -50,10 +51,16 @@ export default function HomeScreen({ navigation }: any) {
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Location-based date and time
+  const [locationBasedDate, setLocationBasedDate] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<any>(null);
+  const [localTime, setLocalTime] = useState<string>('');
   // Azan mini player state
   const [selectedAzanId, setSelectedAzanId] = useState<'makkah' | 'istanbul' | null>(null);
   const [isAzanPlaying, setIsAzanPlaying] = useState(false);
   const azanSoundRef = useRef<Audio.Sound | null>(null);
+  const [openHajj, setOpenHajj] = useState<'live' | 'guide' | 'journey' | null>(null);
 
   const azanOptions = [
     {
@@ -71,8 +78,16 @@ export default function HomeScreen({ navigation }: any) {
   // Animation refs
 
   useEffect(() => {
+    console.log('🚀 HomeScreen: Starting location and prayer time loading...');
     loadLocationAndPrayerTimes();
+    loadLocationBasedDateTime();
     loadDailyReminder();
+    
+    // Test location service after a short delay
+    setTimeout(() => {
+      testLocationService();
+    }, 2000);
+    
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
@@ -124,8 +139,14 @@ export default function HomeScreen({ navigation }: any) {
 
     return () => {
       if (azanSoundRef.current) {
-        azanSoundRef.current.unloadAsync().catch(() => {});
+        try {
+          azanSoundRef.current.stopAsync();
+          azanSoundRef.current.unloadAsync();
+        } catch (error) {
+          console.log('Error cleaning up azan audio:', error);
+        }
         azanSoundRef.current = null;
+        setIsAzanPlaying(false);
       }
     };
   }, []);
@@ -166,14 +187,29 @@ export default function HomeScreen({ navigation }: any) {
         });
       } catch {}
 
-      const { sound } = await Audio.Sound.createAsync(option.file, { shouldPlay: true, volume: 1.0 });
+      const { sound } = await Audio.Sound.createAsync(option.file, { 
+        shouldPlay: true, 
+        volume: 0.5, // Reduced volume to prevent issues
+        isLooping: false // Ensure no looping
+      });
       azanSoundRef.current = sound;
       setIsAzanPlaying(true);
       sound.setOnPlaybackStatusUpdate((status: any) => {
         if (status && status.didJustFinish) {
           setIsAzanPlaying(false);
+          sound.unloadAsync();
+          azanSoundRef.current = null;
         }
       });
+
+      // Auto-unload after 30 seconds to prevent hanging
+      setTimeout(() => {
+        if (azanSoundRef.current) {
+          azanSoundRef.current.unloadAsync();
+          azanSoundRef.current = null;
+          setIsAzanPlaying(false);
+        }
+      }, 30000);
     } catch (e) {
       setIsAzanPlaying(false);
       Alert.alert('Azan', 'Unable to play audio');
@@ -215,24 +251,33 @@ export default function HomeScreen({ navigation }: any) {
   const loadLocationAndPrayerTimes = async () => {
     try {
       const locationService = LocationService.getInstance();
-      const locationData = await locationService.getCurrentLocation();
+      const userLocation = await locationService.getUserLocation();
       
-      if (!locationData) {
-        console.log('Unable to get location data');
+      if (!userLocation) {
+        console.log('Unable to get location data, using fallback');
+        // Fallback to default location (Makkah)
+        const fallbackLocation = {
+          latitude: 21.3891,
+          longitude: 39.8579,
+          city: 'Makkah',
+          country: 'Saudi Arabia',
+        };
+        setCurrentLocation(fallbackLocation);
+        
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
         return;
       }
 
-      const { coordinates, address } = locationData;
-
       setCurrentLocation({
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        city: address.city,
-        country: address.country,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        city: userLocation.city,
+        country: userLocation.country,
       });
 
       // Get prayer times using location coordinates
-      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude, timeFormat);
+      const times = await getPrayerTimes(userLocation.latitude, userLocation.longitude, timeFormat);
       setPrayerTimes(times);
 
       // Schedule prayer notifications
@@ -240,20 +285,89 @@ export default function HomeScreen({ navigation }: any) {
       await notificationService.schedulePrayerNotifications(times);
 
       // Update Islamic date with location coordinates
-      const locationBasedIslamicDate = getCurrentIslamicDate(coordinates.latitude, coordinates.longitude);
+      const locationBasedIslamicDate = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
       setIslamicDate(locationBasedIslamicDate);
 
       // Store timezone and load daily reminder
-      setCurrentTimezone(locationData.timezone);
-      loadDailyReminder(locationData.timezone);
+      setCurrentTimezone(userLocation.timezone);
+      loadDailyReminder(userLocation.timezone);
+      
+      console.log('✅ Location and prayer times loaded successfully:', userLocation.city, userLocation.country);
     } catch (error) {
-      console.error('Error loading location and prayer times:', error);
+      console.error('❌ Error loading location and prayer times:', error);
+      
+      // Fallback to default location
+      const fallbackLocation = {
+        latitude: 21.3891,
+        longitude: 39.8579,
+        city: 'Makkah',
+        country: 'Saudi Arabia',
+      };
+      setCurrentLocation(fallbackLocation);
+      
+      try {
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
+        console.log('✅ Using fallback location (Makkah)');
+      } catch (fallbackError) {
+        console.error('❌ Error with fallback location:', fallbackError);
+      }
     }
   };
 
   const loadDailyReminder = (timezone?: string) => {
     const reminder = getDailyReminder(timezone);
     setDailyReminder(reminder);
+  };
+
+  // Load location-based date and time
+  const loadLocationBasedDateTime = async () => {
+    try {
+      console.log('🌙 HomeScreen: Loading location-based date and time...');
+      const locationService = LocationService.getInstance();
+      const hijriService = HijriService.getInstance();
+      
+      // Get user location
+      const location = await locationService.getUserLocation();
+      if (location) {
+        setUserLocation(location);
+        console.log('📍 Location detected for date/time:', location.city, location.country);
+      } else {
+        console.log('⚠️ No location available for date/time');
+      }
+      
+      // TEMPORARILY DISABLE location-based Hijri date to prevent wrong date override
+      // TODO: Fix the HijriService to return correct dates before re-enabling
+      console.log('🚫 Location-based Hijri date temporarily disabled to prevent wrong date override');
+      
+      // Get local time
+      const localTimeString = locationService.getLocalTime();
+      setLocalTime(localTimeString);
+      console.log('🕐 Local time:', localTimeString);
+      
+    } catch (error) {
+      console.error('❌ Error loading location-based date/time:', error);
+    }
+  };
+
+  // Test location service manually
+  const testLocationService = async () => {
+    try {
+      console.log('🧪 Testing location service...');
+      const locationService = LocationService.getInstance();
+      
+      // Test getting location
+      const location = await locationService.getUserLocation();
+      console.log('🧪 Location result:', location);
+      
+      if (location) {
+        console.log('✅ Location service working:', location.city, location.country);
+      } else {
+        console.log('❌ Location service not working');
+      }
+    } catch (error) {
+      console.error('❌ Location service test failed:', error);
+    }
   };
 
   // Determine current and next prayers from flags maintained by prayerService
@@ -898,7 +1012,7 @@ export default function HomeScreen({ navigation }: any) {
                     {getCountryFlag(currentLocation?.country)}
                   </Text>
                   <Text style={styles.locationText}>
-                    {currentLocation ? `${currentLocation.city}, ${currentLocation.country}` : 'Loading...'}
+                    {currentLocation ? `${currentLocation.city}, ${currentLocation.country}` : 'Detecting location...'}
                   </Text>
               </View>
             </View>
@@ -928,15 +1042,32 @@ export default function HomeScreen({ navigation }: any) {
               <Ionicons name="chevron-forward" size={16} color={colors.textDark} style={styles.calendarChevron} />
             </View>
             <View style={styles.calendarContent}>
-              <Text style={[styles.hijriDate, { color: colors.textDark }]}>
-                {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
-              </Text>
-              <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
-              {new Date().toLocaleDateString()} — {formatTimeWithSeconds(currentTime)}
-              </Text>
-              <Text style={[styles.dayName, { color: colors.textDark }]}>
-                {islamicDate.dayNameArabic} - {islamicDate.dayName}
-              </Text>
+              {/* Location-based Hijri date */}
+              {locationBasedDate ? (
+                <>
+                  <Text style={[styles.hijriDate, { color: colors.textDark }]}>
+                    {locationBasedDate.hijri.day} {locationBasedDate.hijri.monthName} {locationBasedDate.hijri.year} AH
+                  </Text>
+                  <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
+                    {locationBasedDate.gregorian.fullDate} — {locationBasedDate.localTime}
+                  </Text>
+                  <Text style={[styles.dayName, { color: colors.textDark }]}>
+                    {locationBasedDate.hijri.dayName} - {locationBasedDate.location.city}, {locationBasedDate.location.country}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.hijriDate, { color: colors.textDark }]}>
+                    {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
+                  </Text>
+                  <Text style={[styles.gregorianDate, { color: colors.textDark }]}>
+                    {new Date().toLocaleDateString()} — {formatTimeWithSeconds(currentTime)}
+                  </Text>
+                  <Text style={[styles.dayName, { color: colors.textDark }]}>
+                    {islamicDate.dayNameArabic} - {islamicDate.dayName}
+                  </Text>
+                </>
+              )}
               {islamicDate.isHoliday && (
                 <Text style={[styles.holidayText, { color: colors.accentTeal }]}>
                   {islamicDate.holidayName}
@@ -1146,6 +1277,55 @@ export default function HomeScreen({ navigation }: any) {
               </Animated.View>
             ))}
           </ScrollView>
+        </View>
+
+        {/* Hajj Section Quick Access */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Hajj</Text>
+          <View style={styles.hajjQuickRow}>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='live'?null:'live')}>
+              <Ionicons name="videocam" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Watch Live</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='guide'?null:'guide')}>
+              <Ionicons name="walk" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Hajj Guide</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.hajjQuickBtn} onPress={() => setOpenHajj(prev => prev==='journey'?null:'journey')}>
+              <Ionicons name="map" size={22} color={colors.accentTeal} />
+              <Text style={styles.hajjQuickText}>Journey</Text>
+            </TouchableOpacity>
+          </View>
+          {openHajj === 'live' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Makkah Live</Text>
+              <Text style={styles.hajjDropdownText}>24/7 HD stream of the Kaaba with prayer times and special events. Virtually connect to Masjid al‑Haram.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'Makkah Live' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {openHajj === 'guide' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Hajj & Umrah</Text>
+              <Text style={styles.hajjDropdownText}>Step‑by‑step rites, essential duas, packing list, visa info, health & safety tips, and FAQs.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'HajjUmrah' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {openHajj === 'journey' && (
+            <View style={styles.hajjDropdownCard}>
+              <Text style={styles.hajjDropdownTitle}>Hajj Journey</Text>
+              <Text style={styles.hajjDropdownText}>Day‑by‑day timeline with reminders, mark‑done checklist, and quick map links to key locations.</Text>
+              <TouchableOpacity style={styles.hajjCta} onPress={() => navigation.navigate('More', { screen: 'HajjJourney' })}>
+                <Ionicons name="open-outline" size={16} color={colors.accentTeal} />
+                <Text style={styles.hajjCtaText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Daily Reminder */}
@@ -1843,6 +2023,14 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 16,
   },
+  hajjQuickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 },
+  hajjQuickBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.accentTeal + '66', backgroundColor: colors.surface },
+  hajjQuickText: { color: colors.textPrimary, fontWeight: '700', fontSize: 12 },
+  hajjDropdownCard: { marginTop: 8, backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.divider, padding: 12 },
+  hajjDropdownTitle: { color: colors.textPrimary, fontWeight: '700', fontSize: 14, marginBottom: 4 },
+  hajjDropdownText: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+  hajjCta: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.accentTeal + '66', borderRadius: 10, paddingVertical: 6, paddingHorizontal: 10, marginTop: 8 },
+  hajjCtaText: { color: colors.accentTeal, fontWeight: '700' },
   prayerTimesContainer: {
     backgroundColor: colors.surface,
     borderRadius: 16,

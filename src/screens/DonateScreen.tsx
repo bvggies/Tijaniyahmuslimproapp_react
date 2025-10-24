@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   TextInput, 
   Alert,
-  Linking 
+  Linking,
+  Image 
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -111,6 +112,56 @@ export default function DonateScreen() {
           <TouchableOpacity onPress={() => copyToClipboard('Tijaniya App Support')}>
             <Text style={styles.referenceValue}>Tijaniya App Support</Text>
           </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* SHEIKH ABDULLAHI MAIKANO EDUCATIONAL COMPLEX Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>SHEIKH ABDULLAHI MAIKANO EDUCATIONAL COMPLEX</Text>
+        <Text style={styles.sectionSubtitle}>Supporting educational development and Islamic learning</Text>
+        
+        <View style={styles.imageContainer}>
+          <Image 
+            source={require('../../assets/SHEIKH ABDULLAHI MAIKANO EDUCATIONAL COMPLEX1.jpg')} 
+            style={styles.educationalImage}
+            resizeMode="cover"
+          />
+        </View>
+        
+        <View style={styles.imageContainer}>
+          <Image 
+            source={require('../../assets/SHEIKH ABDULLAHI MAIKANO EDUCATIONAL COMPLEX2.jpg')} 
+            style={styles.educationalImage}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
+
+      {/* Procedure to Donate Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Procedure to Donate</Text>
+        <Text style={styles.sectionSubtitle}>Follow these simple steps to make your donation</Text>
+        
+        <View style={styles.imageContainer}>
+          <Image 
+            source={require('../../assets/proceedure.jpg')} 
+            style={styles.procedureImage}
+            resizeMode="contain"
+          />
+        </View>
+      </View>
+
+      {/* Bank Account Details Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Bank Account Details</Text>
+        <Text style={styles.sectionSubtitle}>Alternative banking options for your donations</Text>
+        
+        <View style={styles.imageContainer}>
+          <Image 
+            source={require('../../assets/bankaccount.jpg')} 
+            style={styles.bankImage}
+            resizeMode="contain"
+          />
         </View>
       </View>
 
@@ -331,5 +382,35 @@ const styles = StyleSheet.create({
     lineHeight: 16, 
     marginLeft: 8, 
     flex: 1 
+  },
+  
+  // Image section styles
+  imageContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.divider,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  educationalImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+  },
+  procedureImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: 8,
+  },
+  bankImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: 8,
   },
 });

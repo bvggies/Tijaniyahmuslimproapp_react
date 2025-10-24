@@ -55,34 +55,76 @@ export default function PrayerTimesScreen() {
   const loadPrayerTimes = async () => {
     try {
       setLoading(true);
-      const locationService = LocationService.getInstance();
-      const locationData = await locationService.getCurrentLocation();
+      console.log('🕌 PrayerTimesScreen: Loading prayer times...');
       
-      if (!locationData) {
-        Alert.alert('Location Required', 'Location permission is needed to calculate accurate prayer times.');
+      const locationService = LocationService.getInstance();
+      const userLocation = await locationService.getUserLocation();
+      
+      if (!userLocation) {
+        console.log('⚠️ No location available, using fallback (Makkah)');
+        // Fallback to Makkah coordinates
+        const fallbackLocation = {
+          latitude: 21.3891,
+          longitude: 39.8579,
+          city: 'Makkah',
+          country: 'Saudi Arabia',
+        };
+        setCurrentLocation(fallbackLocation);
+        setTimezone('Asia/Riyadh');
+        
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
+        
+        // Islamic date (location-aware)
+        const islamic = getCurrentIslamicDate(fallbackLocation.latitude, fallbackLocation.longitude);
+        setHijriDisplay(`${islamic.hijriDate}`);
         return;
       }
 
-      const { coordinates, address } = locationData;
+      console.log('📍 Location found:', userLocation.city, userLocation.country);
 
       setCurrentLocation({
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        city: address.city,
-        country: address.country,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        city: userLocation.city,
+        country: userLocation.country,
       });
-      setTimezone(locationData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
+      setTimezone(userLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
 
       // Get prayer times using location coordinates
-      const times = await getPrayerTimes(coordinates.latitude, coordinates.longitude, timeFormat);
+      console.log('🕌 Getting prayer times for:', userLocation.latitude, userLocation.longitude);
+      const times = await getPrayerTimes(userLocation.latitude, userLocation.longitude, timeFormat);
       setPrayerTimes(times);
+      console.log('✅ Prayer times loaded successfully');
 
       // Islamic date (location-aware)
-      const islamic = getCurrentIslamicDate(coordinates.latitude, coordinates.longitude);
+      const islamic = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
       setHijriDisplay(`${islamic.hijriDate}`);
     } catch (error) {
-      console.error('Error loading prayer times:', error);
-      Alert.alert('Error', 'Failed to load prayer times. Please try again.');
+      console.error('❌ Error loading prayer times:', error);
+      
+      // Try fallback to Makkah
+      try {
+        console.log('🔄 Trying fallback to Makkah...');
+        const fallbackLocation = {
+          latitude: 21.3891,
+          longitude: 39.8579,
+          city: 'Makkah',
+          country: 'Saudi Arabia',
+        };
+        setCurrentLocation(fallbackLocation);
+        setTimezone('Asia/Riyadh');
+        
+        const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
+        setPrayerTimes(times);
+        
+        const islamic = getCurrentIslamicDate(fallbackLocation.latitude, fallbackLocation.longitude);
+        setHijriDisplay(`${islamic.hijriDate}`);
+        console.log('✅ Fallback prayer times loaded');
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+        Alert.alert('Error', 'Failed to load prayer times. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

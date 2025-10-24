@@ -19,6 +19,8 @@ model User {
   comments     CommunityComment[]
   likes        CommunityLike[]
   journals     JournalEntry[]
+  conversations Conversation[] @relation("ConversationParticipants")
+  sentMessages Message[]
 }
 
 model CommunityPost {
@@ -68,4 +70,28 @@ model JournalEntry {
   updatedAt DateTime @updatedAt
 
   @@index([userId, createdAt])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  participants User[] @relation("ConversationParticipants")
+  messages  Message[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  messageType    String       @default("text") // text, image, file
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
 }

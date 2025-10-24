@@ -3,13 +3,14 @@ import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { PrayerTime } from '../types';
+import { Audio } from 'expo-av';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: true,
+    shouldPlaySound: false, // Disable sound by default to prevent loops
     shouldSetBadge: false,
   }),
 });
@@ -25,6 +26,8 @@ export interface NotificationSettings {
     dhikr: boolean;
     dua: boolean;
     wazifa: boolean;
+    hajjReminders: boolean;
+    qiblaUpdates: boolean;
   };
 }
 
@@ -33,7 +36,7 @@ export interface ScheduledNotification {
   title: string;
   body: string;
   scheduledTime: Date;
-  type: 'prayer' | 'reminder' | 'islamic_event';
+  type: 'prayer' | 'reminder' | 'islamic_event' | 'hajj' | 'qibla';
   data?: any;
 }
 
@@ -50,6 +53,8 @@ class NotificationService {
       dhikr: true,
       dua: true,
       wazifa: true,
+      hajjReminders: true,
+      qiblaUpdates: true,
     },
   };
 
@@ -103,7 +108,7 @@ class NotificationService {
     }
   }
 
-  // Schedule prayer time notifications
+  // Schedule prayer time notifications with Azan audio
   async schedulePrayerNotifications(prayerTimes: PrayerTime[]): Promise<void> {
     if (!this.settings.prayerNotifications) return;
 
@@ -122,7 +127,88 @@ class NotificationService {
           body: `It's time for ${prayer.name} prayer. May Allah accept your prayers.`,
           scheduledTime: prayerTime,
           type: 'prayer',
-          data: { prayerName: prayer.name, prayerTime: prayer.time },
+          data: { prayerName: prayer.name, prayerTime: prayer.time, playAzan: true },
+        });
+      }
+    }
+  }
+
+  // Schedule Hajj journey step reminders
+  async scheduleHajjJourneyReminders(): Promise<void> {
+    if (!this.settings.reminderTypes.hajjReminders) return;
+
+    // Cancel existing Hajj notifications
+    await this.cancelHajjNotifications();
+
+    const hajjSteps = [
+      {
+        id: 'hajj_ihram',
+        title: '🕋 Enter Ihram',
+        body: 'Time to enter the state of Ihram for Hajj. Recite the Talbiyah.',
+        daysBeforeHajj: 1,
+      },
+      {
+        id: 'hajj_arafat',
+        title: '🏔️ Day of Arafat',
+        body: 'Today is the Day of Arafat. Stand at Mount Arafat and make dua.',
+        daysBeforeHajj: 0,
+      },
+      {
+        id: 'hajj_muzdalifah',
+        title: '🌙 Muzdalifah',
+        body: 'Spend the night at Muzdalifah and collect pebbles for Jamarat.',
+        daysBeforeHajj: 0,
+      },
+      {
+        id: 'hajj_ramy',
+        title: '🎯 Stoning of Jamarat',
+        body: 'Perform the stoning of the Jamarat pillars.',
+        daysBeforeHajj: -1,
+      },
+    ];
+
+    // Calculate Hajj dates (simplified - in real app, use Islamic calendar)
+    const hajjStartDate = this.getHajjStartDate();
+
+    for (const step of hajjSteps) {
+      const scheduledTime = new Date(hajjStartDate);
+      scheduledTime.setDate(scheduledTime.getDate() + step.daysBeforeHajj);
+      scheduledTime.setHours(6, 0, 0, 0); // 6 AM reminder
+
+      if (scheduledTime > new Date()) {
+        await this.scheduleNotification({
+          id: step.id,
+          title: step.title,
+          body: step.body,
+          scheduledTime,
+          type: 'hajj',
+          data: { hajjStep: step.id },
+        });
+      }
+    }
+  }
+
+  // Schedule Qibla direction change notifications
+  async scheduleQiblaNotifications(): Promise<void> {
+    if (!this.settings.reminderTypes.qiblaUpdates) return;
+
+    // Cancel existing Qibla notifications
+    await this.cancelQiblaNotifications();
+
+    // Schedule Qibla reminder every 6 hours when traveling
+    const now = new Date();
+    for (let i = 0; i < 4; i++) {
+      const scheduledTime = new Date(now);
+      scheduledTime.setHours(now.getHours() + (i * 6), 0, 0, 0);
+
+      if (scheduledTime > now) {
+        await this.scheduleNotification({
+          id: `qibla_reminder_${i}`,
+          title: '🧭 Qibla Direction',
+          body: 'Check your Qibla direction for accurate prayer orientation.',
+          scheduledTime,
+          type: 'qibla',
+          data: { reminderType: 'qibla_check' },
         });
       }
     }
@@ -168,6 +254,12 @@ class NotificationService {
         title: '📿 Wazifa Reminder',
         body: 'Continue your daily wazifa and spiritual practices.',
         enabled: this.settings.reminderTypes.wazifa,
+      },
+      {
+        id: 'daily_hajj_prep',
+        title: '🕋 Hajj Preparation',
+        body: 'Review your Hajj checklist and spiritual preparation.',
+        enabled: this.settings.reminderTypes.hajjReminders,
       },
     ];
 
@@ -253,9 +345,27 @@ class NotificationService {
     }
   }
 
+  // Cancel Hajj notifications
+  async cancelHajjNotifications(): Promise<void> {
+    const hajjIds = ['hajj_ihram', 'hajj_arafat', 'hajj_muzdalifah', 'hajj_ramy'];
+    
+    for (const id of hajjIds) {
+      await Notifications.cancelScheduledNotificationAsync(id);
+    }
+  }
+
+  // Cancel Qibla notifications
+  async cancelQiblaNotifications(): Promise<void> {
+    const qiblaIds = ['qibla_reminder_0', 'qibla_reminder_1', 'qibla_reminder_2', 'qibla_reminder_3'];
+    
+    for (const id of qiblaIds) {
+      await Notifications.cancelScheduledNotificationAsync(id);
+    }
+  }
+
   // Cancel reminder notifications
   async cancelReminderNotifications(): Promise<void> {
-    const reminderIds = ['daily_quran', 'daily_dhikr', 'daily_dua', 'daily_wazifa'];
+    const reminderIds = ['daily_quran', 'daily_dhikr', 'daily_dua', 'daily_wazifa', 'daily_hajj_prep'];
     
     for (const id of reminderIds) {
       await Notifications.cancelScheduledNotificationAsync(id);
@@ -299,6 +409,47 @@ class NotificationService {
     return await Notifications.getAllScheduledNotificationsAsync();
   }
 
+  // Play Azan audio for prayer notifications
+  async playAzanAudio(): Promise<void> {
+    try {
+      // Check if sound is enabled in settings
+      if (!this.settings.soundEnabled) {
+        return;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        require('../../assets/audio/azan/makkah.mp3'),
+        { 
+          shouldPlay: true, 
+          volume: 0.5, // Reduced volume to prevent issues
+          isLooping: false // Ensure no looping
+        }
+      );
+      
+      sound.setOnPlaybackStatusUpdate((status: any) => {
+        if (status && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+
+      // Auto-unload after 30 seconds to prevent hanging
+      setTimeout(() => {
+        sound.unloadAsync();
+      }, 30000);
+    } catch (error) {
+      console.error('Error playing Azan audio:', error);
+    }
+  }
+
+  // Get Hajj start date (simplified calculation)
+  private getHajjStartDate(): Date {
+    // In a real app, calculate based on Islamic calendar
+    // For now, return a placeholder date
+    const hajjDate = new Date();
+    hajjDate.setMonth(hajjDate.getMonth() + 6); // 6 months from now
+    return hajjDate;
+  }
+
   // Send immediate notification (for testing)
   async sendImmediateNotification(title: string, body: string, data?: any): Promise<void> {
     await Notifications.scheduleNotificationAsync({
@@ -310,6 +461,38 @@ class NotificationService {
       },
       trigger: null, // Immediate
     });
+  }
+
+  // Emergency: Stop all audio and clear all notifications
+  async emergencyStop(): Promise<void> {
+    try {
+      // Cancel all scheduled notifications
+      await this.cancelAllNotifications();
+      
+      // Stop all audio playback
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: false,
+        playsInSilentModeIOS: false,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+      
+      console.log('Emergency stop: All notifications and audio stopped');
+    } catch (error) {
+      console.error('Error in emergency stop:', error);
+    }
+  }
+
+  // Disable all notifications temporarily
+  async disableAllNotifications(): Promise<void> {
+    this.settings.prayerNotifications = false;
+    this.settings.reminderNotifications = false;
+    this.settings.soundEnabled = false;
+    this.settings.vibrationEnabled = false;
+    
+    await this.cancelAllNotifications();
+    console.log('All notifications disabled');
   }
 }
 

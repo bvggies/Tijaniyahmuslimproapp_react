@@ -450,8 +450,8 @@ export default function ProfileScreen({ navigation }: any) {
         style={styles.actionButton}
         onPress={() => {
           Alert.alert(
-            'About Tijaniyah Pro',
-            'Version: 1.0.0\n\nTijaniyah Pro is a comprehensive Islamic app for followers of the Tijaniyya Tariqa. It provides prayer times, Qibla direction, Islamic calendar, and spiritual guidance.\n\n© 2024 Tijaniyah Pro. All rights reserved.',
+            'About Tijaniyah Muslim Pro',
+            'Version: 1.0.0\n\nTijaniyah Muslim Pro is a comprehensive Islamic app for followers of the Tijaniyya Tariqa. It provides prayer times, Qibla direction, Islamic calendar, and spiritual guidance.\n\n© 2024 Tijaniyah Muslim Pro. All rights reserved.',
             [{ text: 'OK' }]
           );
         }}

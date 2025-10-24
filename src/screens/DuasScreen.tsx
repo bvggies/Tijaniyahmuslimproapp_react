@@ -23,6 +23,8 @@ const mockDuas: Dua[] = [
     arabic: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ',
     transliteration: 'Asbahna wa asbahal mulku lillah',
     translation: 'We have reached the morning and the dominion belongs to Allah',
+    frenchTranslation: 'Nous avons atteint le matin et la souveraineté appartient à Allah',
+    hausaTranslation: 'Mun isa safe kuma mulki na Allah ne',
     category: 'Morning',
   },
   {
@@ -31,6 +33,8 @@ const mockDuas: Dua[] = [
     arabic: 'اللَّهُمَّ أَصْبَحْنَا نُشْهِدُكَ وَنُشْهِدُ حَمَلَةَ عَرْشِكَ',
     transliteration: 'Allahumma asbahna nushhiduka wa nushhidu hamalata arshika',
     translation: 'O Allah, we have reached the morning and bear witness to You and the bearers of Your Throne',
+    frenchTranslation: 'Ô Allah, nous avons atteint le matin et témoignons de Toi et des porteurs de Ton Trône',
+    hausaTranslation: 'Ya Allah, mun isa safe kuma muna shaida a gare ka da masu ɗaukar kursiyinka',
     category: 'Morning',
   },
   
@@ -41,6 +45,8 @@ const mockDuas: Dua[] = [
     arabic: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ',
     transliteration: 'Amsayna wa amsal mulku lillah',
     translation: 'We have reached the evening and the dominion belongs to Allah',
+    frenchTranslation: 'Nous avons atteint le soir et la souveraineté appartient à Allah',
+    hausaTranslation: 'Mun isa yamma kuma mulki na Allah ne',
     category: 'Evening',
   },
   {
@@ -49,6 +55,8 @@ const mockDuas: Dua[] = [
     arabic: 'اللَّهُمَّ أَمْسَيْنَا نُشْهِدُكَ وَنُشْهِدُ حَمَلَةَ عَرْشِكَ',
     transliteration: 'Allahumma amsayna nushhiduka wa nushhidu hamalata arshika',
     translation: 'O Allah, we have reached the evening and bear witness to You and the bearers of Your Throne',
+    frenchTranslation: 'Ô Allah, nous avons atteint le soir et témoignons de Toi et des porteurs de Ton Trône',
+    hausaTranslation: 'Ya Allah, mun isa yamma kuma muna shaida a gare ka da masu ɗaukar kursiyinka',
     category: 'Evening',
   },
   
@@ -59,6 +67,8 @@ const mockDuas: Dua[] = [
     arabic: 'بِسْمِ اللَّهِ',
     transliteration: 'Bismillah',
     translation: 'In the name of Allah',
+    frenchTranslation: 'Au nom d\'Allah',
+    hausaTranslation: 'Da sunan Allah',
     category: 'Eating',
   },
   {
@@ -67,6 +77,8 @@ const mockDuas: Dua[] = [
     arabic: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا',
     transliteration: 'Alhamdulillahil lathee at\'amana wa saqana',
     translation: 'Praise be to Allah who fed us and gave us drink',
+    frenchTranslation: 'Louange à Allah qui nous a nourris et nous a donné à boire',
+    hausaTranslation: 'Godiya ga Allah wanda ya ciyar da mu kuma ya ba mu ruwa',
     category: 'Eating',
   },
   {
@@ -75,6 +87,8 @@ const mockDuas: Dua[] = [
     arabic: 'بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ',
     transliteration: 'Bismillahi awwalahu wa akhirahu',
     translation: 'In the name of Allah at its beginning and end',
+    frenchTranslation: 'Au nom d\'Allah à son début et à sa fin',
+    hausaTranslation: 'Da sunan Allah a farkonsa da ƙarshensa',
     category: 'Eating',
   },
   
@@ -85,6 +99,8 @@ const mockDuas: Dua[] = [
     arabic: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا',
     transliteration: 'Subhanallathee sakhkhara lana hadha',
     translation: 'Glory to Him who has subjected this to us',
+    frenchTranslation: 'Gloire à Celui qui nous a soumis cela',
+    hausaTranslation: 'Tsarki ga wanda ya sanya wannan a hannunmu',
     category: 'Travel',
   },
   {
@@ -93,6 +109,8 @@ const mockDuas: Dua[] = [
     arabic: 'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ',
     transliteration: 'Bismillahi tawakkaltu ala Allah',
     translation: 'In the name of Allah, I place my trust in Allah',
+    frenchTranslation: 'Au nom d\'Allah, je place ma confiance en Allah',
+    hausaTranslation: 'Da sunan Allah, na dora amanata a kan Allah',
     category: 'Travel',
   },
   {
@@ -101,6 +119,8 @@ const mockDuas: Dua[] = [
     arabic: 'آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ',
     transliteration: 'Aibuna taibuna abiduna li rabbina hamidun',
     translation: 'We return, repentant, worshipping our Lord, praising',
+    frenchTranslation: 'Nous revenons, repentants, adorant notre Seigneur, louant',
+    hausaTranslation: 'Muna dawowa, masu tuba, masu bauta wa Ubangijinmu, masu yabon',
     category: 'Travel',
   },
   
@@ -111,6 +131,8 @@ const mockDuas: Dua[] = [
     arabic: 'اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ',
     transliteration: 'Allahumma ba\'id bayni wa bayna khataayaya',
     translation: 'O Allah, distance me from my sins',
+    frenchTranslation: 'Ô Allah, éloigne-moi de mes péchés',
+    hausaTranslation: 'Ya Allah, ka nisanta ni da zunubanku',
     category: 'Prayer',
   },
   {
@@ -119,6 +141,8 @@ const mockDuas: Dua[] = [
     arabic: 'أَسْتَغْفِرُ اللَّهَ الَّذِي لَا إِلَهَ إِلَّا هُوَ',
     transliteration: 'Astaghfirullah allathee la ilaha illa huwa',
     translation: 'I seek forgiveness from Allah, there is no god but He',
+    frenchTranslation: 'Je demande pardon à Allah, il n\'y a de dieu que Lui',
+    hausaTranslation: 'Ina neman gafara daga Allah, babu abin bautawa sai Shi',
     category: 'Prayer',
   },
   {
@@ -127,6 +151,8 @@ const mockDuas: Dua[] = [
     arabic: 'سُبْحَانَ رَبِّيَ الْأَعْلَى',
     transliteration: 'Subhana rabbiyal a\'la',
     translation: 'Glory to my Lord, the Most High',
+    frenchTranslation: 'Gloire à mon Seigneur, le Très-Haut',
+    hausaTranslation: 'Tsarki ga Ubangijina, Maɗaukaki',
     category: 'Prayer',
   },
   
@@ -137,6 +163,8 @@ const mockDuas: Dua[] = [
     arabic: 'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ',
     transliteration: 'Rabbi ighfir li wa tub alayya',
     translation: 'My Lord, forgive me and accept my repentance',
+    frenchTranslation: 'Mon Seigneur, pardonne-moi et accepte mon repentir',
+    hausaTranslation: 'Ya Ubangijina, ka gafarta mini kuma ka karɓi tubana',
     category: 'Forgiveness',
   },
   {
@@ -145,6 +173,8 @@ const mockDuas: Dua[] = [
     arabic: 'أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ',
     transliteration: 'Astaghfirullah al-azeem',
     translation: 'I seek forgiveness from Allah, the Most Great',
+    frenchTranslation: 'Je demande pardon à Allah, le Très Grand',
+    hausaTranslation: 'Ina neman gafara daga Allah, Maɗaukaki',
     category: 'Forgiveness',
   },
   {
@@ -160,7 +190,7 @@ const mockDuas: Dua[] = [
 const categories = ['All', 'Morning', 'Evening', 'Eating', 'Travel', 'Prayer', 'Forgiveness'];
 
 export default function DuasScreen() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -204,7 +234,11 @@ export default function DuasScreen() {
       <View style={styles.duaContent}>
         <Text style={styles.arabicText}>{item.arabic}</Text>
         <Text style={styles.transliterationText}>{item.transliteration}</Text>
-        <Text style={styles.translationText}>{item.translation}</Text>
+        <Text style={styles.translationText}>
+          {language === 'fr' && item.frenchTranslation ? item.frenchTranslation : 
+           language === 'ha' && item.hausaTranslation ? item.hausaTranslation : 
+           item.translation}
+        </Text>
       </View>
       
       <View style={styles.duaFooter}>
@@ -226,7 +260,7 @@ export default function DuasScreen() {
           <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search duas..."
+            placeholder={t('duas.search_placeholder')}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor="#999"

@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useNotifications } from '../contexts/NotificationContext';
+import { NotificationSettings } from '../services/notificationService';
 
 export default function NotificationSettingsScreen() {
   const {
@@ -210,8 +211,66 @@ export default function NotificationSettingsScreen() {
                   onValueChange={(value) => updateReminderType('wazifa', value)}
                   icon="fitness"
                 />
+
+                <ToggleRow
+                  title="Hajj Reminders"
+                  subtitle="Journey step reminders and preparation alerts"
+                  value={settings.reminderTypes.hajjReminders}
+                  onValueChange={(value) => updateReminderType('hajjReminders', value)}
+                  icon="walk"
+                />
+
+                <ToggleRow
+                  title="Qibla Updates"
+                  subtitle="Direction change notifications when traveling"
+                  value={settings.reminderTypes.qiblaUpdates}
+                  onValueChange={(value) => updateReminderType('qiblaUpdates', value)}
+                  icon="compass"
+                />
               </View>
             </>
+          )}
+        </SettingCard>
+
+        {/* Hajj Journey Notifications */}
+        <SettingCard title="Hajj Journey">
+          <ToggleRow
+            title="Hajj Step Reminders"
+            subtitle="Get notified for each Hajj ritual and preparation step"
+            value={settings.reminderTypes.hajjReminders}
+            onValueChange={(value) => updateReminderType('hajjReminders', value)}
+            icon="map"
+          />
+          
+          {settings.reminderTypes.hajjReminders && (
+            <View style={styles.hajjInfo}>
+              <Text style={styles.hajjInfoText}>
+                📋 You'll receive reminders for:
+              </Text>
+              <Text style={styles.hajjInfoItem}>• Entering Ihram</Text>
+              <Text style={styles.hajjInfoItem}>• Day of Arafat</Text>
+              <Text style={styles.hajjInfoItem}>• Muzdalifah night</Text>
+              <Text style={styles.hajjInfoItem}>• Stoning of Jamarat</Text>
+            </View>
+          )}
+        </SettingCard>
+
+        {/* Qibla Notifications */}
+        <SettingCard title="Qibla Direction">
+          <ToggleRow
+            title="Travel Qibla Reminders"
+            subtitle="Get reminded to check Qibla direction when traveling"
+            value={settings.reminderTypes.qiblaUpdates}
+            onValueChange={(value) => updateReminderType('qiblaUpdates', value)}
+            icon="location"
+          />
+          
+          {settings.reminderTypes.qiblaUpdates && (
+            <View style={styles.qiblaInfo}>
+              <Text style={styles.qiblaInfoText}>
+                🧭 You'll receive Qibla direction reminders every 6 hours when traveling to help maintain accurate prayer orientation.
+              </Text>
+            </View>
           )}
         </SettingCard>
 
@@ -244,6 +303,24 @@ export default function NotificationSettingsScreen() {
           <TouchableOpacity style={styles.actionButton} onPress={handleScheduleAll}>
             <Ionicons name="calendar" size={20} color={colors.mintSurface} />
             <Text style={styles.actionButtonText}>Schedule All Notifications</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]} onPress={async () => {
+            const notificationService = (await import('../services/notificationService')).default.getInstance();
+            await notificationService.scheduleHajjJourneyReminders();
+            Alert.alert('Success', 'Hajj journey reminders scheduled!');
+          }}>
+            <Ionicons name="walk" size={20} color={colors.primary} />
+            <Text style={[styles.actionButtonText, styles.secondaryButtonText]}>Schedule Hajj Reminders</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]} onPress={async () => {
+            const notificationService = (await import('../services/notificationService')).default.getInstance();
+            await notificationService.scheduleQiblaNotifications();
+            Alert.alert('Success', 'Qibla reminders scheduled!');
+          }}>
+            <Ionicons name="compass" size={20} color={colors.primary} />
+            <Text style={[styles.actionButtonText, styles.secondaryButtonText]}>Schedule Qibla Reminders</Text>
           </TouchableOpacity>
         </SettingCard>
 
@@ -409,5 +486,42 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  hajjInfo: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: colors.mintSurfaceAlt,
+    borderRadius: 8,
+  },
+  hajjInfoText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: 8,
+  },
+  hajjInfoItem: {
+    fontSize: 13,
+    color: colors.textLight,
+    marginLeft: 8,
+    marginBottom: 2,
+  },
+  qiblaInfo: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: colors.mintSurfaceAlt,
+    borderRadius: 8,
+  },
+  qiblaInfoText: {
+    fontSize: 13,
+    color: colors.textLight,
+    lineHeight: 18,
+  },
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  secondaryButtonText: {
+    color: colors.primary,
   },
 });
