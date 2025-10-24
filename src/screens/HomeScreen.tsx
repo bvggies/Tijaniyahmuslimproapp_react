@@ -339,6 +339,13 @@ export default function HomeScreen({ navigation }: any) {
       // Get location-based Hijri date
       const hijriDate = await hijriService.getCurrentHijriDate();
       if (hijriDate) {
+        // Validate the Hijri date - if it's showing Muharram 1, it's likely wrong
+        if (hijriDate.hijri.month === 1 && hijriDate.hijri.day === 1) {
+          console.log('⚠️ Location-based Hijri date showing Muharram 1, keeping current date');
+          // Don't update the locationBasedDate if it's showing the wrong date
+          return;
+        }
+        
         setLocationBasedDate(hijriDate);
         console.log('🌙 Hijri date loaded:', hijriDate.hijri.fullDate);
       } else {
