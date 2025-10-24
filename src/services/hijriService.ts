@@ -49,6 +49,13 @@ class HijriService {
    */
   async getCurrentHijriDate(): Promise<IslamicDateDisplay | null> {
     try {
+      // TEMPORARILY DISABLE location-based Hijri date calculation
+      // This prevents the wrong Muharram 1 date from overriding the correct date
+      console.log('🚫 Location-based Hijri date calculation temporarily disabled');
+      return null;
+      
+      // Original code (commented out for now):
+      /*
       const location = await this.locationService.getUserLocation();
       if (!location) {
         console.log('⚠️ No location available, using default timezone');
@@ -65,9 +72,10 @@ class HijriService {
       }
       
       return result;
+      */
     } catch (error) {
       console.error('❌ Error getting Hijri date:', error);
-      return this.getFallbackHijriDate();
+      return null;
     }
   }
 
