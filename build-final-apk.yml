@@ -1,0 +1,81 @@
+name: Build Final APK for Play Store
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean previous builds
+      run: |
+        rm -rf android
+        rm -rf .expo
+        
+    - name: Prebuild Android
+      run: |
+        npx expo prebuild --platform android
+        
+    - name: Make gradlew executable
+      run: |
+        chmod +x android/gradlew
+        
+    - name: Build APK
+      run: |
+        cd android
+        ./gradlew assembleRelease
+        
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+        
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: android/app/build/outputs/apk/release/app-release.apk
+        tag_name: v1.0.0
+        name: Tijaniyah Pro v1.0.0
+        body: |
+          🕌 **Tijaniyah Pro - Final Release**
+          
+          ## Features
+          - ✅ Prayer Times with Location Detection
+          - ✅ Qibla Compass with Sensors
+          - ✅ Islamic Calendar (Hijri Dates)
+          - ✅ Azan Audio Player
+          - ✅ Digital Tasbih
+          - ✅ Islamic Lessons & Resources
+          - ✅ Community Features
+          - ✅ Donation System
+          - ✅ Multi-language Support
+          
+          ## Technical Improvements
+          - 🔧 Fixed location-based prayer times
+          - 🔧 Fixed Hijri date calculations
+          - 🔧 Improved error handling
+          - 🔧 Enhanced user experience
+          - 🔧 Optimized for Play Store
+          
+          ## Ready for Play Store Release! 🚀
+        draft: false
+        prerelease: false
