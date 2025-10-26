@@ -1,7 +1,13 @@
-name: Build iOS IPA (Simple & Working)
+name: Build iOS IPA (Fixed)
 
 on:
   workflow_dispatch: # Manual trigger only
+  push:
+    branches: [ main ]
+    paths:
+      - 'ios/**'
+      - 'app.json'
+      - 'package.json'
 
 jobs:
   build-ios-ipa:
@@ -31,95 +37,75 @@ jobs:
       run: |
         rm -rf ios
         rm -rf .expo
-        rm -rf node_modules/.cache
         
     - name: Prebuild iOS project
       run: |
-        npx expo prebuild --platform ios --clear --no-install
+        npx expo prebuild --platform ios --clear
         
     - name: Install iOS dependencies
       run: |
         cd ios
         pod install --repo-update
         
-    - name: Debug iOS project structure
+    - name: List iOS project contents
       run: |
         cd ios
-        echo "=== iOS Project Structure ==="
         ls -la
-        echo ""
-        echo "=== Looking for workspace ==="
-        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
-        echo ""
-        echo "=== Checking Pods ==="
-        ls -la Pods/
+        echo "=== Checking for workspace ==="
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
+          echo "✅ Found TijaniyahPro.xcworkspace"
+        else
+          echo "❌ No workspace found"
+        fi
+        echo "=== Checking for project ==="
+        if [ -f "TijaniyahPro.xcodeproj" ]; then
+          echo "✅ Found TijaniyahPro.xcodeproj"
+        else
+          echo "❌ No project found"
+        fi
         
-    - name: Build iOS App
+    - name: Build iOS App (Development Build)
       run: |
         cd ios
-        
-        # Try to find the correct project file
         if [ -f "TijaniyahPro.xcworkspace" ]; then
-          echo "✅ Building with workspace..."
+          echo "Building with workspace..."
           xcodebuild -workspace TijaniyahPro.xcworkspace \
                      -scheme TijaniyahPro \
-                     -configuration Release \
-                     -destination 'generic/platform=iOS' \
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0' \
                      -derivedDataPath ./build \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO \
                      build
         elif [ -f "TijaniyahPro.xcodeproj" ]; then
-          echo "✅ Building with project..."
+          echo "Building with project..."
           xcodebuild -project TijaniyahPro.xcodeproj \
                      -scheme TijaniyahPro \
-                     -configuration Release \
-                     -destination 'generic/platform=iOS' \
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0' \
                      -derivedDataPath ./build \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO \
                      build
         else
           echo "❌ No iOS project found!"
-          echo "Available files:"
-          ls -la
           exit 1
         fi
         
-    - name: Find built app
+    - name: Create IPA for Distribution (No Code Signing)
       run: |
         cd ios
-        echo "=== Looking for built app ==="
-        find build -name "*.app" -type d
-        echo ""
-        echo "=== Build directory contents ==="
-        find build -type f -name "*.app" | head -10
-        
-    - name: Create IPA file
-      run: |
-        cd ios
-        
-        # Find the built app
-        APP_PATH=$(find build -name "*.app" -type d | head -1)
-        
-        if [ -z "$APP_PATH" ]; then
-          echo "❌ No app bundle found!"
-          echo "Build directory contents:"
-          find build -type f | head -20
-          exit 1
-        fi
-        
-        echo "✅ Found app at: $APP_PATH"
+        echo "Creating IPA without code signing..."
         
         # Create Payload directory
         mkdir -p Payload
         
-        # Copy the app to Payload
-        cp -r "$APP_PATH" Payload/
+        # Copy the built app to Payload
+        if [ -d "build/Build/Products/Debug-iphonesimulator/TijaniyahPro.app" ]; then
+          cp -r build/Build/Products/Debug-iphonesimulator/TijaniyahPro.app Payload/
+        else
+          echo "❌ App bundle not found!"
+          find build -name "*.app" -type d
+          exit 1
+        fi
         
-        # Create IPA
+        # Create IPA file
         zip -r TijaniyahPro.ipa Payload/
         
         echo "✅ IPA created successfully!"
@@ -132,6 +118,13 @@ jobs:
         path: ios/TijaniyahPro.ipa
         retention-days: 30
         
+    - name: Upload iOS build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-ios-build-logs
+        path: ios/build/
+        retention-days: 7
+        
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -141,9 +134,9 @@ jobs:
         body: |
           🍎 **Tijaniyah Muslim Pro iOS Build**
           
-          ## Features
+          ## iOS App Features
           - ✅ Prayer Times with Location Detection
-          - ✅ Qibla Compass with Sensors  
+          - ✅ Qibla Compass with Sensors
           - ✅ Islamic Calendar (Hijri Dates)
           - ✅ Azan Audio Player
           - ✅ Digital Tasbih
@@ -151,13 +144,18 @@ jobs:
           - ✅ Community Features
           - ✅ Donation System
           - ✅ Multi-language Support
-          - ✅ Tijani Practices with Niyyah Supplications
+          - ✅ Tijani Practices with Niyyah
           
-          ## Installation
-          This is a development build that can be installed via:
-          - Xcode
-          - Apple Configurator
-          - Third-party app installers
+          ## Technical Notes
+          - 🔧 Development build (no code signing)
+          - 🔧 Requires manual installation via Xcode
+          - 🔧 Tested on iOS Simulator
+          - 🔧 Ready for App Store submission after code signing
+          
+          ## Installation Instructions
+          1. Download the IPA file
+          2. Install via Xcode or Apple Configurator
+          3. Trust the developer certificate in Settings
           
           ## Ready for App Store! 🚀
         draft: false

@@ -1,7 +1,14 @@
-name: Build iOS IPA (Simple & Working)
+name: Build iOS IPA (Comprehensive)
 
 on:
   workflow_dispatch: # Manual trigger only
+  push:
+    branches: [ main ]
+    paths:
+      - 'ios/**'
+      - 'app.json'
+      - 'package.json'
+      - 'src/**'
 
 jobs:
   build-ios-ipa:
@@ -27,11 +34,12 @@ jobs:
         npm ci
         npx expo install --fix
         
-    - name: Clean previous builds
+    - name: Clean environment
       run: |
         rm -rf ios
         rm -rf .expo
         rm -rf node_modules/.cache
+        rm -rf ~/.expo
         
     - name: Prebuild iOS project
       run: |
@@ -42,25 +50,38 @@ jobs:
         cd ios
         pod install --repo-update
         
-    - name: Debug iOS project structure
+    - name: Verify iOS project
       run: |
         cd ios
-        echo "=== iOS Project Structure ==="
+        echo "=== iOS Project Verification ==="
         ls -la
         echo ""
-        echo "=== Looking for workspace ==="
-        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+        echo "=== Workspace check ==="
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
+          echo "✅ Workspace found"
+          ls -la TijaniyahPro.xcworkspace
+        else
+          echo "❌ No workspace found"
+        fi
         echo ""
-        echo "=== Checking Pods ==="
+        echo "=== Project check ==="
+        if [ -f "TijaniyahPro.xcodeproj" ]; then
+          echo "✅ Project found"
+          ls -la TijaniyahPro.xcodeproj
+        else
+          echo "❌ No project found"
+        fi
+        echo ""
+        echo "=== Pods check ==="
         ls -la Pods/
         
-    - name: Build iOS App
+    - name: Build iOS App (No Code Signing)
       run: |
         cd ios
         
-        # Try to find the correct project file
+        # Build without code signing for development
         if [ -f "TijaniyahPro.xcworkspace" ]; then
-          echo "✅ Building with workspace..."
+          echo "✅ Building with workspace (no code signing)..."
           xcodebuild -workspace TijaniyahPro.xcworkspace \
                      -scheme TijaniyahPro \
                      -configuration Release \
@@ -69,9 +90,10 @@ jobs:
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO \
+                     PROVISIONING_PROFILE="" \
                      build
         elif [ -f "TijaniyahPro.xcodeproj" ]; then
-          echo "✅ Building with project..."
+          echo "✅ Building with project (no code signing)..."
           xcodebuild -project TijaniyahPro.xcodeproj \
                      -scheme TijaniyahPro \
                      -configuration Release \
@@ -80,6 +102,7 @@ jobs:
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO \
+                     PROVISIONING_PROFILE="" \
                      build
         else
           echo "❌ No iOS project found!"
@@ -88,14 +111,14 @@ jobs:
           exit 1
         fi
         
-    - name: Find built app
+    - name: Locate built app
       run: |
         cd ios
-        echo "=== Looking for built app ==="
+        echo "=== Searching for built app ==="
         find build -name "*.app" -type d
         echo ""
-        echo "=== Build directory contents ==="
-        find build -type f -name "*.app" | head -10
+        echo "=== Build products ==="
+        find build -name "*.app" -exec ls -la {} \;
         
     - name: Create IPA file
       run: |
@@ -113,11 +136,17 @@ jobs:
         
         echo "✅ Found app at: $APP_PATH"
         
+        # Verify app structure
+        ls -la "$APP_PATH"
+        
         # Create Payload directory
         mkdir -p Payload
         
         # Copy the app to Payload
         cp -r "$APP_PATH" Payload/
+        
+        # Verify Payload
+        ls -la Payload/
         
         # Create IPA
         zip -r TijaniyahPro.ipa Payload/
@@ -125,12 +154,22 @@ jobs:
         echo "✅ IPA created successfully!"
         ls -la *.ipa
         
+        # Verify IPA contents
+        unzip -l TijaniyahPro.ipa
+        
     - name: Upload iOS IPA
       uses: actions/upload-artifact@v4
       with:
         name: tijaniyah-pro-ios-ipa
         path: ios/TijaniyahPro.ipa
         retention-days: 30
+        
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-ios-build-logs
+        path: ios/build/
+        retention-days: 7
         
     - name: Create Release
       uses: softprops/action-gh-release@v1

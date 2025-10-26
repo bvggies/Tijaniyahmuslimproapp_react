@@ -1,0 +1,70 @@
+name: Test iOS Project Generation
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  test-ios-generation:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean environment
+      run: |
+        rm -rf ios
+        rm -rf .expo
+        rm -rf node_modules/.cache
+        
+    - name: Test iOS prebuild
+      run: |
+        echo "=== Testing iOS prebuild ==="
+        npx expo prebuild --platform ios --clear --no-install
+        
+    - name: Verify iOS project structure
+      run: |
+        cd ios
+        echo "=== iOS Project Structure ==="
+        ls -la
+        echo ""
+        echo "=== Looking for project files ==="
+        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+        echo ""
+        echo "=== Checking app.json configuration ==="
+        cat ../app.json | grep -A 10 "ios"
+        
+    - name: Test pod install
+      run: |
+        cd ios
+        pod install --repo-update
+        
+    - name: Final verification
+      run: |
+        cd ios
+        echo "=== Final iOS Project Verification ==="
+        ls -la
+        echo ""
+        echo "=== Workspace contents ==="
+        if [ -f "TijaniyahPro.xcworkspace" ]; then
+          ls -la TijaniyahPro.xcworkspace
+        fi
+        echo ""
+        echo "=== Project contents ==="
+        if [ -f "TijaniyahPro.xcodeproj" ]; then
+          ls -la TijaniyahPro.xcodeproj
+        fi
+        echo ""
+        echo "=== Pods directory ==="
+        ls -la Pods/
