@@ -80,10 +80,10 @@ jobs:
         cd ios
         
         # Build without code signing for development
-        if [ -f "TijaniyahPro.xcworkspace" ]; then
+        if [ -f "TijaniyahMuslimPro.xcworkspace" ]; then
           echo "✅ Building with workspace (no code signing)..."
-          xcodebuild -workspace TijaniyahPro.xcworkspace \
-                     -scheme TijaniyahPro \
+          xcodebuild -workspace TijaniyahMuslimPro.xcworkspace \
+                     -scheme TijaniyahMuslimPro \
                      -configuration Release \
                      -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
@@ -92,10 +92,10 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      PROVISIONING_PROFILE="" \
                      build
-        elif [ -f "TijaniyahPro.xcodeproj" ]; then
+        elif [ -f "TijaniyahMuslimPro.xcodeproj" ]; then
           echo "✅ Building with project (no code signing)..."
-          xcodebuild -project TijaniyahPro.xcodeproj \
-                     -scheme TijaniyahPro \
+          xcodebuild -project TijaniyahMuslimPro.xcodeproj \
+                     -scheme TijaniyahMuslimPro \
                      -configuration Release \
                      -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
