@@ -1,4 +1,4 @@
-name: Build iOS IPA (Simple & Working)
+name: Build iOS IPA (Dynamic Detection)
 
 on:
   workflow_dispatch: # Manual trigger only
@@ -27,7 +27,7 @@ jobs:
         npm ci
         npx expo install --fix
         
-    - name: Clean previous builds
+    - name: Clean environment
       run: |
         rm -rf ios
         rm -rf .expo
@@ -42,27 +42,48 @@ jobs:
         cd ios
         pod install --repo-update
         
-    - name: Debug iOS project structure
+    - name: Detect iOS project name
+      id: detect-project
       run: |
         cd ios
-        echo "=== iOS Project Structure ==="
-        ls -la
-        echo ""
-        echo "=== Looking for workspace ==="
-        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
-        echo ""
-        echo "=== Checking Pods ==="
-        ls -la Pods/
+        echo "=== Detecting iOS project name ==="
+        
+        # Find workspace file
+        WORKSPACE_FILE=$(find . -name "*.xcworkspace" | head -1)
+        if [ -n "$WORKSPACE_FILE" ]; then
+          PROJECT_NAME=$(basename "$WORKSPACE_FILE" .xcworkspace)
+          echo "✅ Found workspace: $WORKSPACE_FILE"
+          echo "Project name: $PROJECT_NAME"
+        else
+          # Find project file
+          PROJECT_FILE=$(find . -name "*.xcodeproj" | head -1)
+          if [ -n "$PROJECT_FILE" ]; then
+            PROJECT_NAME=$(basename "$PROJECT_FILE" .xcodeproj)
+            echo "✅ Found project: $PROJECT_FILE"
+            echo "Project name: $PROJECT_NAME"
+          else
+            echo "❌ No iOS project found!"
+            exit 1
+          fi
+        fi
+        
+        echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
+        echo "WORKSPACE_FILE=$WORKSPACE_FILE" >> $GITHUB_OUTPUT
+        echo "PROJECT_FILE=$PROJECT_FILE" >> $GITHUB_OUTPUT
         
     - name: Build iOS App
       run: |
         cd ios
+        PROJECT_NAME="${{ steps.detect-project.outputs.PROJECT_NAME }}"
+        WORKSPACE_FILE="${{ steps.detect-project.outputs.WORKSPACE_FILE }}"
+        PROJECT_FILE="${{ steps.detect-project.outputs.PROJECT_FILE }}"
         
-        # Try to find the correct project file
-        if [ -f "TijaniyahMuslimPro.xcworkspace" ]; then
-          echo "✅ Building with workspace..."
-          xcodebuild -workspace TijaniyahMuslimPro.xcworkspace \
-                     -scheme TijaniyahMuslimPro \
+        echo "Building iOS app: $PROJECT_NAME"
+        
+        if [ -n "$WORKSPACE_FILE" ]; then
+          echo "✅ Building with workspace: $WORKSPACE_FILE"
+          xcodebuild -workspace "$WORKSPACE_FILE" \
+                     -scheme "$PROJECT_NAME" \
                      -configuration Release \
                      -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
@@ -70,10 +91,10 @@ jobs:
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO \
                      build
-        elif [ -f "TijaniyahMuslimPro.xcodeproj" ]; then
-          echo "✅ Building with project..."
-          xcodebuild -project TijaniyahMuslimPro.xcodeproj \
-                     -scheme TijaniyahMuslimPro \
+        elif [ -n "$PROJECT_FILE" ]; then
+          echo "✅ Building with project: $PROJECT_FILE"
+          xcodebuild -project "$PROJECT_FILE" \
+                     -scheme "$PROJECT_NAME" \
                      -configuration Release \
                      -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
@@ -83,23 +104,15 @@ jobs:
                      build
         else
           echo "❌ No iOS project found!"
-          echo "Available files:"
-          ls -la
           exit 1
         fi
-        
-    - name: Find built app
-      run: |
-        cd ios
-        echo "=== Looking for built app ==="
-        find build -name "*.app" -type d
-        echo ""
-        echo "=== Build directory contents ==="
-        find build -type f -name "*.app" | head -10
         
     - name: Create IPA file
       run: |
         cd ios
+        PROJECT_NAME="${{ steps.detect-project.outputs.PROJECT_NAME }}"
+        
+        echo "=== Creating IPA for: $PROJECT_NAME ==="
         
         # Find the built app
         APP_PATH=$(find build -name "*.app" -type d | head -1)
@@ -120,7 +133,7 @@ jobs:
         cp -r "$APP_PATH" Payload/
         
         # Create IPA
-        zip -r TijaniyahPro.ipa Payload/
+        zip -r "${PROJECT_NAME}.ipa" Payload/
         
         echo "✅ IPA created successfully!"
         ls -la *.ipa
@@ -129,13 +142,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: tijaniyah-pro-ios-ipa
-        path: ios/TijaniyahPro.ipa
+        path: ios/*.ipa
         retention-days: 30
         
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ios/TijaniyahPro.ipa
+        files: ios/*.ipa
         tag_name: ios-v1.0.0
         name: Tijaniyah Muslim Pro iOS v1.0.0
         body: |

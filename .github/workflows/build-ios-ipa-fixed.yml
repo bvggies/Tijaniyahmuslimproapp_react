@@ -52,14 +52,14 @@ jobs:
         cd ios
         ls -la
         echo "=== Checking for workspace ==="
-        if [ -f "TijaniyahPro.xcworkspace" ]; then
-          echo "✅ Found TijaniyahPro.xcworkspace"
+        if [ -f "TijaniyahMuslimPro.xcworkspace" ]; then
+          echo "✅ Found TijaniyahMuslimPro.xcworkspace"
         else
           echo "❌ No workspace found"
         fi
         echo "=== Checking for project ==="
-        if [ -f "TijaniyahPro.xcodeproj" ]; then
-          echo "✅ Found TijaniyahPro.xcodeproj"
+        if [ -f "TijaniyahMuslimPro.xcodeproj" ]; then
+          echo "✅ Found TijaniyahMuslimPro.xcodeproj"
         else
           echo "❌ No project found"
         fi
@@ -67,21 +67,27 @@ jobs:
     - name: Build iOS App (Development Build)
       run: |
         cd ios
-        if [ -f "TijaniyahPro.xcworkspace" ]; then
+        if [ -f "TijaniyahMuslimPro.xcworkspace" ]; then
           echo "Building with workspace..."
-          xcodebuild -workspace TijaniyahPro.xcworkspace \
-                     -scheme TijaniyahPro \
-                     -configuration Debug \
-                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0' \
+          xcodebuild -workspace TijaniyahMuslimPro.xcworkspace \
+                     -scheme TijaniyahMuslimPro \
+                     -configuration Release \
+                     -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO \
                      build
-        elif [ -f "TijaniyahPro.xcodeproj" ]; then
+        elif [ -f "TijaniyahMuslimPro.xcodeproj" ]; then
           echo "Building with project..."
-          xcodebuild -project TijaniyahPro.xcodeproj \
-                     -scheme TijaniyahPro \
-                     -configuration Debug \
-                     -destination 'platform=iOS Simulator,name=iPhone 16,OS=26.0' \
+          xcodebuild -project TijaniyahMuslimPro.xcodeproj \
+                     -scheme TijaniyahMuslimPro \
+                     -configuration Release \
+                     -destination 'generic/platform=iOS' \
                      -derivedDataPath ./build \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO \
                      build
         else
           echo "❌ No iOS project found!"
@@ -97,8 +103,8 @@ jobs:
         mkdir -p Payload
         
         # Copy the built app to Payload
-        if [ -d "build/Build/Products/Debug-iphonesimulator/TijaniyahPro.app" ]; then
-          cp -r build/Build/Products/Debug-iphonesimulator/TijaniyahPro.app Payload/
+        if [ -d "build/Build/Products/Release-iphoneos/TijaniyahMuslimPro.app" ]; then
+          cp -r build/Build/Products/Release-iphoneos/TijaniyahMuslimPro.app Payload/
         else
           echo "❌ App bundle not found!"
           find build -name "*.app" -type d
@@ -106,7 +112,7 @@ jobs:
         fi
         
         # Create IPA file
-        zip -r TijaniyahPro.ipa Payload/
+        zip -r TijaniyahMuslimPro.ipa Payload/
         
         echo "✅ IPA created successfully!"
         ls -la *.ipa
@@ -115,7 +121,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: tijaniyah-pro-ios-ipa
-        path: ios/TijaniyahPro.ipa
+        path: ios/TijaniyahMuslimPro.ipa
         retention-days: 30
         
     - name: Upload iOS build logs
@@ -128,7 +134,7 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ios/TijaniyahPro.ipa
+        files: ios/TijaniyahMuslimPro.ipa
         tag_name: ios-v1.0.0
         name: Tijaniyah Muslim Pro iOS v1.0.0
         body: |
