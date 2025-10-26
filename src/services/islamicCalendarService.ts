@@ -46,16 +46,19 @@ export const dayNames = [
 export const getCurrentIslamicDate = (latitude?: number, longitude?: number): IslamicDate => {
   const now = new Date();
   
-  // Format Gregorian date with location-aware timezone
+  // TEMPORARILY DISABLE location-based calculations to prevent wrong date override
+  // The location-based calculation is returning incorrect dates (Muharram 1 instead of correct date)
+  console.log('🚫 Location-based Islamic date calculation disabled in islamicCalendarService');
+  
+  // Use standard calculation without location adjustments
   const gregorianDate = now.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    timeZone: getTimeZoneFromCoordinates(latitude, longitude),
   });
   
-  // Convert to Hijri date using hijri-converter
-  const hijriDate = convertToHijri(now, latitude, longitude);
+  // Convert to Hijri date using standard calculation (no location adjustments)
+  const hijriDate = convertToHijri(now);
   
   const month = islamicMonths[hijriDate.month - 1];
   const dayName = dayNames[now.getDay()];
@@ -77,19 +80,18 @@ export const getCurrentIslamicDate = (latitude?: number, longitude?: number): Is
 // Helper function to convert Gregorian date to Hijri
 const convertToHijri = (date: Date, latitude?: number, longitude?: number): { day: number; month: number; year: number } => {
   try {
-    // Get timezone offset based on location
-    const timezoneOffset = getTimeZoneOffset(latitude, longitude);
-    const localDate = new Date(date.getTime() + timezoneOffset * 60 * 1000);
+    // TEMPORARILY DISABLE location-based calculations to prevent wrong date override
+    console.log('🚫 Location-based Hijri conversion disabled');
     
-    // Use a more accurate Hijri calculation
-    const gregorianYear = localDate.getFullYear();
-    const gregorianMonth = localDate.getMonth() + 1;
-    const gregorianDay = localDate.getDate();
+    // Use standard calculation without location adjustments
+    const gregorianYear = date.getFullYear();
+    const gregorianMonth = date.getMonth() + 1;
+    const gregorianDay = date.getDate();
     
     // More accurate Hijri conversion algorithm
     // This is based on the Umm al-Qura calendar used in Saudi Arabia
     const hijriEpoch = new Date(622, 6, 16); // July 16, 622 CE
-    const daysSinceEpoch = Math.floor((localDate.getTime() - hijriEpoch.getTime()) / (1000 * 60 * 60 * 24));
+    const daysSinceEpoch = Math.floor((date.getTime() - hijriEpoch.getTime()) / (1000 * 60 * 60 * 24));
     
     // Calculate Hijri year (more accurate)
     let hijriYear = Math.floor(daysSinceEpoch / 354.37) + 1;
