@@ -75,9 +75,10 @@ export default function PrayerTimesScreen() {
         const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
         setPrayerTimes(times);
         
-        // Islamic date (location-aware)
-        const islamic = getCurrentIslamicDate(fallbackLocation.latitude, fallbackLocation.longitude);
-        setHijriDisplay(`${islamic.hijriDate}`);
+        // TEMPORARILY DISABLE location-based Islamic date to prevent wrong date override
+        // const islamic = getCurrentIslamicDate(fallbackLocation.latitude, fallbackLocation.longitude);
+        // setHijriDisplay(`${islamic.hijriDate}`);
+        console.log('🚫 Location-based Islamic date calculation disabled in PrayerTimesScreen');
         return;
       }
 
@@ -97,9 +98,10 @@ export default function PrayerTimesScreen() {
       setPrayerTimes(times);
       console.log('✅ Prayer times loaded successfully');
 
-      // Islamic date (location-aware)
-      const islamic = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
-      setHijriDisplay(`${islamic.hijriDate}`);
+      // TEMPORARILY DISABLE location-based Islamic date to prevent wrong date override
+      // const islamic = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
+      // setHijriDisplay(`${islamic.hijriDate}`);
+      console.log('🚫 Location-based Islamic date calculation disabled in PrayerTimesScreen');
     } catch (error) {
       console.error('❌ Error loading prayer times:', error);
       

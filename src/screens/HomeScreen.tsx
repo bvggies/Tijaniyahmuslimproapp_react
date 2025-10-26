@@ -80,7 +80,8 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => {
     console.log('🚀 HomeScreen: Starting location and prayer time loading...');
     loadLocationAndPrayerTimes();
-    loadLocationBasedDateTime();
+    // TEMPORARILY DISABLE loadLocationBasedDateTime to prevent wrong date override
+    // loadLocationBasedDateTime();
     loadDailyReminder();
     
     // Test location service after a short delay
@@ -284,9 +285,11 @@ export default function HomeScreen({ navigation }: any) {
       const notificationService = NotificationService.getInstance();
       await notificationService.schedulePrayerNotifications(times);
 
-      // Update Islamic date with location coordinates
-      const locationBasedIslamicDate = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
-      setIslamicDate(locationBasedIslamicDate);
+      // TEMPORARILY DISABLE location-based Islamic date to prevent wrong date override
+      // The location-based calculation is returning incorrect dates (Muharram 1 instead of correct date)
+      console.log('🚫 Location-based Islamic date calculation disabled to prevent wrong date override');
+      // const locationBasedIslamicDate = getCurrentIslamicDate(userLocation.latitude, userLocation.longitude);
+      // setIslamicDate(locationBasedIslamicDate);
 
       // Store timezone and load daily reminder
       setCurrentTimezone(userLocation.timezone);
