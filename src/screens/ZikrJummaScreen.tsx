@@ -383,6 +383,23 @@ export default function ZikrJummaScreen() {
               The Haylala (other names: Hadra, 'Asru) is the Friday's dhikr to perform between 'Asr and Maghreb Prayers.
             </Text>
 
+            {/* Niyyah (Intention) */}
+            <View style={styles.niyyahCard}>
+              <Text style={styles.niyyahTitle}>Niyyah (Intention)</Text>
+              <Text style={styles.niyyahArabic}>
+                اللهم إني نويت ذكر هيللة الجمعة اللازمة في الطريقة التجانية إقتداء بسيد أحمد التجاني رضي اللّٰه عنه تعبدا لله تعالى
+              </Text>
+              <Text style={styles.niyyahTransliteration}>
+                Allahumma innii nawaytu dzikria haylalatal jum'ati allaazimati fit-țareeqati Tijaniyyah iqtidaa-a bisayyidi Ahmad at-Tijani Radiyallahu anhu ta'abbudan lillahi ta'aalaa.
+              </Text>
+              <Text style={styles.niyyahEnglish}>
+                O Allah, I intend to perform the dhikr of the obligatory Friday Haylala in the Tijani Tariqa, following our Master Ahmad al-Tijani, may Allah be pleased with him, as an act of devotion to Allah the Almighty.
+              </Text>
+              <Text style={styles.niyyahBreakdown}>
+                Breakdown: "O Allah, I intend" → "to perform the dhikr of the Friday Haylala" → "in the Tijani Tariqa" → "following our Master Ahmad al-Tijani, may Allah be pleased with him" → "as an act of devotion to Allah the Almighty"
+              </Text>
+            </View>
+
             {/* Haylala Steps */}
             <View style={styles.haylalaStepsContainer}>
               {/* Step 1: Auzubillah */}
@@ -1194,5 +1211,57 @@ const styles = StyleSheet.create({
   modalBoldText: {
     fontWeight: 'bold',
     color: '#2C3E50',
+  },
+  // Niyyah styles
+  niyyahCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 16,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.accentTeal,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  niyyahTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.accentTeal,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  niyyahArabic: {
+    fontSize: 18,
+    color: colors.textPrimary,
+    textAlign: 'right',
+    lineHeight: 32,
+    marginBottom: 12,
+    fontFamily: 'System',
+  },
+  niyyahTransliteration: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  niyyahEnglish: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    lineHeight: 24,
+    marginBottom: 12,
+  },
+  niyyahBreakdown: {
+    fontSize: 14,
+    color: colors.accentTeal,
+    lineHeight: 20,
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    padding: 12,
+    borderRadius: 8,
   },
 });
