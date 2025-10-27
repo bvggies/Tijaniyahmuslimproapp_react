@@ -180,9 +180,9 @@ export default function WazifaScreen() {
           <WazifaStepCard
             stepNumber={2}
             title="Suratul Fatiha"
-            arabic="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-            transliteration="Bismillahi ar-Rahman ar-Raheem"
-            english="Recite Suratul Fatiha"
+            arabic="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ (1) الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ (2) الرَّحْمَٰنِ الرَّحِيمِ (3) مَالِكِ يَوْمِ الدِّينِ (4) إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ (5) اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ (6) صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ (7)"
+            transliteration="Bismillahi ar-Rahman ar-Raheem (1) Alhamdulillahi rabbil alameen (2) Ar-Rahman ar-Raheem (3) Maliki yawmid-deen (4) Iyyaka na'budu wa iyyaka nasta'een (5) Ihdinas-siratal mustaqeem (6) Siratal-lazeena an'amta 'alayhim ghayril maghdoobi 'alayhim wa lad-dalleen (7)"
+            english="In the name of Allah, the Entirely Merciful, the Especially Merciful. (1) [All] praise is [due] to Allah, Lord of the worlds. (2) The Entirely Merciful, the Especially Merciful. (3) Sovereign of the Day of Recompense. (4) It is You we worship and You we ask for help. (5) Guide us to the straight path. (6) The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray. (7)"
             count={1}
             onIncrement={() => {}}
             onDecrement={() => {}}
@@ -354,10 +354,99 @@ export default function WazifaScreen() {
             </View>
             <ScrollView style={styles.modalContent}>
               <Text style={styles.duaText}>
-                اللّهُمَّ أَنْتَ الأَوَّلُ فَلَيْسَ قَبْلَكَ شَيئٌ وَأَنْتَ الآخِرُ فَلَيْسَ بَعْدَكَ شَيئُ وَأَنْتَ الظَّاهِرُ فَلَيسَ فَوْقَكَ شَيئٌ وَأَنتَ البَاطِنُ فَلَيسَ دُونَكَ شَيئٌ فَكُنْ لَنَا يَا أَوَّلُ يا آخرُ ياَظَاهِرُ  يا بَاطِنُ وَليًا وَنَصِيرَا أَنْتَ مَولَانَا فَنِعْمَ الْمَولَى وَنِعْمَ النَّصِيرُ الَّلهُمَّ إِنَا نَسْأَلُكَ بِفَاتِحِيَّةِ الْفَاتِحِ الْفَتْحَ التَّامَّ وَبِخَاتِمِيَّةِ الْخَاتِمِ حُسْنَ الْخِتَامِ الَّلهُمَ إِنَا نَسْأَلُكَ مِنَ الخَيرِ كُلِّهِ عَاجِلِهِ وَآجِلِهِ مَاعَلِمْنَا مِنْهُ وَمَالَم نَعْلَمْ وَنَعُوذُ بِكَ مِنَ شّرِ كلّهِ عاجلِهِ  وآجِالِه مَا عَلِمْنَا مِنْهُ وَمَالَمْ نَعٌلَمْ الَّلهُمَّ إِِنَّا نَسْأَلُكَ الْجَنَةَ وَمَاقرّبَ إلَيْهَا مِنْ قَولٍ وَعمَلٍ وَنَعُوذُ بِكَ مِنَ النَّارِ وَمَا قَرَّبَ إِلَيْها مِنْ قَولٍ وَعَمَلٍ الَّلهُمَّ إِنَّا نَسْأَلُكَ الْعَفْو  ً وَالْعَافِيَةَ وَالْمُعَافَاةَ الدَّائِمَةَ فِي الدِّينِ وَالدُّنْيَا وَالْأٓخِرَة ِالَّلهُمَّ إِنَّا نَسْأَلُكَ رِضَاكَ وَرِضَى نَبِيِّكََ وَرِضَى الْأَشْيَاخِ وَرِضَى الْوَالِدَيْنِ الَّلهُمَّ اجْعَلْ مَا نُرِيدُ فِيمَا تُرِيْدُ الَّلهُمَّ اجْعَلْ فِي اخْتِيَارِكَ إخْتيارَناَ وَلَا تَجْعَلْ إِلَّا إِلَيْكَ اضْطِرَارَناَ
+                دعاء ختم الوظيفة 
+
+اللّهُمَّ أَنْتَ الأَوَّلُ فَلَيْسَ قَبْلَكَ شَيئٌ وَأَنْتَ الآخِرُ فَلَيْسَ بَعْدَكَ شَيئُ وَأَنْتَ الظَّاهِرُ فَلَيسَ فَوْقَكَ شَيئٌ وَأَنتَ البَاطِنُ فَلَيسَ دُونَكَ شَيئٌ فَكُنْ لَنَا يَا أَوَّلُ يا آخرُ ياَظَاهِرُ  يا بَاطِنُ وَليًا وَنَصِيرَا أَنْتَ مَولَانَا فَنِعْمَ الْمَولَى وَنِعْمَ النَّصِيرُ الَّلهُمَّ إِنَا نَسْأَلُكَ بِفَاتِحِيَّةِ الْفَاتِحِ الْفَتْحَ التَّامَّ وَبِخَاتِمِيَّةِ الْخَاتِمِ حُسْنَ الْخِتَامِ الَّلهُمَ إِنَا نَسْأَلُكَ مِنَ الخَيرِ كُلِّهِ عَاجِلِهِ وَآجِلِهِ مَاعَلِمْنَا مِنْهُ وَمَالَم نَعْلَمْ وَنَعُوذُ بِكَ مِنَ شّرِ كلّهِ عاجلِهِ  وآجِالِه مَا عَلِمْنَا مِنْهُ وَمَالَمْ نَعٌلَمْ الَّلهُمَّ إِِنَّا نَسْأَلُكَ الْجَنَةَ وَمَاقرّبَ إلَيْهَا مِنْ قَولٍ وَعمَلٍ وَنَعُوذُ بِكَ مِنَ النَّارِ وَمَا قَرَّبَ إِلَيْها مِنْ قَولٍ وَعَمَلٍ الَّلهُمَّ إِنَّا نَسْأَلُكَ الْعَفْو  ً وَالْعَافِيَةَ وَالْمُعَافَاةَ الدَّائِمَةَ فِي الدِّينِ وَالدُّنْيَا وَالْأٓخِرَة ِالَّلهُمَّ إِنَّا نَسْأَلُكَ رِضَاكَ وَرِضَى نَبِيِّكََ وَرِضَى الْأَشْيَاخِ وَرِضَى الْوَالِدَيْنِ الَّلهُمَّ اجْعَلْ مَا نُرِيدُ فِيمَا تُرِيْدُ الَّلهُمَّ اجْعَلْ فِي اخْتِيَارِكَ إخْتيارَناَ وَلَا تَجْعَلْ إِلَّا إِلَيْكَ اضْطِرَارَناَ
+يَاربّنا يَاخَالِقَ الْعَوَالِمِ - حُلْ بَيْنَنَا وَبَيْنَ كُلِّ ظَالِمِ
+واجْزِ لِكُلِّ مَنْ إِلَينَا أَحْسَنَا - وَجَازِهِ عَنَّا الجَزَاءَ الْأَحْسَنَا
+الَّلهُمَّ ارْفَعْ عَنَّا الْجَهْدَ وَالْجُوعَ وَالْعُرْيَ وَاكْشِفْ عَنَّا مِنَ الْبَلَاءِ مَا لَايَكْشِفُهُ غَيرُكَ رَبَّنَا ءَاتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ رَبَّنَا لَا تُؤاخِذْنَا إِنْ نَسِينَا أَوْ أَخْطَأنَا رَبَّنَا وَلَا تَحْمِل عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الّذِينَ مِنْ قَبْلِنَا رَبَّنَا وَلَا تُحَمِلنَا مَالَاطَاقَةَ لَنَا بِهِ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا أَنْتَ مَولَانَا فَانْصُرنَا عَلَى الْقَومِ الكَافِرِينَ رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ الْوَهَّابُ رَبَّنَا إِنَّنَا سَمِعْنَا مُنَادِيًا يُنَادِي لِلْإِِيمَانِ أَنْ آمِنُوا بِرَبِّكُمْ فَآمَنَّا رَبَّنَا فَاغْفِرْلَنَا ذُنُوبَنَا وَكَفِّرْ عَنَّا سَيِئَاتِنَا وَتَوَفَنَا مَعَ الْأَبْرَارِ رَبَّنَا وَآتِنَا مَاوَعَدْتَنَا عَلَى رُسُلِكَ وَلَا تُخْزِنَا يَومَ الْقِيَامَةِ إِنَّكَ لَا تُخٌلِفً الْمِيْعَادَ رَبَّنٰا ظَلَمْنٰا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَ مِنَ الْخَاسِرِيْنَ رَبَّنَا ءَاتِنَا مِنْ لَدُنْكَ رَحْمَةً وَ هَيِئْ لَنَا مِنْ أَمْرِنَا رَشَدَا رَبَنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِيَاتِنَا قُرةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِيْنَ إِِمَامَا الَّلهُمَّ اغْفِرْ لِحَيِنَا وَمَيِّتِنَا وَكَبِيرِنَا وَصَغِيْرِنَا وَذَكَرِنَا وَأُنٌثَانَا وَحُرِنَا وَعَبْدِنَا وحَاضِرِنَا وَغَائِبِنَا وَطَائِعِناَ وَعَاصِيْنَا
               </Text>
+              
+              <Text style={styles.duaTransliteration}>
+                TRANSLITERATION OF THE DU'A AFTER WAZIFAH
+
+Allâhumma antal awwalu fa laysa ablaka chay'un wa antal âkhiru fa laysa ba'daka chay'un wa antaz-zâhiru fa laysa fayqaka chay'un wa antal bâtinu fa laysa dünaka chay un.
+Fakun lana ya awwalu ya âqiru ya zâhiru ya bâtinu waliyyan wan-naçiran anta waliyuna fa ni'mal mawlâ wan-ni'man-naçiru.
+Allâhumma innâ nas'aluka bifâtihiyyatil fâtihi fathat-tâma wa bi khâtimiyatil khâtimi husnal khitâmi.
+Allâhumma innâ nas'alukal-khayra kullahû 'âjilahů wa âjilahû ma 'alimnâ minhu wa mâ lam na'lam,
+wa na'üdhu bika minach-charri kullihi 'ajilihi wa âjilihî ma 'alimnâ minhu wa mâ lam na'lam.
+Allâhumma innâ nas'alukal jannata wa mâ qarraba ilayha min qawlin wa 'amalin,
+wa na'üdhu bika minan-nâri wa mâ qarraba ilayha min qawlin wa 'amalin.Allâhumma innâ nas'alukal-'afwa wal 'âfiyata wal mu'âfâtad-dâ'imata fid-dîni wad-dunya wal-âkhirati.
+Allâhumma innâ nas'aluka ridâka wa ridâ nabiyyika sayyidina Muhammadin çallal-Lâhu 'alayhi was-sallam, wa ridâl-achyâkhi wa ridâl-walidayni.
+Allâhumma i'al mâ nuhibbu fi mâ tuhibbu wa tardâ.
+Allâhumma ij'al fi ikhtiyârika ikhtiyarana wa lâ taj'al illa ilayka idtirarana
+Yâ rabbana yâ khâliqal-awâlimi hul baynana wa bayna kulli zalimi
+Wajzi li kulli man ilaynâ ahsana wa jâzîhi 'annâ jazâ'al ahsanâ
+Allâhumma irfa''annâl-jahda wal ju'a wal-'urya wakchif 'annâ minal balấ'i ma lâ yakchifuha ghayruka.
+Allâhumma farrij 'an ummati sayyidin Muhammadin çallal-Lâhu 'alayhi was-sallam. Rabban âtina fid-dunya hasanatan wa fil-âkhirati hasanatan waqina 'adhâban-nâri.Rabbana la tuwakhidhna in nasina aw akhta'nâ, rabbânâ wa lâ tahmil 'alayna içran kama hamaltahů 'alal-lazîna min qablina,
+rabbanâ wa lâ tuhammilnâ mâ la taqata lanâ bihi;
+wa'tu 'annâ waghfir lanâ warhamnâ anta mawlânâ fançurnâ'alal qawmil kâfirina.
+Rabbanâ lâ tuzigh qulûbanâ ba'da idh hadaytana wa hab lana min ladunka rahmatan innaka antal wahhab.
+Rabban innana sami'nâ munâdiyan yunâdi lil imâni an âminü bi rabbikum fa âmanna.
+Rabbanâ faghfir lana dhunûbanâ wa kafir 'anna sayyi'âtina wa tawaffanâ ma'al abrâri.
+Rabbanâ wa âtinâ mâ wa'adtan 'alâ rusulika wa lâ tukhzin waymal qiyâmati innâka la tukhliful mi ada.
+Rabbanâ zalamnâ anfusanâ wa in lam taghfir lan wa tarhamnâ la nakünana minal-khâsirina.abbanâ wa âtinâ mâ wa'adtanâ 'alâ rusulika wa lâ tukhzinâ waymal qiyâmati innâka la tukhliful mi'âda.
+Rabbanâ zalamnâ anfusanâ wa in lam taghfir lanâ wa tarhamnâ la nakûnana minal-khâsirîna.
+Rabbanâ âtinâ min ladunka rahmatan wa hayyi' lanâ min amrinâ rachadan.
+Rabbanâ hab lanâ min azwâjina wa dhurriyyâtinâ qurrata a'yunin waj'alna lil muttaqina imâman.
+Allâhumma ighfir lihayyinâ wa mayyitinâ, wa kabîrinâ waç-çaghirinâ, wa dhakarinâ wa unsânâ,
+wa hurinâ wa 'abdinâ, wa hâdirinâ wa ghibinâ, wa tấ'i'inâ wa 'âsînâ. Amiin
+              </Text>
+              
               <Text style={styles.duaTranslation}>
-                "O Allah, You are the First, so there is nothing before You, and You are the Last, so there is nothing after You, and You are the Manifest, so there is nothing above You, and You are the Hidden, so there is nothing below You. So be for us, O First, O Last, O Manifest, O Hidden, a guardian and helper. You are our Master, so what an excellent Master and what an excellent Helper. O Allah, we ask You by the opening of the Opener, the complete opening, and by the sealing of the Sealer, the good sealing. O Allah, we ask You for all good, immediate and delayed, what we know of it and what we do not know, and we seek refuge in You from all evil, immediate and delayed, what we know of it and what we do not know. O Allah, we ask You for Paradise and what brings us closer to it of word and deed, and we seek refuge in You from the Fire and what brings us closer to it of word and deed. O Allah, we ask You for forgiveness, well-being, and permanent protection in religion, this world, and the Hereafter. O Allah, we ask You for Your pleasure and the pleasure of Your Prophet and the pleasure of the shaykhs and the pleasure of the parents. O Allah, make what we want in what You want. O Allah, make our choice in Your choice and do not make our need except to You."
+                ENGLISH TRANSLATION (OF PRAYER (DU'AA) AFTER WAZIFAH)
+
+O, Allah! You are the First. There is nothing before You.
+And You are the Last. There is nothing after You.
+You are the Manifest. There is nothing above You.
+And You are the Hidden. There is nothing below You.
+
+Then be for us, o, First; o, Last; o, Apparent o, Hidden! a helping guardian.
+You are our Guardian and our Patron. And how excellent a Patron. How excellent a Helper.
+
+O, Allah! We ask You by the opening of the Opener a complete opening!
+And we ask You by the sealing of the Seal a good ending.
+
+O, Allah! We ask You for all good, the immediate and the delayed, that which we know and that which we do not know.
+And we seek refuge in You from all evil, the immediate and the delayed, that which we know and that which we do not know.
+
+O, Allah! We ask You for Paradise and words and deeds that draw one close to it.
+And we seek refuge in You from the Fire and words and deeds that draw one close to it. O, Allah!
+
+We ask You for perpetual pardon, well-being and freedom from affliction in the religion, this world and the Hereafter. 
+
+O, Allah! We ask You for Your satisfaction, the satisfaction of Your Prophet, the satisfaction of our Shaykhs and the satisfaction of our parents.
+O, Allah! Cause that which we love to be among that which You love.
+O, Allah! Cause our choice to be among that which You choose. And do not make our destituteness for anyone except You.
+
+Our Lord! O, Creator of the Worlds, ** Separate between us and every oppressor,
+
+And reward on our behalf all those who treat us well, ** And give them on our behalf the best of rewards.
+
+O, Allah! Lift from us all strife, hunger and nakedness. And remove from us those afflictions that only You can remove.
+
+{Our Lord! Give us good in this world and good in the Hereafter. And Save us from the punishment of the Fire.} Q2:201
+
+{Our Lord! Do not seize us if we forget or commit mistakes. Our Lord! Do not place upon us a burden like the burdens You placed upon those who went before us. Our Lord! And do not place upon us a burden greater than we can bear. Pardon us, forgive us and have mercy on us. You are our Patron. So help us against the disbelieving people.} Q2:286  
+
+{Our Lord! Do not cause our hearts to deviate after You have guided us. And grant us from Yourself a mercy. Indeed, You are the One who Grants. Our Lord! We have heard a call calling to faith: "Believe in your Lord!" And we have believed, o, our Lord! So forgive us our sins and cover our faults. And cause us to die among the righteous.} Q3:193 
+
+{And, o, our Lord, grant us what You promised us through Your Messengers. And do not humiliate us on the Day of Judgement. Indeed, You never break Your promise.} Q3:194
+
+ {Our Lord! We have wrong ourselves and if You do not forgive us or have mercy on us, we will be among the losers.} Q7:23
+
+{Our Lord! Grant us from Yourself a mercy. And prepare for us in our affair a good outcome} Q18:10
+
+{Our Lord! Grant us make our wives and children the coolness of our eyes and make us leaders of the God-fearing} Q25:74 
+
+O, Allah! Forgive those of us who are living and those passed away, the elders and the young, our males and females, those of us present and those who are absent, those who are free and those who are slaves, the obedient and the disobedient.
+
+O, Allah! Bless our Master Muhammad, the Opener of what was closed, the Seal of what went before, the Helper of the Truth by the Truth and the Guide to Your Straight Path, and his family in accordance with his grandeur and immense worth.  
+
+Hallowed is your Lord, the Lord of Might, above that which they attribute to Him. Peace be upon the Messengers. And all praise is due to Allah, Lord of All the Worlds.
+
+
+Ameen thumma Ameen!
               </Text>
             </ScrollView>
           </View>
@@ -556,30 +645,35 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   completionCard: {
-    backgroundColor: colors.mintSurface,
+    backgroundColor: '#F5F5F5', // Light ash/gray background
     marginHorizontal: 20,
     marginBottom: 16,
     borderRadius: 16,
     padding: 20,
     borderLeftWidth: 4,
-    borderLeftColor: colors.accentGreen,
+    borderLeftColor: '#2196F3', // Blue accent
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   completionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#1976D2', // Darker blue for title
     marginBottom: 12,
   },
   completionText: {
     fontSize: 16,
-    color: colors.textPrimary,
+    color: '#424242', // Dark ash/gray for Arabic text
     textAlign: 'right',
     marginBottom: 8,
     lineHeight: 24,
   },
   completionTranslation: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#616161', // Medium ash/gray for translation
     fontStyle: 'italic',
     lineHeight: 20,
   },
@@ -766,5 +860,53 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(46, 125, 50, 0.1)',
     padding: 12,
     borderRadius: 8,
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  duaText: {
+    fontSize: 18,
+    color: colors.textPrimary,
+    textAlign: 'right',
+    lineHeight: 32,
+    marginBottom: 20,
+    fontFamily: 'System',
+  },
+  duaTransliteration: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: 20,
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    padding: 16,
+    borderRadius: 8,
+  },
+  duaTranslation: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    lineHeight: 24,
+    marginBottom: 20,
   },
 });

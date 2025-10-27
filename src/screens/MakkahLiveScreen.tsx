@@ -25,40 +25,16 @@ type TVChannel = {
 
 const CHANNELS: Channel[] = [
   {
-    id: 'makkah-live-24-7',
-    title: '🕋 Makkah Live Online 24/7',
+    id: 'makkah-live-stream-1',
+    title: '🕋 Makkah Live Stream 1',
     subtitle: 'Live streaming from the Holy Kaaba',
-    youtubeId: 'zIl0NYIsBCE',
+    youtubeId: '6F84NXOUCdw',
   },
   {
-    id: 'makkah-hd-live',
-    title: '🕋 Makkah HD Live',
-    subtitle: 'High definition live stream from Makkah',
-    youtubeId: 'ZlU0ELqIfeY',
-  },
-  {
-    id: 'quran-kareem-tv',
-    title: '📺 Al Quran Al Kareem TV Channel Live',
-    subtitle: 'Official Quran TV channel live stream',
-    youtubeId: '-PR51PBK_yY',
-  },
-  {
-    id: 'madina-live-24-7',
-    title: '🕌 Madina Live – Al Masjid an-Nabawi 24/7 Streaming',
-    subtitle: 'Live streaming from the Prophet\'s Mosque',
-    youtubeId: 'TpT8b8JFZ6E',
-  },
-  {
-    id: 'medina-heart-live',
-    title: '🕌 Medina Live: Connect to the Heart of the Sacred City',
-    subtitle: 'Experience the spiritual beauty of Medina',
-    youtubeId: 'TpT8b8JFZ6E',
-  },
-  {
-    id: 'medina-spiritual-live',
-    title: '🕌 Medinah Live: Experience the Spiritual Beauty',
-    subtitle: 'Connect with the sacred atmosphere of Medina',
-    youtubeId: 'uvV-g-j7NRk',
+    id: 'makkah-live-stream-2',
+    title: '🕋 Makkah Live Stream 2',
+    subtitle: 'Live streaming from the Holy Kaaba',
+    youtubeId: 'U6bEFxYWJlo',
   },
 ];
 
