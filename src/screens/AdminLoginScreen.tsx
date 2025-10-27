@@ -14,14 +14,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
-import { useAdminAuth } from '../contexts/AdminAuthContext';
 
 interface AdminLoginScreenProps {
   onLoginSuccess: () => void;
 }
 
 const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) => {
-  const { login, isLoading } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,12 +31,15 @@ const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) =
       return;
     }
 
-    const success = await login(email.trim(), password);
-    if (success) {
-      onLoginSuccess();
-    } else {
-      Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-    }
+    // Redirect to main app login
+    Alert.alert(
+      'Redirect to Main App',
+      'Please login through the main app. Admin users will be automatically redirected to the admin dashboard.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Go to Login', onPress: () => onLoginSuccess() }
+      ]
+    );
   };
 
   const fillDemoCredentials = (type: 'admin' | 'moderator') => {
@@ -135,18 +136,11 @@ const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) =
           </View>
 
           <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+            style={styles.loginButton}
             onPress={handleLogin}
-            disabled={isLoading}
           >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Text style={styles.loginButtonText}>Sign In</Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-              </>
-            )}
+            <Text style={styles.loginButtonText}>Go to Main App Login</Text>
+            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
           </TouchableOpacity>
 
           <View style={styles.divider}>
