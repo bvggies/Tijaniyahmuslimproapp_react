@@ -161,21 +161,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Demo Credentials */}
-          <View style={styles.demoContainer}>
-            <Text style={styles.demoTitle}>Demo Credentials</Text>
-            <Text style={styles.demoText}>Email: demo@tijaniyah.com</Text>
-            <Text style={styles.demoText}>Password: demo123</Text>
-            <TouchableOpacity 
-              style={styles.demoButton}
-              onPress={() => {
-                setEmail('demo@tijaniyah.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.demoButtonText}>Use Demo Account</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </LinearGradient>
     </KeyboardAvoidingView>
@@ -340,35 +325,5 @@ const styles = StyleSheet.create({
   registerButtonTextBold: {
     color: colors.accentTeal,
     fontWeight: '700',
-  },
-  demoContainer: {
-    backgroundColor: colors.mintSurface,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  demoTitle: {
-    color: colors.textDark,
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  demoText: {
-    color: colors.textDark,
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  demoButton: {
-    backgroundColor: colors.accentTeal,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  demoButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
   },
 });
