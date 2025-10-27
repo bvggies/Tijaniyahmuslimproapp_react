@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import AdminLoginScreen from './AdminLoginScreen';
 import AdminDashboard from './AdminDashboard';
 import AdminNewsScreen from './AdminNewsScreen';
@@ -31,11 +32,22 @@ interface AdminMainScreenProps {
 
 const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   const { isAuthenticated, isLoading, adminUser, logout } = useAdminAuth();
+  const { authState, isAdmin, isModerator } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<string>('dashboard');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  useEffect(() => {
+    // If user is admin/moderator and authenticated, show admin dashboard
+    if (authState.isAuthenticated && authState.user && (isAdmin() || isModerator())) {
+      setCurrentScreen('dashboard');
+    } else {
+      setCurrentScreen('login');
+    }
+  }, [authState.isAuthenticated, authState.user, isAdmin, isModerator]);
+
   const handleLoginSuccess = () => {
-    setCurrentScreen('dashboard');
+    // Redirect to main app login screen
+    navigation.navigate('Login');
   };
 
   const handleLogout = async () => {

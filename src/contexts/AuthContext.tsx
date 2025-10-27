@@ -108,6 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email: 'demo@tijaniyah.com',
           name: 'Demo User',
           phone: '+233 558415813',
+          role: 'user',
           location: {
             city: 'Accra',
             country: 'Ghana',
@@ -122,6 +123,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         };
         
         const updatedUsers = [...users, demoUser];
+        await storeUsers(updatedUsers);
+      }
+
+      // Initialize admin users
+      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
+      if (!adminUserExists) {
+        const adminUser: User = {
+          id: 'admin-user-001',
+          email: 'admin@tijaniyahpro.com',
+          name: 'Super Administrator',
+          phone: '+233 558415813',
+          role: 'super_admin',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, adminUser];
+        await storeUsers(updatedUsers);
+      }
+
+      // Initialize moderator user
+      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
+      if (!moderatorUserExists) {
+        const moderatorUser: User = {
+          id: 'moderator-user-001',
+          email: 'moderator@tijaniyahpro.com',
+          name: 'Content Moderator',
+          phone: '+233 558415813',
+          role: 'moderator',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, moderatorUser];
         await storeUsers(updatedUsers);
       }
 
@@ -214,6 +267,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Invalid password for demo account. Use: demo123');
       }
 
+      // Special handling for admin accounts
+      if (user.email === 'admin@tijaniyahpro.com' && credentials.password !== 'admin123') {
+        throw new Error('Invalid password for admin account. Use: admin123');
+      }
+
+      if (user.email === 'moderator@tijaniyahpro.com' && credentials.password !== 'moderator123') {
+        throw new Error('Invalid password for moderator account. Use: moderator123');
+      }
+
       // Also authenticate with backend
       try {
         const { api } = await import('../services/api');
@@ -300,6 +362,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: data.name.trim(),
         phone: data.phone?.trim(),
         profilePicture: data.profilePicture,
+        role: 'user', // Default role for new users
         location: data.location,
         preferences: {
           prayerMethod: 'MWL',
@@ -398,6 +461,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  // Helper functions for role checking
+  const isAdmin = (): boolean => {
+    return authState.user?.role === 'admin' || authState.user?.role === 'super_admin';
+  };
+
+  const isSuperAdmin = (): boolean => {
+    return authState.user?.role === 'super_admin';
+  };
+
+  const isModerator = (): boolean => {
+    return authState.user?.role === 'moderator' || isAdmin();
+  };
+
+  const getUserRole = (): string => {
+    return authState.user?.role || 'user';
+  };
+
   const value: AuthContextType = {
     authState,
     login,
@@ -407,6 +487,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     resetPassword,
     clearError,
+    isAdmin,
+    isSuperAdmin,
+    isModerator,
+    getUserRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

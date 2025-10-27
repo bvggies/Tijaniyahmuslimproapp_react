@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from './AuthContext';
 
 export interface AdminUser {
   id: string;
@@ -84,24 +85,72 @@ const MOCK_PASSWORDS: { [email: string]: string } = {
 };
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { authState, isAdmin, isSuperAdmin, isModerator, getUserRole } = useAuth();
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadStoredAuth();
-  }, []);
+    checkAdminAccess();
+  }, [authState.user]);
 
-  const loadStoredAuth = async () => {
+  const checkAdminAccess = async () => {
     try {
-      const storedAuth = await AsyncStorage.getItem(ADMIN_STORAGE_KEY);
-      if (storedAuth) {
-        const authData = JSON.parse(storedAuth);
-        setAdminUser(authData.adminUser);
+      if (authState.user && (isAdmin() || isModerator())) {
+        // Convert regular user to admin user format
+        const adminUserData: AdminUser = {
+          id: authState.user.id,
+          email: authState.user.email,
+          name: authState.user.name,
+          role: authState.user.role as 'super_admin' | 'admin' | 'moderator',
+          permissions: getPermissionsForRole(authState.user.role as 'super_admin' | 'admin' | 'moderator'),
+          lastLogin: authState.user.lastLogin,
+          isActive: true,
+          createdAt: authState.user.createdAt,
+        };
+        setAdminUser(adminUserData);
+        await saveAuthData(adminUserData, `admin_token_${Date.now()}_${authState.user.id}`);
+      } else {
+        setAdminUser(null);
+        await clearAuthData();
       }
     } catch (error) {
-      console.error('Error loading stored admin auth:', error);
+      console.error('Error checking admin access:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getPermissionsForRole = (role: 'super_admin' | 'admin' | 'moderator'): AdminPermission[] => {
+    const allPermissions: AdminPermission[] = [
+      { id: '1', name: 'Full Access', resource: 'users', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '2', name: 'Full Access', resource: 'news', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '3', name: 'Full Access', resource: 'events', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '4', name: 'Full Access', resource: 'donations', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '5', name: 'Full Access', resource: 'uploads', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '6', name: 'Full Access', resource: 'lessons', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '7', name: 'Full Access', resource: 'scholars', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '8', name: 'Full Access', resource: 'settings', actions: ['create', 'read', 'update', 'delete'] },
+      { id: '9', name: 'Full Access', resource: 'analytics', actions: ['create', 'read', 'update', 'delete'] },
+    ];
+
+    const moderatorPermissions: AdminPermission[] = [
+      { id: '1', name: 'Read Only', resource: 'users', actions: ['read'] },
+      { id: '2', name: 'Content Management', resource: 'news', actions: ['create', 'read', 'update'] },
+      { id: '3', name: 'Content Management', resource: 'events', actions: ['create', 'read', 'update'] },
+      { id: '4', name: 'Read Only', resource: 'donations', actions: ['read'] },
+      { id: '5', name: 'Upload Management', resource: 'uploads', actions: ['create', 'read', 'update'] },
+      { id: '6', name: 'Content Management', resource: 'lessons', actions: ['create', 'read', 'update'] },
+      { id: '7', name: 'Content Management', resource: 'scholars', actions: ['create', 'read', 'update'] },
+    ];
+
+    switch (role) {
+      case 'super_admin':
+      case 'admin':
+        return allPermissions;
+      case 'moderator':
+        return moderatorPermissions;
+      default:
+        return [];
     }
   };
 
@@ -132,34 +181,9 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       setIsLoading(true);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check credentials
-      const user = MOCK_ADMIN_USERS.find(u => u.email === email);
-      const correctPassword = MOCK_PASSWORDS[email];
-      
-      if (!user || !correctPassword || password !== correctPassword) {
-        throw new Error('Invalid credentials');
-      }
-      
-      if (!user.isActive) {
-        throw new Error('Account is deactivated');
-      }
-      
-      // Update last login
-      const updatedUser = {
-        ...user,
-        lastLogin: new Date().toISOString(),
-      };
-      
-      // Generate mock token
-      const token = `admin_token_${Date.now()}_${user.id}`;
-      
-      setAdminUser(updatedUser);
-      await saveAuthData(updatedUser, token);
-      
-      return true;
+      // This function is now handled by the main AuthContext
+      // Admin users will be automatically redirected based on their role
+      return false; // This should not be called directly anymore
     } catch (error) {
       console.error('Admin login error:', error);
       return false;

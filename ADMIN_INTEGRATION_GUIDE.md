@@ -2,40 +2,39 @@
 
 ## 🚀 Quick Integration Steps
 
-### 1. **Add Admin Dashboard to Main App Navigation**
+### 1. **Role-Based Admin Access**
 
-Add the admin dashboard to your main app's navigation. Here's how to integrate it:
+The admin dashboard now uses **role-based authentication**. Admin users are automatically redirected to the admin dashboard when they login through the main app.
 
-#### **Option A: Add to Settings Screen**
+#### **Admin User Roles**
+- **Super Admin**: `admin@tijaniyahpro.com` / `admin123`
+- **Moderator**: `moderator@tijaniyahpro.com` / `moderator123`
+- **Regular User**: Any other user (default role: `user`)
+
+### 2. **Add Admin Access Button to Settings**
+
+Add the `AdminAccessButton` component to your settings screen:
+
 ```typescript
 // In your SettingsScreen.tsx
-import AdminMainScreen from '../screens/AdminMainScreen';
+import AdminAccessButton from '../components/AdminAccessButton';
 
 // Add this to your settings list
-const settingsItems = [
-  // ... existing settings
-  {
-    id: 'admin',
-    title: 'Admin Panel',
-    subtitle: 'Manage app content',
-    icon: 'shield-checkmark',
-    onPress: () => navigation.navigate('AdminPanel'),
-  },
-];
-```
-
-#### **Option B: Add as Hidden Menu Item**
-```typescript
-// Add a hidden admin access (e.g., tap app logo 5 times)
-const handleLogoPress = () => {
-  setLogoPressCount(prev => prev + 1);
-  if (logoPressCount >= 4) {
-    navigation.navigate('AdminPanel');
-  }
+const SettingsScreen = ({ navigation }) => {
+  return (
+    <ScrollView style={styles.container}>
+      {/* Your existing settings */}
+      
+      {/* Admin Access Button - Only shows for admin users */}
+      <AdminAccessButton navigation={navigation} />
+      
+      {/* Rest of your settings */}
+    </ScrollView>
+  );
 };
 ```
 
-### 2. **Update Navigation Stack**
+### 3. **Update Navigation Stack**
 
 Add the admin panel to your navigation stack:
 
@@ -57,36 +56,9 @@ import { AdminAuthProvider } from '../contexts/AdminAuthContext';
 </AdminAuthProvider>
 ```
 
-### 3. **Environment Configuration**
+### 4. **Automatic Admin Redirect**
 
-Create environment variables for admin settings:
-
-```typescript
-// In your .env file
-ADMIN_EMAIL=admin@tijaniyahpro.com
-ADMIN_PASSWORD=admin123
-ADMIN_ENABLED=true
-```
-
-### 4. **Add Admin Context to App**
-
-Wrap your main app with the AdminAuthProvider:
-
-```typescript
-// In your App.tsx or main component
-import { AdminAuthProvider } from './src/contexts/AdminAuthContext';
-
-export default function App() {
-  return (
-    <AdminAuthProvider>
-      {/* Your existing app structure */}
-      <NavigationContainer>
-        {/* Your navigation */}
-      </NavigationContainer>
-    </AdminAuthProvider>
-  );
-}
-```
+Admin users are automatically redirected to the admin dashboard when they login. No additional configuration needed!
 
 ## 🔧 **Configuration Options**
 
