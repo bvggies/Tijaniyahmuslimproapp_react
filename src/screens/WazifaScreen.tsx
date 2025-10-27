@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   completionCard: {
-    backgroundColor: '#F5F5F5', // Light ash/gray background
+    backgroundColor: '#FFF8E1', // Warm cream background
     marginHorizontal: 20,
     marginBottom: 16,
     borderRadius: 16,
@@ -661,19 +661,19 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1976D2', // Darker blue for title
+    color: '#E65100', // Vibrant orange for title
     marginBottom: 12,
   },
   completionText: {
     fontSize: 16,
-    color: '#424242', // Dark ash/gray for Arabic text
+    color: '#2E7D32', // Rich green for Arabic text
     textAlign: 'right',
     marginBottom: 8,
     lineHeight: 24,
   },
   completionTranslation: {
     fontSize: 14,
-    color: '#616161', // Medium ash/gray for translation
+    color: '#7B1FA2', // Deep purple for translation
     fontStyle: 'italic',
     lineHeight: 20,
   },
