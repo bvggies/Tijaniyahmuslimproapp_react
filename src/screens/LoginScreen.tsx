@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,11 +21,19 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
-  const { login, authState, clearError } = useAuth();
+  const { login, authState, clearError, isAdmin, isModerator } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle admin redirect after successful login
+  useEffect(() => {
+    if (authState.isAuthenticated && authState.user && (isAdmin() || isModerator())) {
+      console.log('🔄 Admin user logged in, redirecting to admin panel...');
+      navigation.navigate('AdminPanel');
+    }
+  }, [authState.isAuthenticated, authState.user, isAdmin, isModerator, navigation]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
