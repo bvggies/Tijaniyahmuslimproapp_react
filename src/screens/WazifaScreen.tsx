@@ -425,19 +425,19 @@ And reward on our behalf all those who treat us well, ** And give them on our be
 
 O, Allah! Lift from us all strife, hunger and nakedness. And remove from us those afflictions that only You can remove.
 
-{Our Lord! Give us good in this world and good in the Hereafter. And Save us from the punishment of the Fire.} Q2:201
+{"Our Lord! Give us good in this world and good in the Hereafter. And Save us from the punishment of the Fire."} Q2:201
 
-{Our Lord! Do not seize us if we forget or commit mistakes. Our Lord! Do not place upon us a burden like the burdens You placed upon those who went before us. Our Lord! And do not place upon us a burden greater than we can bear. Pardon us, forgive us and have mercy on us. You are our Patron. So help us against the disbelieving people.} Q2:286  
+{"Our Lord! Do not seize us if we forget or commit mistakes. Our Lord! Do not place upon us a burden like the burdens You placed upon those who went before us. Our Lord! And do not place upon us a burden greater than we can bear. Pardon us, forgive us and have mercy on us. You are our Patron. So help us against the disbelieving people."} Q2:286  
 
-{Our Lord! Do not cause our hearts to deviate after You have guided us. And grant us from Yourself a mercy. Indeed, You are the One who Grants. Our Lord! We have heard a call calling to faith: "Believe in your Lord!" And we have believed, o, our Lord! So forgive us our sins and cover our faults. And cause us to die among the righteous.} Q3:193 
+{"Our Lord! Do not cause our hearts to deviate after You have guided us. And grant us from Yourself a mercy. Indeed, You are the One who Grants. Our Lord! We have heard a call calling to faith: \"Believe in your Lord!\" And we have believed, o, our Lord! So forgive us our sins and cover our faults. And cause us to die among the righteous."} Q3:193 
 
-{And, o, our Lord, grant us what You promised us through Your Messengers. And do not humiliate us on the Day of Judgement. Indeed, You never break Your promise.} Q3:194
+{"And, o, our Lord, grant us what You promised us through Your Messengers. And do not humiliate us on the Day of Judgement. Indeed, You never break Your promise."} Q3:194
 
- {Our Lord! We have wrong ourselves and if You do not forgive us or have mercy on us, we will be among the losers.} Q7:23
+{"Our Lord! We have wrong ourselves and if You do not forgive us or have mercy on us, we will be among the losers."} Q7:23
 
-{Our Lord! Grant us from Yourself a mercy. And prepare for us in our affair a good outcome} Q18:10
+{"Our Lord! Grant us from Yourself a mercy. And prepare for us in our affair a good outcome"} Q18:10
 
-{Our Lord! Grant us make our wives and children the coolness of our eyes and make us leaders of the God-fearing} Q25:74 
+{"Our Lord! Grant us make our wives and children the coolness of our eyes and make us leaders of the God-fearing"} Q25:74 
 
 O, Allah! Forgive those of us who are living and those passed away, the elders and the young, our males and females, those of us present and those who are absent, those who are free and those who are slaves, the obedient and the disobedient.
 
