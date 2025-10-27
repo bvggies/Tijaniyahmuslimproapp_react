@@ -83,9 +83,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Load user from storage on app start
   useEffect(() => {
-    loadStoredUser();
-    initializeDemoAccount();
-    loadStoredToken();
+    const initializeApp = async () => {
+      await createAdminUsersIfNeeded(); // Create admin users first
+      await initializeDemoAccount(); // Initialize demo account
+      await loadStoredToken();
+      await loadStoredUser();
+    };
+    initializeApp();
   }, []);
 
   const loadStoredToken = async () => {
@@ -94,6 +98,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await loadStoredToken();
     } catch (error) {
       console.error('Error loading stored token:', error);
+    }
+  };
+
+  const createAdminUsersIfNeeded = async () => {
+    try {
+      const users = await getStoredUsers();
+      
+      // Create admin user if not exists
+      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
+      if (!adminUserExists) {
+        const adminUser: User = {
+          id: 'admin-user-001',
+          email: 'admin@tijaniyahpro.com',
+          name: 'Super Administrator',
+          phone: '+233 558415813',
+          role: 'super_admin',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, adminUser];
+        await storeUsers(updatedUsers);
+        console.log('✅ Admin user created');
+      }
+      
+      // Create moderator user if not exists
+      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
+      if (!moderatorUserExists) {
+        const moderatorUser: User = {
+          id: 'moderator-user-001',
+          email: 'moderator@tijaniyahpro.com',
+          name: 'Content Moderator',
+          phone: '+233 558415813',
+          role: 'moderator',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, moderatorUser];
+        await storeUsers(updatedUsers);
+        console.log('✅ Moderator user created');
+      }
+    } catch (error) {
+      console.error('Error creating admin users:', error);
     }
   };
 
@@ -250,11 +316,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const users = await getStoredUsers();
+      console.log('🔍 Available users:', users.map(u => ({ email: u.email, role: u.role })));
+      console.log('🔍 Looking for user:', credentials.email);
+      
       const user = users.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
 
       if (!user) {
+        console.log('❌ User not found in stored users');
         throw new Error('User not found. Please check your email or register.');
       }
+
+      console.log('✅ User found:', { email: user.email, role: user.role });
 
       // In a real app, you would verify the password hash here
       // For demo purposes, we'll accept any password for existing users
