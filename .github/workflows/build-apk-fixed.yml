@@ -1,4 +1,4 @@
-name: Build Tijaniyah Muslim Pro APK (Fixed)
+name: Build Tijaniyah Pro APK (Fixed)
 
 on:
   workflow_dispatch: # Manual trigger
@@ -8,6 +8,8 @@ on:
       - 'README.md'
       - 'docs/**'
       - 'CLOUD_BUILD_INSTRUCTIONS.md'
+      - 'ADMIN_DASHBOARD_README.md'
+      - 'ADMIN_INTEGRATION_GUIDE.md'
 
 jobs:
   build-apk:
@@ -39,8 +41,6 @@ jobs:
           ~/.gradle/caches
           ~/.gradle/wrapper
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
         
     - name: Install dependencies
       run: |
@@ -50,45 +50,62 @@ jobs:
     - name: Clean previous builds
       run: |
         if [ -d "android" ]; then
-          echo "Removing existing android directory for clean build"
+          echo "Removing existing android directory"
           rm -rf android
+        fi
+        if [ -d "node_modules/.cache" ]; then
+          echo "Clearing node cache"
+          rm -rf node_modules/.cache
         fi
         
     - name: Generate Android project
       run: |
-        npx expo prebuild --platform android --no-install
+        echo "Generating Android project..."
+        npx expo prebuild --platform android --clear
         echo "Android project generated successfully"
         
-    - name: Install Android dependencies
+    - name: Verify Android project structure
+      run: |
+        echo "Checking Android project structure:"
+        ls -la android/
+        ls -la android/app/
+        echo "Gradle wrapper exists:"
+        ls -la android/gradlew
+        
+    - name: Set up Gradle properties
       run: |
         cd android
-        ./gradlew --version
-        echo "Installing Android dependencies..."
+        echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> gradle.properties
+        echo "org.gradle.parallel=true" >> gradle.properties
+        echo "org.gradle.daemon=true" >> gradle.properties
+        echo "org.gradle.configureondemand=true" >> gradle.properties
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
         
     - name: Build Release APK
       run: |
         cd android
         chmod +x gradlew
-        echo "Starting APK build..."
+        echo "Starting Gradle build..."
         ./gradlew clean
-        ./gradlew assembleRelease --no-daemon --stacktrace --info
+        ./gradlew assembleRelease --no-daemon --stacktrace --info --max-workers=2
         
-    - name: Verify APK creation
+    - name: Check APK output
       run: |
-        echo "Checking for generated APK files:"
+        echo "Checking APK output:"
         ls -la android/app/build/outputs/apk/release/
         if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-          echo "✅ APK created successfully!"
+          echo "APK built successfully!"
           ls -lh android/app/build/outputs/apk/release/app-release.apk
         else
-          echo "❌ APK not found!"
+          echo "APK not found!"
           exit 1
         fi
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: tijaniyah-muslim-pro-apk
+        name: tijaniyah-pro-apk
         path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 30
         
@@ -96,41 +113,8 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: build-logs-${{ github.run_number }}
+        name: build-logs
         path: |
           android/
-          android/app/build/
+          android/app/build/outputs/
         retention-days: 7
-        
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: success()
-      with:
-        files: android/app/build/outputs/apk/release/app-release.apk
-        tag_name: v${{ github.run_number }}
-        name: Tijaniyah Muslim Pro v${{ github.run_number }}
-        body: |
-          🕌 **Tijaniyah Muslim Pro - Build ${{ github.run_number }}**
-          
-          ## Latest Updates
-          - ✅ Complete Suratul Fatiha implementation
-          - ✅ Enhanced Wazifa with full closing dua
-          - ✅ Updated Makkah Live streams
-          - ✅ Improved UI with blue and ash color scheme
-          - ✅ Admin dashboard system (in development)
-          - ✅ Production-ready login system
-          
-          ## Features
-          - Prayer Times with Location Detection
-          - Qibla Compass with Sensors
-          - Islamic Calendar (Hijri Dates)
-          - Azan Audio Player
-          - Digital Tasbih
-          - Islamic Lessons & Wazifa
-          - Community Features
-          - Donation System
-          - Multi-language Support
-          
-          This build includes all the latest improvements and is ready for distribution.
-        draft: false
-        prerelease: false
