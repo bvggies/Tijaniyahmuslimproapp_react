@@ -8,6 +8,8 @@ import {
   Modal,
   ScrollView,
   ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,6 +37,21 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   const { authState, isAdmin, isModerator } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<string>('dashboard');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Get screen dimensions
+  const { width } = Dimensions.get('window');
+
+  useEffect(() => {
+    // Check if device is mobile (width < 768px)
+    setIsMobile(width < 768);
+    
+    // On mobile, start with sidebar hidden
+    if (width < 768) {
+      setSidebarVisible(false);
+    }
+  }, [width]);
 
   useEffect(() => {
     // If user is admin/moderator and authenticated, show admin dashboard
@@ -48,6 +65,18 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   const handleLoginSuccess = () => {
     // Redirect to main app login screen
     navigation.navigate('Login');
+  };
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
+  const handleMenuPress = (screenId: string) => {
+    setCurrentScreen(screenId);
+    // On mobile, hide sidebar after menu selection
+    if (isMobile) {
+      setSidebarVisible(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -124,7 +153,11 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
     ];
 
     return (
-      <View style={styles.sidebar}>
+      <View style={[
+        styles.sidebar,
+        isMobile && !sidebarVisible && styles.sidebarHidden,
+        isMobile && styles.sidebarMobile
+      ]}>
         <View style={styles.sidebarHeader}>
           <View style={styles.adminInfo}>
             <View style={styles.adminAvatar}>
@@ -137,12 +170,22 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
               <Text style={styles.adminRole}>{adminUser?.role}</Text>
             </View>
           </View>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={confirmLogout}
-          >
-            <Ionicons name="log-out" size={20} color="#F44336" />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={confirmLogout}
+            >
+              <Ionicons name="log-out" size={20} color="#F44336" />
+            </TouchableOpacity>
+            {isMobile && (
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setSidebarVisible(false)}
+              >
+                <Ionicons name="close" size={20} color={colors.textPrimary} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <ScrollView style={styles.menuContainer}>
@@ -153,7 +196,7 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
                 styles.menuItem,
                 currentScreen === item.id && styles.menuItemActive
               ]}
-              onPress={() => setCurrentScreen(item.id)}
+              onPress={() => handleMenuPress(item.id)}
             >
               <View style={[
                 styles.menuIcon,
@@ -202,12 +245,55 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      {renderSidebar()}
-      
-      <View style={styles.mainContent}>
-        {renderCurrentScreen()}
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Mobile Header */}
+        {isMobile && isAuthenticated && currentScreen !== 'login' && (
+          <View style={styles.mobileHeader}>
+            <TouchableOpacity
+              style={styles.menuToggleButton}
+              onPress={toggleSidebar}
+            >
+              <Ionicons name="menu" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <Text style={styles.mobileHeaderTitle}>
+              {currentScreen === 'dashboard' ? 'Admin Dashboard' : 
+               currentScreen === 'news' ? 'News & Updates' :
+               currentScreen === 'events' ? 'Events' :
+               currentScreen === 'users' ? 'Users' :
+               currentScreen === 'donations' ? 'Donations' :
+               currentScreen === 'uploads' ? 'File Uploads' :
+               currentScreen === 'lessons' ? 'Lessons' :
+               currentScreen === 'scholars' ? 'Scholars' :
+               currentScreen === 'analytics' ? 'Analytics' :
+               currentScreen === 'settings' ? 'Settings' : 'Admin Panel'}
+            </Text>
+            <TouchableOpacity
+              style={styles.mobileLogoutButton}
+              onPress={confirmLogout}
+            >
+              <Ionicons name="log-out" size={20} color="#F44336" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Sidebar Overlay for Mobile */}
+        {isMobile && sidebarVisible && (
+          <TouchableOpacity
+            style={styles.sidebarOverlay}
+            onPress={() => setSidebarVisible(false)}
+            activeOpacity={1}
+          />
+        )}
+
+        {renderSidebar()}
+        
+        <View style={[
+          styles.mainContent,
+          isMobile && styles.mainContentMobile
+        ]}>
+          {renderCurrentScreen()}
+        </View>
 
       {/* Logout Confirmation Modal */}
       <Modal
@@ -250,10 +336,51 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
     flexDirection: 'row',
+  },
+  mobileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  menuToggleButton: {
+    padding: 8,
+  },
+  mobileHeaderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    flex: 1,
+    textAlign: 'center',
+  },
+  mobileLogoutButton: {
+    padding: 8,
+  },
+  sidebarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 998,
   },
   sidebar: {
     width: 280,
@@ -265,6 +392,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    zIndex: 999,
+  },
+  sidebarMobile: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    height: '100%',
+  },
+  sidebarHidden: {
+    transform: [{ translateX: -280 }],
   },
   sidebarHeader: {
     padding: 20,
@@ -385,6 +523,17 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     flex: 1,
+  },
+  mainContentMobile: {
+    paddingTop: 0,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  closeButton: {
+    padding: 8,
+    marginLeft: 8,
   },
   loadingContainer: {
     flex: 1,
