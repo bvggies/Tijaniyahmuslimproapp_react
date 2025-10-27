@@ -1,0 +1,123 @@
+name: Build APK - Simplified & Fixed
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          node_modules
+        key: ${{ runner.os }}-cache-${{ hashFiles('**/package-lock.json', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-cache-
+        
+    - name: Install Node dependencies
+      run: |
+        npm ci --prefer-offline
+        npx expo install --fix
+        
+    - name: Clean and prepare
+      run: |
+        if [ -d "android" ]; then
+          echo "Removing existing android directory"
+          rm -rf android
+        fi
+        
+    - name: Generate Android project
+      run: |
+        echo "Generating Android project..."
+        npx expo prebuild --platform android --no-install --clear
+        echo "Android project generated"
+        
+    - name: Fix Gradle permissions
+      run: |
+        cd android
+        chmod +x gradlew
+        chmod +x gradle/wrapper/gradle-wrapper.jar
+        
+    - name: Build APK with retry
+      run: |
+        cd android
+        echo "Starting Gradle build..."
+        
+        # Try building with different configurations
+        ./gradlew clean || echo "Clean failed, continuing..."
+        
+        # Build with verbose output and error handling
+        ./gradlew assembleRelease \
+          --no-daemon \
+          --stacktrace \
+          --info \
+          --warning-mode all \
+          --continue || {
+            echo "First build attempt failed, trying alternative approach..."
+            ./gradlew assembleRelease \
+              --no-daemon \
+              --stacktrace \
+              --offline \
+              --continue || {
+                echo "Build failed, checking for APK files anyway..."
+                find . -name "*.apk" -type f
+                exit 1
+              }
+          }
+        
+    - name: Verify APK
+      run: |
+        echo "Checking for APK files..."
+        find android -name "*.apk" -type f -exec ls -lh {} \;
+        
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "✅ APK found: android/app/build/outputs/apk/release/app-release.apk"
+          ls -lh android/app/build/outputs/apk/release/app-release.apk
+        else
+          echo "❌ APK not found in expected location"
+          echo "Searching for any APK files..."
+          find android -name "*.apk" -type f
+          exit 1
+        fi
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-muslim-pro-apk-${{ github.run_number }}
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+        
+    - name: Upload debug info (on failure)
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: debug-info-${{ github.run_number }}
+        path: |
+          android/app/build/
+          android/gradle/
+        retention-days: 7

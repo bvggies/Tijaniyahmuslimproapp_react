@@ -1,0 +1,136 @@
+name: Build Tijaniyah Muslim Pro APK (Fixed)
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'CLOUD_BUILD_INSTRUCTIONS.md'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean previous builds
+      run: |
+        if [ -d "android" ]; then
+          echo "Removing existing android directory for clean build"
+          rm -rf android
+        fi
+        
+    - name: Generate Android project
+      run: |
+        npx expo prebuild --platform android --no-install
+        echo "Android project generated successfully"
+        
+    - name: Install Android dependencies
+      run: |
+        cd android
+        ./gradlew --version
+        echo "Installing Android dependencies..."
+        
+    - name: Build Release APK
+      run: |
+        cd android
+        chmod +x gradlew
+        echo "Starting APK build..."
+        ./gradlew clean
+        ./gradlew assembleRelease --no-daemon --stacktrace --info
+        
+    - name: Verify APK creation
+      run: |
+        echo "Checking for generated APK files:"
+        ls -la android/app/build/outputs/apk/release/
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "✅ APK created successfully!"
+          ls -lh android/app/build/outputs/apk/release/app-release.apk
+        else
+          echo "❌ APK not found!"
+          exit 1
+        fi
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-muslim-pro-apk
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+        
+    - name: Upload build logs (on failure)
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs-${{ github.run_number }}
+        path: |
+          android/
+          android/app/build/
+        retention-days: 7
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: success()
+      with:
+        files: android/app/build/outputs/apk/release/app-release.apk
+        tag_name: v${{ github.run_number }}
+        name: Tijaniyah Muslim Pro v${{ github.run_number }}
+        body: |
+          🕌 **Tijaniyah Muslim Pro - Build ${{ github.run_number }}**
+          
+          ## Latest Updates
+          - ✅ Complete Suratul Fatiha implementation
+          - ✅ Enhanced Wazifa with full closing dua
+          - ✅ Updated Makkah Live streams
+          - ✅ Improved UI with blue and ash color scheme
+          - ✅ Admin dashboard system (in development)
+          - ✅ Production-ready login system
+          
+          ## Features
+          - Prayer Times with Location Detection
+          - Qibla Compass with Sensors
+          - Islamic Calendar (Hijri Dates)
+          - Azan Audio Player
+          - Digital Tasbih
+          - Islamic Lessons & Wazifa
+          - Community Features
+          - Donation System
+          - Multi-language Support
+          
+          This build includes all the latest improvements and is ready for distribution.
+        draft: false
+        prerelease: false
