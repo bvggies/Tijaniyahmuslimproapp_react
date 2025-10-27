@@ -1,0 +1,79 @@
+name: Build APK (High Memory Runner)
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest-4-cores # More memory and CPU
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean previous builds
+      run: |
+        rm -rf android
+        
+    - name: Generate Android project
+      run: |
+        npx expo prebuild --platform android
+        
+    - name: Configure Gradle for high memory
+      run: |
+        cd android
+        cat > gradle.properties << EOF
+        # High memory settings
+        org.gradle.jvmargs=-Xmx4096m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+        org.gradle.parallel=true
+        org.gradle.daemon=true
+        org.gradle.configureondemand=true
+        
+        # Android settings
+        android.useAndroidX=true
+        android.enableJetifier=true
+        
+        # Build optimization
+        android.enableR8.fullMode=true
+        android.enableD8.desugaring=true
+        EOF
+        
+    - name: Build Release APK
+      run: |
+        cd android
+        chmod +x gradlew
+        
+        # Set high memory environment variables
+        export GRADLE_OPTS="-Xmx4096m -XX:MaxPermSize=512m"
+        export JAVA_OPTS="-Xmx4096m -XX:MaxPermSize=512m"
+        
+        # Build with full resources
+        ./gradlew clean
+        ./gradlew assembleRelease --no-daemon --stacktrace --info
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk
+        path: android/app/build/outputs/apk/release/*.apk
+        retention-days: 30
