@@ -87,6 +87,8 @@ jobs:
         cd android
         chmod +x gradlew
         echo "Starting Gradle build..."
+        # Stop any existing daemons to clear cached JVM options
+        ./gradlew --stop || true
         ./gradlew clean
         ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --console=plain --max-workers=2
         
