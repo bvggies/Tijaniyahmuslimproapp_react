@@ -47,6 +47,8 @@ jobs:
     - name: Build APK
       run: |
         cd android
+        # Stop any existing daemons to clear cached JVM options
+        ./gradlew --stop || true
         ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --console=plain
         
     - name: Upload APK artifact

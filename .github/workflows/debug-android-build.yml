@@ -82,6 +82,8 @@ jobs:
     - name: Try assembleDebug first
       run: |
         cd android
+        # Stop any existing daemons to clear cached JVM options
+        ./gradlew --stop || true
         ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --console=plain --max-workers=1
         
     - name: Upload debug logs
