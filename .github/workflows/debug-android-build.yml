@@ -50,7 +50,7 @@ jobs:
     - name: Generate Android project with verbose output
       run: |
         echo "Generating Android project with verbose output..."
-        npx expo prebuild --platform android --clear --verbose
+        npx expo prebuild --platform android --clean --verbose
         
     - name: Check Android project structure
       run: |
