@@ -352,7 +352,8 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
