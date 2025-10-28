@@ -88,7 +88,7 @@ jobs:
         chmod +x gradlew
         echo "Starting Gradle build..."
         ./gradlew clean
-        ./gradlew assembleRelease --no-daemon --stacktrace --info --max-workers=2
+        ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --console=plain --max-workers=2
         
     - name: Check APK output
       run: |

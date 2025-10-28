@@ -82,7 +82,7 @@ jobs:
     - name: Try assembleDebug first
       run: |
         cd android
-        ./gradlew assembleDebug --stacktrace --info --max-workers=1
+        ./gradlew assembleDebug --no-daemon --stacktrace --info --warning-mode all --console=plain --max-workers=1
         
     - name: Upload debug logs
       uses: actions/upload-artifact@v4
