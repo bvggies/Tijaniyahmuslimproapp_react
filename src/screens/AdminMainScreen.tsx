@@ -41,17 +41,36 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   // Get screen dimensions
-  const { width } = Dimensions.get('window');
+  const initialWidth = Dimensions.get('window').width;
+  const [windowWidth, setWindowWidth] = useState<number>(initialWidth);
 
   useEffect(() => {
-    // Check if device is mobile (width < 768px)
-    setIsMobile(width < 768);
-    
-    // On mobile, start with sidebar hidden
-    if (width < 768) {
+    const onChange = ({ window }: { window: { width: number; height: number } }) => {
+      setWindowWidth(window.width);
+      const nowMobile = window.width < 768;
+      setIsMobile(nowMobile);
+      if (nowMobile) {
+        setSidebarVisible(false);
+      } else {
+        setSidebarVisible(true);
+      }
+    };
+
+    const subscription = Dimensions.addEventListener('change', onChange);
+
+    // Initialize once on mount
+    const nowMobile = initialWidth < 768;
+    setIsMobile(nowMobile);
+    if (nowMobile) {
       setSidebarVisible(false);
     }
-  }, [width]);
+
+    return () => {
+      // @ts-ignore removeEventListener fallback for RN versions
+      if (subscription?.remove) subscription.remove();
+      else Dimensions.removeEventListener?.('change', onChange as any);
+    };
+  }, []);
 
   useEffect(() => {
     // If user is admin/moderator and authenticated, show admin dashboard
@@ -152,11 +171,13 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
       { id: 'settings', label: 'Settings', icon: 'settings', color: '#9E9E9E' },
     ];
 
+    const sidebarWidth = Math.min(280, Math.floor(windowWidth * 0.85));
     return (
       <View style={[
         styles.sidebar,
-        isMobile && !sidebarVisible && styles.sidebarHidden,
-        isMobile && styles.sidebarMobile
+        isMobile && !sidebarVisible && { transform: [{ translateX: -sidebarWidth }] },
+        isMobile && styles.sidebarMobile,
+        { width: sidebarWidth }
       ]}>
         <View style={styles.sidebarHeader}>
           <View style={styles.adminInfo}>
@@ -383,7 +404,6 @@ const styles = StyleSheet.create({
     zIndex: 998,
   },
   sidebar: {
-    width: 280,
     backgroundColor: colors.surface,
     borderRightWidth: 1,
     borderRightColor: colors.divider,
@@ -400,9 +420,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     height: '100%',
-  },
-  sidebarHidden: {
-    transform: [{ translateX: -280 }],
+    maxWidth: '85%'
   },
   sidebarHeader: {
     padding: 20,
