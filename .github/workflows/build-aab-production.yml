@@ -168,21 +168,58 @@ jobs:
         chmod +x gradlew
         echo "Gradle wrapper is now executable"
         
+    - name: Verify Gradle tasks
+      run: |
+        cd android
+        echo "=== Available Gradle tasks ==="
+        ./gradlew tasks --all --no-daemon | grep -E "(bundle|assemble)" || true
+        echo ""
+        echo "=== Verifying bundleRelease task exists ==="
+        if ./gradlew tasks --all --no-daemon | grep -q "bundleRelease"; then
+          echo "✅ bundleRelease task found - will build AAB"
+        else
+          echo "❌ bundleRelease task not found!"
+          exit 1
+        fi
+        
     - name: Build AAB (Android App Bundle)
       run: |
         cd android
-        echo "Building AAB for Google Play Store..."
-        ./gradlew bundleRelease --no-daemon
+        echo "=== Building AAB for Google Play Store ==="
+        echo "Command: ./gradlew bundleRelease"
+        echo "This will generate: android/app/build/outputs/bundle/release/app-release.aab"
+        echo "NOT: android/app/build/outputs/apk/release/app-release.apk"
+        echo ""
+        # Clean any previous builds to ensure fresh AAB build
+        ./gradlew clean --no-daemon || true
+        # Build ONLY AAB bundle using bundleRelease (NOT assembleRelease which builds APK)
+        ./gradlew bundleRelease --no-daemon --stacktrace
+        echo ""
+        echo "=== Build completed ==="
         
     - name: Check for AAB
       run: |
-        echo "Checking for generated AAB..."
+        echo "=== Checking for generated AAB ==="
         if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
           echo "✅ AAB found: android/app/build/outputs/bundle/release/app-release.aab"
           ls -lh android/app/build/outputs/bundle/release/
+          file android/app/build/outputs/bundle/release/app-release.aab
+          echo ""
+          echo "=== Verifying this is an AAB file (not APK) ==="
+          # AAB files are ZIP archives, verify it's not an APK
+          if file android/app/build/outputs/bundle/release/app-release.aab | grep -q "Zip archive"; then
+            echo "✅ Confirmed: File is a ZIP archive (AAB format)"
+          fi
         else
           echo "❌ AAB not found. Checking all bundle files:"
           find android/app/build/outputs/bundle/ -name "*.aab" -type f || echo "No AAB files found"
+          echo ""
+          echo "=== Checking if APK was built instead (this should not happen) ==="
+          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+            echo "⚠️  WARNING: APK file found instead of AAB!"
+            echo "This workflow should only build AAB files."
+            ls -lh android/app/build/outputs/apk/release/
+          fi
           exit 1
         fi
         
