@@ -1,11 +1,12 @@
 name: Build APK
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch: # Allow manual triggers
+  # Disabled auto-trigger - use AAB workflow for production builds
+  # push:
+  #   branches: [ main, master ]
+  # pull_request:
+  #   branches: [ main, master ]
+  workflow_dispatch: # Manual trigger only - for development/testing
 
 jobs:
   build:

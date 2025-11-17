@@ -1,7 +1,7 @@
 name: Build AAB for Google Play Production
 
 on:
-  workflow_dispatch: # Manual trigger only
+  workflow_dispatch: # Manual trigger
     inputs:
       version_code:
         description: 'Version Code (integer)'
@@ -12,6 +12,8 @@ on:
         required: true
         default: '1.0.0'
   push:
+    branches:
+      - main  # Trigger on push to main branch
     tags:
       - 'v*' # Trigger on version tags like v1.0.0
 
@@ -81,12 +83,28 @@ jobs:
         
     - name: Update version code and name
       run: |
-        VERSION_CODE="${{ github.event.inputs.version_code || '1' }}"
-        VERSION_NAME="${{ github.event.inputs.version_name || '1.0.0' }}"
+        # Get version from inputs (manual trigger) or use defaults
+        VERSION_CODE="${{ github.event.inputs.version_code }}"
+        VERSION_NAME="${{ github.event.inputs.version_name }}"
         
         # Extract version from tag if triggered by tag
         if [[ "${{ github.ref }}" == refs/tags/* ]]; then
           VERSION_NAME="${GITHUB_REF#refs/tags/v}"
+          # Extract version code from tag or use commit count
+          if [[ -z "$VERSION_CODE" ]]; then
+            VERSION_CODE=$(git rev-list --count HEAD)
+          fi
+        fi
+        
+        # Use defaults if not provided
+        if [[ -z "$VERSION_CODE" ]]; then
+          # Increment based on previous version or use commit count
+          CURRENT_CODE=$(grep -oP 'versionCode \K[0-9]+' android/app/build.gradle 2>/dev/null || echo "0")
+          VERSION_CODE=$((CURRENT_CODE + 1))
+        fi
+        
+        if [[ -z "$VERSION_NAME" ]]; then
+          VERSION_NAME="1.0.0"
         fi
         
         echo "Setting versionCode=$VERSION_CODE and versionName=$VERSION_NAME"
