@@ -182,6 +182,41 @@ jobs:
           exit 1
         fi
         
+    - name: Disable APK building in build.gradle
+      run: |
+        # Modify build.gradle to prevent APK builds
+        python3 << 'PYTHON_SCRIPT'
+        import re
+        
+        build_gradle_path = 'android/app/build.gradle'
+        with open(build_gradle_path, 'r') as f:
+            content = f.read()
+        
+        # Add configuration to disable APK generation
+        disable_apk_config = '''
+    // Disable APK generation - only build AAB
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all {
+                // Disable APK generation
+            }
+        }
+    }
+'''
+        
+        # Insert before dependencies block
+        if 'dependencies {' in content:
+            content = re.sub(r'(dependencies\s*\{)', disable_apk_config + r'\1', content, count=1)
+        else:
+            # Append at end of android block
+            content = re.sub(r'(\}\s*$)', disable_apk_config + r'\1', content, count=1, flags=re.MULTILINE)
+        
+        with open(build_gradle_path, 'w') as f:
+            f.write(content)
+        
+        print("✅ APK building disabled in build.gradle")
+        PYTHON_SCRIPT
+        
     - name: Build AAB (Android App Bundle)
       run: |
         cd android
@@ -192,10 +227,31 @@ jobs:
         echo ""
         # Clean any previous builds to ensure fresh AAB build
         ./gradlew clean --no-daemon || true
+        # Remove any existing APK files to ensure we don't upload them
+        rm -rf app/build/outputs/apk/release/*.apk || true
+        echo "Removed any existing APK files"
+        echo ""
         # Build ONLY AAB bundle using bundleRelease (NOT assembleRelease which builds APK)
-        ./gradlew bundleRelease --no-daemon --stacktrace
+        # Use -x assembleRelease to explicitly exclude APK building
+        ./gradlew bundleRelease -x assembleRelease --no-daemon --stacktrace
         echo ""
         echo "=== Build completed ==="
+        
+    - name: Remove any accidentally created APK files
+      run: |
+        echo "=== Checking for accidentally created APK files ==="
+        if [ -d "android/app/build/outputs/apk/release" ]; then
+          APK_COUNT=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | wc -l)
+          if [ "$APK_COUNT" -gt 0 ]; then
+            echo "⚠️  Found $APK_COUNT APK file(s) - removing them..."
+            rm -f android/app/build/outputs/apk/release/*.apk
+            echo "✅ APK files removed"
+          else
+            echo "✅ No APK files found (as expected)"
+          fi
+        else
+          echo "✅ No APK output directory (as expected)"
+        fi
         
     - name: Check for AAB
       run: |
