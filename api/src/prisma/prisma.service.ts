@@ -9,21 +9,41 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
     
-    // Configure connection pooling for Railway PostgreSQL
-    // Railway PostgreSQL supports multiple connections, so we use a reasonable pool size
-    let urlWithPoolConfig = databaseUrl;
+    // Configure connection for Railway PostgreSQL
+    // Railway PostgreSQL works best with direct connections and proper SSL
+    let urlWithConfig = databaseUrl;
     
-    if (databaseUrl && !databaseUrl.includes('connection_limit')) {
-      // Railway PostgreSQL works best with connection pooling
-      // Use connection_limit=5 for better performance and reliability
+    if (databaseUrl && !databaseUrl.includes('sslmode')) {
+      // Add connection parameters for Railway PostgreSQL
+      // Railway requires SSL and works best with direct connections
       const separator = databaseUrl.includes('?') ? '&' : '?';
-      urlWithPoolConfig = `${databaseUrl}${separator}connection_limit=5&pool_timeout=20&connect_timeout=10`;
+      const params: string[] = [];
+      
+      // Add SSL mode (required for Railway)
+      params.push('sslmode=require');
+      
+      // Connection timeout
+      if (!databaseUrl.includes('connect_timeout')) {
+        params.push('connect_timeout=10');
+      }
+      
+      // Use connection pooling - Railway PostgreSQL supports multiple connections
+      // Lower connection limit to avoid overwhelming the database
+      if (!databaseUrl.includes('connection_limit')) {
+        params.push('connection_limit=3');
+      }
+      if (!databaseUrl.includes('pool_timeout')) {
+        params.push('pool_timeout=20');
+      }
+      
+      urlWithConfig = `${databaseUrl}${separator}${params.join('&')}`;
+      this.logger.log(`Database URL configured for Railway PostgreSQL`);
     }
 
     super({
       datasources: {
         db: {
-          url: urlWithPoolConfig,
+          url: urlWithConfig,
         },
       },
       log: process.env.NODE_ENV === 'development' 
@@ -31,9 +51,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         : ['warn', 'error'],
     });
 
-    // Handle connection errors gracefully
+    // Handle connection errors and reconnection
     this.$on('error' as never, (e: any) => {
       this.logger.error('Prisma error:', e);
+      // Mark as disconnected so we can reconnect
+      if (e.message?.includes('Closed') || e.message?.includes('connection')) {
+        this.isConnected = false;
+        this.logger.warn('Connection lost, will attempt to reconnect on next query');
+      }
     });
   }
 
@@ -92,13 +117,41 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
-  // Health check method
+  // Health check method with automatic reconnection
   async isHealthy(): Promise<boolean> {
     try {
+      // If not connected, try to reconnect
+      if (!this.isConnected) {
+        await this.connectWithRetry(3, 1000);
+      }
       await this.$queryRaw`SELECT 1`;
       return true;
-    } catch {
-      return false;
+    } catch (error: any) {
+      this.logger.warn('Health check failed, attempting reconnection:', error.message);
+      // Try to reconnect
+      try {
+        await this.connectWithRetry(2, 1000);
+        await this.$queryRaw`SELECT 1`;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  // Override query methods to handle connection drops
+  async $queryRaw<T = unknown>(query: TemplateStringsArray | string, ...values: any[]): Promise<T> {
+    try {
+      return await super.$queryRaw(query as any, ...values);
+    } catch (error: any) {
+      if (error.message?.includes('Closed') || error.message?.includes('connection')) {
+        this.logger.warn('Connection closed during query, reconnecting...');
+        this.isConnected = false;
+        await this.connectWithRetry(2, 1000);
+        // Retry the query
+        return await super.$queryRaw(query as any, ...values);
+      }
+      throw error;
     }
   }
 }
