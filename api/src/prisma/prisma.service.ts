@@ -37,9 +37,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       }
       
       urlWithConfig = `${databaseUrl}${separator}${params.join('&')}`;
-      this.logger.log(`Database URL configured for Railway PostgreSQL`);
     }
 
+    // Call super() first before accessing 'this'
     super({
       datasources: {
         db: {
@@ -50,6 +50,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         ? ['query', 'info', 'warn', 'error'] 
         : ['warn', 'error'],
     });
+
+    // Now we can use this.logger after super()
+    if (databaseUrl && !databaseUrl.includes('sslmode')) {
+      this.logger.log(`Database URL configured for Railway PostgreSQL`);
+    }
 
     // Handle connection errors and reconnection
     this.$on('error' as never, (e: any) => {
@@ -124,32 +129,36 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       if (!this.isConnected) {
         await this.connectWithRetry(3, 1000);
       }
-      await this.$queryRaw`SELECT 1`;
-      return true;
+      return await this.executeWithReconnect(async () => {
+        await this.$queryRaw`SELECT 1`;
+        return true;
+      });
     } catch (error: any) {
       this.logger.warn('Health check failed, attempting reconnection:', error.message);
       // Try to reconnect
       try {
         await this.connectWithRetry(2, 1000);
-        await this.$queryRaw`SELECT 1`;
-        return true;
+        return await this.executeWithReconnect(async () => {
+          await this.$queryRaw`SELECT 1`;
+          return true;
+        });
       } catch {
         return false;
       }
     }
   }
 
-  // Override query methods to handle connection drops
-  async $queryRaw<T = unknown>(query: TemplateStringsArray | string, ...values: any[]): Promise<T> {
+  // Helper method to execute queries with automatic reconnection
+  private async executeWithReconnect<T>(queryFn: () => Promise<T>): Promise<T> {
     try {
-      return await super.$queryRaw(query as any, ...values);
+      return await queryFn();
     } catch (error: any) {
       if (error.message?.includes('Closed') || error.message?.includes('connection')) {
         this.logger.warn('Connection closed during query, reconnecting...');
         this.isConnected = false;
         await this.connectWithRetry(2, 1000);
         // Retry the query
-        return await super.$queryRaw(query as any, ...values);
+        return await queryFn();
       }
       throw error;
     }
