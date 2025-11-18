@@ -168,69 +168,74 @@ jobs:
           echo "⚠️  Skipping signing configuration - secrets not set"
           exit 0
         fi
-        # Use Python to properly modify build.gradle
-        python3 << 'EOF'
+        
+        echo "Configuring release signing in build.gradle..."
+        
+        python3 << 'PYTHON_SCRIPT'
         import re
         
         build_gradle_path = 'android/app/build.gradle'
         with open(build_gradle_path, 'r') as f:
-            content = f.read()
+            lines = f.readlines()
         
-        # Check if signingConfigs already exists
-        has_signing_configs = 'signingConfigs {' in content
+        # Check if release signing config already exists
+        content_str = ''.join(lines)
+        has_release_config = 'signingConfigs {' in content_str and 'release {' in content_str.split('signingConfigs {')[1].split('buildTypes')[0]
         
-        if not has_signing_configs:
-            # Add signingConfigs block before buildTypes
-            signing_config = '''
-        signingConfigs {
-            release {
-                if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
-                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-                }
-            }
-        }
-        '''
-            # Insert before buildTypes
-            content = re.sub(r'(buildTypes\s*\{)', signing_config + r'\1', content, count=1)
-        else:
-            # Add release config to existing signingConfigs
-            release_config = '''
-            release {
-                if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
-                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-                }
-            }'''
-            # Insert after signingConfigs {
-            content = re.sub(r'(signingConfigs\s*\{)', r'\1' + release_config, content, count=1)
+        if not has_release_config:
+            # Find signingConfigs block and add release config before closing brace
+            output_lines = []
+            in_signing_configs = False
+            brace_depth = 0
+            release_added = False
+            
+            for i, line in enumerate(lines):
+                if 'signingConfigs {' in line:
+                    in_signing_configs = True
+                    brace_depth = 1
+                    output_lines.append(line)
+                    continue
+                
+                if in_signing_configs:
+                    brace_depth += line.count('{') - line.count('}')
+                    
+                    # When brace_depth becomes 0, we're closing signingConfigs - add release config before
+                    if brace_depth == 0 and '}' in line and not release_added:
+                        # Insert release config before this closing brace
+                        indent = '        '
+                        release_config_lines = [
+                            f'{indent}release {{\n',
+                            f'{indent}    if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {{\n',
+                            f'{indent}        storeFile file(MYAPP_UPLOAD_STORE_FILE)\n',
+                            f'{indent}        storePassword MYAPP_UPLOAD_STORE_PASSWORD\n',
+                            f'{indent}        keyAlias MYAPP_UPLOAD_KEY_ALIAS\n',
+                            f'{indent}        keyPassword MYAPP_UPLOAD_KEY_PASSWORD\n',
+                            f'{indent}    }}\n',
+                            f'{indent}}}\n'
+                        ]
+                        output_lines.extend(release_config_lines)
+                        release_added = True
+                        in_signing_configs = False
+                
+                output_lines.append(line)
+            
+            lines = output_lines
+            content_str = ''.join(lines)
+            print("Added release signing config")
         
         # Update release buildType to use production signing
-        # Replace debug signing with release signing
-        content = re.sub(
+        content_str = re.sub(
             r'signingConfig\s+signingConfigs\.debug',
             'signingConfig signingConfigs.release',
-            content
+            content_str
         )
         
-        # If no signingConfig in release block, add it
-        if 'release {' in content and 'signingConfig' not in content.split('release {')[1].split('}')[0]:
-            content = re.sub(
-                r'(release\s*\{[^}]*?)(\})',
-                r'\1            signingConfig signingConfigs.release\n        \2',
-                content,
-                flags=re.DOTALL
-            )
-        
+        # Write back
         with open(build_gradle_path, 'w') as f:
-            f.write(content)
+            f.write(content_str)
         
         print("✅ Signing configuration updated successfully")
-        EOF
+        PYTHON_SCRIPT
         
     - name: Make gradlew executable
       run: |
