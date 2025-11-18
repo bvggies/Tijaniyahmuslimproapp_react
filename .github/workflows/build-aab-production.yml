@@ -128,6 +128,24 @@ jobs:
           echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
           echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
           echo "✅ Signing properties configured"
+          
+          # Verify keystore file exists and validate it
+          if [ -f "android/app/upload-keystore.jks" ]; then
+            echo "Verifying keystore file..."
+            KEYSTORE_FILE="android/app/upload-keystore.jks"
+            KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}"
+            
+            # Try to list keys in keystore to verify password
+            if command -v keytool >/dev/null 2>&1; then
+              if keytool -list -v -keystore "$KEYSTORE_FILE" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
+                echo "✅ Keystore password verified successfully"
+              else
+                echo "⚠️  Warning: Could not verify keystore password with keytool"
+                echo "This might indicate a password mismatch, but build will continue"
+              fi
+            fi
+          fi
         fi
         
     - name: Update version code and name
@@ -206,10 +224,10 @@ jobs:
                         release_config_lines = [
                             f'{indent}release {{\n',
                             f'{indent}    if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {{\n',
-                            f'{indent}        storeFile file(MYAPP_UPLOAD_STORE_FILE)\n',
-                            f'{indent}        storePassword MYAPP_UPLOAD_STORE_PASSWORD\n',
-                            f'{indent}        keyAlias MYAPP_UPLOAD_KEY_ALIAS\n',
-                            f'{indent}        keyPassword MYAPP_UPLOAD_KEY_PASSWORD\n',
+                            f'{indent}        storeFile file(project.findProperty("MYAPP_UPLOAD_STORE_FILE"))\n',
+                            f'{indent}        storePassword project.findProperty("MYAPP_UPLOAD_STORE_PASSWORD")\n',
+                            f'{indent}        keyAlias project.findProperty("MYAPP_UPLOAD_KEY_ALIAS")\n',
+                            f'{indent}        keyPassword project.findProperty("MYAPP_UPLOAD_KEY_PASSWORD")\n',
                             f'{indent}    }}\n',
                             f'{indent}}}\n'
                         ]
@@ -236,6 +254,48 @@ jobs:
         
         print("✅ Signing configuration updated successfully")
         PYTHON_SCRIPT
+        
+    - name: Verify keystore and signing configuration
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      run: |
+        echo "=== Verifying keystore configuration ==="
+        cd android
+        
+        # Check if keystore file exists
+        if [ ! -f "app/upload-keystore.jks" ]; then
+          echo "❌ Error: Keystore file not found at app/upload-keystore.jks"
+          exit 1
+        fi
+        
+        echo "✅ Keystore file exists"
+        ls -lh app/upload-keystore.jks
+        
+        # Verify keystore password using keytool
+        echo "Verifying keystore password..."
+        KEYSTORE_FILE="app/upload-keystore.jks"
+        KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+        KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}"
+        
+        if keytool -list -v -keystore "$KEYSTORE_FILE" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" 2>&1 | head -5; then
+          echo "✅ Keystore password verified successfully"
+        else
+          echo "❌ Error: Keystore password verification failed!"
+          echo "Please verify that:"
+          echo "  1. ANDROID_KEYSTORE_PASSWORD matches the keystore password"
+          echo "  2. ANDROID_KEY_ALIAS matches the key alias in the keystore"
+          echo "  3. ANDROID_KEYSTORE_BASE64 contains the correct keystore file"
+          exit 1
+        fi
+        
+        # Check gradle.properties
+        echo ""
+        echo "=== Checking gradle.properties ==="
+        if grep -q "MYAPP_UPLOAD_STORE_FILE" gradle.properties; then
+          echo "✅ Signing properties found in gradle.properties"
+          grep "MYAPP_UPLOAD" gradle.properties | sed 's/=.*/=***/'  # Hide passwords
+        else
+          echo "⚠️  Warning: Signing properties not found in gradle.properties"
+        fi
         
     - name: Make gradlew executable
       run: |
