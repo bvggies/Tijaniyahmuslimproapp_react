@@ -73,8 +73,18 @@ jobs:
         else
           echo "Setting up signing keystore..."
           mkdir -p android/app
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
-          echo "✅ Keystore file created"
+          # Remove any whitespace/newlines from the base64 string and decode
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 -d > android/app/upload-keystore.jks
+          
+          # Verify the keystore file was created and is valid
+          if [ -f "android/app/upload-keystore.jks" ] && [ -s "android/app/upload-keystore.jks" ]; then
+            echo "✅ Keystore file created successfully"
+            ls -lh android/app/upload-keystore.jks
+          else
+            echo "❌ Failed to create keystore file"
+            echo "Please check that ANDROID_KEYSTORE_BASE64 secret is a valid base64 string"
+            exit 1
+          fi
         fi
         
         # Create or update gradle.properties with signing config (only if secrets are set)
