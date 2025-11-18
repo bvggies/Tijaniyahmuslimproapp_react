@@ -66,20 +66,28 @@ jobs:
         fi
         
     - name: Setup signing keystore
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       run: |
-        echo "Setting up signing keystore..."
-        mkdir -p android/app
-        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Warning: ANDROID_KEYSTORE_BASE64 secret not set. Building without signing."
+          echo "The app will be signed with debug keystore."
+        else
+          echo "Setting up signing keystore..."
+          mkdir -p android/app
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+          echo "✅ Keystore file created"
+        fi
         
-        # Create or update gradle.properties with signing config
-        KEYSTORE_PROPERTIES="android/gradle.properties"
-        echo "" >> "$KEYSTORE_PROPERTIES"
-        echo "# Production signing configuration" >> "$KEYSTORE_PROPERTIES"
-        echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> "$KEYSTORE_PROPERTIES"
-        echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> "$KEYSTORE_PROPERTIES"
-        echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
-        echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
+        # Create or update gradle.properties with signing config (only if secrets are set)
+        if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          KEYSTORE_PROPERTIES="android/gradle.properties"
+          echo "" >> "$KEYSTORE_PROPERTIES"
+          echo "# Production signing configuration" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
+          echo "✅ Signing properties configured"
+        fi
         
     - name: Update version code and name
       run: |
@@ -114,8 +122,11 @@ jobs:
         sed -i "s/versionName \".*\"/versionName \"$VERSION_NAME\"/" android/app/build.gradle
         
     - name: Configure release signing in build.gradle
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       run: |
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Skipping signing configuration - secrets not set"
+          exit 0
+        fi
         # Use Python to properly modify build.gradle
         python3 << 'EOF'
         import re
