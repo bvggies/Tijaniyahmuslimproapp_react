@@ -201,6 +201,7 @@ jobs:
         fi
         
     - name: Build AAB (Android App Bundle)
+      id: build-aab
       run: |
         cd android
         echo "=== Building AAB for Google Play Store ==="
@@ -210,11 +211,19 @@ jobs:
         # Clean any previous builds to ensure fresh build
         ./gradlew clean --no-daemon || true
         # Build AAB bundle
-        ./gradlew bundleRelease --no-daemon --stacktrace
+        if ./gradlew bundleRelease --no-daemon --stacktrace; then
+          echo "✅ AAB build succeeded"
+          echo "aab_built=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ AAB build failed!"
+          echo "aab_built=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
         echo ""
         echo "=== AAB build completed ==="
         
     - name: Build APK (for direct distribution/testing)
+      id: build-apk
       run: |
         cd android
         echo "=== Building APK for direct distribution ==="
@@ -222,20 +231,32 @@ jobs:
         echo "This will generate: android/app/build/outputs/apk/release/app-release.apk"
         echo ""
         # Build APK (reuses compiled code from AAB build, so it's fast)
-        ./gradlew assembleRelease --no-daemon --stacktrace
+        if ./gradlew assembleRelease --no-daemon --stacktrace; then
+          echo "✅ APK build succeeded"
+          echo "apk_built=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ APK build failed!"
+          echo "apk_built=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
         echo ""
         echo "=== APK build completed ==="
         
-    - name: Check for AAB and APK
+    - name: Verify build outputs
       run: |
         echo "=== Checking for generated AAB ==="
         if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
           echo "✅ AAB found: android/app/build/outputs/bundle/release/app-release.aab"
           ls -lh android/app/build/outputs/bundle/release/
           file android/app/build/outputs/bundle/release/app-release.aab
+          AAB_SIZE=$(stat -f%z android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null || stat -c%s android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null || echo "unknown")
+          echo "AAB size: $AAB_SIZE bytes"
         else
-          echo "❌ AAB not found!"
-          find android/app/build/outputs/bundle/ -name "*.aab" -type f || echo "No AAB files found"
+          echo "❌ AAB not found in expected location!"
+          echo "Searching for AAB files..."
+          find android/app/build/outputs/bundle/ -name "*.aab" -type f || echo "No AAB files found anywhere"
+          echo "Listing bundle directory:"
+          ls -la android/app/build/outputs/bundle/release/ 2>/dev/null || echo "Bundle directory doesn't exist"
           exit 1
         fi
         
@@ -245,25 +266,34 @@ jobs:
           echo "✅ APK found: android/app/build/outputs/apk/release/app-release.apk"
           ls -lh android/app/build/outputs/apk/release/
           file android/app/build/outputs/apk/release/app-release.apk
+          APK_SIZE=$(stat -f%z android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || stat -c%s android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || echo "unknown")
+          echo "APK size: $APK_SIZE bytes"
         else
-          echo "❌ APK not found!"
-          find android/app/build/outputs/apk/ -name "*.apk" -type f || echo "No APK files found"
+          echo "❌ APK not found in expected location!"
+          echo "Searching for APK files..."
+          find android/app/build/outputs/apk/ -name "*.apk" -type f || echo "No APK files found anywhere"
+          echo "Listing APK directory:"
+          ls -la android/app/build/outputs/apk/release/ 2>/dev/null || echo "APK directory doesn't exist"
           exit 1
         fi
         
     - name: Upload AAB artifact
+      if: steps.build-aab.outputs.aab_built == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: tijaniyah-pro-aab-production
         path: android/app/build/outputs/bundle/release/app-release.aab
         retention-days: 90
+        if-no-files-found: error
         
     - name: Upload APK artifact
+      if: steps.build-apk.outputs.apk_built == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: tijaniyah-pro-apk-production
         path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 90
+        if-no-files-found: error
         
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
