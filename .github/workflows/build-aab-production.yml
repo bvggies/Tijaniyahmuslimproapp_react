@@ -73,16 +73,47 @@ jobs:
         else
           echo "Setting up signing keystore..."
           mkdir -p android/app
-          # Remove any whitespace/newlines from the base64 string and decode
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 -d > android/app/upload-keystore.jks
           
-          # Verify the keystore file was created and is valid
-          if [ -f "android/app/upload-keystore.jks" ] && [ -s "android/app/upload-keystore.jks" ]; then
-            echo "✅ Keystore file created successfully"
-            ls -lh android/app/upload-keystore.jks
+          # Get the base64 string and clean it
+          KEYSTORE_BASE64="${{ secrets.ANDROID_KEYSTORE_BASE64 }}"
+          
+          # Remove all whitespace, newlines, and carriage returns
+          CLEANED_BASE64=$(echo "$KEYSTORE_BASE64" | tr -d '\n\r\t ')
+          
+          # Validate base64 string (check length and characters)
+          BASE64_LENGTH=${#CLEANED_BASE64}
+          echo "Base64 string length: $BASE64_LENGTH characters"
+          
+          if [ "$BASE64_LENGTH" -lt 100 ]; then
+            echo "❌ Error: Base64 string is too short (expected >100 characters)"
+            echo "Please verify ANDROID_KEYSTORE_BASE64 secret is complete"
+            exit 1
+          fi
+          
+          # Check if it contains only valid base64 characters
+          if ! echo "$CLEANED_BASE64" | grep -qE '^[A-Za-z0-9+/=]+$'; then
+            echo "❌ Error: Base64 string contains invalid characters"
+            echo "Base64 should only contain A-Z, a-z, 0-9, +, /, and ="
+            exit 1
+          fi
+          
+          # Decode base64 to keystore file
+          echo "Decoding base64 to keystore file..."
+          if echo "$CLEANED_BASE64" | base64 -d > android/app/upload-keystore.jks 2>&1; then
+            # Verify the keystore file was created and is valid
+            if [ -f "android/app/upload-keystore.jks" ] && [ -s "android/app/upload-keystore.jks" ]; then
+              KEYSTORE_SIZE=$(stat -f%z android/app/upload-keystore.jks 2>/dev/null || stat -c%s android/app/upload-keystore.jks 2>/dev/null || echo "unknown")
+              echo "✅ Keystore file created successfully"
+              echo "Keystore file size: $KEYSTORE_SIZE bytes"
+              ls -lh android/app/upload-keystore.jks
+            else
+              echo "❌ Failed to create keystore file (file is empty or missing)"
+              exit 1
+            fi
           else
-            echo "❌ Failed to create keystore file"
-            echo "Please check that ANDROID_KEYSTORE_BASE64 secret is a valid base64 string"
+            echo "❌ Failed to decode base64 string"
+            echo "Please verify that ANDROID_KEYSTORE_BASE64 contains a valid base64-encoded keystore"
+            echo "Tip: Make sure the secret is copied correctly without any extra characters"
             exit 1
           fi
         fi
