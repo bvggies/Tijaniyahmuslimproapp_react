@@ -256,8 +256,12 @@ jobs:
         PYTHON_SCRIPT
         
     - name: Verify keystore and signing configuration
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      if: ${{ github.event_name != 'pull_request' }}
       run: |
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Skipping keystore verification - secrets not set"
+          exit 0
+        fi
         echo "=== Verifying keystore configuration ==="
         cd android
         
