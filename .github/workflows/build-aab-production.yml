@@ -117,7 +117,7 @@ jobs:
       if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
       run: |
         # Use Python to properly modify build.gradle
-        python3 << 'PYTHON_SCRIPT'
+        python3 << 'EOF'
         import re
         
         build_gradle_path = 'android/app/build.gradle'
@@ -130,30 +130,30 @@ jobs:
         if not has_signing_configs:
             # Add signingConfigs block before buildTypes
             signing_config = '''
-    signingConfigs {
-        release {
-            if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+        signingConfigs {
+            release {
+                if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
+                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+                }
             }
         }
-    }
-'''
+        '''
             # Insert before buildTypes
-            content = re.sub(r'(buildTypes\s*{)', signing_config + r'\1', content, count=1)
+            content = re.sub(r'(buildTypes\s*\{)', signing_config + r'\1', content, count=1)
         else:
             # Add release config to existing signingConfigs
             release_config = '''
-        release {
-            if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-            }
-        }'''
+            release {
+                if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {
+                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+                }
+            }'''
             # Insert after signingConfigs {
             content = re.sub(r'(signingConfigs\s*\{)', r'\1' + release_config, content, count=1)
         
@@ -178,7 +178,7 @@ jobs:
             f.write(content)
         
         print("✅ Signing configuration updated successfully")
-        PYTHON_SCRIPT
+        EOF
         
     - name: Make gradlew executable
       run: |
