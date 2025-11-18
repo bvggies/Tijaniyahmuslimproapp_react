@@ -200,100 +200,54 @@ jobs:
           exit 1
         fi
         
-    - name: Disable APK building in build.gradle
-      run: |
-        # Modify build.gradle to prevent APK builds
-        python3 << 'PYTHON_SCRIPT'
-        import re
-        
-        build_gradle_path = 'android/app/build.gradle'
-        with open(build_gradle_path, 'r') as f:
-            content = f.read()
-        
-        # Add configuration to disable APK generation
-        disable_apk_config = '''
-    // Disable APK generation - only build AAB
-    android.applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            variant.outputs.all {
-                // Disable APK generation
-            }
-        }
-    }
-'''
-        
-        # Insert before dependencies block
-        if 'dependencies {' in content:
-            content = re.sub(r'(dependencies\s*\{)', disable_apk_config + r'\1', content, count=1)
-        else:
-            # Append at end of android block
-            content = re.sub(r'(\}\s*$)', disable_apk_config + r'\1', content, count=1, flags=re.MULTILINE)
-        
-        with open(build_gradle_path, 'w') as f:
-            f.write(content)
-        
-        print("✅ APK building disabled in build.gradle")
-        PYTHON_SCRIPT
-        
     - name: Build AAB (Android App Bundle)
       run: |
         cd android
         echo "=== Building AAB for Google Play Store ==="
         echo "Command: ./gradlew bundleRelease"
         echo "This will generate: android/app/build/outputs/bundle/release/app-release.aab"
-        echo "NOT: android/app/build/outputs/apk/release/app-release.apk"
         echo ""
-        # Clean any previous builds to ensure fresh AAB build
+        # Clean any previous builds to ensure fresh build
         ./gradlew clean --no-daemon || true
-        # Remove any existing APK files to ensure we don't upload them
-        rm -rf app/build/outputs/apk/release/*.apk || true
-        echo "Removed any existing APK files"
+        # Build AAB bundle
+        ./gradlew bundleRelease --no-daemon --stacktrace
         echo ""
-        # Build ONLY AAB bundle using bundleRelease (NOT assembleRelease which builds APK)
-        # Use -x assembleRelease to explicitly exclude APK building
-        ./gradlew bundleRelease -x assembleRelease --no-daemon --stacktrace
-        echo ""
-        echo "=== Build completed ==="
+        echo "=== AAB build completed ==="
         
-    - name: Remove any accidentally created APK files
+    - name: Build APK (for direct distribution/testing)
       run: |
-        echo "=== Checking for accidentally created APK files ==="
-        if [ -d "android/app/build/outputs/apk/release" ]; then
-          APK_COUNT=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | wc -l)
-          if [ "$APK_COUNT" -gt 0 ]; then
-            echo "⚠️  Found $APK_COUNT APK file(s) - removing them..."
-            rm -f android/app/build/outputs/apk/release/*.apk
-            echo "✅ APK files removed"
-          else
-            echo "✅ No APK files found (as expected)"
-          fi
-        else
-          echo "✅ No APK output directory (as expected)"
-        fi
+        cd android
+        echo "=== Building APK for direct distribution ==="
+        echo "Command: ./gradlew assembleRelease"
+        echo "This will generate: android/app/build/outputs/apk/release/app-release.apk"
+        echo ""
+        # Build APK (reuses compiled code from AAB build, so it's fast)
+        ./gradlew assembleRelease --no-daemon --stacktrace
+        echo ""
+        echo "=== APK build completed ==="
         
-    - name: Check for AAB
+    - name: Check for AAB and APK
       run: |
         echo "=== Checking for generated AAB ==="
         if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
           echo "✅ AAB found: android/app/build/outputs/bundle/release/app-release.aab"
           ls -lh android/app/build/outputs/bundle/release/
           file android/app/build/outputs/bundle/release/app-release.aab
-          echo ""
-          echo "=== Verifying this is an AAB file (not APK) ==="
-          # AAB files are ZIP archives, verify it's not an APK
-          if file android/app/build/outputs/bundle/release/app-release.aab | grep -q "Zip archive"; then
-            echo "✅ Confirmed: File is a ZIP archive (AAB format)"
-          fi
         else
-          echo "❌ AAB not found. Checking all bundle files:"
+          echo "❌ AAB not found!"
           find android/app/build/outputs/bundle/ -name "*.aab" -type f || echo "No AAB files found"
-          echo ""
-          echo "=== Checking if APK was built instead (this should not happen) ==="
-          if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-            echo "⚠️  WARNING: APK file found instead of AAB!"
-            echo "This workflow should only build AAB files."
-            ls -lh android/app/build/outputs/apk/release/
-          fi
+          exit 1
+        fi
+        
+        echo ""
+        echo "=== Checking for generated APK ==="
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "✅ APK found: android/app/build/outputs/apk/release/app-release.apk"
+          ls -lh android/app/build/outputs/apk/release/
+          file android/app/build/outputs/apk/release/app-release.apk
+        else
+          echo "❌ APK not found!"
+          find android/app/build/outputs/apk/ -name "*.apk" -type f || echo "No APK files found"
           exit 1
         fi
         
@@ -304,19 +258,31 @@ jobs:
         path: android/app/build/outputs/bundle/release/app-release.aab
         retention-days: 90
         
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk-production
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 90
+        
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: android/app/build/outputs/bundle/release/app-release.aab
+        files: |
+          android/app/build/outputs/bundle/release/app-release.aab
+          android/app/build/outputs/apk/release/app-release.apk
         tag_name: ${{ github.ref_name }}
-        name: Tijaniyah Muslim Pro ${{ github.ref_name }} - Production AAB
+        name: Tijaniyah Muslim Pro ${{ github.ref_name }} - Production Release
         body: |
           🕌 **Tijaniyah Muslim Pro - Production Release**
           
-          ## Android App Bundle (AAB) for Google Play Store
+          ## Build Artifacts
           
-          This AAB file is ready for upload to Google Play Console.
+          This release includes both AAB and APK files:
+          
+          - **AAB (Android App Bundle)**: For Google Play Store upload
+          - **APK**: For direct distribution and testing
           
           ### Build Information
           - **Version Code**: ${{ github.event.inputs.version_code || '1' }}
@@ -335,13 +301,18 @@ jobs:
           - ✅ Multi-language Support
           
           ### Upload Instructions
+          
+          **For Google Play Store:**
           1. Go to [Google Play Console](https://play.google.com/console)
           2. Select your app
           3. Go to Production → Create new release
           4. Upload the `app-release.aab` file
           5. Fill in release notes and submit for review
           
-          ## Ready for Google Play Store! 🚀
+          **For Direct Distribution:**
+          - Use the `app-release.apk` file for direct installation or testing
+          
+          ## Ready for Distribution! 🚀
         draft: false
         prerelease: false
 
