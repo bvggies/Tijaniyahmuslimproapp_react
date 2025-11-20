@@ -70,41 +70,22 @@ jobs:
         echo "Removing ACTIVITY_RECOGNITION permission from AndroidManifest.xml..."
         MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
         if [ -f "$MANIFEST_FILE" ]; then
-          # Use Python to insert the permission removal after the manifest opening tag
-          python3 << 'EOF'
-import re
-import sys
-
-manifest_file = "android/app/src/main/AndroidManifest.xml"
-with open(manifest_file, 'r') as f:
-    content = f.read()
-
-# Check if removal already exists on the same line
-lines = content.split('\n')
-has_removal = False
-for line in lines:
-    if 'ACTIVITY_RECOGNITION' in line and 'tools:node="remove"' in line:
-        print("✅ ACTIVITY_RECOGNITION permission removal already exists")
-        has_removal = True
-        break
-
-if not has_removal:
-    # Add the removal
-    removal_text = '''  <!-- Explicitly remove ACTIVITY_RECOGNITION permission to comply with Google Play Store health apps policy -->
-  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" tools:node="remove"/>
-'''
-    # Insert after the opening manifest tag
-    content = re.sub(
-        r'(<manifest[^>]*>)',
-        r'\1\n' + removal_text,
-        content,
-        count=1
-    )
-    
-    with open(manifest_file, 'w') as f:
-        f.write(content)
-    print("✅ ACTIVITY_RECOGNITION permission removal added")
-EOF
+          # Check if removal already exists
+          if grep -q 'ACTIVITY_RECOGNITION.*tools:node="remove"' "$MANIFEST_FILE"; then
+            echo "✅ ACTIVITY_RECOGNITION permission removal already exists"
+          else
+            # Write Python script to file using echo
+            echo 'import re' > /tmp/remove_permission.py
+            echo 'manifest_file = "android/app/src/main/AndroidManifest.xml"' >> /tmp/remove_permission.py
+            echo 'with open(manifest_file, "r") as f:' >> /tmp/remove_permission.py
+            echo '    content = f.read()' >> /tmp/remove_permission.py
+            echo 'removal_text = "  <!-- Explicitly remove ACTIVITY_RECOGNITION permission to comply with Google Play Store health apps policy -->\n  <uses-permission android:name=\"android.permission.ACTIVITY_RECOGNITION\" tools:node=\"remove\"/>\n"' >> /tmp/remove_permission.py
+            echo 'content = re.sub(r"(<manifest[^>]*>)", r"\1\n" + removal_text, content, count=1)' >> /tmp/remove_permission.py
+            echo 'with open(manifest_file, "w") as f:' >> /tmp/remove_permission.py
+            echo '    f.write(content)' >> /tmp/remove_permission.py
+            echo 'print("✅ ACTIVITY_RECOGNITION permission removal added")' >> /tmp/remove_permission.py
+            python3 /tmp/remove_permission.py
+          fi
         else
           echo "❌ AndroidManifest.xml not found at $MANIFEST_FILE"
           exit 1
