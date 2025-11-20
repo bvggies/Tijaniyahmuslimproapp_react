@@ -65,6 +65,51 @@ jobs:
           exit 1
         fi
         
+    - name: Remove ACTIVITY_RECOGNITION permission
+      run: |
+        echo "Removing ACTIVITY_RECOGNITION permission from AndroidManifest.xml..."
+        MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
+        if [ -f "$MANIFEST_FILE" ]; then
+          # Use Python to insert the permission removal after the manifest opening tag
+          python3 << 'EOF'
+import re
+import sys
+
+manifest_file = "android/app/src/main/AndroidManifest.xml"
+with open(manifest_file, 'r') as f:
+    content = f.read()
+
+# Check if removal already exists on the same line
+lines = content.split('\n')
+has_removal = False
+for line in lines:
+    if 'ACTIVITY_RECOGNITION' in line and 'tools:node="remove"' in line:
+        print("✅ ACTIVITY_RECOGNITION permission removal already exists")
+        has_removal = True
+        break
+
+if not has_removal:
+    # Add the removal
+    removal_text = '''  <!-- Explicitly remove ACTIVITY_RECOGNITION permission to comply with Google Play Store health apps policy -->
+  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" tools:node="remove"/>
+'''
+    # Insert after the opening manifest tag
+    content = re.sub(
+        r'(<manifest[^>]*>)',
+        r'\1\n' + removal_text,
+        content,
+        count=1
+    )
+    
+    with open(manifest_file, 'w') as f:
+        f.write(content)
+    print("✅ ACTIVITY_RECOGNITION permission removal added")
+EOF
+        else
+          echo "❌ AndroidManifest.xml not found at $MANIFEST_FILE"
+          exit 1
+        fi
+        
     - name: Setup signing keystore
       run: |
         if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
