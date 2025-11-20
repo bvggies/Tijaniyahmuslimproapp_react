@@ -43,9 +43,16 @@ import { Image, ActivityIndicator } from 'react-native';
 import ScholarDetailScreen from './src/screens/ScholarDetailScreen';
 import MoreFeaturesScreen from './src/screens/MoreFeaturesScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
+import ChatScreen from './src/screens/ChatScreen';
+import ZakatCalculatorScreen from './src/screens/ZakatCalculatorScreen';
+import HajjScreen from './src/screens/HajjScreen';
+import HajjUmrahScreen from './src/screens/HajjUmrahScreen';
+import HajjJourneyScreen from './src/screens/HajjJourneyScreen';
+import AdminMainScreen from './src/screens/AdminMainScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { AdminAuthProvider } from './src/contexts/AdminAuthContext';
 import AuthWrapper from './src/components/AuthWrapper';
 import { NotificationProvider } from './src/contexts/NotificationContext';
 import { LanguageProvider, useLanguage } from './src/contexts/LanguageContext';
@@ -276,6 +283,11 @@ function MoreStackNavigator() {
         options={{ title: 'Community' }}
       />
       <Stack.Screen 
+        name="Chat" 
+        component={ChatScreen}
+        options={{ title: 'Messages' }}
+      />
+      <Stack.Screen 
         name="Mosque" 
         component={MosqueScreen}
         options={{ title: 'Mosque Locator' }}
@@ -295,6 +307,19 @@ function MoreStackNavigator() {
         name="Profile" 
         component={ProfileScreen}
         options={{ title: 'Profile' }}
+      />
+      <Stack.Screen name="Hajj" component={HajjScreen} options={{ title: 'Hajj' }} />
+      <Stack.Screen name="HajjUmrah" component={HajjUmrahScreen} options={{ title: 'Hajj & Umrah' }} />
+      <Stack.Screen name="HajjJourney" component={HajjJourneyScreen} options={{ title: 'Hajj Journey' }} />
+      <Stack.Screen 
+        name="AdminPanel" 
+        component={AdminMainScreen} 
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ZakatCalculator"
+        component={ZakatCalculatorScreen}
+        options={{ title: 'Zakat Calculator' }}
       />
     </Stack.Navigator>
   );
@@ -346,9 +371,13 @@ function AuthStackNavigator() {
 
 // Main App Navigator
 function AppNavigator() {
-  const { authState } = useAuth();
+  const { authState, isAdmin, isModerator } = useAuth();
 
   if (authState.isAuthenticated || authState.isGuest) {
+    // Check if user is admin/moderator and redirect to admin panel
+    if (authState.isAuthenticated && authState.user && (isAdmin() || isModerator())) {
+      return <AdminMainScreen navigation={{ navigate: () => {} }} />;
+    }
     return <MainTabNavigator />;
   } else {
     return <AuthStackNavigator />;
@@ -379,8 +408,9 @@ export default function App() {
       <TimeFormatProvider>
         <IslamicCalendarProvider>
           <AuthProvider>
-            <NotificationProvider>
-              <AuthWrapper>
+            <AdminAuthProvider>
+              <NotificationProvider>
+                <AuthWrapper>
               <NavigationContainer>
               <StatusBar style="light" backgroundColor="#2E7D32" />
               <ErrorBoundary>
@@ -389,6 +419,7 @@ export default function App() {
             </NavigationContainer>
               </AuthWrapper>
             </NotificationProvider>
+            </AdminAuthProvider>
           </AuthProvider>
         </IslamicCalendarProvider>
       </TimeFormatProvider>

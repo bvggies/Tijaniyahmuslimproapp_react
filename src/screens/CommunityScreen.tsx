@@ -13,11 +13,13 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
-import { api, ensureDemoAuth } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
+import { api, ensureDemoAuth, setToken, isAuthenticated, ensureAuthenticated } from '../services/api';
 
 interface User {
   id: string;
@@ -89,11 +91,33 @@ const sampleUsers: User[] = [
   },
 ];
 
-const samplePosts: Post[] = [];
+const samplePosts: Post[] = [
+  {
+    id: 'sample-1',
+    author: {
+      id: 'demo',
+      name: 'Demo User',
+      username: 'demo_user',
+      isVerified: true,
+      followers: 150,
+      following: 89,
+    },
+    content: 'Welcome to the Tijaniyah Community! Share your thoughts, ask questions, and connect with fellow Muslims around the world. 🌍',
+    category: 'general',
+    likes: 12,
+    comments: [],
+    shares: 3,
+    date: new Date().toLocaleString(),
+    isLiked: false,
+    isBookmarked: false,
+  },
+];
 
 export default function CommunityScreen() {
   const { authState } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(samplePosts);
+  const navigation = useNavigation();
+  const { t } = useLanguage();
+  const [posts, setPosts] = useState<Post[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -101,6 +125,15 @@ export default function CommunityScreen() {
   const [newPostCategory, setNewPostCategory] = useState('general');
   const [showComments, setShowComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [editingPost, setEditingPost] = useState<string | null>(null);
+  const [editPostContent, setEditPostContent] = useState('');
+  const [showChat, setShowChat] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [currentUser] = useState<User>({
     id: 'current',
     name: authState.user?.email?.split('@')[0] || 'You',
@@ -150,17 +183,51 @@ export default function CommunityScreen() {
     };
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await api.listPosts(20);
-        const items = Array.isArray(data?.items) ? data.items : [];
-        setPosts(items.map(mapApiPost));
-      } catch (e) {
-        // keep empty or fallback to sample
+  const loadPosts = async () => {
+    try {
+      console.log('🔄 Loading posts from API...');
+      const data = await api.listPosts(20);
+      console.log('📊 API Response:', data);
+      
+      // The API returns { data: [...], nextCursor: "...", hasNextPage: true }
+      const items = Array.isArray(data?.data) ? data.data : [];
+      
+      if (items.length > 0) {
+        const mappedPosts = items.map(mapApiPost);
+        console.log('✅ Loaded', mappedPosts.length, 'posts from API');
+        setPosts(mappedPosts);
+      } else {
+        console.log('📝 No posts from API, using sample posts');
+        setPosts(samplePosts);
       }
-    })();
+    } catch (e) {
+      console.log('⚠️ Failed to load posts from API:', e);
+      console.log('📝 Using sample posts as fallback');
+      setPosts(samplePosts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPosts();
+    setRefreshing(false);
+  };
+
+  // Load posts when component mounts
+  useEffect(() => {
+    loadPosts();
+    testApiConnection();
   }, []);
+
+  // Reload posts when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🎯 Community screen focused, reloading posts...');
+      loadPosts();
+    }, [])
+  );
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
@@ -172,8 +239,21 @@ export default function CommunityScreen() {
 
   const createPost = async () => {
     if (!newPostContent.trim()) return;
-    // Ensure backend session (temporary demo fallback)
-    await ensureDemoAuth();
+    
+    // Check if user is authenticated
+    if (!authState.user) {
+      Alert.alert('Authentication Required', 'Please sign in to create posts');
+      return;
+    }
+    
+    // Check if we have a valid API token
+    if (!isAuthenticated()) {
+      Alert.alert('Authentication Error', 'Please sign out and sign back in to refresh your session');
+      return;
+    }
+
+    // Note: Authentication test removed since posts endpoint doesn't require auth
+    
     const optimistic: Post = {
       id: `tmp-${Date.now()}`,
       author: currentUser,
@@ -189,12 +269,15 @@ export default function CommunityScreen() {
     setPosts([optimistic, ...posts]);
     setNewPostContent('');
     setShowCreatePost(false);
+    
     try {
       const created = await api.createPost(optimistic.content, []);
       setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
+      console.log('✅ Post created successfully');
     } catch (e: any) {
       setPosts(prev => prev.filter(p => p.id !== optimistic.id));
       Alert.alert('Error', e?.message ? String(e.message) : 'Failed to create post');
+      console.log('❌ Post creation failed:', e);
     }
   };
 
@@ -215,6 +298,222 @@ export default function CommunityScreen() {
         ? { ...post, isBookmarked: !post.isBookmarked }
         : post
     ));
+  };
+
+  const startEditPost = (postId: string) => {
+    const post = posts.find(p => p.id === postId);
+    if (post) {
+      setEditingPost(postId);
+      setEditPostContent(post.content);
+    }
+  };
+
+  const cancelEditPost = () => {
+    setEditingPost(null);
+    setEditPostContent('');
+  };
+
+  const saveEditPost = async () => {
+    if (!editingPost || !editPostContent.trim()) return;
+    
+    try {
+      // Update post optimistically
+      setPosts(prev => prev.map(post => 
+        post.id === editingPost 
+          ? { ...post, content: editPostContent.trim() }
+          : post
+      ));
+      
+      // TODO: Call API to update post
+      console.log('📝 Post updated:', editingPost);
+      
+      setEditingPost(null);
+      setEditPostContent('');
+    } catch (error) {
+      console.error('❌ Failed to update post:', error);
+      Alert.alert('Error', 'Failed to update post');
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Remove post optimistically
+              setPosts(prev => prev.filter(post => post.id !== postId));
+              
+              // TODO: Call API to delete post
+              console.log('🗑️ Post deleted:', postId);
+            } catch (error) {
+              console.error('❌ Failed to delete post:', error);
+              Alert.alert('Error', 'Failed to delete post');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const reportPost = (postId: string) => {
+    Alert.alert(
+      'Report Post',
+      'Why are you reporting this post?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Spam', onPress: () => console.log('📢 Reported as spam:', postId) },
+        { text: 'Inappropriate', onPress: () => console.log('📢 Reported as inappropriate:', postId) },
+        { text: 'Harassment', onPress: () => console.log('📢 Reported as harassment:', postId) },
+      ]
+    );
+  };
+
+  const testApiConnection = async () => {
+    try {
+      console.log('🔄 Testing API connection...');
+      const health = await api.health();
+      console.log('✅ API health check:', health);
+      
+      if (authState.isAuthenticated) {
+        console.log('🔄 Testing authentication...');
+        const testAuth = await api.testAuth();
+        console.log('✅ Authentication test:', testAuth);
+      }
+    } catch (error) {
+      console.error('❌ API connection test failed:', error);
+    }
+  };
+
+  const loadMessagesWithRetry = async (conversationId: string, retryCount = 0) => {
+    const maxRetries = 3;
+    try {
+      console.log(`🔄 Loading messages (attempt ${retryCount + 1}/${maxRetries + 1})...`);
+      const messagesData = await api.getMessages(conversationId, 50);
+      console.log('✅ Messages loaded:', messagesData.data?.length || 0, 'messages');
+      return messagesData.data || [];
+    } catch (error: any) {
+      console.error(`❌ Failed to load messages (attempt ${retryCount + 1}):`, error);
+      
+      if (retryCount < maxRetries) {
+        console.log(`🔄 Retrying in 1 second... (${retryCount + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return loadMessagesWithRetry(conversationId, retryCount + 1);
+      }
+      
+      throw error;
+    }
+  };
+
+  const startChat = async (user: User) => {
+    try {
+      setSelectedUser(user);
+      setShowChat(true);
+      
+      console.log('🔄 Starting chat with user:', user.name, 'ID:', user.id);
+      
+      // Check authentication first
+      if (!authState.user || !authState.isAuthenticated) {
+        throw new Error('User not authenticated');
+      }
+      
+      console.log('🔐 User authenticated:', authState.user.name);
+      
+      // Get or create conversation
+      console.log('🔄 Getting or creating conversation...');
+      const conversation = await api.getOrCreateConversation(user.id);
+      console.log('✅ Conversation created/found:', conversation.id);
+      setCurrentConversationId(conversation.id);
+      
+      // Load messages with retry
+      const messages = await loadMessagesWithRetry(conversation.id);
+      setChatMessages(messages);
+      
+      console.log('✅ Chat started successfully with:', user.name);
+    } catch (error: any) {
+      console.error('❌ Failed to start chat:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        user: user.name,
+        userId: user.id,
+        isAuthenticated: authState.isAuthenticated,
+        currentUser: authState.user?.name
+      });
+      
+      let errorMessage = 'Failed to load messages. Please try again.';
+      if (error.message?.includes('Not authenticated')) {
+        errorMessage = 'Please sign in to start a chat.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message?.includes('401')) {
+        errorMessage = 'Authentication expired. Please sign in again.';
+      }
+      
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !currentConversationId) return;
+    
+    try {
+      const messageContent = newMessage.trim();
+      setNewMessage(''); // Clear input immediately
+      
+      console.log('🔄 Sending message:', messageContent);
+      
+      // Add message optimistically
+      const optimisticMessage = {
+        id: `tmp-${Date.now()}`,
+        content: messageContent,
+        senderId: currentUser.id,
+        sender: currentUser,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      };
+      setChatMessages(prev => [...prev, optimisticMessage]);
+      
+      // Send to API
+      const sentMessage = await api.sendMessage(currentConversationId, messageContent);
+      console.log('✅ Message sent successfully:', sentMessage.id);
+      
+      // Replace optimistic message with real one
+      setChatMessages(prev => 
+        prev.map(msg => 
+          msg.id === optimisticMessage.id ? sentMessage : msg
+        )
+      );
+      
+      console.log('✅ Message sent successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to send message:', error);
+      console.error('❌ Send message error details:', {
+        message: error.message,
+        conversationId: currentConversationId,
+        messageContent: newMessage.trim(),
+        isAuthenticated: authState.isAuthenticated
+      });
+      
+      let errorMessage = 'Failed to send message. Please try again.';
+      if (error.message?.includes('Not authenticated')) {
+        errorMessage = 'Please sign in to send messages.';
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message?.includes('401')) {
+        errorMessage = 'Authentication expired. Please sign in again.';
+      }
+      
+      Alert.alert('Error', errorMessage);
+      
+      // Remove optimistic message on error
+      setChatMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+    }
   };
 
   const addComment = async (postId: string) => {
@@ -285,9 +584,33 @@ export default function CommunityScreen() {
             <Text style={styles.postDate}>{formatDate(item.date)}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
+        <View style={styles.postHeaderActions}>
+          <TouchableOpacity 
+            style={styles.chatButton}
+            onPress={() => startChat(item.author)}
+          >
+            <Ionicons name="chatbubble-outline" size={18} color={colors.accentTeal} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.moreButton}
+            onPress={() => {
+              Alert.alert(
+                'Post Options',
+                'What would you like to do?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  ...(item.author.id === currentUser.id ? [
+                    { text: 'Edit', onPress: () => startEditPost(item.id) },
+                    { text: 'Delete', style: 'destructive', onPress: () => deletePost(item.id) },
+                  ] : []),
+                  { text: 'Report', style: 'destructive', onPress: () => reportPost(item.id) },
+                ]
+              );
+            }}
+          >
+            <Ionicons name="ellipsis-horizontal" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Post Content */}
@@ -372,7 +695,7 @@ export default function CommunityScreen() {
             </View>
             <TextInput
               style={styles.addCommentInput}
-              placeholder="Write a comment..."
+                    placeholder={t('community.write_comment')}
               placeholderTextColor={colors.textSecondary}
               value={newComment}
               onChangeText={setNewComment}
@@ -396,15 +719,23 @@ export default function CommunityScreen() {
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.headerTitle}>Community</Text>
-            <Text style={styles.headerSubtitle}>Connect with fellow Muslims worldwide</Text>
+            <Text style={styles.headerTitle}>{t('community.title')}</Text>
+            <Text style={styles.headerSubtitle}>{t('community.subtitle')}</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.createPostButton}
-            onPress={() => setShowCreatePost(true)}
-          >
-            <Ionicons name="add" size={24} color={colors.textPrimary} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.messagesButton}
+              onPress={() => navigation.navigate('Chat' as never)}
+            >
+              <Ionicons name="chatbubbles-outline" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.createPostButton}
+              onPress={() => setShowCreatePost(true)}
+            >
+              <Ionicons name="add" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Search Bar */}
@@ -412,7 +743,7 @@ export default function CommunityScreen() {
           <Ionicons name="search" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search posts, users..."
+            placeholder={t('community.search_placeholder')}
             placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -431,22 +762,31 @@ export default function CommunityScreen() {
       </LinearGradient>
 
       {/* Posts List */}
-      <FlatList
-        data={filteredPosts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.postsContainer}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyTitle}>No posts found</Text>
-            <Text style={styles.emptySubtitle}>
-              {searchQuery ? 'Try adjusting your search' : 'Be the first to share something inspiring'}
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Ionicons name="chatbubbles-outline" size={48} color={colors.accentTeal} />
+                 <Text style={styles.loadingText}>{t('community.loading_posts')}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredPosts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.postsContainer}
+          showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="chatbubbles-outline" size={64} color={colors.textSecondary} />
+                     <Text style={styles.emptyTitle}>{t('community.no_posts')}</Text>
+                     <Text style={styles.emptySubtitle}>
+                       {searchQuery ? t('community.try_search') : t('community.first_share')}
+                     </Text>
+            </View>
+          }
+        />
+      )}
 
       {/* Create Post Modal */}
       <Modal
@@ -462,7 +802,7 @@ export default function CommunityScreen() {
             <TouchableOpacity onPress={() => setShowCreatePost(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Create Post</Text>
+                   <Text style={styles.modalTitle}>{t('community.create_post')}</Text>
             <TouchableOpacity onPress={createPost}>
               <Text style={styles.modalPost}>Post</Text>
             </TouchableOpacity>
@@ -504,7 +844,7 @@ export default function CommunityScreen() {
 
             <TextInput
               style={styles.modalTextInput}
-              placeholder="What's on your mind? Share something inspiring..."
+                     placeholder={t('community.whats_on_mind')}
               placeholderTextColor={colors.textSecondary}
               value={newPostContent}
               onChangeText={setNewPostContent}
@@ -513,6 +853,117 @@ export default function CommunityScreen() {
             />
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Edit Post Modal */}
+      <Modal
+        visible={!!editingPost}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <KeyboardAvoidingView 
+          style={styles.modalContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={cancelEditPost}>
+              <Text style={styles.modalCancel}>Cancel</Text>
+            </TouchableOpacity>
+                   <Text style={styles.modalTitle}>{t('community.edit_post')}</Text>
+            <TouchableOpacity onPress={saveEditPost}>
+              <Text style={styles.modalPost}>Save</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.modalContent}>
+            <TextInput
+              style={styles.modalTextInput}
+                     placeholder={t('community.edit_your_post')}
+              placeholderTextColor={colors.textSecondary}
+              value={editPostContent}
+              onChangeText={setEditPostContent}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Chat Modal */}
+      <Modal
+        visible={showChat}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.chatContainer}>
+          <View style={styles.chatHeader}>
+            <TouchableOpacity onPress={() => setShowChat(false)}>
+              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <View style={styles.chatUserInfo}>
+              <Text style={styles.chatUserName}>{selectedUser?.name}</Text>
+              <Text style={styles.chatUserStatus}>Online</Text>
+            </View>
+            <TouchableOpacity>
+              <Ionicons name="call" size={24} color={colors.accentTeal} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.chatMessages}>
+            {chatMessages.length === 0 ? (
+              <View style={styles.chatEmptyState}>
+                 <Text style={styles.chatEmptyText}>{t('community.no_messages')}</Text>
+                 <Text style={styles.chatEmptySubtext}>{t('community.start_conversation')}</Text>
+              </View>
+            ) : (
+              chatMessages.map((message) => (
+                <View 
+                  key={message.id} 
+                  style={[
+                    styles.chatMessage,
+                    message.senderId === currentUser.id && styles.chatMessageOwn
+                  ]}
+                >
+                  <Text style={[
+                    styles.chatMessageText,
+                    message.senderId === currentUser.id && styles.chatMessageTextOwn
+                  ]}>
+                    {message.content}
+                  </Text>
+                  <Text style={styles.chatMessageTime}>
+                    {new Date(message.createdAt).toLocaleTimeString([], { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </Text>
+                </View>
+              ))
+            )}
+          </View>
+
+          <View style={styles.chatInput}>
+            <TextInput
+              style={styles.chatTextInput}
+              placeholder={t('community.type_message')}
+              placeholderTextColor={colors.textSecondary}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              multiline
+              maxLength={500}
+            />
+            <TouchableOpacity 
+              style={[styles.chatSendButton, !newMessage.trim() && styles.chatSendButtonDisabled]}
+              onPress={sendMessage}
+              disabled={!newMessage.trim()}
+            >
+              <Ionicons 
+                name="send" 
+                size={20} 
+                color={newMessage.trim() ? colors.textPrimary : colors.textSecondary} 
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -533,6 +984,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  messagesButton: {
+    backgroundColor: colors.accentTeal,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -888,5 +1352,137 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlignVertical: 'top',
+  },
+  // Post Management Styles
+  postHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chatButton: {
+    marginRight: 8,
+    padding: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentTeal,
+  },
+  // Chat Styles
+  chatContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingTop: 50,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  chatUserInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  chatUserName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  chatUserStatus: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  chatMessages: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  chatMessage: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginBottom: 8,
+    maxWidth: '80%',
+  },
+  chatMessageOwn: {
+    backgroundColor: colors.accentTeal,
+    alignSelf: 'flex-end',
+  },
+  chatMessageText: {
+    fontSize: 14,
+    color: colors.textPrimary,
+    lineHeight: 20,
+  },
+  chatMessageTextOwn: {
+    color: colors.textPrimary,
+  },
+  chatMessageTime: {
+    fontSize: 10,
+    color: colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'right',
+  },
+  chatInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+  },
+  chatTextInput: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: colors.textPrimary,
+    marginRight: 8,
+  },
+  chatSendButton: {
+    backgroundColor: colors.accentTeal,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatSendButtonDisabled: {
+    backgroundColor: colors.surface,
+  },
+  chatEmptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  chatEmptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  chatEmptySubtext: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  // Loading Styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 12,
+    fontWeight: '500',
   },
 });

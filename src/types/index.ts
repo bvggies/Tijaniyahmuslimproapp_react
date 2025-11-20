@@ -22,6 +22,8 @@ export interface Dua {
   arabic: string;
   transliteration: string;
   translation: string;
+  frenchTranslation?: string;
+  hausaTranslation?: string;
   category: string;
   isFavorite?: boolean;
 }
@@ -31,6 +33,8 @@ export interface QuranVerse {
   verse: number;
   arabic: string;
   translation: string;
+  frenchTranslation?: string;
+  hausaTranslation?: string;
   transliteration: string;
 }
 
@@ -68,13 +72,25 @@ export interface JournalEntry {
   mood: 'grateful' | 'reflective' | 'hopeful' | 'peaceful';
 }
 
+export interface ScholarDetail {
+  heading: string;
+  text: string;
+  frenchText?: string;
+  arabicText?: string;
+  hausaText?: string;
+}
+
 export interface Scholar {
   id: string;
   name: string;
   title: string;
   bio: string;
+  frenchBio?: string;
+  arabicBio?: string;
+  hausaBio?: string;
   image: string;
   specialties: string[];
+  details?: ScholarDetail[];
 }
 
 export interface Mosque {

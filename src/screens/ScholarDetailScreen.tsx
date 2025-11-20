@@ -6,7 +6,7 @@ import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function ScholarDetailScreen({ route }: any) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { scholar } = route.params as { scholar: any };
   const fade = new Animated.Value(0);
   const [imageModalVisible, setImageModalVisible] = useState(false);
@@ -212,14 +212,24 @@ export default function ScholarDetailScreen({ route }: any) {
           {scholar?.bio ? (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{t('scholar_detail.biography')}</Text>
-              <Text style={styles.cardText}>{scholar.bio}</Text>
+              <Text style={styles.cardText}>
+                {language === 'fr' && scholar.frenchBio ? scholar.frenchBio :
+                 language === 'ar' && scholar.arabicBio ? scholar.arabicBio :
+                 language === 'ha' && scholar.hausaBio ? scholar.hausaBio :
+                 scholar.bio}
+              </Text>
             </View>
           ) : null}
 
           {Array.isArray(scholar?.details) && scholar.details.map((d: any, idx: number) => (
             <View key={idx} style={styles.card}>
               <Text style={styles.cardTitle}>{d.heading}</Text>
-              <Text style={styles.cardText}>{d.text}</Text>
+              <Text style={styles.cardText}>
+                {language === 'fr' && d.frenchText ? d.frenchText :
+                 language === 'ar' && d.arabicText ? d.arabicText :
+                 language === 'ha' && d.hausaText ? d.hausaText :
+                 d.text}
+              </Text>
             </View>
           ))}
 

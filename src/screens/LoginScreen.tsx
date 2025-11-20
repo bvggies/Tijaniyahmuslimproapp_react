@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,11 +21,19 @@ interface LoginScreenProps {
 }
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
-  const { login, authState, clearError } = useAuth();
+  const { login, authState, clearError, isAdmin, isModerator } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle admin redirect after successful login
+  useEffect(() => {
+    if (authState.isAuthenticated && authState.user && (isAdmin() || isModerator())) {
+      console.log('🔄 Admin user logged in, redirecting to admin panel...');
+      navigation.navigate('AdminPanel');
+    }
+  }, [authState.isAuthenticated, authState.user, isAdmin, isModerator, navigation]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -65,7 +73,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             <View style={styles.logoContainer}>
               <Image source={require('../../assets/appicon.png')} style={styles.logo} />
             </View>
-            <Text style={styles.title}>Tijaniyah Pro</Text>
+            <Text style={styles.title}>Tijaniyah Muslim Pro</Text>
             <Text style={styles.subtitle}>Welcome back to your spiritual journey</Text>
           </View>
 
@@ -161,21 +169,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Demo Credentials */}
-          <View style={styles.demoContainer}>
-            <Text style={styles.demoTitle}>Demo Credentials</Text>
-            <Text style={styles.demoText}>Email: demo@tijaniyah.com</Text>
-            <Text style={styles.demoText}>Password: demo123</Text>
-            <TouchableOpacity 
-              style={styles.demoButton}
-              onPress={() => {
-                setEmail('demo@tijaniyah.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.demoButtonText}>Use Demo Account</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </LinearGradient>
     </KeyboardAvoidingView>
@@ -340,35 +333,5 @@ const styles = StyleSheet.create({
   registerButtonTextBold: {
     color: colors.accentTeal,
     fontWeight: '700',
-  },
-  demoContainer: {
-    backgroundColor: colors.mintSurface,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  demoTitle: {
-    color: colors.textDark,
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  demoText: {
-    color: colors.textDark,
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  demoButton: {
-    backgroundColor: colors.accentTeal,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  demoButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
   },
 });

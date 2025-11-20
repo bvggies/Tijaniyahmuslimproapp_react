@@ -1,0 +1,495 @@
+name: Build AAB for Google Play Production
+
+on:
+  workflow_dispatch: # Manual trigger
+    inputs:
+      version_code:
+        description: 'Version Code (integer)'
+        required: true
+        default: '1'
+      version_name:
+        description: 'Version Name (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+    tags:
+      - 'v*' # Trigger on version tags like v1.0.0
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean and generate Android project
+      run: |
+        # Remove existing android directory if it exists
+        if [ -d "android" ]; then
+          echo "Removing existing android directory"
+          rm -rf android
+        fi
+        
+        # Generate Android project
+        echo "Generating Android project..."
+        npx expo prebuild --platform android
+        
+        # Verify the project was created
+        if [ -d "android" ]; then
+          echo "✅ Android project generated successfully"
+        else
+          echo "❌ Android project generation failed"
+          exit 1
+        fi
+        
+    - name: Remove ACTIVITY_RECOGNITION permission
+      run: |
+        echo "Removing ACTIVITY_RECOGNITION permission from AndroidManifest.xml..."
+        MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
+        if [ -f "$MANIFEST_FILE" ]; then
+          # Check if removal already exists
+          if grep -q 'ACTIVITY_RECOGNITION.*tools:node="remove"' "$MANIFEST_FILE"; then
+            echo "✅ ACTIVITY_RECOGNITION permission removal already exists"
+          else
+            # Write Python script to file using echo
+            echo 'import re' > /tmp/remove_permission.py
+            echo 'manifest_file = "android/app/src/main/AndroidManifest.xml"' >> /tmp/remove_permission.py
+            echo 'with open(manifest_file, "r") as f:' >> /tmp/remove_permission.py
+            echo '    content = f.read()' >> /tmp/remove_permission.py
+            echo 'removal_text = "  <!-- Explicitly remove ACTIVITY_RECOGNITION permission to comply with Google Play Store health apps policy -->\n  <uses-permission android:name=\"android.permission.ACTIVITY_RECOGNITION\" tools:node=\"remove\"/>\n"' >> /tmp/remove_permission.py
+            echo 'content = re.sub(r"(<manifest[^>]*>)", r"\1\n" + removal_text, content, count=1)' >> /tmp/remove_permission.py
+            echo 'with open(manifest_file, "w") as f:' >> /tmp/remove_permission.py
+            echo '    f.write(content)' >> /tmp/remove_permission.py
+            echo 'print("✅ ACTIVITY_RECOGNITION permission removal added")' >> /tmp/remove_permission.py
+            python3 /tmp/remove_permission.py
+          fi
+        else
+          echo "❌ AndroidManifest.xml not found at $MANIFEST_FILE"
+          exit 1
+        fi
+        
+    - name: Setup signing keystore
+      run: |
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Warning: ANDROID_KEYSTORE_BASE64 secret not set. Building without signing."
+          echo "The app will be signed with debug keystore."
+        else
+          echo "Setting up signing keystore..."
+          mkdir -p android/app
+          
+          # Get the base64 string and clean it
+          KEYSTORE_BASE64="${{ secrets.ANDROID_KEYSTORE_BASE64 }}"
+          
+          # Remove all whitespace, newlines, and carriage returns
+          CLEANED_BASE64=$(echo "$KEYSTORE_BASE64" | tr -d '\n\r\t ')
+          
+          # Validate base64 string (check length and characters)
+          BASE64_LENGTH=${#CLEANED_BASE64}
+          echo "Base64 string length: $BASE64_LENGTH characters"
+          
+          if [ "$BASE64_LENGTH" -lt 100 ]; then
+            echo "❌ Error: Base64 string is too short (expected >100 characters)"
+            echo "Please verify ANDROID_KEYSTORE_BASE64 secret is complete"
+            exit 1
+          fi
+          
+          # Check if it contains only valid base64 characters
+          if ! echo "$CLEANED_BASE64" | grep -qE '^[A-Za-z0-9+/=]+$'; then
+            echo "❌ Error: Base64 string contains invalid characters"
+            echo "Base64 should only contain A-Z, a-z, 0-9, +, /, and ="
+            exit 1
+          fi
+          
+          # Decode base64 to keystore file
+          echo "Decoding base64 to keystore file..."
+          if echo "$CLEANED_BASE64" | base64 -d > android/app/upload-keystore.jks 2>&1; then
+            # Verify the keystore file was created and is valid
+            if [ -f "android/app/upload-keystore.jks" ] && [ -s "android/app/upload-keystore.jks" ]; then
+              KEYSTORE_SIZE=$(stat -f%z android/app/upload-keystore.jks 2>/dev/null || stat -c%s android/app/upload-keystore.jks 2>/dev/null || echo "unknown")
+              echo "✅ Keystore file created successfully"
+              echo "Keystore file size: $KEYSTORE_SIZE bytes"
+              ls -lh android/app/upload-keystore.jks
+            else
+              echo "❌ Failed to create keystore file (file is empty or missing)"
+              exit 1
+            fi
+          else
+            echo "❌ Failed to decode base64 string"
+            echo "Please verify that ANDROID_KEYSTORE_BASE64 contains a valid base64-encoded keystore"
+            echo "Tip: Make sure the secret is copied correctly without any extra characters"
+            exit 1
+          fi
+        fi
+        
+        # Create or update gradle.properties with signing config (only if secrets are set)
+        if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          KEYSTORE_PROPERTIES="android/gradle.properties"
+          echo "" >> "$KEYSTORE_PROPERTIES"
+          echo "# Production signing configuration" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.jks" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> "$KEYSTORE_PROPERTIES"
+          echo "✅ Signing properties configured"
+          
+          # Verify keystore file exists and validate it
+          if [ -f "android/app/upload-keystore.jks" ]; then
+            echo "Verifying keystore file..."
+            KEYSTORE_FILE="android/app/upload-keystore.jks"
+            KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}"
+            
+            # Try to list keys in keystore to verify password
+            if command -v keytool >/dev/null 2>&1; then
+              if keytool -list -v -keystore "$KEYSTORE_FILE" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1; then
+                echo "✅ Keystore password verified successfully"
+              else
+                echo "⚠️  Warning: Could not verify keystore password with keytool"
+                echo "This might indicate a password mismatch, but build will continue"
+              fi
+            fi
+          fi
+        fi
+        
+    - name: Update version code and name
+      run: |
+        # Get version from inputs (manual trigger) or use defaults
+        VERSION_CODE="${{ github.event.inputs.version_code }}"
+        VERSION_NAME="${{ github.event.inputs.version_name }}"
+        
+        # Extract version from tag if triggered by tag
+        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          VERSION_NAME="${GITHUB_REF#refs/tags/v}"
+          # Extract version code from tag or use commit count
+          if [[ -z "$VERSION_CODE" ]]; then
+            VERSION_CODE=$(git rev-list --count HEAD)
+          fi
+        fi
+        
+        # Use defaults if not provided
+        if [[ -z "$VERSION_CODE" ]]; then
+          # Increment based on previous version or use commit count
+          CURRENT_CODE=$(grep -oP 'versionCode \K[0-9]+' android/app/build.gradle 2>/dev/null || echo "0")
+          VERSION_CODE=$((CURRENT_CODE + 1))
+        fi
+        
+        if [[ -z "$VERSION_NAME" ]]; then
+          VERSION_NAME="1.0.0"
+        fi
+        
+        echo "Setting versionCode=$VERSION_CODE and versionName=$VERSION_NAME"
+        
+        # Update build.gradle
+        sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
+        sed -i "s/versionName \".*\"/versionName \"$VERSION_NAME\"/" android/app/build.gradle
+        
+    - name: Configure release signing in build.gradle
+      run: |
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Skipping signing configuration - secrets not set"
+          exit 0
+        fi
+        
+        echo "Configuring release signing in build.gradle..."
+        
+        python3 << 'PYTHON_SCRIPT'
+        import re
+        
+        build_gradle_path = 'android/app/build.gradle'
+        with open(build_gradle_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Check if release signing config already exists
+        content_str = ''.join(lines)
+        has_release_config = 'signingConfigs {' in content_str and 'release {' in content_str.split('signingConfigs {')[1].split('buildTypes')[0]
+        
+        if not has_release_config:
+            # Find signingConfigs block and add release config before closing brace
+            output_lines = []
+            in_signing_configs = False
+            brace_depth = 0
+            release_added = False
+            
+            for i, line in enumerate(lines):
+                if 'signingConfigs {' in line:
+                    in_signing_configs = True
+                    brace_depth = 1
+                    output_lines.append(line)
+                    continue
+                
+                if in_signing_configs:
+                    brace_depth += line.count('{') - line.count('}')
+                    
+                    # When brace_depth becomes 0, we're closing signingConfigs - add release config before
+                    if brace_depth == 0 and '}' in line and not release_added:
+                        # Insert release config before this closing brace
+                        indent = '        '
+                        release_config_lines = [
+                            f'{indent}release {{\n',
+                            f'{indent}    if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {{\n',
+                            f'{indent}        storeFile file(project.findProperty("MYAPP_UPLOAD_STORE_FILE"))\n',
+                            f'{indent}        storePassword project.findProperty("MYAPP_UPLOAD_STORE_PASSWORD")\n',
+                            f'{indent}        keyAlias project.findProperty("MYAPP_UPLOAD_KEY_ALIAS")\n',
+                            f'{indent}        keyPassword project.findProperty("MYAPP_UPLOAD_KEY_PASSWORD")\n',
+                            f'{indent}    }}\n',
+                            f'{indent}}}\n'
+                        ]
+                        output_lines.extend(release_config_lines)
+                        release_added = True
+                        in_signing_configs = False
+                
+                output_lines.append(line)
+            
+            lines = output_lines
+            content_str = ''.join(lines)
+            print("Added release signing config")
+        
+        # Update release buildType to use production signing
+        content_str = re.sub(
+            r'signingConfig\s+signingConfigs\.debug',
+            'signingConfig signingConfigs.release',
+            content_str
+        )
+        
+        # Write back
+        with open(build_gradle_path, 'w') as f:
+            f.write(content_str)
+        
+        print("✅ Signing configuration updated successfully")
+        PYTHON_SCRIPT
+        
+    - name: Verify keystore and signing configuration
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+          echo "⚠️  Skipping keystore verification - secrets not set"
+          exit 0
+        fi
+        echo "=== Verifying keystore configuration ==="
+        cd android
+        
+        # Check if keystore file exists
+        if [ ! -f "app/upload-keystore.jks" ]; then
+          echo "❌ Error: Keystore file not found at app/upload-keystore.jks"
+          exit 1
+        fi
+        
+        echo "✅ Keystore file exists"
+        ls -lh app/upload-keystore.jks
+        
+        # Verify keystore password using keytool
+        echo "Verifying keystore password..."
+        KEYSTORE_FILE="app/upload-keystore.jks"
+        KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+        KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}"
+        
+        if keytool -list -v -keystore "$KEYSTORE_FILE" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" 2>&1 | head -5; then
+          echo "✅ Keystore password verified successfully"
+        else
+          echo "❌ Error: Keystore password verification failed!"
+          echo "Please verify that:"
+          echo "  1. ANDROID_KEYSTORE_PASSWORD matches the keystore password"
+          echo "  2. ANDROID_KEY_ALIAS matches the key alias in the keystore"
+          echo "  3. ANDROID_KEYSTORE_BASE64 contains the correct keystore file"
+          exit 1
+        fi
+        
+        # Check gradle.properties
+        echo ""
+        echo "=== Checking gradle.properties ==="
+        if grep -q "MYAPP_UPLOAD_STORE_FILE" gradle.properties; then
+          echo "✅ Signing properties found in gradle.properties"
+          grep "MYAPP_UPLOAD" gradle.properties | sed 's/=.*/=***/'  # Hide passwords
+        else
+          echo "⚠️  Warning: Signing properties not found in gradle.properties"
+        fi
+        
+    - name: Make gradlew executable
+      run: |
+        cd android
+        chmod +x gradlew
+        echo "Gradle wrapper is now executable"
+        
+    - name: Verify Gradle tasks
+      run: |
+        cd android
+        echo "=== Available Gradle tasks ==="
+        ./gradlew tasks --all --no-daemon | grep -E "(bundle|assemble)" || true
+        echo ""
+        echo "=== Verifying bundleRelease task exists ==="
+        if ./gradlew tasks --all --no-daemon | grep -q "bundleRelease"; then
+          echo "✅ bundleRelease task found - will build AAB"
+        else
+          echo "❌ bundleRelease task not found!"
+          exit 1
+        fi
+        
+    - name: Build AAB (Android App Bundle)
+      id: build-aab
+      run: |
+        cd android
+        echo "=== Building AAB for Google Play Store ==="
+        echo "Command: ./gradlew bundleRelease"
+        echo "This will generate: android/app/build/outputs/bundle/release/app-release.aab"
+        echo ""
+        # Clean any previous builds to ensure fresh build
+        ./gradlew clean --no-daemon || true
+        # Build AAB bundle
+        if ./gradlew bundleRelease --no-daemon --stacktrace; then
+          echo "✅ AAB build succeeded"
+          echo "aab_built=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ AAB build failed!"
+          echo "aab_built=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        echo ""
+        echo "=== AAB build completed ==="
+        
+    - name: Build APK (for direct distribution/testing)
+      id: build-apk
+      run: |
+        cd android
+        echo "=== Building APK for direct distribution ==="
+        echo "Command: ./gradlew assembleRelease"
+        echo "This will generate: android/app/build/outputs/apk/release/app-release.apk"
+        echo ""
+        # Build APK (reuses compiled code from AAB build, so it's fast)
+        if ./gradlew assembleRelease --no-daemon --stacktrace; then
+          echo "✅ APK build succeeded"
+          echo "apk_built=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ APK build failed!"
+          echo "apk_built=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        echo ""
+        echo "=== APK build completed ==="
+        
+    - name: Verify build outputs
+      run: |
+        echo "=== Checking for generated AAB ==="
+        if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+          echo "✅ AAB found: android/app/build/outputs/bundle/release/app-release.aab"
+          ls -lh android/app/build/outputs/bundle/release/
+          file android/app/build/outputs/bundle/release/app-release.aab
+          AAB_SIZE=$(stat -f%z android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null || stat -c%s android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null || echo "unknown")
+          echo "AAB size: $AAB_SIZE bytes"
+        else
+          echo "❌ AAB not found in expected location!"
+          echo "Searching for AAB files..."
+          find android/app/build/outputs/bundle/ -name "*.aab" -type f || echo "No AAB files found anywhere"
+          echo "Listing bundle directory:"
+          ls -la android/app/build/outputs/bundle/release/ 2>/dev/null || echo "Bundle directory doesn't exist"
+          exit 1
+        fi
+        
+        echo ""
+        echo "=== Checking for generated APK ==="
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "✅ APK found: android/app/build/outputs/apk/release/app-release.apk"
+          ls -lh android/app/build/outputs/apk/release/
+          file android/app/build/outputs/apk/release/app-release.apk
+          APK_SIZE=$(stat -f%z android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || stat -c%s android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || echo "unknown")
+          echo "APK size: $APK_SIZE bytes"
+        else
+          echo "❌ APK not found in expected location!"
+          echo "Searching for APK files..."
+          find android/app/build/outputs/apk/ -name "*.apk" -type f || echo "No APK files found anywhere"
+          echo "Listing APK directory:"
+          ls -la android/app/build/outputs/apk/release/ 2>/dev/null || echo "APK directory doesn't exist"
+          exit 1
+        fi
+        
+    - name: Upload AAB artifact
+      if: steps.build-aab.outputs.aab_built == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-aab-production
+        path: android/app/build/outputs/bundle/release/app-release.aab
+        retention-days: 90
+        if-no-files-found: error
+        
+    - name: Upload APK artifact
+      if: steps.build-apk.outputs.apk_built == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk-production
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 90
+        if-no-files-found: error
+        
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          android/app/build/outputs/bundle/release/app-release.aab
+          android/app/build/outputs/apk/release/app-release.apk
+        tag_name: ${{ github.ref_name }}
+        name: Tijaniyah Muslim Pro ${{ github.ref_name }} - Production Release
+        body: |
+          🕌 **Tijaniyah Muslim Pro - Production Release**
+          
+          ## Build Artifacts
+          
+          This release includes both AAB and APK files:
+          
+          - **AAB (Android App Bundle)**: For Google Play Store upload
+          - **APK**: For direct distribution and testing
+          
+          ### Build Information
+          - **Version Code**: ${{ github.event.inputs.version_code || '1' }}
+          - **Version Name**: ${{ github.event.inputs.version_name || '1.0.0' }}
+          - **Build Date**: ${{ github.event.head_commit.timestamp || github.run_started_at }}
+          
+          ### Features
+          - ✅ Prayer Times with Location Detection
+          - ✅ Qibla Compass with Sensors
+          - ✅ Islamic Calendar (Hijri Dates)
+          - ✅ Azan Audio Player
+          - ✅ Digital Tasbih
+          - ✅ Islamic Lessons & Resources
+          - ✅ Community Features
+          - ✅ Donation System
+          - ✅ Multi-language Support
+          
+          ### Upload Instructions
+          
+          **For Google Play Store:**
+          1. Go to [Google Play Console](https://play.google.com/console)
+          2. Select your app
+          3. Go to Production → Create new release
+          4. Upload the `app-release.aab` file
+          5. Fill in release notes and submit for review
+          
+          **For Direct Distribution:**
+          - Use the `app-release.apk` file for direct installation or testing
+          
+          ## Ready for Distribution! 🚀
+        draft: false
+        prerelease: false
+

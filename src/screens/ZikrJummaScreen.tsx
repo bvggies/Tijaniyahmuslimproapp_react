@@ -383,6 +383,23 @@ export default function ZikrJummaScreen() {
               The Haylala (other names: Hadra, 'Asru) is the Friday's dhikr to perform between 'Asr and Maghreb Prayers.
             </Text>
 
+            {/* Niyyah (Intention) */}
+            <View style={styles.niyyahCard}>
+              <Text style={styles.niyyahTitle}>Niyyah (Intention)</Text>
+              <Text style={styles.niyyahArabic}>
+                اللهم إني نويت ذكر هيللة الجمعة اللازمة في الطريقة التجانية إقتداء بسيد أحمد التجاني رضي اللّٰه عنه تعبدا لله تعالى
+              </Text>
+              <Text style={styles.niyyahTransliteration}>
+                Allahumma innii nawaytu dzikria haylalatal jum'ati allaazimati fit-țareeqati Tijaniyyah iqtidaa-a bisayyidi Ahmad at-Tijani Radiyallahu anhu ta'abbudan lillahi ta'aalaa.
+              </Text>
+              <Text style={styles.niyyahEnglish}>
+                O Allah, I intend to perform the dhikr of the obligatory Friday Haylala in the Tijani Tariqa, following our Master Ahmad al-Tijani, may Allah be pleased with him, as an act of devotion to Allah the Almighty.
+              </Text>
+              <Text style={styles.niyyahBreakdown}>
+                Breakdown: "O Allah, I intend" → "to perform the dhikr of the Friday Haylala" → "in the Tijani Tariqa" → "following our Master Ahmad al-Tijani, may Allah be pleased with him" → "as an act of devotion to Allah the Almighty"
+              </Text>
+            </View>
+
             {/* Haylala Steps */}
             <View style={styles.haylalaStepsContainer}>
               {/* Step 1: Auzubillah */}
@@ -494,9 +511,9 @@ export default function ZikrJummaScreen() {
               <HaylalaStepCard
                 stepNumber={8}
                 title="Suratul Fatiha (Second)"
-                arabic="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-                transliteration="Bismillahi ar-Rahman ar-Raheem"
-                english="Recite Suratul Fatiha"
+                arabic="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ (1) الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ (2) الرَّحْمَٰنِ الرَّحِيمِ (3) مَالِكِ يَوْمِ الدِّينِ (4) إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ (5) اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ (6) صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ (7)"
+                transliteration="Bismillahi ar-Rahman ar-Raheem (1) Alhamdulillahi rabbil alameen (2) Ar-Rahman ar-Raheem (3) Maliki yawmid-deen (4) Iyyaka na'budu wa iyyaka nasta'een (5) Ihdinas-siratal mustaqeem (6) Siratal-lazeena an'amta 'alayhim ghayril maghdoobi 'alayhim wa lad-dalleen (7)"
+                english="In the name of Allah, the Entirely Merciful, the Especially Merciful. (1) [All] praise is [due] to Allah, Lord of the worlds. (2) The Entirely Merciful, the Especially Merciful. (3) Sovereign of the Day of Recompense. (4) It is You we worship and You we ask for help. (5) Guide us to the straight path. (6) The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray. (7)"
                 count={1}
                 onIncrement={() => {}}
                 onDecrement={() => {}}
@@ -1194,5 +1211,57 @@ const styles = StyleSheet.create({
   modalBoldText: {
     fontWeight: 'bold',
     color: '#2C3E50',
+  },
+  // Niyyah styles
+  niyyahCard: {
+    backgroundColor: colors.surface,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 16,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.accentTeal,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  niyyahTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.accentTeal,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  niyyahArabic: {
+    fontSize: 18,
+    color: colors.textPrimary,
+    textAlign: 'right',
+    lineHeight: 32,
+    marginBottom: 12,
+    fontFamily: 'System',
+  },
+  niyyahTransliteration: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  niyyahEnglish: {
+    fontSize: 16,
+    color: colors.textPrimary,
+    lineHeight: 24,
+    marginBottom: 12,
+  },
+  niyyahBreakdown: {
+    fontSize: 14,
+    color: colors.accentTeal,
+    lineHeight: 20,
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    padding: 12,
+    borderRadius: 8,
   },
 });

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Tijaniyah Pro",
+    "name": "Tijaniyah Muslim Pro",
     "slug": "tijaniyah-muslim-pro",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/appicon.png",
     "userInterfaceStyle": "light",
@@ -27,6 +27,7 @@
         "backgroundColor": "#052F2A"
       },
       "package": "com.tijaniyahpro.app",
+      "versionCode": 3,
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -34,8 +35,11 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE"
-      ]
+        "android.permission.VIBRATE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ],
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "bundler": "metro",
@@ -69,11 +73,7 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "0c6679dc-cf6b-41f2-be84-fc83580cb435"
-      }
-    },
+    "extra": {},
     "packagerOpts": {
       "config": "metro.config.js"
     },

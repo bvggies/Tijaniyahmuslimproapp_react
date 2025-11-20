@@ -4,6 +4,7 @@ export interface User {
   name: string;
   phone?: string;
   profilePicture?: string;
+  role?: 'user' | 'moderator' | 'admin' | 'super_admin';
   location?: {
     city: string;
     country: string;
@@ -52,4 +53,8 @@ export interface AuthContextType {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   clearError: () => void;
+  isAdmin: () => boolean;
+  isSuperAdmin: () => boolean;
+  isModerator: () => boolean;
+  getUserRole: () => string;
 }

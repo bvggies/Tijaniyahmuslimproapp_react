@@ -173,6 +173,20 @@ export default function MoreFeaturesScreen({ navigation }: any) {
       screen: 'Donate',
     },
     {
+      title: 'Zakat Calculator',
+      description: 'Calculate your obligatory charity (Zakat)',
+      icon: 'calculator',
+      color: '#4CAF50',
+      screen: 'ZakatCalculator',
+    },
+    {
+      title: 'Hajj',
+      description: 'Makkah Live, Hajj & Umrah, Hajj Journey',
+      icon: 'walk',
+      color: colors.accentGreen,
+      screen: 'Hajj',
+    },
+    {
       title: 'Notifications',
       description: 'Manage prayer and reminder notifications',
       icon: 'notifications',
@@ -313,7 +327,7 @@ export default function MoreFeaturesScreen({ navigation }: any) {
         <View style={styles.appInfoCard}>
           <Ionicons name="information-circle" size={24} color={colors.accentTeal} />
           <View style={styles.appInfoContent}>
-            <Text style={styles.appInfoTitle}>Tijaniyah Pro</Text>
+            <Text style={styles.appInfoTitle}>Tijaniyah Muslim Pro</Text>
             <Text style={styles.appInfoDescription}>
               Your comprehensive Islamic companion app with all the tools you need for spiritual growth and daily practice.
             </Text>

@@ -1,0 +1,45 @@
+name: Build with EAS
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-with-eas:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Setup EAS CLI
+      run: |
+        npm install -g @expo/eas-cli
+        
+    - name: Login to EAS
+      run: |
+        echo "Logging into EAS..."
+        # Note: You'll need to set up EAS authentication
+        # eas login --non-interactive
+        
+    - name: Build Android APK with EAS
+      run: |
+        echo "Building with EAS..."
+        # eas build --platform android --profile preview --non-interactive
+        echo "EAS build would be triggered here"
+        
+    - name: Download build artifacts
+      run: |
+        echo "Downloading build artifacts..."
+        # eas build:list --platform android --limit 1
+        echo "Build artifacts would be downloaded here"

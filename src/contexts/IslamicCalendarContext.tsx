@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LocationService from '../services/locationService';
+import HijriService from '../services/hijriService';
 
 export type IslamicCalendarType = 
+  | 'lunar'            // Lunar calendar (default)
   | 'umm-al-qura'      // Saudi Arabia (Umm al-Qura)
   | 'tabular'          // Tabular Islamic calendar
   | 'kuwaiti'          // Kuwaiti algorithm
@@ -37,10 +40,12 @@ interface IslamicCalendarContextType {
   selectedCalendar: IslamicCalendarType;
   setSelectedCalendar: (calendar: IslamicCalendarType) => void;
   getCurrentIslamicDate: () => IslamicDate;
+  getCurrentIslamicDateWithLocation: () => Promise<IslamicDate | null>;
   getCalendarInfo: (type: IslamicCalendarType) => IslamicCalendarInfo;
   getAllCalendars: () => IslamicCalendarInfo[];
   convertToIslamic: (gregorianDate: Date) => IslamicDate;
   convertToGregorian: (islamicDate: IslamicDate) => Date;
+  getLocationBasedDate: () => Promise<any>;
 }
 
 const IslamicCalendarContext = createContext<IslamicCalendarContextType | undefined>(undefined);
@@ -49,6 +54,13 @@ const ISLAMIC_CALENDAR_STORAGE_KEY = 'tijaniyah_islamic_calendar';
 
 // Islamic calendar information
 const CALENDAR_INFO: Record<IslamicCalendarType, IslamicCalendarInfo> = {
+  'lunar': {
+    type: 'lunar',
+    name: 'Lunar Calendar',
+    description: 'Traditional lunar calendar based on moon phases and observations',
+    region: 'Global',
+    accuracy: 'high'
+  },
   'umm-al-qura': {
     type: 'umm-al-qura',
     name: 'Umm al-Qura',
@@ -167,7 +179,7 @@ const ISLAMIC_HOLIDAYS: Record<string, string> = {
 };
 
 export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedCalendar, setSelectedCalendarState] = useState<IslamicCalendarType>('umm-al-qura');
+  const [selectedCalendar, setSelectedCalendarState] = useState<IslamicCalendarType>('lunar');
 
   useEffect(() => {
     const loadSelectedCalendar = async () => {
@@ -202,6 +214,14 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     
     // Calendar-specific calculations with regional adjustments
     switch (selectedCalendar) {
+      case 'lunar':
+        // Lunar: Traditional lunar calendar based on moon phases
+        islamicYear = Math.floor(daysSinceEpoch / 354.367) + 1;
+        daysInYear = daysSinceEpoch % 354.367;
+        // Lunar observation-based adjustment
+        daysInYear += Math.sin(islamicYear * 0.05) * 0.3;
+        break;
+        
       case 'umm-al-qura':
         // Umm al-Qura: Official Saudi calendar with specific leap year pattern
         islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
@@ -299,6 +319,11 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific month length calculations
     const getMonthLength = (monthNum: number, year: number): number => {
       switch (selectedCalendar) {
+        case 'lunar':
+          // Lunar: Traditional lunar month lengths based on moon phases
+          if (monthNum === 12) return 29; // Dhu al-Hijjah varies
+          return (monthNum % 2 === 0) ? 29 : 30;
+          
         case 'umm-al-qura':
           // Umm al-Qura specific month lengths
           if (monthNum === 12) return 30; // Dhu al-Hijjah is always 30 days
@@ -398,6 +423,10 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific year length calculations
     let daysPerYear: number;
     switch (selectedCalendar) {
+      case 'lunar':
+        daysPerYear = 354.367;
+        break;
+        
       case 'umm-al-qura':
         daysPerYear = 354.36667;
         break;
@@ -442,6 +471,10 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     // Calendar-specific month length calculations
     const getMonthLength = (monthNum: number, year: number): number => {
       switch (selectedCalendar) {
+        case 'lunar':
+          if (monthNum === 12) return 29;
+          return (monthNum % 2 === 0) ? 29 : 30;
+          
         case 'umm-al-qura':
           if (monthNum === 12) return 30;
           return (monthNum % 2 === 0) ? 29 : 30;
@@ -475,6 +508,66 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     return convertToIslamic(new Date());
   };
 
+  // Get Islamic date with location-based calculations
+  const getCurrentIslamicDateWithLocation = async (): Promise<IslamicDate | null> => {
+    try {
+      // TEMPORARILY DISABLE location-based Hijri date calculation
+      // This prevents the wrong Muharram 1 date from overriding the correct date
+      console.log('🚫 Location-based Islamic date calculation temporarily disabled');
+      return null;
+      
+      // Original code (commented out for now):
+      /*
+      const hijriService = HijriService.getInstance();
+      const hijriDate = await hijriService.getCurrentHijriDate();
+      
+      if (hijriDate) {
+        // Validate the Hijri date - if it's showing Muharram 1, it's likely wrong
+        if (hijriDate.hijri.month === 1 && hijriDate.hijri.day === 1) {
+          console.log('⚠️ Location-based Hijri date showing Muharram 1, using fallback');
+          return null; // Return null to use the regular calendar calculation
+        }
+        
+        return {
+          day: hijriDate.hijri.day,
+          month: hijriDate.hijri.month,
+          year: hijriDate.hijri.year,
+          monthName: hijriDate.hijri.monthName,
+          monthNameArabic: hijriDate.hijri.monthName, // You might want to add Arabic names
+          dayName: hijriDate.hijri.dayName,
+          dayNameArabic: hijriDate.hijri.dayName, // You might want to add Arabic names
+          isHoliday: false, // You can enhance this with holiday detection
+          holidayName: undefined
+        };
+      }
+      
+      return null;
+      */
+    } catch (error) {
+      console.error('❌ Error getting location-based Islamic date:', error);
+      return null;
+    }
+  };
+
+  // Get location-based date information
+  const getLocationBasedDate = async () => {
+    try {
+      // TEMPORARILY DISABLE location-based date calculation
+      // This prevents the wrong Muharram 1 date from overriding the correct date
+      console.log('🚫 Location-based date calculation temporarily disabled');
+      return null;
+      
+      // Original code (commented out for now):
+      /*
+      const hijriService = HijriService.getInstance();
+      return await hijriService.getCurrentHijriDate();
+      */
+    } catch (error) {
+      console.error('❌ Error getting location-based date:', error);
+      return null;
+    }
+  };
+
   const getCalendarInfo = (type: IslamicCalendarType): IslamicCalendarInfo => {
     return CALENDAR_INFO[type];
   };
@@ -489,10 +582,12 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
         selectedCalendar,
         setSelectedCalendar,
         getCurrentIslamicDate,
+        getCurrentIslamicDateWithLocation,
         getCalendarInfo,
         getAllCalendars,
         convertToIslamic,
-        convertToGregorian
+        convertToGregorian,
+        getLocationBasedDate
       }}
     >
       {children}

@@ -83,9 +83,85 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Load user from storage on app start
   useEffect(() => {
-    loadStoredUser();
-    initializeDemoAccount();
+    const initializeApp = async () => {
+      await createAdminUsersIfNeeded(); // Create admin users first
+      await initializeDemoAccount(); // Initialize demo account
+      await loadStoredToken();
+      await loadStoredUser();
+    };
+    initializeApp();
   }, []);
+
+  const loadStoredToken = async () => {
+    try {
+      const { loadStoredToken } = await import('../services/api');
+      await loadStoredToken();
+    } catch (error) {
+      console.error('Error loading stored token:', error);
+    }
+  };
+
+  const createAdminUsersIfNeeded = async () => {
+    try {
+      const users = await getStoredUsers();
+      
+      // Create admin user if not exists
+      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
+      if (!adminUserExists) {
+        const adminUser: User = {
+          id: 'admin-user-001',
+          email: 'admin@tijaniyahpro.com',
+          name: 'Super Administrator',
+          phone: '+233 558415813',
+          role: 'super_admin',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, adminUser];
+        await storeUsers(updatedUsers);
+        console.log('✅ Admin user created');
+      }
+      
+      // Create moderator user if not exists
+      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
+      if (!moderatorUserExists) {
+        const moderatorUser: User = {
+          id: 'moderator-user-001',
+          email: 'moderator@tijaniyahpro.com',
+          name: 'Content Moderator',
+          phone: '+233 558415813',
+          role: 'moderator',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, moderatorUser];
+        await storeUsers(updatedUsers);
+        console.log('✅ Moderator user created');
+      }
+    } catch (error) {
+      console.error('Error creating admin users:', error);
+    }
+  };
 
   const initializeDemoAccount = async () => {
     try {
@@ -98,6 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email: 'demo@tijaniyah.com',
           name: 'Demo User',
           phone: '+233 558415813',
+          role: 'user',
           location: {
             city: 'Accra',
             country: 'Ghana',
@@ -113,6 +190,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         const updatedUsers = [...users, demoUser];
         await storeUsers(updatedUsers);
+      }
+
+      // Initialize admin users
+      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
+      if (!adminUserExists) {
+        const adminUser: User = {
+          id: 'admin-user-001',
+          email: 'admin@tijaniyahpro.com',
+          name: 'Super Administrator',
+          phone: '+233 558415813',
+          role: 'super_admin',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, adminUser];
+        await storeUsers(updatedUsers);
+      }
+
+      // Initialize moderator user
+      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
+      if (!moderatorUserExists) {
+        const moderatorUser: User = {
+          id: 'moderator-user-001',
+          email: 'moderator@tijaniyahpro.com',
+          name: 'Content Moderator',
+          phone: '+233 558415813',
+          role: 'moderator',
+          location: {
+            city: 'Accra',
+            country: 'Ghana',
+          },
+          preferences: {
+            prayerMethod: 'MWL',
+            language: 'en',
+            notifications: true,
+          },
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+        
+        const updatedUsers = [...users, moderatorUser];
+        await storeUsers(updatedUsers);
+      }
+
+      // Also ensure demo user exists in backend
+      try {
+        const { api } = await import('../services/api');
+        await api.signup('demo@tijaniyah.com', 'demo123', 'Demo User');
+        console.log('✅ Demo user created in backend');
+      } catch (backendError: any) {
+        if (backendError.message?.includes('User already exists')) {
+          console.log('✅ Demo user already exists in backend');
+        } else {
+          console.log('⚠️ Failed to create demo user in backend:', backendError.message);
+        }
       }
     } catch (error) {
       console.error('Error initializing demo account:', error);
@@ -174,11 +316,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const users = await getStoredUsers();
+      console.log('🔍 Available users:', users.map(u => ({ email: u.email, role: u.role })));
+      console.log('🔍 Looking for user:', credentials.email);
+      
       const user = users.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
 
       if (!user) {
+        console.log('❌ User not found in stored users');
         throw new Error('User not found. Please check your email or register.');
       }
+
+      console.log('✅ User found:', { email: user.email, role: user.role });
 
       // In a real app, you would verify the password hash here
       // For demo purposes, we'll accept any password for existing users
@@ -189,6 +337,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Special handling for demo account
       if (user.email === 'demo@tijaniyah.com' && credentials.password !== 'demo123') {
         throw new Error('Invalid password for demo account. Use: demo123');
+      }
+
+      // Special handling for admin accounts
+      if (user.email === 'admin@tijaniyahpro.com' && credentials.password !== 'admin123') {
+        throw new Error('Invalid password for admin account. Use: admin123');
+      }
+
+      if (user.email === 'moderator@tijaniyahpro.com' && credentials.password !== 'moderator123') {
+        throw new Error('Invalid password for moderator account. Use: moderator123');
+      }
+
+      // Also authenticate with backend
+      try {
+        const { api } = await import('../services/api');
+        const response = await api.login(credentials.email, credentials.password);
+        console.log('✅ Backend authentication successful');
+        // Store the token for future API calls
+        if (response?.accessToken) {
+          const { setToken } = await import('../services/api');
+          await setToken(response.accessToken);
+        }
+      } catch (backendError: any) {
+        console.log('⚠️ Backend authentication failed:', backendError.message);
+        
+        // If user doesn't exist in backend, try to create them
+        if (backendError.message?.includes('Invalid credentials') || backendError.message?.includes('User not found')) {
+          console.log('🔄 User not found in backend, attempting to create account...');
+          try {
+            const { api } = await import('../services/api');
+            await api.signup(credentials.email, credentials.password, user.name);
+            console.log('✅ Backend account created successfully');
+            
+            // Now try to login again
+            const loginResponse = await api.login(credentials.email, credentials.password);
+            if (loginResponse?.accessToken) {
+              const { setToken } = await import('../services/api');
+              await setToken(loginResponse.accessToken);
+              console.log('✅ Backend login successful after account creation');
+            }
+          } catch (signupError: any) {
+            console.log('❌ Failed to create backend account:', signupError.message);
+            // Continue with local login even if backend fails
+          }
+        }
       }
 
       // Update last login
@@ -242,6 +434,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: data.name.trim(),
         phone: data.phone?.trim(),
         profilePicture: data.profilePicture,
+        role: 'user', // Default role for new users
         location: data.location,
         preferences: {
           prayerMethod: 'MWL',
@@ -251,6 +444,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       };
+
+      // Also create account on backend
+      try {
+        const { api } = await import('../services/api');
+        await api.signup(data.email, data.password, data.name);
+        console.log('✅ Backend account created successfully');
+      } catch (backendError: any) {
+        console.log('⚠️ Backend account creation failed:', backendError.message);
+        // Continue with local registration even if backend fails
+      }
 
       // Store user
       const updatedUsers = [...users, newUser];
@@ -267,6 +470,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await removeStoredUser();
+      // Clear the authentication token
+      try {
+        const { clearToken } = await import('../services/api');
+        await clearToken();
+      } catch (tokenError) {
+        console.error('Error clearing token:', tokenError);
+      }
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
       console.error('Error during logout:', error);
@@ -323,6 +533,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  // Helper functions for role checking
+  const isAdmin = (): boolean => {
+    return authState.user?.role === 'admin' || authState.user?.role === 'super_admin';
+  };
+
+  const isSuperAdmin = (): boolean => {
+    return authState.user?.role === 'super_admin';
+  };
+
+  const isModerator = (): boolean => {
+    return authState.user?.role === 'moderator' || isAdmin();
+  };
+
+  const getUserRole = (): string => {
+    return authState.user?.role || 'user';
+  };
+
   const value: AuthContextType = {
     authState,
     login,
@@ -332,6 +559,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     resetPassword,
     clearError,
+    isAdmin,
+    isSuperAdmin,
+    isModerator,
+    getUserRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

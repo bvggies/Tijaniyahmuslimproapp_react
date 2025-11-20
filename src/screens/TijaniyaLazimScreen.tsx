@@ -23,8 +23,26 @@ const TijaniyaLazimScreen: React.FC = () => {
   const [counter, setCounter] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStep, setSelectedStep] = useState(0);
+  const [lazimType, setLazimType] = useState<'morning' | 'evening' | null>(null);
 
   const lazimSteps = [
+    {
+      id: 0,
+      title: "Niyyah (Intention)",
+      arabic: "اللهم إني نويت أن أتقرب إليك بقرائة ورد الصباح اللازم في الطريقة التجانية إقتداء بسيد أحمد التجاني رضي اللّٰه عنه تعبدا لله تعالى",
+      transliteration: "Allahumma innii nawaytu an ataqarraba ilayka bi qiraa-ati wirdis-sabaahi allaazim fit-țareeqati Tijaniyyah iqtidaa-a bisayyidi Ahmad at-Tijani Radiyallahu anhu ta'abbudan lillahi ta'aalaa.",
+      translation: "O Allah, I intend to draw closer to You by reciting the obligatory morning Lazim in the Tijani Tariqa, following our Master Ahmad al-Tijani, may Allah be pleased with him, as an act of devotion to Allah the Almighty.",
+      instruction: "Choose Morning or Evening Lazim below, then recite the appropriate intention.",
+      color: colors.accentYellow,
+      icon: "heart",
+      details: "This is the niyyah (intention) that must be recited before beginning the Lazim. Choose whether you're performing the Morning Lazim or Evening Lazim, then recite the appropriate intention.",
+      morningArabic: "اللهم إني نويت أن أتقرب إليك بقرائة ورد الصباح اللازم في الطريقة التجانية إقتداء بسيد أحمد التجاني رضي اللّٰه عنه تعبدا لله تعالى",
+      morningTransliteration: "Allahumma innii nawaytu an ataqarraba ilayka bi qiraa-ati wirdis-sabaahi allaazim fit-țareeqati Tijaniyyah iqtidaa-a bisayyidi Ahmad at-Tijani Radiyallahu anhu ta'abbudan lillahi ta'aalaa.",
+      morningTranslation: "O Allah, I intend to draw closer to You by reciting the obligatory morning Lazim in the Tijani Tariqa, following our Master Ahmad al-Tijani, may Allah be pleased with him, as an act of devotion to Allah the Almighty.",
+      eveningArabic: "اللهم إني نويت أن أتقرب إليك بقرائة ورد المساء اللازم في الطريقة التجانية إقتداء بسيد أحمد التجاني رضي اللّٰه عنه تعبدا لله تعالى",
+      eveningTransliteration: "Allahumma innii nawaytu an ataqarraba ilayka bi qiraa-ati wirdil-masaa-i allaazim fit-tareeqati Tijaniyyah iqtidaa-a bisayyidi Ahmad at-Tijani Radiyallahu anhu ta'abbudan lillahi ta'aalaa.",
+      eveningTranslation: "O Allah, I intend to draw closer to You by reciting the obligatory evening Lazim in the Tijani Tariqa, following our Master Ahmad al-Tijani, may Allah be pleased with him, as an act of devotion to Allah the Almighty."
+    },
     {
       id: 1,
       title: "Opening Supplication",
@@ -127,43 +145,117 @@ const TijaniyaLazimScreen: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const renderStepCard = (step: any, index: number) => (
-    <TouchableOpacity
-      key={step.id}
-      style={styles.stepCard}
-      onPress={() => openStepModal(index)}
-    >
-      <LinearGradient
-        colors={[step.color, `${step.color}80`]}
-        style={styles.stepGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+  const renderStepCard = (step: any, index: number) => {
+    // Special handling for niyyah step
+    if (step.id === 0) {
+      return (
+        <View key={step.id} style={styles.niyyahCard}>
+          <LinearGradient
+            colors={[step.color, `${step.color}80`]}
+            style={styles.niyyahGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <View style={styles.niyyahHeader}>
+              <View style={styles.niyyahNumber}>
+                <Text style={styles.niyyahNumberText}>{step.id}</Text>
+              </View>
+              <View style={styles.niyyahTitleContainer}>
+                <Text style={styles.niyyahTitle}>{step.title}</Text>
+                <Text style={styles.niyyahInstruction}>{step.instruction}</Text>
+              </View>
+              <Ionicons name={step.icon as any} size={24} color="white" />
+            </View>
+            
+            {/* Lazim Type Selection */}
+            <View style={styles.lazimTypeContainer}>
+              <Text style={styles.lazimTypeTitle}>Choose Lazim Type:</Text>
+              <View style={styles.lazimTypeButtons}>
+                <TouchableOpacity
+                  style={[styles.lazimTypeButton, lazimType === 'morning' && styles.lazimTypeButtonSelected]}
+                  onPress={() => setLazimType('morning')}
+                >
+                  <Text style={[styles.lazimTypeButtonText, lazimType === 'morning' && styles.lazimTypeButtonTextSelected]}>
+                    Morning Lazim
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.lazimTypeButton, lazimType === 'evening' && styles.lazimTypeButtonSelected]}
+                  onPress={() => setLazimType('evening')}
+                >
+                  <Text style={[styles.lazimTypeButtonText, lazimType === 'evening' && styles.lazimTypeButtonTextSelected]}>
+                    Evening Lazim
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            {/* Display selected niyyah */}
+            {lazimType && (
+              <View style={styles.selectedNiyyahContainer}>
+                <View style={styles.arabicContainer}>
+                  <Text style={styles.arabicText}>
+                    {lazimType === 'morning' ? step.morningArabic : step.eveningArabic}
+                  </Text>
+                </View>
+                
+                <View style={styles.transliterationContainer}>
+                  <Text style={styles.transliterationText}>
+                    {lazimType === 'morning' ? step.morningTransliteration : step.eveningTransliteration}
+                  </Text>
+                </View>
+                
+                <View style={styles.translationContainer}>
+                  <Text style={styles.translationText}>
+                    {lazimType === 'morning' ? step.morningTranslation : step.eveningTranslation}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </LinearGradient>
+        </View>
+      );
+    }
+    
+    // Regular step rendering
+    return (
+      <TouchableOpacity
+        key={step.id}
+        style={styles.stepCard}
+        onPress={() => openStepModal(index)}
       >
-        <View style={styles.stepHeader}>
-          <View style={styles.stepNumber}>
-            <Text style={styles.stepNumberText}>{step.id}</Text>
+        <LinearGradient
+          colors={[step.color, `${step.color}80`]}
+          style={styles.stepGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.stepHeader}>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>{step.id}</Text>
+            </View>
+            <View style={styles.stepTitleContainer}>
+              <Text style={styles.stepTitle}>{step.title}</Text>
+              <Text style={styles.stepInstruction}>{step.instruction}</Text>
+            </View>
+            <Ionicons name={step.icon as any} size={24} color="white" />
           </View>
-          <View style={styles.stepTitleContainer}>
-            <Text style={styles.stepTitle}>{step.title}</Text>
-            <Text style={styles.stepInstruction}>{step.instruction}</Text>
+          
+          <View style={styles.arabicContainer}>
+            <Text style={styles.arabicText}>{step.arabic}</Text>
           </View>
-          <Ionicons name={step.icon as any} size={24} color="white" />
-        </View>
-        
-        <View style={styles.arabicContainer}>
-          <Text style={styles.arabicText}>{step.arabic}</Text>
-        </View>
-        
-        <View style={styles.transliterationContainer}>
-          <Text style={styles.transliterationText}>{step.transliteration}</Text>
-        </View>
-        
-        <View style={styles.translationContainer}>
-          <Text style={styles.translationText}>{step.translation}</Text>
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
+          
+          <View style={styles.transliterationContainer}>
+            <Text style={styles.transliterationText}>{step.transliteration}</Text>
+          </View>
+          
+          <View style={styles.translationContainer}>
+            <Text style={styles.translationText}>{step.translation}</Text>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  };
 
   const renderCounter = () => (
     <View style={styles.counterContainer}>
@@ -588,6 +680,87 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: 20,
     textAlign: 'justify',
+  },
+  // Niyyah styles
+  niyyahCard: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  niyyahGradient: {
+    padding: 20,
+  },
+  niyyahHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  niyyahNumber: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  niyyahNumberText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  niyyahTitleContainer: {
+    flex: 1,
+  },
+  niyyahTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 4,
+  },
+  niyyahInstruction: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  lazimTypeContainer: {
+    marginBottom: 20,
+  },
+  lazimTypeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  lazimTypeButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  lazimTypeButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  lazimTypeButtonSelected: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'white',
+  },
+  lazimTypeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  lazimTypeButtonTextSelected: {
+    color: 'white',
+  },
+  selectedNiyyahContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 15,
   },
 });
 

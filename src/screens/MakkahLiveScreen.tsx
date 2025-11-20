@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView } from 'react-native';
 import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
@@ -25,40 +25,16 @@ type TVChannel = {
 
 const CHANNELS: Channel[] = [
   {
-    id: 'makkah-live-24-7',
-    title: '🕋 Makkah Live Online 24/7',
+    id: 'makkah-live-stream-1',
+    title: '🕋 Makkah Live Stream 1',
     subtitle: 'Live streaming from the Holy Kaaba',
-    youtubeId: 'zIl0NYIsBCE',
+    youtubeId: '6F84NXOUCdw',
   },
   {
-    id: 'makkah-hd-live',
-    title: '🕋 Makkah HD Live',
-    subtitle: 'High definition live stream from Makkah',
-    youtubeId: 'ZlU0ELqIfeY',
-  },
-  {
-    id: 'quran-kareem-tv',
-    title: '📺 Al Quran Al Kareem TV Channel Live',
-    subtitle: 'Official Quran TV channel live stream',
-    youtubeId: '-PR51PBK_yY',
-  },
-  {
-    id: 'madina-live-24-7',
-    title: '🕌 Madina Live – Al Masjid an-Nabawi 24/7 Streaming',
-    subtitle: 'Live streaming from the Prophet\'s Mosque',
-    youtubeId: 'TpT8b8JFZ6E',
-  },
-  {
-    id: 'medina-heart-live',
-    title: '🕌 Medina Live: Connect to the Heart of the Sacred City',
-    subtitle: 'Experience the spiritual beauty of Medina',
-    youtubeId: 'TpT8b8JFZ6E',
-  },
-  {
-    id: 'medina-spiritual-live',
-    title: '🕌 Medinah Live: Experience the Spiritual Beauty',
-    subtitle: 'Connect with the sacred atmosphere of Medina',
-    youtubeId: 'uvV-g-j7NRk',
+    id: 'makkah-live-stream-2',
+    title: '🕋 Makkah Live Stream 2',
+    subtitle: 'Live streaming from the Holy Kaaba',
+    youtubeId: 'U6bEFxYWJlo',
   },
 ];
 
@@ -167,6 +143,7 @@ export default function MakkahLiveScreen() {
   const [active, setActive] = useState<Channel>(CHANNELS[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [showStreamHelp, setShowStreamHelp] = useState(false);
+  const [quality, setQuality] = useState<'sd'|'hd'>('hd');
 
   const openInYouTube = (channel: Channel) => {
     const url = `https://www.youtube.com/watch?v=${channel.youtubeId}`;
@@ -206,14 +183,26 @@ export default function MakkahLiveScreen() {
     }
   };
 
+  const currentSrc = useMemo(() => {
+    // Simulate HD/SD by switching between HD channel and 24/7 channel
+    if (quality === 'hd') return active.youtubeId;
+    // fallback to first (24/7) if not already that
+    const sd = CHANNELS.find(c => c.id === 'makkah-live-24-7') || active;
+    return sd.youtubeId;
+  }, [quality, active]);
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
-          <View style={styles.headerText}>
+        <View style={styles.headerText}>
             <Text style={styles.headerTitle}>{t('makkah_live.title')}</Text>
             <Text style={styles.headerSubtitle}>{t('makkah_live.subtitle')}</Text>
           </View>
+          <TouchableOpacity style={styles.qualityToggle} onPress={() => setQuality(prev => prev==='hd'?'sd':'hd')}>
+            <Ionicons name={quality==='hd' ? 'videocam' : 'videocam-outline'} size={18} color={colors.accentTeal} />
+            <Text style={styles.qualityLabel}>{quality.toUpperCase()}</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.helpButton} onPress={toggleStreamHelp}>
             <Ionicons name="help-circle-outline" size={24} color={colors.accentTeal} />
           </TouchableOpacity>
@@ -243,6 +232,14 @@ export default function MakkahLiveScreen() {
           </View>
         )}
 
+        <View style={styles.prayerStrip}>
+          <Text style={styles.prayerItem}>{t('prayer.fajr')}</Text>
+          <Text style={styles.prayerItem}>{t('prayer.dhuhr')}</Text>
+          <Text style={styles.prayerItem}>{t('prayer.asr')}</Text>
+          <Text style={styles.prayerItem}>{t('prayer.maghrib')}</Text>
+          <Text style={styles.prayerItem}>{t('prayer.isha')}</Text>
+        </View>
+
         <View style={styles.playerCard}>
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -254,7 +251,7 @@ export default function MakkahLiveScreen() {
           style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
           source={{ 
             // Use privacy-enhanced mode to reduce prompts and tracking
-            uri: `https://www.youtube-nocookie.com/embed/${active.youtubeId}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1`
+            uri: `https://www.youtube-nocookie.com/embed/${currentSrc}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1`
           }}
           allowsFullscreenVideo={true}
           allowsInlineMediaPlayback={true}
@@ -386,6 +383,8 @@ const styles = StyleSheet.create({
     borderRadius: 20, 
     backgroundColor: 'rgba(255, 255, 255, 0.1)' 
   },
+  qualityToggle: { flexDirection: 'row', alignItems: 'center', gap: 6 as any, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: colors.accentTeal + '66', marginRight: 8 },
+  qualityLabel: { color: colors.textPrimary, fontWeight: '700', fontSize: 12 },
   helpBanner: {
     backgroundColor: colors.accentYellow + '20',
     marginHorizontal: 16,
@@ -420,6 +419,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   playerCard: { height: 250, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
+  prayerStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8 },
+  prayerItem: { color: colors.textSecondary, fontSize: 12 },
   fallback: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   fallbackText: { color: colors.textSecondary, marginTop: 8, marginBottom: 12 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 6 as any, backgroundColor: colors.mintSurface, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },

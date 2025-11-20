@@ -94,11 +94,24 @@ const calculateCountdown = (targetDate: Date, currentDate: Date): { countdown: s
 // Prayer times calculation using Adhan library
 export const getPrayerTimes = async (latitude: number, longitude: number, timeFormat: '12h' | '24h' = '12h'): Promise<PrayerTime[]> => {
   try {
+    console.log('🕌 Getting prayer times for coordinates:', latitude, longitude);
+    
+    // Validate coordinates
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      throw new Error(`Invalid coordinates: lat=${latitude}, lng=${longitude}`);
+    }
+    
     // Use real Adhan library for accurate prayer times
     const coordinates = new Coordinates(latitude, longitude);
     const params = CalculationMethod.MuslimWorldLeague();
     const date = new Date();
+    
+    console.log('📅 Prayer times date:', date.toLocaleDateString());
+    console.log('🌍 Coordinates:', coordinates.latitude, coordinates.longitude);
+    
     const prayerTimes = new PrayerTimes(coordinates, date, params);
+    
+    console.log('✅ Prayer times calculated successfully');
     
     // Convert Adhan prayer times to our format
     const prayerTimesList: PrayerTime[] = [
@@ -202,15 +215,20 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
 
     return updatedPrayerTimes;
   } catch (error) {
-    console.error('Error calculating prayer times:', error);
+    console.error('❌ Error calculating prayer times:', error);
+    console.error('📍 Coordinates that failed:', { latitude, longitude });
+    
     // Return default times in case of error
-    return [
+    const fallbackTimes = [
       { name: 'Fajr', time: '05:30', isNext: false, isCurrent: false },
       { name: 'Dhuhr', time: '12:15', isNext: false, isCurrent: false },
       { name: 'Asr', time: '15:45', isNext: false, isCurrent: false },
       { name: 'Maghrib', time: '18:20', isNext: true, isCurrent: false },
       { name: 'Isha', time: '19:45', isNext: false, isCurrent: false },
     ];
+    
+    console.log('🔄 Using fallback prayer times');
+    return fallbackTimes;
   }
 };
 

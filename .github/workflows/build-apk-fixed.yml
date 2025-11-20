@@ -1,0 +1,122 @@
+name: Build Tijaniyah Pro APK (Fixed)
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'CLOUD_BUILD_INSTRUCTIONS.md'
+      - 'ADMIN_DASHBOARD_README.md'
+      - 'ADMIN_INTEGRATION_GUIDE.md'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npx expo install --fix
+        
+    - name: Clean previous builds
+      run: |
+        if [ -d "android" ]; then
+          echo "Removing existing android directory"
+          rm -rf android
+        fi
+        if [ -d "node_modules/.cache" ]; then
+          echo "Clearing node cache"
+          rm -rf node_modules/.cache
+        fi
+        
+    - name: Generate Android project
+      run: |
+        echo "Generating Android project..."
+        npx expo prebuild --platform android --clean
+        echo "Android project generated successfully"
+        
+    - name: Verify Android project structure
+      run: |
+        echo "Checking Android project structure:"
+        ls -la android/
+        ls -la android/app/
+        echo "Gradle wrapper exists:"
+        ls -la android/gradlew
+        
+    - name: Set up Gradle properties
+      run: |
+        cd android
+        echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> gradle.properties
+        echo "org.gradle.parallel=true" >> gradle.properties
+        echo "org.gradle.daemon=true" >> gradle.properties
+        echo "org.gradle.configureondemand=true" >> gradle.properties
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
+        
+    - name: Build Release APK
+      run: |
+        cd android
+        chmod +x gradlew
+        echo "Starting Gradle build..."
+        # Stop any existing daemons to clear cached JVM options
+        ./gradlew --stop || true
+        ./gradlew clean
+        ./gradlew assembleRelease --no-daemon --stacktrace --info --warning-mode all --console=plain --max-workers=2
+        
+    - name: Check APK output
+      run: |
+        echo "Checking APK output:"
+        ls -la android/app/build/outputs/apk/release/
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "APK built successfully!"
+          ls -lh android/app/build/outputs/apk/release/app-release.apk
+        else
+          echo "APK not found!"
+          exit 1
+        fi
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: tijaniyah-pro-apk
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+        
+    - name: Upload build logs (on failure)
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs
+        path: |
+          android/
+          android/app/build/outputs/
+        retention-days: 7
