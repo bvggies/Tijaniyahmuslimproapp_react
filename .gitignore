@@ -42,3 +42,5 @@ yarn-error.*
 
 /src/generated/prisma
 .eas/api/
+
+github-secrets-values.txt
