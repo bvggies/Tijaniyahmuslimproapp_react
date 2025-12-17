@@ -87,22 +87,17 @@ The application uses the following main entities:
 
 ### 4. Production Database Options
 
-#### Option 1: Railway (Current)
-- Already configured for Railway deployment
-- Uses Railway's PostgreSQL service
-- Environment variables set in Railway dashboard
-
-#### Option 2: Neon Database
+#### Option 1: Neon Database (Current)
 - Free tier available
 - PostgreSQL-compatible
 - Easy setup and scaling
 
-#### Option 3: Supabase
+#### Option 2: Supabase
 - Free tier available
 - PostgreSQL with additional features
 - Built-in authentication (optional)
 
-#### Option 4: Self-hosted PostgreSQL
+#### Option 3: Self-hosted PostgreSQL
 - Install PostgreSQL on your server
 - Configure connection string
 - Set up SSL certificates
@@ -148,7 +143,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/tijaniyah_dev?schema
 
 ## Current Status
 ✅ Database schema defined with Prisma
-✅ PostgreSQL configured for production (Railway)
+✅ PostgreSQL configured for production (Neon)
 ✅ Authentication system using real database
 ✅ All user data persisted in database
 ✅ No local storage dependency for critical data

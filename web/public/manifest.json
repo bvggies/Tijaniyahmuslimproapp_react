@@ -1,0 +1,50 @@
+{
+  "name": "Tijaniyah Muslim Pro",
+  "short_name": "Tijaniyah Pro",
+  "description": "Complete Islamic app for Tijaniyah Muslims with prayer times, Quran, Qibla, and more",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#052F2A",
+  "theme_color": "#2E7D32",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "education", "religion"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Prayer Times",
+      "short_name": "Prayers",
+      "description": "View today's prayer times",
+      "url": "/prayer-times",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Qibla",
+      "short_name": "Qibla",
+      "description": "Find Qibla direction",
+      "url": "/qibla",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Quran",
+      "short_name": "Quran",
+      "description": "Read the Holy Quran",
+      "url": "/quran",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
+

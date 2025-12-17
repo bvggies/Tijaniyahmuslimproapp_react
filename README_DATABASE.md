@@ -6,9 +6,9 @@ This application uses **PostgreSQL with Prisma ORM** for both development and pr
 ## ✅ Current Database Status
 
 ### Production Database
-- **Provider**: Railway PostgreSQL
+- **Provider**: Neon PostgreSQL (managed cloud Postgres)
 - **Status**: ✅ Active and configured
-- **URL**: `https://tijaniyahmuslimproappreact-production-1e25.up.railway.app`
+- **Connection**: Uses `DATABASE_URL` pointing to your Neon PostgreSQL instance
 - **Data Persistence**: ✅ All user data persists across builds
 
 ### Development Database
@@ -228,8 +228,8 @@ curl -X POST http://localhost:3000/auth/login \
 - Message conversation ID
 
 ### Connection Pooling
-- Configured for Railway deployment
-- Connection limit: 1
+- Configured for managed PostgreSQL (Neon-compatible)
+- Conservative connection limit to avoid exhausting serverless connections
 - Pool timeout: 20 seconds
 
 ### Query Optimization

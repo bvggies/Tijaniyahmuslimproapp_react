@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const API_URL: string =
   ((Constants.expoConfig?.extra as any)?.API_URL as string) ||
-  'https://tijaniyahmuslimproappreact-production-1e25.up.railway.app';
+  'https://REPLACE_WITH_BACKEND_API_URL';
 
 const TOKEN_STORAGE_KEY = 'tijaniyah_auth_token';
 
@@ -109,7 +109,7 @@ async function http(path: string, init: RequestInit = {}, retryCount = 0): Promi
         accessToken = null;
       }
       
-      // Retry on 502 errors (Railway intermittent issues)
+      // Retry on 502 errors (transient hosting issues)
       if (res.status === 502 && retryCount < maxRetries) {
         console.log(`🔄 Retrying in ${retryDelay}ms due to 502 error...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));

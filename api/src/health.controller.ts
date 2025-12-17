@@ -27,7 +27,7 @@ export class HealthController {
       environment: process.env.NODE_ENV || 'development',
       database: {
         connected: dbHealthy,
-        provider: 'PostgreSQL (Railway)'
+        provider: 'PostgreSQL (Neon)'
       }
     };
   }

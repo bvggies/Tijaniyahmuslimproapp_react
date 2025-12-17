@@ -9,17 +9,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
     
-    // Configure connection for Railway PostgreSQL
-    // Railway PostgreSQL works best with direct connections and proper SSL
+    // Configure connection for managed PostgreSQL (Neon)
+    // Works best with direct connections and proper SSL
     let urlWithConfig = databaseUrl;
     
     if (databaseUrl && !databaseUrl.includes('sslmode')) {
-      // Add connection parameters for Railway PostgreSQL
-      // Railway requires SSL and works best with direct connections
+      // Add sane default connection parameters for managed PostgreSQL
+      // Many providers require SSL and work best with direct connections
       const separator = databaseUrl.includes('?') ? '&' : '?';
       const params: string[] = [];
       
-      // Add SSL mode (required for Railway)
+      // Add SSL mode (required for Neon/managed PostgreSQL)
       params.push('sslmode=require');
       
       // Connection timeout
@@ -27,8 +27,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         params.push('connect_timeout=10');
       }
       
-      // Use connection pooling - Railway PostgreSQL supports multiple connections
-      // Lower connection limit to avoid overwhelming the database
+      // Use connection pooling with a conservative connection limit
+      // This helps avoid overwhelming serverless/managed databases
       if (!databaseUrl.includes('connection_limit')) {
         params.push('connection_limit=3');
       }
@@ -53,7 +53,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
     // Now we can use this.logger after super()
     if (databaseUrl && !databaseUrl.includes('sslmode')) {
-      this.logger.log(`Database URL configured for Railway PostgreSQL`);
+      this.logger.log(`Database URL configured with managed PostgreSQL defaults (SSL, pooling)`);
     }
 
     // Handle connection errors and reconnection
