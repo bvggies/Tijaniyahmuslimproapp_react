@@ -15,12 +15,22 @@
    - Click "Save"
 
 2. **Verify vercel.json:**
-   - Ensure `vercel.json` uses the `builds` format (not `outputDirectory`)
+   - Ensure `vercel.json` uses `rewrites` and `functions` (not `builds`)
    - The `index.ts` file is the serverless function entry point
+   - Do NOT use both `builds` and `functions` together
 
 3. **Alternative:** If you must set an output directory:
    - Set to: `.` (current directory)
    - But this is not recommended for serverless functions
+
+### Error: "The `functions` property cannot be used in conjunction with the `builds` property"
+
+**Problem:** Vercel doesn't allow both `builds` and `functions` in vercel.json.
+
+**Solution:**
+1. Remove the `builds` property from `vercel.json`
+2. Keep only `rewrites` and `functions`
+3. Vercel will automatically detect `index.ts` as a serverless function
 
 ### Error: Build fails with TypeScript errors
 
