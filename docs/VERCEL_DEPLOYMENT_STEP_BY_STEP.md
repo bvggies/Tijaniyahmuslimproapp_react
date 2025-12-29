@@ -78,7 +78,10 @@ git push origin main
    - Or: `prisma generate && nest build`
 
 5. **Output Directory**: 
-   - Leave empty (not needed for serverless)
+   - **IMPORTANT:** Leave this EMPTY or set to blank
+   - Do NOT set to "dist" or "public"
+   - Serverless functions don't need an output directory
+   - Vercel will use `index.ts` directly
 
 6. **Install Command**: 
    - Set to: `npm install`
