@@ -3,12 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API URL Configuration
 // IMPORTANT: Backend API always connects to PERMANENT database
-// - Local development: Use http://YOUR_LOCAL_IP:3000 (not localhost for Expo Go on physical devices)
-// - Production: Use your Vercel deployment URL
-// - Backend uses permanent database: ep-broad-queen-ahyn14aw-pooler.c-3.us-east-1.aws.neon.tech
+// Using Vercel backend for both production and local testing
+// Backend URL: https://tijaniyahmuslimproapp-backend.vercel.app
+// Backend uses permanent database: ep-broad-queen-ahyn14aw-pooler.c-3.us-east-1.aws.neon.tech
 export const API_URL: string =
   ((Constants.expoConfig?.extra as any)?.API_URL as string) ||
-  'http://localhost:3000'; // Default to local backend for development
+  'https://tijaniyahmuslimproapp-backend.vercel.app'; // Default to Vercel backend
 
 const TOKEN_STORAGE_KEY = 'tijaniyah_auth_token';
 
