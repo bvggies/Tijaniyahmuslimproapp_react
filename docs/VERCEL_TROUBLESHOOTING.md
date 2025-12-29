@@ -8,20 +8,25 @@
 
 **Solution:**
 
-1. **In Vercel Dashboard:**
-   - Go to Project Settings → General
+1. **In Vercel Dashboard (CRITICAL - DO THIS FIRST):**
+   - Go to your project on Vercel
+   - Click "Settings" → "General"
+   - Scroll to "Build & Development Settings"
    - Find "Output Directory" field
-   - **Leave it EMPTY** (do not set to "dist" or "public")
+   - **DELETE any value** (make it completely EMPTY)
    - Click "Save"
+   - **Redeploy** your project
 
 2. **Verify vercel.json:**
    - Ensure `vercel.json` uses `rewrites` and `functions` (not `builds`)
-   - The `index.ts` file is the serverless function entry point
+   - The `api/index.ts` file is the serverless function entry point
    - Do NOT use both `builds` and `functions` together
+   - Do NOT set `outputDirectory` in vercel.json (leave it out)
 
-3. **Alternative:** If you must set an output directory:
-   - Set to: `.` (current directory)
-   - But this is not recommended for serverless functions
+3. **If the error persists:**
+   - Try setting Output Directory to `.` (dot) in Vercel dashboard
+   - Or create an empty `public` folder: `mkdir public && touch public/.gitkeep`
+   - But the best solution is to leave Output Directory EMPTY
 
 ### Error: "The `functions` property cannot be used in conjunction with the `builds` property"
 
