@@ -33,7 +33,12 @@ async function createApp(): Promise<express.Express> {
 }
 
 export default async function handler(req: Request, res: Response) {
-  const app = await createApp();
-  return app(req, res);
+  try {
+    const app = await createApp();
+    return app(req, res);
+  } catch (error) {
+    console.error('Handler error:', error);
+    res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
+  }
 }
 
