@@ -45,3 +45,5 @@ api/.database-info
 
 /src/generated/prisma
 .eas/api/
+
+github-secrets-values.txt

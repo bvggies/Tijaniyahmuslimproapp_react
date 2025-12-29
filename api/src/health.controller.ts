@@ -1,7 +1,10 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { PrismaService } from './prisma/prisma.service';
 
 @Controller()
 export class HealthController {
+  constructor(private readonly prisma: PrismaService) {}
+
   @Get()
   @HttpCode(HttpStatus.OK)
   root() {
@@ -14,12 +17,18 @@ export class HealthController {
 
   @Get('health')
   @HttpCode(HttpStatus.OK)
-  health() {
+  async health() {
+    const dbHealthy = await this.prisma.isHealthy();
+    
     return { 
-      ok: true, 
+      ok: dbHealthy, 
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      database: {
+        connected: dbHealthy,
+        provider: 'PostgreSQL (Railway)'
+      }
     };
   }
 }
