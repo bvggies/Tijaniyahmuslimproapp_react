@@ -34,6 +34,16 @@ A comprehensive Islamic mobile application built with React Native and Expo, fea
 - **Expo Haptics** for tactile feedback
 - **React Native Animatable** for smooth animations
 
+## ⚠️ Important: Permanent Database
+
+**This project uses a PERMANENT database for ALL environments:**
+- Local development
+- Expo Go testing
+- Production
+- All future work
+
+See [PERMANENT_DATABASE.md](./PERMANENT_DATABASE.md) for details.
+
 ## Getting Started
 
 ### Prerequisites
@@ -52,17 +62,40 @@ cd Tijaniyahmuslimproapp
 
 2. Install dependencies:
 ```bash
+# Frontend
+npm install
+
+# Backend
+cd api
 npm install
 ```
 
-3. Start the development server:
+3. Setup backend (uses permanent database):
 ```bash
+cd api
+# .env file should have permanent database connection string
+npm run db:setup
+npm run start:dev
+```
+
+4. Start the frontend:
+```bash
+# From project root
 npm start
 ```
 
-4. Run on your device:
+5. Run on your device:
    - Install Expo Go app on your mobile device
+   - **Important:** For Expo Go on physical devices, use your local IP address (not localhost)
+   - See [EXPO_GO_SETUP.md](./EXPO_GO_SETUP.md) for detailed setup
    - Scan the QR code with Expo Go (Android) or Camera app (iOS)
+
+### Development Guides
+
+- [Local Development Setup](./LOCAL_DEVELOPMENT.md) - Complete local development guide
+- [Expo Go Setup](./EXPO_GO_SETUP.md) - Expo Go specific configuration
+- [Permanent Database](./PERMANENT_DATABASE.md) - Database configuration
+- [Vercel Deployment](./VERCEL_DEPLOYMENT.md) - Production deployment
 
 ### Available Scripts
 

@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Database info file (contains connection string)
+api/.database-info
+
 # typescript
 *.tsbuildinfo
 
