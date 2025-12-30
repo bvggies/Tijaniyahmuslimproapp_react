@@ -41,10 +41,8 @@ jobs:
       uses: android-actions/setup-android@v3
       
     - name: Install dependencies
-      env:
-        NODE_ENV: production
       run: |
-        npm ci
+        npm ci --include=dev
         npx expo install --fix
         
     - name: Clean and generate Android project
