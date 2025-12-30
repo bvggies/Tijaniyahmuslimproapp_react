@@ -1,5 +1,9 @@
 export default ({ config }) => ({
     ...config,
+    plugins: [
+      ...(config.plugins || []),
+      "expo-sqlite"
+    ],
     extra: {
       // API URL Configuration
       // Using Vercel backend for both production and local testing

@@ -27,6 +27,11 @@ model User {
   notificationRecipients NotificationRecipient[]
   deviceTokens           DeviceToken[]
   notificationPreference NotificationPreference?
+  
+  // Quran relations
+  quranBookmarks         QuranBookmark[]
+  quranLastRead          QuranLastRead?
+  quranPreferences       QuranReadingPreferences?
 }
 
 model CommunityPost {
@@ -248,4 +253,52 @@ model NotificationCampaign {
   @@index([status])
   @@index([scheduledAt])
   @@index([createdAt])
+}
+
+// ==========================================
+// QURAN READING SYSTEM
+// ==========================================
+
+model QuranBookmark {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verseKey    String   // e.g., "2:255" for Ayatul Kursi
+  chapterId   Int
+  verseNumber Int
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, verseKey])
+  @@index([userId, createdAt])
+  @@index([chapterId])
+}
+
+model QuranLastRead {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapterId      Int
+  verseNumber    Int
+  verseKey       String   // e.g., "1:1"
+  scrollPosition Float?
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model QuranReadingPreferences {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  translationId       Int      @default(131) // Default: Sahih International
+  arabicFontSize      Int      @default(28)
+  translationFontSize Int      @default(16)
+  showTransliteration Boolean  @default(false)
+  theme               String   @default("dark") // dark, light, sepia
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
 }

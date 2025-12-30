@@ -13,7 +13,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import PrayerTimesScreen from './src/screens/PrayerTimesScreen';
 import QiblaScreen from './src/screens/QiblaScreen';
 import DuasScreen from './src/screens/DuasScreen';
-import QuranScreen from './src/screens/QuranScreen';
+// import QuranScreen from './src/screens/QuranScreen'; // Old Quran screen
+import { QuranHome, SurahReader } from './src/features/quran'; // New Quran screens
 import TasbihScreen from './src/screens/TasbihScreen';
 import WazifaScreen from './src/screens/WazifaScreen';
 import TijaniyahFeaturesScreen from './src/screens/TijaniyahFeaturesScreen';
@@ -60,6 +61,7 @@ import { LanguageProvider, useLanguage } from './src/contexts/LanguageContext';
 import { TimeFormatProvider } from './src/contexts/TimeFormatContext';
 import { IslamicCalendarProvider } from './src/contexts/IslamicCalendarContext';
 import GlassTabBar from './src/components/GlassTabBar';
+import { QueryProvider } from './src/providers/QueryProvider';
 
 // Import types
 import { TabBarIconProps } from './src/types';
@@ -123,7 +125,7 @@ function MainTabNavigator() {
       />
       <Tab.Screen 
         name="Quran" 
-        component={QuranScreen}
+        component={QuranStackNavigator}
         options={{ tabBarLabel: t('nav.quran') }}
       />
       <Tab.Screen 
@@ -137,6 +139,38 @@ function MainTabNavigator() {
         options={{ tabBarLabel: t('nav.more') }}
       />
     </Tab.Navigator>
+  );
+}
+
+// Quran Stack Navigator
+function QuranStackNavigator() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyleInterpolator: ({ current, layouts }) => {
+          return {
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+            },
+          };
+        },
+        transitionSpec: {
+          open: { animation: 'timing', config: { duration: 300 } },
+          close: { animation: 'timing', config: { duration: 300 } },
+        },
+      }}
+    >
+      <Stack.Screen name="QuranHome" component={QuranHome} />
+      <Stack.Screen name="SurahReader" component={SurahReader} />
+    </Stack.Navigator>
   );
 }
 
@@ -410,26 +444,28 @@ export default function App() {
     return null;
   }
   return (
-    <LanguageProvider>
-      <TimeFormatProvider>
-        <IslamicCalendarProvider>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <NotificationProvider>
-                <AuthWrapper>
-              <NavigationContainer>
-              <StatusBar style="light" backgroundColor="#2E7D32" />
-              <ErrorBoundary>
-                <AppNavigator />
-              </ErrorBoundary>
-            </NavigationContainer>
-              </AuthWrapper>
-            </NotificationProvider>
-            </AdminAuthProvider>
-          </AuthProvider>
-        </IslamicCalendarProvider>
-      </TimeFormatProvider>
-    </LanguageProvider>
+    <QueryProvider>
+      <LanguageProvider>
+        <TimeFormatProvider>
+          <IslamicCalendarProvider>
+            <AuthProvider>
+              <AdminAuthProvider>
+                <NotificationProvider>
+                  <AuthWrapper>
+                    <NavigationContainer>
+                      <StatusBar style="light" backgroundColor="#2E7D32" />
+                      <ErrorBoundary>
+                        <AppNavigator />
+                      </ErrorBoundary>
+                    </NavigationContainer>
+                  </AuthWrapper>
+                </NotificationProvider>
+              </AdminAuthProvider>
+            </AuthProvider>
+          </IslamicCalendarProvider>
+        </TimeFormatProvider>
+      </LanguageProvider>
+    </QueryProvider>
   );
 }
 
