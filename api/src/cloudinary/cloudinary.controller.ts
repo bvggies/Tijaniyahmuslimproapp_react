@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Delete, Param, UseGuards } from '@nestjs/common';
-import { CloudinaryService } from './cloudinary.service';
+import { CloudinaryService, CloudinarySignature, UploadResult } from './cloudinary.service';
 import { JwtAuthGuard } from '../common/jwt.guard';
 
 @Controller('upload')
@@ -13,7 +13,7 @@ export class CloudinaryController {
   @UseGuards(JwtAuthGuard)
   getUploadSignature(
     @Body() body: { folder?: string; publicId?: string; transformation?: string },
-  ) {
+  ): CloudinarySignature {
     return this.cloudinaryService.generateUploadSignature({
       folder: body.folder || 'tijaniyah',
       publicId: body.publicId,
@@ -26,7 +26,7 @@ export class CloudinaryController {
    */
   @Post('url')
   @UseGuards(JwtAuthGuard)
-  async uploadFromUrl(@Body() body: { url: string; folder?: string }) {
+  async uploadFromUrl(@Body() body: { url: string; folder?: string }): Promise<UploadResult> {
     return this.cloudinaryService.uploadFromUrl(body.url, body.folder);
   }
 
@@ -35,7 +35,7 @@ export class CloudinaryController {
    */
   @Delete(':publicId')
   @UseGuards(JwtAuthGuard)
-  async deleteImage(@Param('publicId') publicId: string) {
+  async deleteImage(@Param('publicId') publicId: string): Promise<{ success: boolean; error?: string }> {
     return this.cloudinaryService.deleteImage(publicId);
   }
 }

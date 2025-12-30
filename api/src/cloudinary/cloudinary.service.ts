@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-interface UploadResult {
+export interface UploadResult {
   success: boolean;
   url?: string;
   publicId?: string;
   error?: string;
 }
 
-interface CloudinarySignature {
+export interface CloudinarySignature {
   signature: string;
   timestamp: number;
   cloudName: string;
