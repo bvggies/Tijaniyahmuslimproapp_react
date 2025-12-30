@@ -261,6 +261,13 @@ export const api = {
     const queryString = queryParams.toString();
     return http(`/makkah-live/channels${queryString ? `?${queryString}` : ''}`);
   },
+
+  // AI Noor Chat
+  aiChat: (message: string, conversationHistory?: Array<{ role: string; content: string }>) =>
+    http('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, conversationHistory }),
+    }),
 };
 
 export async function ensureDemoAuth() {

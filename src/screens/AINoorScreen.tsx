@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTimeFormat } from '../contexts/TimeFormatContext';
+import { api, ensureAuthenticated } from '../services/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -30,32 +31,6 @@ type Message = {
   content: string;
   timestamp: Date;
 };
-
-// Groq API Configuration
-import Constants from 'expo-constants';
-const GROQ_API_KEY = (Constants.expoConfig?.extra as any)?.GROQ_API_KEY || '';
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-const SYSTEM_PROMPT = `You are AI Noor, a knowledgeable and compassionate Islamic assistant. You help Muslims with:
-
-1. Islamic knowledge and guidance
-2. Prayer times and Qibla direction
-3. Duas and supplications
-4. Quranic verses and their meanings
-5. Hadith and Sunnah
-6. Tijaniyya Tariqa teachings
-7. Islamic history and scholars
-8. Spiritual guidance and advice
-
-Always respond with:
-- Islamic greetings (Assalamu alaikum, Barakallahu feeki, etc.)
-- Authentic Islamic knowledge from Quran and Sunnah
-- Gentle, respectful, and helpful tone
-- Encouragement for good deeds
-- Reminders about Allah's mercy and guidance
-- When unsure, recommend consulting local scholars
-
-Keep responses concise but informative, and always end with Islamic phrases like "May Allah guide us all" or "Barakallahu feeki".`;
 
 // Quick suggestion chips
 const SUGGESTIONS = [
@@ -147,41 +122,29 @@ export default function AINoorScreen({ route }: any) {
 
   const callGroqAI = async (userMessage: string, conversationHistory: Message[]) => {
     try {
-      console.log('🤖 Calling Groq API...');
+      console.log('🤖 Calling AI Noor backend API...');
       
-      const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...conversationHistory.map(msg => ({
-              role: msg.role,
-              content: msg.content
-            })),
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 1024,
-          temperature: 0.7,
-          top_p: 0.9,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Groq API Error Response:', errorData);
-        throw new Error(`Groq API error: ${response.status}`);
+      // Ensure user is authenticated
+      await ensureAuthenticated();
+      
+      // Convert conversation history to the format expected by the backend
+      const history = conversationHistory.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+      
+      // Call the backend API endpoint
+      const response = await api.aiChat(userMessage, history);
+      
+      if (response.success && response.message) {
+        console.log('✅ AI Noor response received');
+        return response.message;
+      } else {
+        console.error('AI Noor API Error:', response.error || 'Unknown error');
+        return response.message || 'I apologize, but I could not generate a response. Please try again.';
       }
-
-      const data = await response.json();
-      console.log('✅ Groq API response received');
-      return data.choices[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
-    } catch (error) {
-      console.error('Groq API Error:', error);
+    } catch (error: any) {
+      console.error('AI Noor API Error:', error);
       return 'I apologize, but I am experiencing technical difficulties. Please check your internet connection and try again. May Allah bless you!';
     }
   };

@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface Activity {
+  id: string;
+  type: string;
+  userName: string;
+  description: string;
+  timestamp: string;
+}
+
 @Injectable()
 export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
@@ -138,7 +146,7 @@ export class AnalyticsService {
   }
 
   async getRecentActivity(limit: number = 20) {
-    const activities = [];
+    const activities: Activity[] = [];
 
     // Get recent user signups
     const recentUsers = await this.prisma.user.findMany({
