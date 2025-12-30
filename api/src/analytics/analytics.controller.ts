@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards, Request } from '@nestjs/common';
-import { AnalyticsService } from './analytics.service';
+import { AnalyticsService, Activity } from './analytics.service';
 import { JwtAuthGuard } from '../common/jwt.guard';
 
 @Controller('analytics')
@@ -21,7 +21,7 @@ export class AnalyticsController {
   }
 
   @Get('activity')
-  getRecentActivity(@Query('limit') limit?: string) {
+  getRecentActivity(@Query('limit') limit?: string): Promise<Activity[]> {
     return this.analyticsService.getRecentActivity(limit ? parseInt(limit) : 20);
   }
 }
