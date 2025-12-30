@@ -10,11 +10,15 @@ import {
   Platform,
   Alert,
   Image,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface LoginScreenProps {
   navigation: any;
@@ -67,6 +71,12 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <LinearGradient colors={[colors.background, colors.surface]} style={styles.gradient}>
+        {/* Background Mosque Image with 60% opacity */}
+        <Image
+          source={require('../../assets/mosque-modern.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
@@ -77,97 +87,99 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             <Text style={styles.subtitle}>Welcome back to your spiritual journey</Text>
           </View>
 
-          {/* Login Form */}
-          <View style={styles.formContainer}>
-            <Text style={styles.formTitle}>Sign In</Text>
+          {/* Login Form - Glass Effect */}
+          <BlurView intensity={30} tint="dark" style={styles.formBlur}>
+            <View style={styles.formContainer}>
+              <Text style={styles.formTitle}>Sign In</Text>
             
-            {authState.error && (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={20} color="#FF6B6B" />
-                <Text style={styles.errorText}>{authState.error}</Text>
-                <TouchableOpacity onPress={clearError} style={styles.errorClose}>
-                  <Ionicons name="close" size={16} color="#FF6B6B" />
+              {authState.error && (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle" size={20} color="#FF6B6B" />
+                  <Text style={styles.errorText}>{authState.error}</Text>
+                  <TouchableOpacity onPress={clearError} style={styles.errorClose}>
+                    <Ionicons name="close" size={16} color="#FF6B6B" />
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email address"
+                  placeholderTextColor={colors.textSecondary}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor={colors.textSecondary}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <TouchableOpacity
+                  style={styles.passwordToggle}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={colors.textSecondary}
+                  />
                 </TouchableOpacity>
               </View>
-            )}
 
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email address"
-                placeholderTextColor={colors.textSecondary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
+              <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
 
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor={colors.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
               <TouchableOpacity
-                style={styles.passwordToggle}
-                onPress={() => setShowPassword(!showPassword)}
+                style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+                onPress={handleLogin}
+                disabled={isLoading}
               >
-                <Ionicons
-                  name={showPassword ? 'eye-off' : 'eye'}
-                  size={20}
-                  color={colors.textSecondary}
-                />
+                <LinearGradient
+                  colors={isLoading ? [colors.divider, colors.divider] : [colors.accentTeal, colors.accentGreen]}
+                  style={styles.loginButtonGradient}
+                >
+                  {isLoading ? (
+                    <Text style={styles.loginButtonText}>Signing In...</Text>
+                  ) : (
+                    <>
+                      <Ionicons name="log-in" size={20} color="#FFFFFF" />
+                      <Text style={styles.loginButtonText}>Sign In</Text>
+                    </>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={() => navigation.navigate('Register')}
+              >
+                <Text style={styles.registerButtonText}>
+                  Don't have an account? <Text style={styles.registerButtonTextBold}>Sign Up</Text>
+                </Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-              onPress={handleLogin}
-              disabled={isLoading}
-            >
-              <LinearGradient
-                colors={isLoading ? [colors.divider, colors.divider] : [colors.accentTeal, colors.accentGreen]}
-                style={styles.loginButtonGradient}
-              >
-                {isLoading ? (
-                  <Text style={styles.loginButtonText}>Signing In...</Text>
-                ) : (
-                  <>
-                    <Ionicons name="log-in" size={20} color="#FFFFFF" />
-                    <Text style={styles.loginButtonText}>Sign In</Text>
-                  </>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity
-              style={styles.registerButton}
-              onPress={() => navigation.navigate('Register')}
-            >
-              <Text style={styles.registerButtonText}>
-                Don't have an account? <Text style={styles.registerButtonTextBold}>Sign Up</Text>
-              </Text>
-            </TouchableOpacity>
-          </View>
+          </BlurView>
 
         </ScrollView>
       </LinearGradient>
@@ -181,6 +193,17 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+    position: 'relative',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    opacity: 0.6,
   },
   scrollContent: {
     flexGrow: 1,
@@ -222,16 +245,17 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
-  formContainer: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 24,
+  formBlur: {
+    borderRadius: 24,
+    overflow: 'hidden',
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  },
+  formContainer: {
+    backgroundColor: 'rgba(11, 63, 57, 0.7)',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   formTitle: {
     fontSize: 24,
@@ -260,12 +284,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
     marginBottom: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: colors.divider,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   inputIcon: {
     marginRight: 12,
@@ -316,7 +340,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.divider,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   dividerText: {
     color: colors.textSecondary,

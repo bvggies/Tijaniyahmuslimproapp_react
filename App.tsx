@@ -43,6 +43,7 @@ import { Image, ActivityIndicator } from 'react-native';
 import ScholarDetailScreen from './src/screens/ScholarDetailScreen';
 import MoreFeaturesScreen from './src/screens/MoreFeaturesScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import ZakatCalculatorScreen from './src/screens/ZakatCalculatorScreen';
 import HajjScreen from './src/screens/HajjScreen';
@@ -302,6 +303,11 @@ function MoreStackNavigator() {
         name="NotificationSettings" 
         component={NotificationSettingsScreen}
         options={{ title: 'Notification Settings' }}
+      />
+      <Stack.Screen 
+        name="Notifications" 
+        component={NotificationsScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen 
         name="Profile" 

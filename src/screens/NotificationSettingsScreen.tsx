@@ -8,22 +8,29 @@ import {
   Switch,
   Alert,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useNotifications } from '../contexts/NotificationContext';
-import { NotificationSettings } from '../services/notificationService';
+import { NotificationSettings, BackendNotificationPreferences } from '../services/notificationService';
+import { isAuthenticated } from '../services/api';
 
 export default function NotificationSettingsScreen() {
   const {
     settings,
+    backendPreferences,
     permissionsGranted,
+    isDeviceRegistered,
     updateSettings,
+    updateBackendPreferences,
     requestPermissions,
     scheduleAllNotifications,
     sendTestNotification,
   } = useNotifications();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const updateSetting = (key: keyof NotificationSettings, value: any) => {
     updateSettings({ [key]: value });
@@ -36,6 +43,21 @@ export default function NotificationSettingsScreen() {
         [type]: value,
       },
     });
+  };
+
+  const updateBackendPref = async (key: keyof BackendNotificationPreferences, value: any) => {
+    if (!isAuthenticated()) {
+      Alert.alert('Sign In Required', 'Please sign in to sync notification preferences.');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateBackendPreferences({ [key]: value });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update preference. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTestNotification = async () => {
@@ -141,7 +163,78 @@ export default function NotificationSettingsScreen() {
               <Text style={styles.permissionButtonText}>Enable Notifications</Text>
             </TouchableOpacity>
           )}
+          {permissionsGranted && isAuthenticated() && (
+            <View style={styles.deviceStatus}>
+              <Ionicons
+                name={isDeviceRegistered ? 'cloud-done' : 'cloud-offline'}
+                size={20}
+                color={isDeviceRegistered ? colors.success : colors.textLight}
+              />
+              <Text style={styles.deviceStatusText}>
+                {isDeviceRegistered ? 'Device registered for push notifications' : 'Device not registered'}
+              </Text>
+            </View>
+          )}
         </SettingCard>
+
+        {/* Push Notification Preferences (Backend synced) */}
+        {isAuthenticated() && (
+          <SettingCard title="Push Notifications">
+            {isSaving && (
+              <View style={styles.savingIndicator}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.savingText}>Saving...</Text>
+              </View>
+            )}
+            <ToggleRow
+              title="Enable Push Notifications"
+              subtitle="Receive notifications on your device"
+              value={backendPreferences.pushEnabled}
+              onValueChange={(value) => updateBackendPref('pushEnabled', value)}
+              icon="notifications"
+            />
+            
+            {backendPreferences.pushEnabled && (
+              <>
+                <ToggleRow
+                  title="Likes"
+                  subtitle="When someone likes your post"
+                  value={backendPreferences.likesEnabled}
+                  onValueChange={(value) => updateBackendPref('likesEnabled', value)}
+                  icon="heart"
+                />
+                <ToggleRow
+                  title="Comments"
+                  subtitle="When someone comments on your post"
+                  value={backendPreferences.commentsEnabled}
+                  onValueChange={(value) => updateBackendPref('commentsEnabled', value)}
+                  icon="chatbubble"
+                />
+                <ToggleRow
+                  title="Messages"
+                  subtitle="When you receive a new message"
+                  value={backendPreferences.messagesEnabled}
+                  onValueChange={(value) => updateBackendPref('messagesEnabled', value)}
+                  icon="mail"
+                />
+                <ToggleRow
+                  title="Events"
+                  subtitle="Upcoming Islamic events and reminders"
+                  value={backendPreferences.eventsEnabled}
+                  onValueChange={(value) => updateBackendPref('eventsEnabled', value)}
+                  icon="calendar"
+                />
+                <ToggleRow
+                  title="System Announcements"
+                  subtitle="Important app updates and news"
+                  value={backendPreferences.systemEnabled}
+                  onValueChange={(value) => updateBackendPref('systemEnabled', value)}
+                  icon="megaphone"
+                />
+              </>
+            )}
+          </SettingCard>
+        )}
 
         {/* Prayer Notifications */}
         <SettingCard title="Prayer Notifications">
@@ -523,5 +616,32 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: colors.primary,
+  },
+  deviceStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.mintSurfaceAlt,
+  },
+  deviceStatusText: {
+    fontSize: 13,
+    color: colors.textLight,
+    marginLeft: 8,
+  },
+  savingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    marginBottom: 8,
+    backgroundColor: colors.mintSurfaceAlt,
+    borderRadius: 8,
+  },
+  savingText: {
+    fontSize: 13,
+    color: colors.primary,
+    marginLeft: 8,
   },
 });

@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class CommunityService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async listPosts(limit = 20, cursor?: string) {
     try {
@@ -166,6 +170,16 @@ export class CommunityService {
   }
 
   async addComment(postId: string, userId: string, createCommentDto: CreateCommentDto) {
+    // Get the post to find owner
+    const post = await this.prisma.communityPost.findUnique({
+      where: { id: postId },
+      include: { user: { select: { id: true } } },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
     const comment = await this.prisma.communityComment.create({
       data: {
         postId,
@@ -184,6 +198,17 @@ export class CommunityService {
       },
     });
 
+    // Send notification to post owner (if not commenting on own post)
+    if (post.userId !== userId && comment.user.name) {
+      this.notificationsService.notifyPostCommented(
+        postId,
+        post.userId,
+        userId,
+        comment.user.name || comment.user.email,
+        createCommentDto.content,
+      ).catch(err => console.error('Failed to send comment notification:', err));
+    }
+
     return comment;
   }
 
@@ -201,12 +226,34 @@ export class CommunityService {
       return { message: 'Post already liked' };
     }
 
+    // Get post owner and liker info
+    const [post, liker] = await Promise.all([
+      this.prisma.communityPost.findUnique({
+        where: { id: postId },
+        select: { userId: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true },
+      }),
+    ]);
+
     await this.prisma.communityLike.create({
       data: {
         postId,
         userId,
       },
     });
+
+    // Send notification to post owner (if not liking own post)
+    if (post && post.userId !== userId && liker) {
+      this.notificationsService.notifyPostLiked(
+        postId,
+        post.userId,
+        userId,
+        liker.name || liker.email,
+      ).catch(err => console.error('Failed to send like notification:', err));
+    }
 
     return { message: 'Post liked successfully' };
   }

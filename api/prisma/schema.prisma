@@ -21,6 +21,12 @@ model User {
   journals     JournalEntry[]
   conversations Conversation[] @relation("ConversationParticipants")
   sentMessages Message[]
+  
+  // Notification relations
+  actorNotifications     Notification[]          @relation("NotificationActor")
+  notificationRecipients NotificationRecipient[]
+  deviceTokens           DeviceToken[]
+  notificationPreference NotificationPreference?
 }
 
 model CommunityPost {
@@ -94,4 +100,152 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+}
+
+// ==========================================
+// NOTIFICATION SYSTEM
+// ==========================================
+
+enum NotificationType {
+  REMINDER
+  MESSAGE
+  COMMENT
+  LIKE
+  SYSTEM
+  EVENT
+  CAMPAIGN
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+enum DevicePlatform {
+  ios
+  android
+  web
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  title       String
+  body        String
+  deepLink    String?          // e.g., "tijaniyah://posts/123" or "/posts/123"
+  
+  // Actor who triggered the notification (nullable for system notifications)
+  actorUserId String?
+  actor       User?            @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  
+  // Related entity
+  entityType  String?          // post, comment, message, event, prayer, wazifa
+  entityId    String?
+  
+  // Metadata for additional context (JSON)
+  metadata    Json?
+  
+  createdAt   DateTime         @default(now())
+  
+  recipients  NotificationRecipient[]
+
+  @@index([createdAt])
+  @@index([type])
+  @@index([entityType, entityId])
+}
+
+model NotificationRecipient {
+  id             String             @id @default(cuid())
+  notificationId String
+  notification   Notification       @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status         NotificationStatus @default(UNREAD)
+  readAt         DateTime?
+  pushSentAt     DateTime?          // When push notification was sent
+  pushError      String?            // Error message if push failed
+  createdAt      DateTime           @default(now())
+
+  @@unique([notificationId, userId])
+  @@index([userId, status])
+  @@index([userId, createdAt])
+}
+
+model DeviceToken {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expoPushToken String         @unique
+  platform      DevicePlatform
+  deviceName    String?
+  isActive      Boolean        @default(true)
+  lastSeenAt    DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([expoPushToken])
+}
+
+model NotificationPreference {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Master toggle
+  pushEnabled     Boolean  @default(true)
+  
+  // Category toggles
+  likesEnabled    Boolean  @default(true)
+  commentsEnabled Boolean  @default(true)
+  messagesEnabled Boolean  @default(true)
+  remindersEnabled Boolean @default(true)
+  eventsEnabled   Boolean  @default(true)
+  systemEnabled   Boolean  @default(true)
+  
+  // Quiet hours (stored as "HH:MM" format in user's local time)
+  quietHoursStart String?  // e.g., "22:00"
+  quietHoursEnd   String?  // e.g., "07:00"
+  quietHoursTimezone String? // e.g., "America/New_York"
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model NotificationCampaign {
+  id            String   @id @default(cuid())
+  title         String
+  body          String
+  deepLink      String?
+  
+  // Targeting
+  targetType    String   // all, new_users, active_users, inactive_users, custom
+  targetFilters Json?    // Custom filters for targeting
+  
+  // Scheduling
+  scheduledAt   DateTime?
+  sentAt        DateTime?
+  
+  // Status
+  status        String   @default("draft") // draft, scheduled, sending, sent, failed, cancelled
+  
+  // Stats
+  totalRecipients Int    @default(0)
+  sentCount       Int    @default(0)
+  failedCount     Int    @default(0)
+  openedCount     Int    @default(0)
+  
+  // Metadata
+  createdBy     String?  // Admin user ID
+  metadata      Json?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([createdAt])
 }

@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 30% 98%;
+    --foreground: 150 50% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 150 50% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 50% 10%;
+    
+    --primary: 153 51% 39%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 150 20% 94%;
+    --secondary-foreground: 150 50% 15%;
+    
+    --muted: 150 15% 92%;
+    --muted-foreground: 150 20% 40%;
+    
+    --accent: 153 51% 39%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 150 20% 85%;
+    --input: 150 20% 85%;
+    --ring: 153 51% 39%;
+    
+    --radius: 0.75rem;
+  }
+  
+  .dark {
+    --background: 150 50% 5%;
+    --foreground: 150 20% 95%;
+    
+    --card: 150 40% 8%;
+    --card-foreground: 150 20% 95%;
+    
+    --popover: 150 40% 8%;
+    --popover-foreground: 150 20% 95%;
+    
+    --primary: 153 51% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 150 30% 15%;
+    --secondary-foreground: 150 20% 90%;
+    
+    --muted: 150 25% 12%;
+    --muted-foreground: 150 15% 60%;
+    
+    --accent: 153 51% 45%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 150 25% 18%;
+    --input: 150 25% 18%;
+    --ring: 153 51% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Glass morphism utilities */
+  .glass {
+    @apply bg-glass-white backdrop-blur-glass border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-glass-dark backdrop-blur-glass border border-black/10;
+  }
+  
+  .glass-card {
+    @apply bg-white/10 dark:bg-white/5 backdrop-blur-glass rounded-2xl border border-white/20 dark:border-white/10;
+  }
+  
+  .glass-panel {
+    @apply bg-white/80 dark:bg-primary-800/80 backdrop-blur-glass rounded-xl border border-white/30 dark:border-primary-700/30;
+  }
+  
+  /* Gradient utilities */
+  .gradient-islamic {
+    @apply bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600;
+  }
+  
+  .gradient-gold {
+    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600;
+  }
+  
+  .gradient-glass {
+    @apply bg-gradient-to-br from-white/20 to-white/5;
+  }
+  
+  /* Text gradient */
+  .text-gradient-islamic {
+    @apply bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent;
+  }
+  
+  /* Glow effects */
+  .glow-green {
+    @apply shadow-glow-green;
+  }
+  
+  .glow-gold {
+    @apply shadow-glow-gold;
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(64, 145, 108, 0.3) transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(64, 145, 108, 0.3);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(64, 145, 108, 0.5);
+  }
+}
+
+/* Inter font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Arabic font for Islamic content */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');

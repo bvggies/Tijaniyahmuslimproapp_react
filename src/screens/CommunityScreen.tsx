@@ -12,14 +12,17 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api, ensureDemoAuth, setToken, isAuthenticated, ensureAuthenticated } from '../services/api';
+import CloudinaryService from '../services/cloudinaryService';
 
 interface User {
   id: string;
@@ -123,8 +126,12 @@ export default function CommunityScreen() {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostCategory, setNewPostCategory] = useState('general');
+  const [newPostImages, setNewPostImages] = useState<string[]>([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showComments, setShowComments] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
+  
+  const cloudinaryService = CloudinaryService.getInstance();
   const [refreshing, setRefreshing] = useState(false);
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editPostContent, setEditPostContent] = useState('');
@@ -237,8 +244,89 @@ export default function CommunityScreen() {
     return matchesCategory && matchesSearch;
   });
 
+  const pickPostImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'Photo library permission is needed to select images.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+        allowsMultipleSelection: false,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setIsUploadingImage(true);
+        
+        // Upload to Cloudinary
+        const uploadResult = await cloudinaryService.uploadPostImage(result.assets[0].uri);
+        
+        if (uploadResult.success && uploadResult.url) {
+          setNewPostImages([...newPostImages, uploadResult.url]);
+          console.log('✅ Image uploaded:', uploadResult.url);
+        } else {
+          Alert.alert('Upload Failed', uploadResult.error || 'Failed to upload image');
+        }
+        
+        setIsUploadingImage(false);
+      }
+    } catch (error) {
+      setIsUploadingImage(false);
+      console.error('Image pick error:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
+    }
+  };
+
+  const takePostPhoto = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'Camera permission is needed to take photos.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setIsUploadingImage(true);
+        
+        const uploadResult = await cloudinaryService.uploadPostImage(result.assets[0].uri);
+        
+        if (uploadResult.success && uploadResult.url) {
+          setNewPostImages([...newPostImages, uploadResult.url]);
+          console.log('✅ Photo uploaded:', uploadResult.url);
+        } else {
+          Alert.alert('Upload Failed', uploadResult.error || 'Failed to upload photo');
+        }
+        
+        setIsUploadingImage(false);
+      }
+    } catch (error) {
+      setIsUploadingImage(false);
+      console.error('Camera error:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
+  const removePostImage = (index: number) => {
+    setNewPostImages(newPostImages.filter((_, i) => i !== index));
+  };
+
   const createPost = async () => {
-    if (!newPostContent.trim()) return;
+    if (!newPostContent.trim() && newPostImages.length === 0) {
+      Alert.alert('Empty Post', 'Please add some content or an image to your post.');
+      return;
+    }
     
     // Check if user is authenticated
     if (!authState.user) {
@@ -252,8 +340,6 @@ export default function CommunityScreen() {
       return;
     }
 
-    // Note: Authentication test removed since posts endpoint doesn't require auth
-    
     const optimistic: Post = {
       id: `tmp-${Date.now()}`,
       author: currentUser,
@@ -265,15 +351,17 @@ export default function CommunityScreen() {
       date: 'Just now',
       isLiked: false,
       isBookmarked: false,
+      image: newPostImages[0], // First image as main image
     };
     setPosts([optimistic, ...posts]);
     setNewPostContent('');
+    setNewPostImages([]);
     setShowCreatePost(false);
     
     try {
-      const created = await api.createPost(optimistic.content, []);
+      const created = await api.createPost(optimistic.content, newPostImages);
       setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
-      console.log('✅ Post created successfully');
+      console.log('✅ Post created successfully with', newPostImages.length, 'images');
     } catch (e: any) {
       setPosts(prev => prev.filter(p => p.id !== optimistic.id));
       Alert.alert('Error', e?.message ? String(e.message) : 'Failed to create post');
@@ -851,6 +939,56 @@ export default function CommunityScreen() {
               multiline
               textAlignVertical="top"
             />
+
+            {/* Image Preview */}
+            {newPostImages.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagePreviewContainer}>
+                {newPostImages.map((uri, index) => (
+                  <View key={index} style={styles.imagePreviewWrapper}>
+                    <Image source={{ uri }} style={styles.imagePreview} />
+                    <TouchableOpacity
+                      style={styles.removeImageButton}
+                      onPress={() => removePostImage(index)}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#FF5252" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            {/* Image Upload Actions */}
+            <View style={styles.postActionsBar}>
+              <TouchableOpacity
+                style={styles.postActionButton}
+                onPress={pickPostImage}
+                disabled={isUploadingImage || newPostImages.length >= 4}
+              >
+                {isUploadingImage ? (
+                  <ActivityIndicator size="small" color={colors.accentTeal} />
+                ) : (
+                  <>
+                    <Ionicons name="images-outline" size={22} color={colors.accentTeal} />
+                    <Text style={styles.postActionText}>Gallery</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.postActionButton}
+                onPress={takePostPhoto}
+                disabled={isUploadingImage || newPostImages.length >= 4}
+              >
+                <Ionicons name="camera-outline" size={22} color={colors.accentTeal} />
+                <Text style={styles.postActionText}>Camera</Text>
+              </TouchableOpacity>
+
+              <View style={styles.postActionButton}>
+                <Text style={styles.imageCountText}>
+                  {newPostImages.length}/4 images
+                </Text>
+              </View>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -1483,6 +1621,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
     marginTop: 12,
+    fontWeight: '500',
+  },
+  // Image Upload Styles
+  imagePreviewContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  imagePreviewWrapper: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  imagePreview: {
+    width: 120,
+    height: 90,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+  },
+  postActionsBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+    marginTop: 'auto',
+  },
+  postActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 191, 165, 0.1)',
+  },
+  postActionText: {
+    color: colors.accentTeal,
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 6,
+  },
+  imageCountText: {
+    color: colors.textSecondary,
+    fontSize: 12,
     fontWeight: '500',
   },
 });

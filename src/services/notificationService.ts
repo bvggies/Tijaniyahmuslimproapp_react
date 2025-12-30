@@ -4,14 +4,15 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { PrayerTime } from '../types';
 import { Audio } from 'expo-av';
+import { api, isAuthenticated } from './api';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: false, // Disable sound by default to prevent loops
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 });
 
@@ -31,6 +32,45 @@ export interface NotificationSettings {
   };
 }
 
+// Backend notification preferences
+export interface BackendNotificationPreferences {
+  pushEnabled: boolean;
+  likesEnabled: boolean;
+  commentsEnabled: boolean;
+  messagesEnabled: boolean;
+  remindersEnabled: boolean;
+  eventsEnabled: boolean;
+  systemEnabled: boolean;
+  quietHoursStart: string | null;
+  quietHoursEnd: string | null;
+  quietHoursTimezone: string | null;
+}
+
+// In-app notification from backend
+export interface InAppNotification {
+  id: string;
+  notificationId: string;
+  status: 'UNREAD' | 'READ' | 'ARCHIVED';
+  readAt: string | null;
+  createdAt: string;
+  notification: {
+    id: string;
+    type: 'REMINDER' | 'MESSAGE' | 'COMMENT' | 'LIKE' | 'SYSTEM' | 'EVENT' | 'CAMPAIGN';
+    title: string;
+    body: string;
+    deepLink: string | null;
+    entityType: string | null;
+    entityId: string | null;
+    metadata: any;
+    createdAt: string;
+    actor: {
+      id: string;
+      name: string | null;
+      avatarUrl: string | null;
+    } | null;
+  };
+}
+
 export interface ScheduledNotification {
   id: string;
   title: string;
@@ -42,6 +82,9 @@ export interface ScheduledNotification {
 
 class NotificationService {
   private static instance: NotificationService;
+  private expoPushToken: string | null = null;
+  private deviceRegistered: boolean = false;
+  
   private settings: NotificationSettings = {
     prayerNotifications: true,
     reminderNotifications: true,
@@ -58,13 +101,48 @@ class NotificationService {
     },
   };
 
-  private constructor() {}
+  private backendPreferences: BackendNotificationPreferences = {
+    pushEnabled: true,
+    likesEnabled: true,
+    commentsEnabled: true,
+    messagesEnabled: true,
+    remindersEnabled: true,
+    eventsEnabled: true,
+    systemEnabled: true,
+    quietHoursStart: null,
+    quietHoursEnd: null,
+    quietHoursTimezone: null,
+  };
+
+  private constructor() {
+    // Set up notification response handler for deep links
+    Notifications.addNotificationResponseReceivedListener(this.handleNotificationResponse);
+  }
 
   public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
       NotificationService.instance = new NotificationService();
     }
     return NotificationService.instance;
+  }
+
+  // Handle notification tap for deep linking
+  private handleNotificationResponse = (response: Notifications.NotificationResponse) => {
+    const data = response.notification.request.content.data;
+    if (data?.deepLink) {
+      console.log('📱 Deep link from notification:', data.deepLink);
+      // Deep linking will be handled by the navigation context
+      // Store it for later retrieval
+      this.lastDeepLink = data.deepLink as string;
+    }
+  };
+
+  private lastDeepLink: string | null = null;
+
+  public getAndClearLastDeepLink(): string | null {
+    const link = this.lastDeepLink;
+    this.lastDeepLink = null;
+    return link;
   }
 
   // Request notification permissions
@@ -79,13 +157,19 @@ class NotificationService {
       }
       
       if (finalStatus !== 'granted') {
-        console.log('Failed to get push token for push notification!');
+        console.log('📱 Push notification permission not granted. In-app notifications will still work.');
         return false;
+      }
+      
+      // Get token and register with backend
+      const token = await this.getPushToken();
+      if (token && isAuthenticated()) {
+        await this.registerDeviceWithBackend(token);
       }
       
       return true;
     } else {
-      console.log('Must use physical device for Push Notifications');
+      console.log('📱 Push notifications require a physical device. Running in simulator mode - in-app notifications will still work.');
       return false;
     }
   }
@@ -97,14 +181,169 @@ class NotificationService {
         return null;
       }
 
+      if (this.expoPushToken) {
+        return this.expoPushToken;
+      }
+
       const token = await Notifications.getExpoPushTokenAsync({
         projectId: Constants.expoConfig?.extra?.eas?.projectId,
       });
       
+      this.expoPushToken = token.data;
       return token.data;
     } catch (error) {
       console.error('Error getting push token:', error);
       return null;
+    }
+  }
+
+  // Register device with backend for push notifications
+  async registerDeviceWithBackend(token?: string): Promise<boolean> {
+    try {
+      if (!isAuthenticated()) {
+        console.log('⚠️ Cannot register device: User not authenticated');
+        return false;
+      }
+
+      const pushToken = token || await this.getPushToken();
+      if (!pushToken) {
+        console.log('⚠️ Cannot register device: No push token available');
+        return false;
+      }
+
+      const platform = Platform.OS as 'ios' | 'android' | 'web';
+      const deviceName = Device.deviceName || `${Device.brand} ${Device.modelName}`;
+
+      await api.registerDevice(pushToken, platform, deviceName);
+      this.deviceRegistered = true;
+      console.log('✅ Device registered with backend for push notifications');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to register device with backend:', error);
+      return false;
+    }
+  }
+
+  // Check if device is registered
+  isDeviceRegistered(): boolean {
+    return this.deviceRegistered;
+  }
+
+  // Sync backend notification preferences
+  async syncBackendPreferences(): Promise<BackendNotificationPreferences | null> {
+    try {
+      if (!isAuthenticated()) {
+        return null;
+      }
+
+      const prefs = await api.getNotificationPreferences();
+      this.backendPreferences = prefs;
+      console.log('✅ Synced backend notification preferences');
+      return prefs;
+    } catch (error) {
+      console.error('❌ Failed to sync backend preferences:', error);
+      return null;
+    }
+  }
+
+  // Update backend notification preferences
+  async updateBackendPreferences(prefs: Partial<BackendNotificationPreferences>): Promise<boolean> {
+    try {
+      if (!isAuthenticated()) {
+        return false;
+      }
+
+      const updated = await api.updateNotificationPreferences(prefs);
+      this.backendPreferences = { ...this.backendPreferences, ...updated };
+      console.log('✅ Updated backend notification preferences');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to update backend preferences:', error);
+      return false;
+    }
+  }
+
+  // Get backend preferences
+  getBackendPreferences(): BackendNotificationPreferences {
+    return { ...this.backendPreferences };
+  }
+
+  // Fetch in-app notifications from backend
+  async fetchNotifications(limit = 20, cursor?: string, status?: 'UNREAD' | 'READ' | 'ARCHIVED'): Promise<{
+    data: InAppNotification[];
+    unreadCount: number;
+    nextCursor: string | null;
+    hasNextPage: boolean;
+  } | null> {
+    try {
+      if (!isAuthenticated()) {
+        return null;
+      }
+
+      return await api.getNotifications(limit, cursor, status);
+    } catch (error) {
+      console.error('❌ Failed to fetch notifications:', error);
+      return null;
+    }
+  }
+
+  // Get unread notification count
+  async getUnreadCount(): Promise<number> {
+    try {
+      if (!isAuthenticated()) {
+        return 0;
+      }
+
+      const result = await api.getUnreadNotificationCount();
+      return result?.count || 0;
+    } catch (error) {
+      console.error('❌ Failed to get unread count:', error);
+      return 0;
+    }
+  }
+
+  // Mark notification as read
+  async markAsRead(notificationId: string): Promise<boolean> {
+    try {
+      if (!isAuthenticated()) {
+        return false;
+      }
+
+      await api.markNotificationRead(notificationId);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to mark notification as read:', error);
+      return false;
+    }
+  }
+
+  // Mark all notifications as read
+  async markAllAsRead(): Promise<boolean> {
+    try {
+      if (!isAuthenticated()) {
+        return false;
+      }
+
+      await api.markAllNotificationsRead();
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to mark all notifications as read:', error);
+      return false;
+    }
+  }
+
+  // Archive notification
+  async archiveNotification(notificationId: string): Promise<boolean> {
+    try {
+      if (!isAuthenticated()) {
+        return false;
+      }
+
+      await api.archiveNotification(notificationId);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to archive notification:', error);
+      return false;
     }
   }
 

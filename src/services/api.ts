@@ -186,6 +186,42 @@ export const api = {
     }),
   markAsRead: (conversationId: string) =>
     http(`/chat/conversations/${encodeURIComponent(conversationId)}/read`, { method: 'POST' }),
+
+  // Notifications - Device Registration
+  registerDevice: (expoPushToken: string, platform: 'ios' | 'android' | 'web', deviceName?: string) =>
+    http('/devices/register', { 
+      method: 'POST', 
+      body: JSON.stringify({ expoPushToken, platform, deviceName }) 
+    }),
+  unregisterDevice: (token: string) =>
+    http(`/devices/${encodeURIComponent(token)}`, { method: 'DELETE' }),
+  getDevices: () => http('/devices'),
+
+  // Notifications - Preferences
+  getNotificationPreferences: () => http('/notification-preferences'),
+  updateNotificationPreferences: (prefs: {
+    pushEnabled?: boolean;
+    likesEnabled?: boolean;
+    commentsEnabled?: boolean;
+    messagesEnabled?: boolean;
+    remindersEnabled?: boolean;
+    eventsEnabled?: boolean;
+    systemEnabled?: boolean;
+    quietHoursStart?: string;
+    quietHoursEnd?: string;
+    quietHoursTimezone?: string;
+  }) => http('/notification-preferences', { method: 'PATCH', body: JSON.stringify(prefs) }),
+
+  // Notifications - In-App
+  getNotifications: (limit = 20, cursor?: string, status?: 'UNREAD' | 'READ' | 'ARCHIVED') =>
+    http(`/notifications?limit=${limit}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}${status ? `&status=${status}` : ''}`),
+  getUnreadNotificationCount: () => http('/notifications/unread-count'),
+  markNotificationRead: (id: string) =>
+    http(`/notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH' }),
+  markAllNotificationsRead: () =>
+    http('/notifications/read-all', { method: 'PATCH' }),
+  archiveNotification: (id: string) =>
+    http(`/notifications/${encodeURIComponent(id)}/archive`, { method: 'PATCH' }),
 };
 
 export async function ensureDemoAuth() {

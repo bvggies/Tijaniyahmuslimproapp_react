@@ -28,6 +28,11 @@ CORS_ORIGIN=*
 
 # API Configuration
 API_URL=http://localhost:3000
+
+# Cloudinary Configuration (Image Uploads)
+CLOUDINARY_CLOUD_NAME=dplvxodnd
+CLOUDINARY_API_KEY=373862586681547
+CLOUDINARY_API_SECRET=Ca4ClORTAdJA8-626EcAhD5CYSg
 ```
 
 ## Generate JWT Secret
@@ -62,6 +67,24 @@ Set these environment variables in Vercel dashboard:
 - `JWT_SECRET` - Your generated secret
 - `CORS_ORIGIN` - Your frontend URL or `*`
 - `NODE_ENV` - `production`
+- `CLOUDINARY_CLOUD_NAME` - Your Cloudinary cloud name
+- `CLOUDINARY_API_KEY` - Your Cloudinary API key
+- `CLOUDINARY_API_SECRET` - Your Cloudinary API secret
 
 See [docs/VERCEL_DEPLOYMENT.md](../docs/VERCEL_DEPLOYMENT.md) for details.
+
+## Cloudinary Setup
+
+To enable image uploads, you need to create an unsigned upload preset in Cloudinary:
+
+1. Log in to [Cloudinary Console](https://cloudinary.com/console)
+2. Go to Settings → Upload
+3. Click "Add upload preset"
+4. Set:
+   - Preset name: `tijaniyah_unsigned`
+   - Signing Mode: `Unsigned`
+   - Folder: `tijaniyah`
+5. Save the preset
+
+This allows the mobile app to upload images directly to Cloudinary without server-side signing.
 

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async getConversations(userId: string) {
     const conversations = await this.prisma.conversation.findMany({
@@ -155,7 +159,7 @@ export class ChatService {
   }
 
   async sendMessage(userId: string, conversationId: string, createMessageDto: CreateMessageDto) {
-    // Verify user is participant
+    // Verify user is participant and get all participants
     const conversation = await this.prisma.conversation.findFirst({
       where: {
         id: conversationId,
@@ -163,6 +167,11 @@ export class ChatService {
           some: {
             id: userId,
           },
+        },
+      },
+      include: {
+        participants: {
+          select: { id: true },
         },
       },
     });
@@ -195,6 +204,21 @@ export class ChatService {
       where: { id: conversationId },
       data: { updatedAt: new Date() },
     });
+
+    // Send notification to other participants
+    const otherParticipants = conversation.participants
+      .filter(p => p.id !== userId)
+      .map(p => p.id);
+
+    for (const recipientId of otherParticipants) {
+      this.notificationsService.notifyNewMessage(
+        conversationId,
+        recipientId,
+        userId,
+        message.sender.name || message.sender.email,
+        createMessageDto.content,
+      ).catch(err => console.error('Failed to send message notification:', err));
+    }
 
     return message;
   }

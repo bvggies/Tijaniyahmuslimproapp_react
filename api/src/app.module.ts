@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { CommunityModule } from './community/community.module';
 import { JournalModule } from './journal/journal.module';
 import { ChatModule } from './chat/chat.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ChatModule } from './chat/chat.module';
     CommunityModule,
     JournalModule,
     ChatModule,
+    NotificationsModule,
+    CloudinaryModule,
   ],
   controllers: [HealthController],
 })
