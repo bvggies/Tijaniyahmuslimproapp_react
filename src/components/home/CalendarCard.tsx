@@ -95,38 +95,48 @@ export default function CalendarCard({
             </View>
 
             {/* Date Content */}
-            {islamicDate && (
-              <View style={styles.content}>
-                {/* Hijri Date - Large and elegant */}
-                <Text style={styles.hijriDate}>
-                  {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year} AH
-                </Text>
-                <Text style={styles.hijriDateEnglish}>
-                  {islamicDate.day} {islamicDate.monthName} {islamicDate.year}
-                </Text>
+            <View style={styles.content}>
+              {/* Gregorian Date - Primary */}
+              <Text style={styles.gregorianDatePrimary}>
+                {gregorianDate}
+              </Text>
+              
+              {/* Current Time */}
+              <Text style={styles.currentTime}>
+                {currentTime}
+              </Text>
 
-                {/* Gregorian Date and Time */}
-                <Text style={styles.gregorianDate}>
-                  {gregorianDate} — {currentTime}
-                </Text>
-
-                {/* Day Name */}
+              {/* Day Name */}
+              {islamicDate && (
                 <Text style={styles.dayName}>
-                  {islamicDate.dayNameArabic} • {islamicDate.dayName}
+                  {islamicDate.dayName} • {islamicDate.dayNameArabic}
                 </Text>
+              )}
 
-                {/* Holiday Badge */}
-                {islamicDate.isHoliday && islamicDate.holidayName && (
-                  <View style={styles.holidayBadge}>
-                    <Ionicons name="star" size={12} color={tokens.colors.accentTeal} />
-                    <Text style={styles.holidayText}>{islamicDate.holidayName}</Text>
-                  </View>
-                )}
+              {/* Hijri Date - Secondary */}
+              {islamicDate && (
+                <View style={styles.hijriContainer}>
+                  <Text style={styles.hijriLabel}>Islamic Date:</Text>
+                  <Text style={styles.hijriDate}>
+                    {islamicDate.day} {islamicDate.monthName} {islamicDate.year} AH
+                  </Text>
+                  <Text style={styles.hijriDateArabic}>
+                    {islamicDate.day} {islamicDate.monthNameArabic} {islamicDate.year}
+                  </Text>
+                </View>
+              )}
 
-                {/* Tap hint */}
-                <Text style={styles.tapHint}>Tap to change calendar</Text>
-              </View>
-            )}
+              {/* Holiday Badge */}
+              {islamicDate?.isHoliday && islamicDate.holidayName && (
+                <View style={styles.holidayBadge}>
+                  <Ionicons name="star" size={12} color={tokens.colors.accentTeal} />
+                  <Text style={styles.holidayText}>{islamicDate.holidayName}</Text>
+                </View>
+              )}
+
+              {/* Tap hint */}
+              <Text style={styles.tapHint}>Tap to change calendar</Text>
+            </View>
           </LinearGradient>
         </BlurView>
       </TouchableOpacity>
@@ -189,29 +199,50 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
   },
-  hijriDate: {
+  gregorianDatePrimary: {
     fontSize: tokens.typography.size.xxxl,
     fontWeight: tokens.typography.weight.bold,
     color: tokens.colors.textDark,
     marginBottom: 2,
     letterSpacing: 0.5,
   },
-  hijriDateEnglish: {
+  currentTime: {
+    fontSize: tokens.typography.size.xl,
+    fontWeight: tokens.typography.weight.semibold,
+    color: tokens.colors.textDark,
+    opacity: 0.8,
+    marginBottom: tokens.spacing.sm,
+  },
+  dayName: {
+    fontSize: tokens.typography.size.md,
+    fontWeight: tokens.typography.weight.medium,
+    color: tokens.colors.textDark,
+    marginBottom: tokens.spacing.md,
+  },
+  hijriContainer: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    paddingVertical: tokens.spacing.sm,
+    paddingHorizontal: tokens.spacing.lg,
+    borderRadius: tokens.radius.md,
+    marginBottom: tokens.spacing.sm,
+  },
+  hijriLabel: {
+    fontSize: tokens.typography.size.xs,
+    color: tokens.colors.textDark,
+    opacity: 0.6,
+    marginBottom: 2,
+  },
+  hijriDate: {
+    fontSize: tokens.typography.size.lg,
+    fontWeight: tokens.typography.weight.semibold,
+    color: tokens.colors.textDark,
+    marginBottom: 2,
+  },
+  hijriDateArabic: {
     fontSize: tokens.typography.size.md,
     color: tokens.colors.textDark,
     opacity: 0.7,
-    marginBottom: tokens.spacing.sm,
-  },
-  gregorianDate: {
-    fontSize: tokens.typography.size.md,
-    color: tokens.colors.textDark,
-    marginBottom: tokens.spacing.xs,
-  },
-  dayName: {
-    fontSize: tokens.typography.size.lg,
-    fontWeight: tokens.typography.weight.medium,
-    color: tokens.colors.textDark,
-    marginBottom: tokens.spacing.sm,
   },
   
   // Holiday Badge

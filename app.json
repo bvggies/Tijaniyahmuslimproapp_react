@@ -27,7 +27,7 @@
         "backgroundColor": "#052F2A"
       },
       "package": "com.tijaniyahpro.app",
-      "versionCode": 3,
+      "versionCode": 5,
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",

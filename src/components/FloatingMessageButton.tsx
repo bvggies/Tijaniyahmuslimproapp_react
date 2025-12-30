@@ -20,7 +20,7 @@ interface FloatingMessageButtonProps {
 }
 
 const FloatingMessageButton: React.FC<FloatingMessageButtonProps> = ({
-  bottomOffset = 110, // Above the bottom nav bar with extra spacing
+  bottomOffset = 180, // Well above the bottom nav bar with generous spacing
 }) => {
   const navigation = useNavigation<any>();
   const { lastNotificationType, clearLastNotificationType } = useNotifications();
@@ -75,18 +75,45 @@ const FloatingMessageButton: React.FC<FloatingMessageButtonProps> = ({
   useEffect(() => {
     fetchUnreadCount();
     
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
+    // Refresh every 10 seconds (more frequent to catch read status changes)
+    const interval = setInterval(fetchUnreadCount, 10000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // Refresh when screen comes into focus
+  // Refresh when screen comes into focus (including when returning from conversation screen)
   useFocusEffect(
     useCallback(() => {
+      // Immediate refresh
       fetchUnreadCount();
+      
+      // Also refresh after a delay to catch any backend updates
+      const timer1 = setTimeout(() => {
+        fetchUnreadCount();
+      }, 500);
+      
+      const timer2 = setTimeout(() => {
+        fetchUnreadCount();
+      }, 1500);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
     }, [fetchUnreadCount])
   );
+
+  // Refresh when navigation state changes (catches when returning from conversation)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', () => {
+      // Refresh multiple times to ensure we catch the updated count
+      fetchUnreadCount();
+      setTimeout(() => fetchUnreadCount(), 600);
+      setTimeout(() => fetchUnreadCount(), 1200);
+    });
+
+    return unsubscribe;
+  }, [navigation, fetchUnreadCount]);
 
   // Refresh when app comes to foreground
   useEffect(() => {

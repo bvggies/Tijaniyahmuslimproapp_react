@@ -1,3 +1,17 @@
+/**
+ * Hijri Date Service
+ * 
+ * Provides accurate Islamic (Hijri) calendar dates based on user location.
+ * 
+ * PRIMARY MARKET: Ghana (West Africa)
+ * - Defaults to Africa/Accra timezone (GMT+0, no DST)
+ * - Automatically detects West African countries and uses Ghana timezone
+ * - Uses AlAdhan API for accurate dates with local calculation fallback
+ * 
+ * The service ensures that Hijri dates are calculated based on the local
+ * date in the user's timezone, not UTC, which is critical for accuracy.
+ */
+
 import HijriDate from 'hijri-date';
 import LocationService, { UserLocation } from './locationService';
 import AlAdhanService from './alAdhanService';
@@ -78,6 +92,7 @@ class HijriService {
   /**
    * Get current Hijri date based on user's location/timezone
    * Uses AlAdhan API for accurate dates with local fallback
+   * Defaults to Ghana (Africa/Accra) timezone for West Africa
    */
   async getCurrentHijriDate(): Promise<IslamicDateDisplay | null> {
     try {
@@ -86,22 +101,50 @@ class HijriService {
       
       // Get the device's timezone
       const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const timezone = location?.timezone || deviceTimezone;
+      
+      // Default to Ghana timezone for West Africa if not detected
+      let timezone = location?.timezone || deviceTimezone;
+      
+      // If in West Africa region but timezone not detected, use Ghana timezone
+      if (location?.country && ['Ghana', 'Nigeria', 'Senegal', 'Mali', 'Burkina Faso', 'Niger', 'Togo', 'Benin', 'Ivory Coast', 'Guinea'].includes(location.country)) {
+        if (!timezone || timezone === 'UTC') {
+          timezone = 'Africa/Accra'; // Ghana timezone (GMT+0, no DST)
+        }
+      }
+      
+      // Default to Ghana if no location detected (app is primarily for Ghana)
+      if (!timezone || timezone === 'UTC') {
+        timezone = 'Africa/Accra';
+      }
       
       console.log('🌍 Using timezone:', timezone);
       console.log('📍 Location:', location?.city || 'Unknown', location?.country || 'Unknown');
 
+      // Get the current date in the user's timezone (important for accurate Hijri date)
+      // This is critical for Ghana users - we must use Ghana's local date, not UTC
+      const now = new Date();
+      const localYear = parseInt(now.toLocaleString('en-US', { timeZone: timezone, year: 'numeric' }));
+      const localMonth = parseInt(now.toLocaleString('en-US', { timeZone: timezone, month: 'numeric' }));
+      const localDay = parseInt(now.toLocaleString('en-US', { timeZone: timezone, day: 'numeric' }));
+      
+      // Create a date object using local components for calculation
+      const localDate = new Date(localYear, localMonth - 1, localDay);
+      
+      console.log('📅 Local date in', timezone + ':', `${localDay}/${localMonth}/${localYear}`);
+      console.log('📅 Date for calculation:', localDate.toDateString());
+      
       // Try AlAdhan API first for accurate Hijri date
       try {
         const alAdhanService = AlAdhanService.getInstance();
-        const now = new Date();
-        const alAdhanResponse = await alAdhanService.getHijriDate(now);
+        // Pass the local date - AlAdhan API will use it correctly
+        const alAdhanResponse = await alAdhanService.getHijriDate(localDate);
         
         if (alAdhanResponse && alAdhanResponse.data) {
           const hijri = alAdhanResponse.data.hijri;
           const gregorian = alAdhanResponse.data.gregorian;
           
           console.log('✅ Using AlAdhan API for Hijri date:', hijri.date);
+          console.log('📅 Gregorian date from API:', gregorian.date);
           
           // Check for Islamic holidays
           const holidays = hijri.holidays || [];
@@ -162,46 +205,37 @@ class HijriService {
 
   /**
    * Get Hijri date for specific timezone
+   * Properly handles Ghana (Africa/Accra) timezone
    */
   getHijriDateForTimezone(timezone: string, location?: UserLocation | null): IslamicDateDisplay {
     try {
       // Get current date in the specified timezone
       const now = new Date();
       
-      // Get the local date string for the timezone
-      const localDateStr = now.toLocaleString('en-US', { 
-        timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      // Get the local date components directly (more reliable)
+      const localYear = parseInt(now.toLocaleString('en-US', { timeZone: timezone, year: 'numeric' }));
+      const localMonth = parseInt(now.toLocaleString('en-US', { timeZone: timezone, month: 'numeric' }));
+      const localDay = parseInt(now.toLocaleString('en-US', { timeZone: timezone, day: 'numeric' }));
       
-      console.log('🗓️ Local date string for timezone:', localDateStr);
+      console.log('🗓️ Local date in', timezone + ':', `${localDay}/${localMonth}/${localYear}`);
       
-      // Parse the local date
-      const [datePart] = localDateStr.split(', ');
-      const [month, day, year] = datePart.split('/').map(Number);
-      const localDate = new Date(year, month - 1, day);
+      // Create a date object for calculation (using local date components)
+      // Note: We use local components to ensure correct Hijri date calculation
+      const localDate = new Date(localYear, localMonth - 1, localDay);
       
-      console.log('🗓️ Parsed local date:', localDate.toDateString());
-      
-      // Calculate Hijri date using the accurate algorithm
+      // Calculate Hijri date using the accurate algorithm with local date
       const hijriInfo = this.calculateHijriDate(localDate);
       
-      console.log('🌙 Calculated Hijri date:', hijriInfo);
+      console.log('🌙 Calculated Hijri date:', `${hijriInfo.day} ${hijriInfo.monthName} ${hijriInfo.year} AH`);
 
       // Get Gregorian date info for the timezone
       const gregorianInfo = {
-        day: localDate.getDate(),
-        month: localDate.getMonth() + 1,
-        year: localDate.getFullYear(),
-        monthName: localDate.toLocaleDateString('en-US', { month: 'long', timeZone: timezone }),
-        dayName: localDate.toLocaleDateString('en-US', { weekday: 'long', timeZone: timezone }),
-        fullDate: localDate.toLocaleDateString('en-US', { 
+        day: localDay,
+        month: localMonth,
+        year: localYear,
+        monthName: now.toLocaleDateString('en-US', { month: 'long', timeZone: timezone }),
+        dayName: now.toLocaleDateString('en-US', { weekday: 'long', timeZone: timezone }),
+        fullDate: now.toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'long', 
           day: 'numeric',
@@ -331,51 +365,85 @@ class HijriService {
   }
 
   /**
-   * Manual Hijri calculation using Kuwaiti algorithm
+   * Manual Hijri calculation using corrected algorithm
+   * Based on the arithmetic Islamic calendar (Umm al-Qura approximation)
    */
   private manualHijriCalculation(gregorianDate: Date): HijriDateInfo {
     const dayOfWeek = gregorianDate.getDay();
     const dayInfo = DAY_NAMES[dayOfWeek];
     
-    // Calculate Julian Day Number
     const gYear = gregorianDate.getFullYear();
     const gMonth = gregorianDate.getMonth() + 1;
     const gDay = gregorianDate.getDate();
     
-    // Julian Day calculation
-    let jd: number;
-    if (gMonth <= 2) {
-      jd = Math.floor((gYear - 1) / 4) - Math.floor((gYear - 1) / 100) + Math.floor((gYear - 1) / 400) 
-           + Math.floor((367 * (gMonth + 12) - 362) / 12) + gDay + Math.floor(365.25 * (gYear - 1)) 
-           + 1721423.5;
-    } else {
-      jd = Math.floor(gYear / 4) - Math.floor(gYear / 100) + Math.floor(gYear / 400) 
-           + Math.floor((367 * gMonth - 362) / 12) + gDay + Math.floor(365.25 * gYear) 
-           + 1721423.5 - 2;
+    // Convert Gregorian to Julian Day Number
+    const a = Math.floor((14 - gMonth) / 12);
+    const y = gYear + 4800 - a;
+    const m = gMonth + 12 * a - 3;
+    
+    const jd = gDay + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+    
+    // Islamic calendar epoch: July 16, 622 CE (Julian) = JD 1948439.5
+    // Using the civil Islamic calendar (tabular)
+    const islamicEpoch = 1948439;
+    
+    // Days since epoch
+    const daysSinceEpoch = jd - islamicEpoch;
+    
+    // Average Islamic year = 354.36667 days (30-year cycle with 11 leap years)
+    // Each 30-year cycle = 10631 days
+    const cycle30 = Math.floor(daysSinceEpoch / 10631);
+    const remainingDays = daysSinceEpoch % 10631;
+    
+    // Find year within 30-year cycle
+    // Leap years in cycle: 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29
+    let yearInCycle = 0;
+    let daysInYear = 0;
+    let accumulated = 0;
+    
+    for (let i = 1; i <= 30; i++) {
+      const isLeap = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29].includes(i);
+      daysInYear = isLeap ? 355 : 354;
+      
+      if (accumulated + daysInYear > remainingDays) {
+        yearInCycle = i;
+        break;
+      }
+      accumulated += daysInYear;
     }
     
-    // Islamic calendar epoch (Julian Day of 1 Muharram 1 AH)
-    const islamicEpoch = 1948439.5;
+    const hijriYear = cycle30 * 30 + yearInCycle;
+    const dayOfYear = remainingDays - accumulated + 1;
     
-    // Calculate Islamic date
-    const l = Math.floor(jd - islamicEpoch) + 10632;
-    const n = Math.floor((l - 1) / 10631);
-    const l2 = l - 10631 * n + 354;
-    const j = Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719) 
-              + Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
-    const l3 = l2 - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) 
-               - Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+    // Find month and day
+    // Odd months have 30 days, even months have 29 days (except month 12 in leap years)
+    const isLeapYear = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29].includes(yearInCycle);
+    let hijriMonth = 0;
+    let hijriDay = 0;
+    let accumulatedMonthDays = 0;
     
-    const hijriMonth = Math.floor((24 * l3) / 709);
-    const hijriDay = l3 - Math.floor((709 * hijriMonth) / 24);
-    const hijriYear = 30 * n + j - 30;
+    for (let month = 1; month <= 12; month++) {
+      let daysInMonth = (month % 2 === 1) ? 30 : 29;
+      if (month === 12 && isLeapYear) {
+        daysInMonth = 30;
+      }
+      
+      if (accumulatedMonthDays + daysInMonth >= dayOfYear) {
+        hijriMonth = month;
+        hijriDay = dayOfYear - accumulatedMonthDays;
+        break;
+      }
+      accumulatedMonthDays += daysInMonth;
+    }
     
-    // Validate and adjust
-    const validMonth = Math.max(1, Math.min(12, hijriMonth));
-    const validDay = Math.max(1, Math.min(30, hijriDay));
-    const validYear = Math.max(1400, Math.min(1500, hijriYear));
+    // Ensure valid values
+    const validMonth = Math.max(1, Math.min(12, hijriMonth || 1));
+    const validDay = Math.max(1, Math.min(30, hijriDay || 1));
+    const validYear = Math.max(1, hijriYear);
     
     const monthInfo = ISLAMIC_MONTHS[validMonth - 1];
+    
+    console.log(`🌙 Manual Hijri calculation: ${gDay}/${gMonth}/${gYear} -> ${validDay} ${monthInfo.name} ${validYear} AH`);
     
     return {
       day: validDay,
@@ -393,34 +461,45 @@ class HijriService {
 
   /**
    * Get fallback Hijri date
+   * Defaults to Ghana (Africa/Accra) timezone for West Africa users
    */
   private getFallbackHijriDate(): IslamicDateDisplay {
     const now = new Date();
-    const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const hijriInfo = this.calculateHijriDate(now);
+    // Default to Ghana timezone for West Africa (app's primary market)
+    const defaultTimezone = 'Africa/Accra';
+    
+    // Get local date components for Ghana timezone
+    const localYear = parseInt(now.toLocaleString('en-US', { timeZone: defaultTimezone, year: 'numeric' }));
+    const localMonth = parseInt(now.toLocaleString('en-US', { timeZone: defaultTimezone, month: 'numeric' }));
+    const localDay = parseInt(now.toLocaleString('en-US', { timeZone: defaultTimezone, day: 'numeric' }));
+    
+    const localDate = new Date(localYear, localMonth - 1, localDay);
+    const hijriInfo = this.calculateHijriDate(localDate);
     
     return {
       hijri: hijriInfo,
       gregorian: {
-        day: now.getDate(),
-        month: now.getMonth() + 1,
-        year: now.getFullYear(),
-        monthName: now.toLocaleDateString('en-US', { month: 'long' }),
-        dayName: now.toLocaleDateString('en-US', { weekday: 'long' }),
+        day: localDay,
+        month: localMonth,
+        year: localYear,
+        monthName: now.toLocaleDateString('en-US', { month: 'long', timeZone: defaultTimezone }),
+        dayName: now.toLocaleDateString('en-US', { weekday: 'long', timeZone: defaultTimezone }),
         fullDate: now.toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'long', 
-          day: 'numeric' 
+          day: 'numeric',
+          timeZone: defaultTimezone
         }),
       },
       location: {
-        city: 'Local',
-        country: '',
-        timezone: deviceTimezone,
+        city: 'Accra',
+        country: 'Ghana',
+        timezone: defaultTimezone,
       },
       localTime: now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: defaultTimezone,
         hour12: true,
       }),
     };

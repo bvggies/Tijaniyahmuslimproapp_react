@@ -47,6 +47,7 @@ import MoreFeaturesScreen from './src/screens/MoreFeaturesScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import ChatScreen from './src/screens/ChatScreen';
+import ConversationDetailScreen from './src/screens/ConversationDetailScreen';
 import ZakatCalculatorScreen from './src/screens/ZakatCalculatorScreen';
 import HajjScreen from './src/screens/HajjScreen';
 import HajjUmrahScreen from './src/screens/HajjUmrahScreen';
@@ -327,6 +328,11 @@ function MoreStackNavigator() {
       <Stack.Screen 
         name="Chat" 
         component={ChatScreen}
+        options={{ title: 'Messages' }}
+      />
+      <Stack.Screen 
+        name="ConversationDetail" 
+        component={ConversationDetailScreen}
         options={{ title: 'Messages' }}
       />
       <Stack.Screen 

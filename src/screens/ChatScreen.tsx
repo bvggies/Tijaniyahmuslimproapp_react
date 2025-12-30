@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   Alert,
   RefreshControl,
   AppState,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -40,6 +42,7 @@ interface Conversation {
 }
 
 export default function ChatScreen() {
+  const navigation = useNavigation<any>();
   const { authState } = useAuth();
   const { t } = useLanguage();
   const { lastNotificationType, clearLastNotificationType, unreadCount } = useNotifications();
@@ -131,47 +134,94 @@ export default function ChatScreen() {
   const renderConversation = ({ item }: { item: Conversation }) => {
     const otherUser = item.participants.find(p => p.id !== authState.user?.id);
     
+    const handlePress = () => {
+      navigation.navigate('ConversationDetail', {
+        conversationId: item.id,
+        otherUserId: otherUser?.id,
+        otherUserName: otherUser?.name,
+      });
+    };
+    
+    const avatarColors = [
+      ['#00BFA5', '#00A896'],
+      ['#9C27B0', '#7B1FA2'],
+      ['#FF6B6B', '#FF5252'],
+      ['#4ECDC4', '#26A69A'],
+      ['#FFA726', '#FF9800'],
+    ];
+    const colorIndex = (otherUser?.name?.charCodeAt(0) || 0) % avatarColors.length;
+    const [avatarColor1, avatarColor2] = avatarColors[colorIndex];
+    
     return (
-      <TouchableOpacity style={styles.conversationItem}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {otherUser?.name?.charAt(0).toUpperCase() || 'U'}
-          </Text>
-        </View>
-        
-        <View style={styles.conversationContent}>
-          <View style={styles.conversationHeader}>
-            <Text style={styles.conversationName}>
-              {otherUser?.name || 'Unknown User'}
-            </Text>
-            <Text style={styles.conversationTime}>
-              {formatTime(item.updatedAt)}
-            </Text>
-          </View>
-          
-          <View style={styles.conversationFooter}>
-            <Text 
-              style={[
-                styles.lastMessage,
-                item.unreadCount > 0 && styles.unreadMessage
-              ]}
-              numberOfLines={1}
+      <TouchableOpacity 
+        style={styles.conversationItem}
+        onPress={handlePress}
+        activeOpacity={0.8}
+      >
+        <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+          <LinearGradient
+            colors={[avatarColor1 + '15', avatarColor2 + '10']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientOverlay}
+          >
+            <LinearGradient
+              colors={[avatarColor1, avatarColor2]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatar}
             >
-              {item.lastMessage 
-                ? `${item.lastMessage.sender.id === authState.user?.id ? 'You: ' : ''}${item.lastMessage.content}`
-                : t('chat.no_messages')
-              }
-            </Text>
+              <Text style={styles.avatarText}>
+                {otherUser?.name?.charAt(0).toUpperCase() || 'U'}
+              </Text>
+              {item.unreadCount > 0 && (
+                <View style={styles.avatarUnreadIndicator} />
+              )}
+            </LinearGradient>
             
-            {item.unreadCount > 0 && (
-              <View style={styles.unreadBadge}>
-                <Text style={styles.unreadCount}>
-                  {item.unreadCount > 99 ? '99+' : item.unreadCount}
+            <View style={styles.conversationContent}>
+              <View style={styles.conversationHeader}>
+                <View style={styles.nameContainer}>
+                  <Text style={styles.conversationName}>
+                    {otherUser?.name || 'Unknown User'}
+                  </Text>
+                  {item.unreadCount > 0 && (
+                    <View style={styles.onlineIndicator} />
+                  )}
+                </View>
+                <Text style={styles.conversationTime}>
+                  {formatTime(item.updatedAt)}
                 </Text>
               </View>
-            )}
-          </View>
-        </View>
+              
+              <View style={styles.conversationFooter}>
+                <Text 
+                  style={[
+                    styles.lastMessage,
+                    item.unreadCount > 0 && styles.unreadMessage
+                  ]}
+                  numberOfLines={1}
+                >
+                  {item.lastMessage 
+                    ? `${item.lastMessage.sender.id === authState.user?.id ? 'You: ' : ''}${item.lastMessage.content}`
+                    : t('chat.no_messages')
+                  }
+                </Text>
+                
+                {item.unreadCount > 0 && (
+                  <LinearGradient
+                    colors={[colors.accentTeal, '#00A896']}
+                    style={styles.unreadBadge}
+                  >
+                    <Text style={styles.unreadCount}>
+                      {item.unreadCount > 99 ? '99+' : item.unreadCount}
+                    </Text>
+                  </LinearGradient>
+                )}
+              </View>
+            </View>
+          </LinearGradient>
+        </BlurView>
       </TouchableOpacity>
     );
   };
@@ -187,8 +237,17 @@ export default function ChatScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
+      <LinearGradient 
+        colors={[colors.accentTeal + '20', colors.background, colors.background]} 
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFill} />
         <View style={styles.headerContent}>
+          <View style={styles.headerIconContainer}>
+            <Ionicons name="chatbubbles" size={28} color={colors.accentTeal} />
+          </View>
           <Text style={styles.headerTitle}>{t('chat.title')}</Text>
           <Text style={styles.headerSubtitle}>{t('chat.subtitle')}</Text>
         </View>
@@ -234,46 +293,91 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 50,
-    paddingBottom: 20,
+    paddingBottom: 24,
     paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    overflow: 'hidden',
   },
   headerContent: {
     alignItems: 'center',
+    zIndex: 1,
+  },
+  headerIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.accentTeal + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: colors.textPrimary,
+    letterSpacing: 0.5,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 6,
+    fontWeight: '500',
   },
   conversationsList: {
     padding: 16,
+    paddingTop: 20,
   },
   conversationItem: {
+    marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  blurContainer: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  gradientOverlay: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.accentTeal,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 14,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    position: 'relative',
   },
   avatarText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#FFFFFF',
+  },
+  avatarUnreadIndicator: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FF4757',
+    borderWidth: 2,
+    borderColor: colors.background,
   },
   conversationContent: {
     flex: 1,
@@ -282,16 +386,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   conversationName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: colors.textPrimary,
+    letterSpacing: 0.3,
+  },
+  onlineIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.accentTeal,
+    marginLeft: 6,
   },
   conversationTime: {
     fontSize: 12,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   conversationFooter: {
     flexDirection: 'row',
@@ -303,24 +420,29 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     flex: 1,
     marginRight: 8,
+    lineHeight: 20,
   },
   unreadMessage: {
     color: colors.textPrimary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   unreadBadge: {
-    backgroundColor: colors.accentTeal,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
+    elevation: 2,
+    shadowColor: colors.accentTeal,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
   unreadCount: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
-    color: colors.textPrimary,
+    color: '#FFFFFF',
   },
   emptyContainer: {
     flex: 1,
@@ -329,16 +451,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: colors.textPrimary,
-    marginTop: 16,
+    marginTop: 20,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 16,
     color: colors.textSecondary,
-    marginTop: 8,
+    marginTop: 10,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -351,22 +473,24 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: colors.textSecondary,
-    marginTop: 12,
-    fontWeight: '500',
+    marginTop: 16,
+    fontWeight: '600',
   },
   refreshButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${colors.accentTeal}20`,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginTop: 20,
+    backgroundColor: `${colors.accentTeal}25`,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    marginTop: 24,
+    borderWidth: 1,
+    borderColor: `${colors.accentTeal}40`,
   },
   refreshButtonText: {
     color: colors.accentTeal,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     marginLeft: 8,
   },
 });

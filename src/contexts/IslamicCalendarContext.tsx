@@ -204,203 +204,119 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
     }
   };
 
-  // Convert Gregorian date to Islamic date using calendar-specific algorithms
+  // Convert Gregorian date to Islamic date using correct tabular algorithm
   const convertToIslamic = (gregorianDate: Date): IslamicDate => {
-    const epoch = new Date(622, 6, 16); // July 16, 622 CE (1 Muharram 1 AH)
-    const daysSinceEpoch = Math.floor((gregorianDate.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24));
+    // Calculate Julian Day Number from Gregorian date
+    const gYear = gregorianDate.getFullYear();
+    const gMonth = gregorianDate.getMonth() + 1;
+    const gDay = gregorianDate.getDate();
     
-    let islamicYear: number;
-    let daysInYear: number;
+    // Convert to Julian Day Number
+    const a = Math.floor((14 - gMonth) / 12);
+    const y = gYear + 4800 - a;
+    const m = gMonth + 12 * a - 3;
+    const jd = gDay + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
     
-    // Calendar-specific calculations with regional adjustments
-    switch (selectedCalendar) {
-      case 'lunar':
-        // Lunar: Traditional lunar calendar based on moon phases
-        islamicYear = Math.floor(daysSinceEpoch / 354.367) + 1;
-        daysInYear = daysSinceEpoch % 354.367;
-        // Lunar observation-based adjustment
-        daysInYear += Math.sin(islamicYear * 0.05) * 0.3;
-        break;
-        
-      case 'umm-al-qura':
-        // Umm al-Qura: Official Saudi calendar with specific leap year pattern
-        islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
-        daysInYear = daysSinceEpoch % 354.36667;
-        // Add small regional adjustment for Saudi Arabia
-        daysInYear += Math.floor(islamicYear / 100) * 0.1;
-        break;
-        
-      case 'tabular':
-        // Tabular Islamic: Fixed leap year pattern (2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29)
-        const tabularLeapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
-        const tabularCycle = 30;
-        islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
-        const tabularYearInCycle = ((islamicYear - 1) % tabularCycle) + 1;
-        const isLeapYear = tabularLeapYears.includes(tabularYearInCycle);
-        const daysPerYear = isLeapYear ? 355 : 354;
-        daysInYear = daysSinceEpoch % daysPerYear;
-        break;
-        
-      case 'kuwaiti':
-        // Kuwaiti: Similar to Umm al-Qura but with slight variations
-        islamicYear = Math.floor(daysSinceEpoch / 354.37) + 1;
-        daysInYear = daysSinceEpoch % 354.37;
-        // Kuwaiti adjustment
-        daysInYear += Math.floor(islamicYear / 50) * 0.2;
-        break;
-        
-      case 'makkah':
-        // Makkah: Based on lunar observations with regional adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.35) + 1;
-        daysInYear = daysSinceEpoch % 354.35;
-        // Makkah observation-based adjustment
-        daysInYear += Math.sin(islamicYear * 0.1) * 0.5;
-        break;
-        
-      case 'karachi':
-        // Karachi: Used in Pakistan with specific calculations
-        islamicYear = Math.floor(daysSinceEpoch / 354.36) + 1;
-        daysInYear = daysSinceEpoch % 354.36;
-        // Pakistani regional adjustment
-        daysInYear += Math.floor(islamicYear / 30) * 0.3;
-        break;
-        
-      case 'istanbul':
-        // Istanbul: Turkish calendar with European adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.38) + 1;
-        daysInYear = daysSinceEpoch % 354.38;
-        // Turkish European adjustment
-        daysInYear += Math.floor(islamicYear / 25) * 0.4;
-        break;
-        
-      case 'tehran':
-        // Tehran: Iranian calendar with Persian adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.37) + 1;
-        daysInYear = daysSinceEpoch % 354.37;
-        // Persian adjustment
-        daysInYear += Math.floor(islamicYear / 40) * 0.25;
-        break;
-        
-      case 'cairo':
-        // Cairo: Egyptian calendar with North African adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.36) + 1;
-        daysInYear = daysSinceEpoch % 354.36;
-        // Egyptian adjustment
-        daysInYear += Math.floor(islamicYear / 35) * 0.35;
-        break;
-        
-      case 'singapore':
-        // Singapore: Southeast Asian calendar with regional adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.37) + 1;
-        daysInYear = daysSinceEpoch % 354.37;
-        // Southeast Asian adjustment
-        daysInYear += Math.floor(islamicYear / 45) * 0.15;
-        break;
-        
-      case 'jakarta':
-        // Jakarta: Indonesian calendar with local adjustments
-        islamicYear = Math.floor(daysSinceEpoch / 354.36) + 1;
-        daysInYear = daysSinceEpoch % 354.36;
-        // Indonesian adjustment
-        daysInYear += Math.floor(islamicYear / 55) * 0.2;
-        break;
-        
-      default:
-        // Default to Umm al-Qura
-        islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
-        daysInYear = daysSinceEpoch % 354.36667;
+    // Islamic calendar epoch: July 16, 622 CE (Julian) = JD 1948440
+    const islamicEpoch = 1948440;
+    
+    // Days since Islamic epoch
+    const daysSinceEpoch = jd - islamicEpoch;
+    
+    if (daysSinceEpoch < 0) {
+      // Before Islamic calendar - return placeholder
+      return createDefaultIslamicDate(gregorianDate);
     }
     
-    // Find month and day with calendar-specific month lengths
-    let remainingDays = daysInYear;
+    // Tabular Islamic Calendar calculation
+    // 30-year cycle = 10631 days
+    // Leap years in each cycle: 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29
+    const leapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
+    const cycleLength = 10631; // days in a 30-year cycle
+    
+    // Find the cycle and remaining days
+    const cycles = Math.floor(daysSinceEpoch / cycleLength);
+    let remainingDays = daysSinceEpoch % cycleLength;
+    
+    // Find year within the 30-year cycle
+    let yearInCycle = 0;
+    for (let i = 1; i <= 30; i++) {
+      const isLeap = leapYears.includes(i);
+      const daysInYear = isLeap ? 355 : 354;
+      if (remainingDays < daysInYear) {
+        yearInCycle = i;
+        break;
+      }
+      remainingDays -= daysInYear;
+    }
+    
+    // Calculate the Islamic year
+    const islamicYear = cycles * 30 + yearInCycle;
+    
+    // Find month and day
+    // Odd months: 30 days, Even months: 29 days
+    // Month 12 has 30 days in leap years
+    const isLeapYear = leapYears.includes(yearInCycle);
     let month = 1;
-    let day = 1;
+    let day = remainingDays + 1; // +1 because days are 1-indexed
     
-    // Calendar-specific month length calculations
-    const getMonthLength = (monthNum: number, year: number): number => {
-      switch (selectedCalendar) {
-        case 'lunar':
-          // Lunar: Traditional lunar month lengths based on moon phases
-          if (monthNum === 12) return 29; // Dhu al-Hijjah varies
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'umm-al-qura':
-          // Umm al-Qura specific month lengths
-          if (monthNum === 12) return 30; // Dhu al-Hijjah is always 30 days
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'tabular':
-          // Tabular calendar: fixed pattern
-          const tabularLeapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
-          const tabularCycle = 30;
-          const yearInCycle = ((year - 1) % tabularCycle) + 1;
-          const isLeapYear = tabularLeapYears.includes(yearInCycle);
-          if (monthNum === 12) return isLeapYear ? 30 : 29;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'kuwaiti':
-          // Kuwaiti: similar to Umm al-Qura
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'makkah':
-          // Makkah: observation-based with slight variations
-          if (monthNum === 12) return 29; // Sometimes 29, sometimes 30
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'karachi':
-          // Karachi: Pakistani calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'istanbul':
-          // Istanbul: Turkish calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'tehran':
-          // Tehran: Iranian calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'cairo':
-          // Cairo: Egyptian calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'singapore':
-          // Singapore: Southeast Asian calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'jakarta':
-          // Jakarta: Indonesian calculations
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        default:
-          // Default pattern
-          return (monthNum % 2 === 0) ? 29 : 30;
+    for (let m = 1; m <= 12; m++) {
+      let daysInMonth: number;
+      if (m % 2 === 1) {
+        daysInMonth = 30; // Odd months have 30 days
+      } else if (m === 12 && isLeapYear) {
+        daysInMonth = 30; // Month 12 in leap year has 30 days
+      } else {
+        daysInMonth = 29; // Even months have 29 days
       }
-    };
-    
-    for (let i = 0; i < 12; i++) {
-      const daysInMonth = getMonthLength(i + 1, islamicYear);
-      if (remainingDays < daysInMonth) {
-        month = i + 1;
-        day = Math.floor(remainingDays) + 1;
+      
+      if (day <= daysInMonth) {
+        month = m;
         break;
       }
-      remainingDays -= daysInMonth;
+      day -= daysInMonth;
     }
     
-    const monthInfo = ISLAMIC_MONTHS[month - 1];
-    const dayOfWeek = gregorianDate.getDay();
-    const dayInfo = ISLAMIC_DAYS[dayOfWeek];
+    // Ensure valid values
+    day = Math.max(1, Math.min(30, day));
+    month = Math.max(1, Math.min(12, month));
     
+    // Get month and day names
+    const monthNames = [
+      { name: 'Muharram', arabic: 'محرم' },
+      { name: 'Safar', arabic: 'صفر' },
+      { name: "Rabi' al-Awwal", arabic: 'ربيع الأول' },
+      { name: "Rabi' al-Thani", arabic: 'ربيع الثاني' },
+      { name: 'Jumada al-Awwal', arabic: 'جمادى الأولى' },
+      { name: 'Jumada al-Thani', arabic: 'جمادى الآخرة' },
+      { name: 'Rajab', arabic: 'رجب' },
+      { name: "Sha'ban", arabic: 'شعبان' },
+      { name: 'Ramadan', arabic: 'رمضان' },
+      { name: 'Shawwal', arabic: 'شوال' },
+      { name: "Dhu al-Qi'dah", arabic: 'ذو القعدة' },
+      { name: 'Dhu al-Hijjah', arabic: 'ذو الحجة' },
+    ];
+    
+    const dayNames = [
+      { name: 'Sunday', arabic: 'الأحد' },
+      { name: 'Monday', arabic: 'الإثنين' },
+      { name: 'Tuesday', arabic: 'الثلاثاء' },
+      { name: 'Wednesday', arabic: 'الأربعاء' },
+      { name: 'Thursday', arabic: 'الخميس' },
+      { name: 'Friday', arabic: 'الجمعة' },
+      { name: 'Saturday', arabic: 'السبت' },
+    ];
+    
+    const dayOfWeek = gregorianDate.getDay();
+    const monthInfo = monthNames[month - 1];
+    const dayInfo = dayNames[dayOfWeek];
+    
+    // Check for holidays
     const holidayKey = `${month}-${day}`;
     const isHoliday = holidayKey in ISLAMIC_HOLIDAYS;
     const holidayName = isHoliday ? ISLAMIC_HOLIDAYS[holidayKey] : undefined;
+    
+    console.log(`🌙 Hijri conversion: ${gDay}/${gMonth}/${gYear} -> ${day} ${monthInfo.name} ${islamicYear} AH`);
     
     return {
       day,
@@ -414,94 +330,88 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
       holidayName
     };
   };
-
-  // Convert Islamic date to Gregorian date using calendar-specific algorithms
-  const convertToGregorian = (islamicDate: IslamicDate): Date => {
-    const epoch = new Date(622, 6, 16); // July 16, 622 CE
-    const yearsSinceEpoch = islamicDate.year - 1;
-    
-    // Calendar-specific year length calculations
-    let daysPerYear: number;
-    switch (selectedCalendar) {
-      case 'lunar':
-        daysPerYear = 354.367;
-        break;
-        
-      case 'umm-al-qura':
-        daysPerYear = 354.36667;
-        break;
-      case 'tabular':
-        // Tabular: 11 leap years in 30-year cycle
-        const tabularLeapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
-        const tabularCycle = 30;
-        const yearInCycle = ((islamicDate.year - 1) % tabularCycle) + 1;
-        const isLeapYear = tabularLeapYears.includes(yearInCycle);
-        daysPerYear = isLeapYear ? 355 : 354;
-        break;
-      case 'kuwaiti':
-        daysPerYear = 354.37;
-        break;
-      case 'makkah':
-        daysPerYear = 354.35;
-        break;
-      case 'karachi':
-        daysPerYear = 354.36;
-        break;
-      case 'istanbul':
-        daysPerYear = 354.38;
-        break;
-      case 'tehran':
-        daysPerYear = 354.37;
-        break;
-      case 'cairo':
-        daysPerYear = 354.36;
-        break;
-      case 'singapore':
-        daysPerYear = 354.37;
-        break;
-      case 'jakarta':
-        daysPerYear = 354.36;
-        break;
-      default:
-        daysPerYear = 354.36667;
-    }
-    
-    const daysSinceEpoch = yearsSinceEpoch * daysPerYear;
-    
-    // Calendar-specific month length calculations
-    const getMonthLength = (monthNum: number, year: number): number => {
-      switch (selectedCalendar) {
-        case 'lunar':
-          if (monthNum === 12) return 29;
-          return (monthNum % 2 === 0) ? 29 : 30;
-          
-        case 'umm-al-qura':
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-        case 'tabular':
-          const tabularLeapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
-          const tabularCycle = 30;
-          const yearInCycle = ((year - 1) % tabularCycle) + 1;
-          const isLeapYear = tabularLeapYears.includes(yearInCycle);
-          if (monthNum === 12) return isLeapYear ? 30 : 29;
-          return (monthNum % 2 === 0) ? 29 : 30;
-        case 'makkah':
-          if (monthNum === 12) return 29;
-          return (monthNum % 2 === 0) ? 29 : 30;
-        default:
-          if (monthNum === 12) return 30;
-          return (monthNum % 2 === 0) ? 29 : 30;
-      }
+  
+  // Helper function for creating default Islamic date
+  const createDefaultIslamicDate = (gregorianDate: Date): IslamicDate => {
+    const dayOfWeek = gregorianDate.getDay();
+    const dayNames = [
+      { name: 'Sunday', arabic: 'الأحد' },
+      { name: 'Monday', arabic: 'الإثنين' },
+      { name: 'Tuesday', arabic: 'الثلاثاء' },
+      { name: 'Wednesday', arabic: 'الأربعاء' },
+      { name: 'Thursday', arabic: 'الخميس' },
+      { name: 'Friday', arabic: 'الجمعة' },
+      { name: 'Saturday', arabic: 'السبت' },
+    ];
+    return {
+      day: 1,
+      month: 1,
+      year: 1,
+      monthName: 'Muharram',
+      monthNameArabic: 'محرم',
+      dayName: dayNames[dayOfWeek].name,
+      dayNameArabic: dayNames[dayOfWeek].arabic,
     };
+  };
+  
+
+  // Convert Islamic date to Gregorian date using proper tabular algorithm
+  const convertToGregorian = (islamicDate: IslamicDate): Date => {
+    const leapYears = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
     
-    let daysInCurrentYear = 0;
-    for (let i = 1; i < islamicDate.month; i++) {
-      daysInCurrentYear += getMonthLength(i, islamicDate.year);
+    // Calculate days from Islamic epoch
+    const year = islamicDate.year;
+    const month = islamicDate.month;
+    const day = islamicDate.day;
+    
+    // Calculate complete 30-year cycles
+    const completeCycles = Math.floor((year - 1) / 30);
+    const remainingYears = (year - 1) % 30;
+    
+    // Days in complete cycles (10631 days per cycle)
+    let totalDays = completeCycles * 10631;
+    
+    // Days in remaining complete years
+    for (let y = 1; y <= remainingYears; y++) {
+      const isLeap = leapYears.includes(y);
+      totalDays += isLeap ? 355 : 354;
     }
-    daysInCurrentYear += islamicDate.day - 1;
     
-    const totalDays = daysSinceEpoch + daysInCurrentYear;
-    return new Date(epoch.getTime() + totalDays * 24 * 60 * 60 * 1000);
+    // Days in complete months of current year
+    const yearInCycle = ((year - 1) % 30) + 1;
+    const isLeapYear = leapYears.includes(yearInCycle);
+    
+    for (let m = 1; m < month; m++) {
+      if (m % 2 === 1) {
+        totalDays += 30; // Odd months have 30 days
+      } else if (m === 12 && isLeapYear) {
+        totalDays += 30; // Month 12 in leap year
+      } else {
+        totalDays += 29; // Even months have 29 days
+      }
+    }
+    
+    // Add remaining days
+    totalDays += day - 1;
+    
+    // Convert Julian Day to Gregorian
+    // Islamic epoch JD = 1948440
+    const jd = 1948440 + totalDays;
+    
+    // Convert JD to Gregorian date
+    const z = jd;
+    const a = Math.floor((z - 1867216.25) / 36524.25);
+    const aa = z + 1 + a - Math.floor(a / 4);
+    const b = aa + 1524;
+    const c = Math.floor((b - 122.1) / 365.25);
+    const d = Math.floor(365.25 * c);
+    const e = Math.floor((b - d) / 30.6001);
+    
+    const gDay = b - d - Math.floor(30.6001 * e);
+    const gMonth = e < 14 ? e - 1 : e - 13;
+    const gYear = gMonth > 2 ? c - 4716 : c - 4715;
+    
+    return new Date(gYear, gMonth - 1, gDay);
   };
 
   const getCurrentIslamicDate = (): IslamicDate => {
