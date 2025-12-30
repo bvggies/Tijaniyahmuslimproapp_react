@@ -12,6 +12,7 @@ import { QuranModule } from './quran/quran.module';
 import { MakkahLiveModule } from './makkah-live/makkah-live.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AiModule } from './ai/ai.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AiModule } from './ai/ai.module';
     MakkahLiveModule,
     AnalyticsModule,
     AiModule,
+    UsersModule,
   ],
   controllers: [HealthController],
 })
