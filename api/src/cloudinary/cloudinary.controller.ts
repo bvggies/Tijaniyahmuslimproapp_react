@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Delete, Param, UseGuards } from '@nestjs/common';
-import { CloudinaryService, CloudinarySignature, UploadResult } from './cloudinary.service';
+import { CloudinaryService } from './cloudinary.service';
+import { CloudinarySignature, UploadResult } from './cloudinary.types';
 import { JwtAuthGuard } from '../common/jwt.guard';
 
 @Controller('upload')

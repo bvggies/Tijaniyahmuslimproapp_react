@@ -19,6 +19,8 @@ export interface QuranVerse {
   translation: string;
   transliteration: string;
   audioUrl?: string;
+  frenchTranslation?: string;
+  hausaTranslation?: string;
 }
 
 // Complete list of all 114 Quran chapters
