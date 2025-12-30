@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards, Request } from '@nestjs/common';
-import { AnalyticsService, Activity } from './analytics.service';
+import { AnalyticsService, Activity, DailyStats, OverviewStats } from './analytics.service';
 import { JwtAuthGuard } from '../common/jwt.guard';
 
 @Controller('analytics')
@@ -8,7 +8,7 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('overview')
-  getOverview(@Request() req) {
+  getOverview(@Request() req): Promise<OverviewStats> {
     return this.analyticsService.getOverview();
   }
 
@@ -16,7 +16,7 @@ export class AnalyticsController {
   getDailyStats(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-  ) {
+  ): Promise<DailyStats[]> {
     return this.analyticsService.getDailyStats(startDate, endDate);
   }
 

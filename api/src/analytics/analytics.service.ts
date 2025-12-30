@@ -9,11 +9,34 @@ export interface Activity {
   timestamp: string;
 }
 
+export interface DailyStats {
+  date: string;
+  activeUsers: number;
+  newUsers: number;
+  posts: number;
+  donations: number;
+}
+
+export interface OverviewStats {
+  totalUsers: number;
+  activeUsers7d: number;
+  activeUsers30d: number;
+  newUsersToday: number;
+  postsToday: number;
+  reportsPending: number;
+  donationsToday: number;
+  donationsWeek: number;
+  donationsMonth: number;
+  upcomingEvents: number;
+  wazifaCompletions: number;
+  lazimCompletions: number;
+}
+
 @Injectable()
 export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
-  async getOverview() {
+  async getOverview(): Promise<OverviewStats> {
     // Get total users
     const totalUsers = await this.prisma.user.count();
 
@@ -90,12 +113,12 @@ export class AnalyticsService {
     };
   }
 
-  async getDailyStats(startDate: string, endDate: string) {
+  async getDailyStats(startDate: string, endDate: string): Promise<DailyStats[]> {
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
-    const stats = [];
+    const stats: DailyStats[] = [];
     const currentDate = new Date(start);
 
     while (currentDate <= end) {
