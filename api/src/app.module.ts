@@ -10,6 +10,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { QuranModule } from './quran/quran.module';
 import { MakkahLiveModule } from './makkah-live/makkah-live.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MakkahLiveModule } from './makkah-live/makkah-live.module';
     CloudinaryModule,
     QuranModule,
     MakkahLiveModule,
+    AnalyticsModule,
   ],
   controllers: [HealthController],
 })
