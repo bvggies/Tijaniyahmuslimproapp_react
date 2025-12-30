@@ -59,9 +59,20 @@ export const getToken = () => accessToken;
 export const isAuthenticated = () => !!accessToken;
 
 export const ensureAuthenticated = async () => {
+  // Try loading from storage if no token in memory
   if (!accessToken) {
-    throw new Error('Not authenticated. Please sign in.');
+    await loadStoredToken();
   }
+  
+  // If still no token, try demo login
+  if (!accessToken) {
+    console.log('🔄 No token found, attempting demo login...');
+    const success = await reAuthenticate('demo@tijaniyah.com', 'demo123');
+    if (!success) {
+      throw new Error('Not authenticated. Please sign in.');
+    }
+  }
+  
   return true;
 };
 
@@ -80,9 +91,15 @@ export const reAuthenticate = async (email: string, password: string) => {
   }
 };
 
-async function http(path: string, init: RequestInit = {}, retryCount = 0): Promise<any> {
+async function http(path: string, init: RequestInit = {}, retryCount = 0, isRetryAfterReauth = false): Promise<any> {
   const maxRetries = 2;
   const retryDelay = 1000; // 1 second
+  
+  // If no token in memory, try loading from storage first
+  if (!accessToken && !path.includes('/auth/')) {
+    console.log('🔄 No token in memory, loading from storage...');
+    await loadStoredToken();
+  }
   
   const headers = new Headers(init.headers || {});
   if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
@@ -108,10 +125,20 @@ async function http(path: string, init: RequestInit = {}, retryCount = 0): Promi
         statusText: res.statusText
       });
       
-      // Clear token on 401 errors
-      if (res.status === 401) {
-        console.log('🔐 Clearing token due to 401 error');
-        accessToken = null;
+      // Handle 401 errors - try to re-authenticate
+      if (res.status === 401 && !isRetryAfterReauth && !path.includes('/auth/')) {
+        console.log('🔐 401 error - attempting to re-authenticate...');
+        
+        // Try to re-authenticate with demo credentials
+        const reauthed = await reAuthenticate('demo@tijaniyah.com', 'demo123');
+        
+        if (reauthed) {
+          console.log('✅ Re-authentication successful, retrying original request...');
+          return http(path, init, 0, true);
+        } else {
+          console.log('❌ Re-authentication failed');
+          accessToken = null;
+        }
       }
       
       // Retry on 502 errors (Railway intermittent issues)
