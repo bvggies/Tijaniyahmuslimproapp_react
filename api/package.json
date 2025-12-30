@@ -24,7 +24,7 @@
     "db:setup": "node setup-database.js",
     "db:migrate": "npx prisma migrate dev",
     "db:deploy": "npx prisma migrate deploy",
-    "db:reset": "npx prisma migrate reset",
+    "db:reset": "node scripts/reset-db.js",
     "db:studio": "npx prisma studio",
     "db:generate": "npx prisma generate",
     "db:seed": "npx ts-node prisma/seed.ts"

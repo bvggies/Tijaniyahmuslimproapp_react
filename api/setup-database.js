@@ -95,8 +95,10 @@ try {
   console.log('   3. Verify data persistence across app restarts');
   console.log('\n🔗 Useful commands:');
   console.log('   - View database: npx prisma studio');
-  console.log('   - Reset database: npx prisma migrate reset');
   console.log('   - Generate client: npx prisma generate');
+  console.log('\n⚠️  WARNING: Database reset commands will DELETE ALL USER DATA!');
+  console.log('   - NEVER run "npm run db:reset" in production');
+  console.log('   - User data is preserved by default in all operations');
 
 } catch (error) {
   console.error('❌ Database setup failed:', error.message);
