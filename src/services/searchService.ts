@@ -325,16 +325,6 @@ export const searchData: SearchResult[] = [
     specialties: ['Tariqa Tijaniyya', 'Elite Companion', 'Spiritual Zeal', 'Visionary Encounters', 'Propagation', 'Hijaz'],
   },
   {
-    id: 'ibrahim_al_riyahi_duplicate',
-    title: 'Shaykh Al-Islam Ibrahim Al-Riyahi (R.A)',
-    titleArabic: 'الشيخ الإسلام إبراهيم الرياحي',
-    description: 'Imam of Zaytuna University & Maliki Shaykh al-Islam of Tunis',
-    type: 'scholar',
-    category: 'Scholars',
-    screen: 'Scholars',
-    specialties: ['Tariqa Tijaniyya', 'Maliki Fiqh', 'Zaytuna University', 'Islamic Law', 'Poetry', 'Diplomacy', 'Sufism'],
-  },
-  {
     id: 'sheikh_ahmed_jallo',
     title: 'Sheikh Ahmed Abulfaid Khalifa Jallo (R.A)',
     titleArabic: 'الشيخ أحمد أبو الفيض خليفة جالو',
@@ -343,16 +333,6 @@ export const searchData: SearchResult[] = [
     category: 'Scholars',
     screen: 'Scholars',
     specialties: ['Tariqa Tijaniyya', 'Leadership', 'Peace & Unity', 'Community Building', 'Interfaith Relations', 'Ghana'],
-  },
-  {
-    id: 'muhammad_al_hafiz_shinqiti_duplicate',
-    title: 'Sidi Muhammad Al-Hafiz Al-Shinqiti (R.A)',
-    titleArabic: 'سيدي محمد الحافظ الشنقيطي',
-    description: 'First Introducer of Tariqa Tijaniyya in Mauritania',
-    type: 'scholar',
-    category: 'Scholars',
-    screen: 'Scholars',
-    specialties: ['Tariqa Tijaniyya', 'Mauritania', 'West Africa', 'Hadith', 'Fiqh', 'Sufism', 'Idaw Ali'],
   },
   {
     id: 'imam_an_nawawi',
