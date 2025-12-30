@@ -25,10 +25,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js 18
+    - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
         
     - name: Setup Java 17
@@ -41,6 +41,8 @@ jobs:
       uses: android-actions/setup-android@v3
       
     - name: Install dependencies
+      env:
+        NODE_ENV: production
       run: |
         npm ci
         npx expo install --fix
@@ -349,6 +351,8 @@ jobs:
         
     - name: Build AAB (Android App Bundle)
       id: build-aab
+      env:
+        NODE_ENV: production
       run: |
         cd android
         echo "=== Building AAB for Google Play Store ==="
