@@ -9,6 +9,17 @@ export interface NotificationFilters {
   status?: string;
 }
 
+// Type for creating a new campaign (required fields)
+export interface CreateCampaignData {
+  title: string;
+  body: string;
+  deepLink?: string;
+  targetType: 'all' | 'new_users' | 'active_users' | 'inactive_users' | 'custom';
+  targetFilters?: Record<string, any>;
+  scheduledAt?: string;
+  sendNow?: boolean;
+}
+
 export const notificationQueryKeys = {
   all: ['notifications'] as const,
   campaigns: () => [...notificationQueryKeys.all, 'campaigns'] as const,
@@ -28,7 +39,7 @@ export function useCreateCampaign() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: Partial<NotificationCampaign>) => notificationsApi.createCampaign(data),
+    mutationFn: (data: CreateCampaignData) => notificationsApi.createCampaign(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationQueryKeys.campaigns() });
       toast.success('Campaign created', 'Notification campaign has been created.');
