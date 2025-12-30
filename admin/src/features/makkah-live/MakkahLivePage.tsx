@@ -23,6 +23,7 @@ import {
   Tooltip,
   CircularProgress,
   Divider,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -293,21 +294,21 @@ export default function MakkahLivePage() {
             <TextField
               label="Title"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
               required
               fullWidth
             />
             <TextField
               label="Title (Arabic)"
               value={formData.titleArabic}
-              onChange={(e) => setFormData({ ...formData, titleArabic: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, titleArabic: e.target.value })}
               fullWidth
               dir="rtl"
             />
             <TextField
               label="Subtitle / Description"
               value={formData.subtitle}
-              onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, subtitle: e.target.value })}
               fullWidth
               multiline
               rows={2}
@@ -317,7 +318,7 @@ export default function MakkahLivePage() {
               <Select
                 value={formData.type}
                 label="Type"
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                onChange={(e: SelectChangeEvent<string>) => setFormData({ ...formData, type: e.target.value as any })}
               >
                 {CHANNEL_TYPES.map((type) => (
                   <MenuItem key={type.value} value={type.value}>
@@ -334,7 +335,7 @@ export default function MakkahLivePage() {
               <Select
                 value={formData.category}
                 label="Category"
-                onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                onChange={(e: SelectChangeEvent<string>) => setFormData({ ...formData, category: e.target.value as any })}
               >
                 {CHANNEL_CATEGORIES.map((cat) => (
                   <MenuItem key={cat.value} value={cat.value}>
@@ -358,7 +359,7 @@ export default function MakkahLivePage() {
               <TextField
                 label="YouTube Video ID"
                 value={formData.youtubeId}
-                onChange={(e) => setFormData({ ...formData, youtubeId: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, youtubeId: e.target.value })}
                 helperText="Enter only the video ID (e.g., dQw4w9WgXcQ from youtube.com/watch?v=dQw4w9WgXcQ)"
                 fullWidth
               />
@@ -368,7 +369,7 @@ export default function MakkahLivePage() {
               <TextField
                 label="Website URL"
                 value={formData.websiteUrl}
-                onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, websiteUrl: e.target.value })}
                 helperText="Full URL to the TV channel website"
                 fullWidth
               />
@@ -377,7 +378,7 @@ export default function MakkahLivePage() {
             <TextField
               label="Logo (Emoji)"
               value={formData.logo}
-              onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, logo: e.target.value })}
               helperText="Use an emoji like 📺 or 🕋"
               fullWidth
             />
@@ -386,7 +387,7 @@ export default function MakkahLivePage() {
               label="Sort Order"
               type="number"
               value={formData.sortOrder}
-              onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
               helperText="Lower numbers appear first"
               fullWidth
             />
@@ -396,7 +397,7 @@ export default function MakkahLivePage() {
                 control={
                   <Switch
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, isActive: e.target.checked })}
                   />
                 }
                 label="Active"
@@ -405,7 +406,7 @@ export default function MakkahLivePage() {
                 control={
                   <Switch
                     checked={formData.isFeatured}
-                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, isFeatured: e.target.checked })}
                   />
                 }
                 label="Featured"
