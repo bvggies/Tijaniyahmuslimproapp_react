@@ -25,9 +25,11 @@ import { getUpcomingIslamicEvents } from '../services/islamicCalendarService';
 import { getDailyReminder, DailyReminder } from '../services/dailyReminderService';
 import NotificationService from '../services/notificationService';
 import LocationService from '../services/locationService';
+import HijriService from '../services/hijriService';
 
 // Component imports
 import IslamicBackground from '../components/IslamicBackground';
+import FloatingMessageButton from '../components/FloatingMessageButton';
 import {
   HomeHeader,
   CalendarCard,
@@ -147,10 +149,39 @@ export default function HomeScreen({ navigation }: any) {
     };
   }, []);
 
-  // Effect: Update Islamic date when calendar changes
+  // Effect: Update Islamic date when calendar changes or timezone is available
   useEffect(() => {
-    setIslamicDate(getIslamicDate());
-  }, [selectedCalendar, getIslamicDate]);
+    const updateIslamicDate = async () => {
+      if (currentTimezone) {
+        // Use location-based date with timezone
+        try {
+          const hijriService = HijriService.getInstance();
+          const locationDate = hijriService.getHijriDateForTimezone(currentTimezone);
+          
+          if (locationDate) {
+            setIslamicDate({
+              day: locationDate.hijri.day,
+              month: locationDate.hijri.month,
+              year: locationDate.hijri.year,
+              monthName: locationDate.hijri.monthName,
+              monthNameArabic: locationDate.hijri.monthNameArabic,
+              dayName: locationDate.hijri.dayName,
+              dayNameArabic: locationDate.hijri.dayNameArabic,
+              isHoliday: false,
+              holidayName: undefined,
+            });
+            return;
+          }
+        } catch (error) {
+          console.log('Error getting location-based date:', error);
+        }
+      }
+      // Fallback to context method
+      setIslamicDate(getIslamicDate());
+    };
+    
+    updateIslamicDate();
+  }, [selectedCalendar, getIslamicDate, currentTimezone]);
 
   // Effect: Refresh reminder at midnight
   useEffect(() => {
@@ -376,8 +407,33 @@ export default function HomeScreen({ navigation }: any) {
           {/* Calendar Card */}
           <CalendarCard
             islamicDate={islamicDateData}
-            gregorianDate={new Date().toLocaleDateString()}
-            currentTime={formatTimeWithSeconds(currentTime)}
+            gregorianDate={
+              currentTimezone
+                ? new Date().toLocaleDateString('en-US', {
+                    timeZone: currentTimezone,
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : new Date().toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+            }
+            currentTime={
+              currentTimezone
+                ? new Date().toLocaleTimeString('en-US', {
+                    timeZone: currentTimezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                  })
+                : formatTimeWithSeconds(currentTime)
+            }
             calendarName={getCalendarInfo(selectedCalendar).name}
             onPress={() => setShowCalendarModal(true)}
             isLoading={isLoadingLocation}
@@ -509,6 +565,9 @@ export default function HomeScreen({ navigation }: any) {
             </View>
           </View>
         </Modal>
+
+        {/* Floating Message Button */}
+        <FloatingMessageButton bottomOffset={100} />
       </View>
     </IslamicBackground>
   );

@@ -302,3 +302,54 @@ model QuranReadingPreferences {
 
   @@index([userId])
 }
+
+// ==========================================
+// MAKKAH LIVE CHANNELS
+// ==========================================
+
+enum ChannelType {
+  YOUTUBE_LIVE  // YouTube live stream (embedded)
+  TV_CHANNEL    // External TV channel website
+}
+
+enum ChannelCategory {
+  MAKKAH        // Makkah live streams
+  MADINAH       // Madinah live streams
+  QURAN         // Quran TV channels
+  ISLAMIC       // Islamic content channels
+  NEWS          // Islamic news channels
+  EDUCATIONAL   // Educational channels
+}
+
+model MakkahLiveChannel {
+  id            String          @id @default(cuid())
+  title         String
+  titleArabic   String?
+  subtitle      String?
+  type          ChannelType
+  category      ChannelCategory
+  
+  // For YouTube live streams
+  youtubeId     String?         // YouTube video ID for embedding
+  
+  // For TV channels
+  websiteUrl    String?
+  
+  // Display settings
+  logo          String?         // Emoji or icon name
+  thumbnailUrl  String?         // Optional thumbnail image URL
+  
+  // Order and visibility
+  sortOrder     Int             @default(0)
+  isActive      Boolean         @default(true)
+  isFeatured    Boolean         @default(false)
+  
+  // Metadata
+  createdBy     String?         // Admin user ID who created this
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([type, isActive])
+  @@index([category, isActive])
+  @@index([sortOrder])
+}

@@ -213,6 +213,8 @@ export const api = {
     }),
   markAsRead: (conversationId: string) =>
     http(`/chat/conversations/${encodeURIComponent(conversationId)}/read`, { method: 'POST' }),
+  getUnreadMessageCount: () =>
+    http('/chat/unread-count'),
 
   // Notifications - Device Registration
   registerDevice: (expoPushToken: string, platform: 'ios' | 'android' | 'web', deviceName?: string) =>
@@ -249,6 +251,16 @@ export const api = {
     http('/notifications/read-all', { method: 'PATCH' }),
   archiveNotification: (id: string) =>
     http(`/notifications/${encodeURIComponent(id)}/archive`, { method: 'PATCH' }),
+
+  // Makkah Live Channels
+  getMakkahLiveChannels: (params?: { type?: string; category?: string; activeOnly?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.activeOnly !== undefined) queryParams.append('activeOnly', String(params.activeOnly));
+    const queryString = queryParams.toString();
+    return http(`/makkah-live/channels${queryString ? `?${queryString}` : ''}`);
+  },
 };
 
 export async function ensureDemoAuth() {

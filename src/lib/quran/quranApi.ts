@@ -33,12 +33,13 @@ const REQUEST_TIMEOUT = 15000; // 15 seconds
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
-// Popular translation IDs
+// Popular translation IDs (Quran.com API v4)
 export const TRANSLATION_IDS = {
-  SAHIH_INTERNATIONAL: 131, // English
-  PICKTHALL: 57, // English
-  YUSUF_ALI: 22, // English
-  FRENCH_HAMIDULLAH: 136, // French
+  SAHIH_INTERNATIONAL: 20, // English - Sahih International (most common)
+  CLEARQURAN: 131, // English - Dr. Mustafa Khattab (The Clear Quran)
+  PICKTHALL: 19, // English - Pickthall
+  YUSUF_ALI: 22, // English - Yusuf Ali
+  FRENCH_HAMIDULLAH: 136, // French - Hamidullah
   INDONESIAN: 33, // Indonesian
   URDU_AHMED_ALI: 54, // Urdu
   TURKISH: 77, // Turkish
@@ -226,6 +227,8 @@ export async function getVersesByChapter(
     
     const url = `${QURAN_API_BASE}/verses/by_chapter/${chapterId}?${params.toString()}`;
     
+    console.log('📖 Fetching verses from:', url);
+    
     const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
@@ -238,6 +241,12 @@ export async function getVersesByChapter(
     }
     
     const data = await response.json();
+    
+    // Debug: Log first verse to check translations
+    if (data.verses && data.verses.length > 0) {
+      console.log('📖 First verse translations:', data.verses[0].translations);
+    }
+    
     const validated = validateVersesResponse(data);
     
     if (!validated.success) {

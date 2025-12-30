@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,16 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  RefreshControl,
+  AppState,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { api, ensureAuthenticated } from '../services/api';
 
 interface Conversation {
@@ -38,11 +42,16 @@ interface Conversation {
 export default function ChatScreen() {
   const { authState } = useAuth();
   const { t } = useLanguage();
+  const { lastNotificationType, clearLastNotificationType, unreadCount } = useNotifications();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async (isRefresh = false) => {
     try {
+      if (isRefresh) {
+        setRefreshing(true);
+      }
       console.log('🔄 Loading conversations...');
       
       // Ensure user is authenticated before loading
@@ -58,17 +67,52 @@ export default function ChatScreen() {
       if (error.message?.includes('Not authenticated') || error.message?.includes('401')) {
         console.log('⚠️ User not authenticated for chat');
         setConversations([]);
-      } else {
+      } else if (!isRefresh) {
         Alert.alert('Error', 'Failed to load conversations. Please try again.');
       }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, []);
 
+  // Initial load
   useEffect(() => {
     loadConversations();
-  }, []);
+  }, [loadConversations]);
+
+  // Refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadConversations();
+    }, [loadConversations])
+  );
+
+  // Refresh when a new message notification is received
+  useEffect(() => {
+    if (lastNotificationType === 'MESSAGE') {
+      console.log('📬 New message notification detected, refreshing conversations...');
+      loadConversations(true);
+      clearLastNotificationType();
+    }
+  }, [lastNotificationType, loadConversations, clearLastNotificationType]);
+
+  // Refresh when app comes to foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        loadConversations(true);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [loadConversations]);
+
+  const onRefresh = useCallback(() => {
+    loadConversations(true);
+  }, [loadConversations]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -157,6 +201,10 @@ export default function ChatScreen() {
           <Text style={styles.emptySubtitle}>
             {t('chat.start_chatting')}
           </Text>
+          <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
+            <Ionicons name="refresh-outline" size={20} color={colors.accentTeal} />
+            <Text style={styles.refreshButtonText}>Refresh</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -165,6 +213,14 @@ export default function ChatScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.conversationsList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.accentTeal}
+              colors={[colors.accentTeal]}
+            />
+          }
         />
       )}
     </View>
@@ -297,5 +353,20 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 12,
     fontWeight: '500',
+  },
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${colors.accentTeal}20`,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  refreshButtonText: {
+    color: colors.accentTeal,
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

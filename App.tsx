@@ -7,6 +7,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Import screens
 import HomeScreen from './src/screens/HomeScreen';
@@ -51,6 +52,10 @@ import HajjScreen from './src/screens/HajjScreen';
 import HajjUmrahScreen from './src/screens/HajjUmrahScreen';
 import HajjJourneyScreen from './src/screens/HajjJourneyScreen';
 import AdminMainScreen from './src/screens/AdminMainScreen';
+import DuasTijaniyaScreen from './src/screens/DuasTijaniyaScreen';
+import DuaKhatmulWazifaScreen from './src/screens/DuaKhatmulWazifaScreen';
+import DuaRabilIbadiScreen from './src/screens/DuaRabilIbadiScreen';
+import DuaHasbilMuhaiminuScreen from './src/screens/DuaHasbilMuhaiminuScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -62,6 +67,8 @@ import { TimeFormatProvider } from './src/contexts/TimeFormatContext';
 import { IslamicCalendarProvider } from './src/contexts/IslamicCalendarContext';
 import GlassTabBar from './src/components/GlassTabBar';
 import { QueryProvider } from './src/providers/QueryProvider';
+import NotificationToastWrapper from './src/components/NotificationToastWrapper';
+import { useNotifications } from './src/contexts/NotificationContext';
 
 // Import types
 import { TabBarIconProps } from './src/types';
@@ -361,6 +368,26 @@ function MoreStackNavigator() {
         component={ZakatCalculatorScreen}
         options={{ title: 'Zakat Calculator' }}
       />
+      <Stack.Screen 
+        name="DuasTijaniya" 
+        component={DuasTijaniyaScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="DuaKhatmulWazifa" 
+        component={DuaKhatmulWazifaScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="DuaRabilIbadi" 
+        component={DuaRabilIbadiScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="DuaHasbilMuhaiminu" 
+        component={DuaHasbilMuhaiminuScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -409,19 +436,33 @@ function AuthStackNavigator() {
   );
 }
 
-// Main App Navigator
-function AppNavigator() {
+// Main App Navigator with Toast Notifications
+function AppNavigatorWithToast() {
   const { authState, isAdmin, isModerator } = useAuth();
 
+  // Only show toast wrapper for authenticated users
   if (authState.isAuthenticated || authState.isGuest) {
     // Check if user is admin/moderator and redirect to admin panel
     if (authState.isAuthenticated && authState.user && (isAdmin() || isModerator())) {
-      return <AdminMainScreen navigation={{ navigate: () => {} }} />;
+      return (
+        <NotificationToastWrapper>
+          <AdminMainScreen navigation={{ navigate: () => {} }} />
+        </NotificationToastWrapper>
+      );
     }
-    return <MainTabNavigator />;
+    return (
+      <NotificationToastWrapper>
+        <MainTabNavigator />
+      </NotificationToastWrapper>
+    );
   } else {
     return <AuthStackNavigator />;
   }
+}
+
+// Main App Navigator
+function AppNavigator() {
+  return <AppNavigatorWithToast />;
 }
 
 export default function App() {
@@ -444,28 +485,30 @@ export default function App() {
     return null;
   }
   return (
-    <QueryProvider>
-      <LanguageProvider>
-        <TimeFormatProvider>
-          <IslamicCalendarProvider>
-            <AuthProvider>
-              <AdminAuthProvider>
-                <NotificationProvider>
-                  <AuthWrapper>
-                    <NavigationContainer>
-                      <StatusBar style="light" backgroundColor="#2E7D32" />
-                      <ErrorBoundary>
-                        <AppNavigator />
-                      </ErrorBoundary>
-                    </NavigationContainer>
-                  </AuthWrapper>
-                </NotificationProvider>
-              </AdminAuthProvider>
-            </AuthProvider>
-          </IslamicCalendarProvider>
-        </TimeFormatProvider>
-      </LanguageProvider>
-    </QueryProvider>
+    <SafeAreaProvider>
+      <QueryProvider>
+        <LanguageProvider>
+          <TimeFormatProvider>
+            <IslamicCalendarProvider>
+              <AuthProvider>
+                <AdminAuthProvider>
+                  <NotificationProvider>
+                    <AuthWrapper>
+                      <NavigationContainer>
+                        <StatusBar style="light" backgroundColor="#2E7D32" />
+                        <ErrorBoundary>
+                          <AppNavigator />
+                        </ErrorBoundary>
+                      </NavigationContainer>
+                    </AuthWrapper>
+                  </NotificationProvider>
+                </AdminAuthProvider>
+              </AuthProvider>
+            </IslamicCalendarProvider>
+          </TimeFormatProvider>
+        </LanguageProvider>
+      </QueryProvider>
+    </SafeAreaProvider>
   );
 }
 

@@ -511,57 +511,39 @@ export const IslamicCalendarProvider = ({ children }: { children: ReactNode }) =
   // Get Islamic date with location-based calculations
   const getCurrentIslamicDateWithLocation = async (): Promise<IslamicDate | null> => {
     try {
-      // TEMPORARILY DISABLE location-based Hijri date calculation
-      // This prevents the wrong Muharram 1 date from overriding the correct date
-      console.log('🚫 Location-based Islamic date calculation temporarily disabled');
-      return null;
-      
-      // Original code (commented out for now):
-      /*
       const hijriService = HijriService.getInstance();
       const hijriDate = await hijriService.getCurrentHijriDate();
       
       if (hijriDate) {
-        // Validate the Hijri date - if it's showing Muharram 1, it's likely wrong
-        if (hijriDate.hijri.month === 1 && hijriDate.hijri.day === 1) {
-          console.log('⚠️ Location-based Hijri date showing Muharram 1, using fallback');
-          return null; // Return null to use the regular calendar calculation
-        }
+        const holidayKey = `${hijriDate.hijri.month}-${hijriDate.hijri.day}`;
+        const isHoliday = holidayKey in ISLAMIC_HOLIDAYS;
+        const holidayName = isHoliday ? ISLAMIC_HOLIDAYS[holidayKey] : undefined;
         
         return {
           day: hijriDate.hijri.day,
           month: hijriDate.hijri.month,
           year: hijriDate.hijri.year,
           monthName: hijriDate.hijri.monthName,
-          monthNameArabic: hijriDate.hijri.monthName, // You might want to add Arabic names
+          monthNameArabic: hijriDate.hijri.monthNameArabic,
           dayName: hijriDate.hijri.dayName,
-          dayNameArabic: hijriDate.hijri.dayName, // You might want to add Arabic names
-          isHoliday: false, // You can enhance this with holiday detection
-          holidayName: undefined
+          dayNameArabic: hijriDate.hijri.dayNameArabic,
+          isHoliday,
+          holidayName
         };
       }
       
       return null;
-      */
     } catch (error) {
       console.error('❌ Error getting location-based Islamic date:', error);
       return null;
     }
   };
 
-  // Get location-based date information
+  // Get location-based date information (returns full date display with timezone info)
   const getLocationBasedDate = async () => {
     try {
-      // TEMPORARILY DISABLE location-based date calculation
-      // This prevents the wrong Muharram 1 date from overriding the correct date
-      console.log('🚫 Location-based date calculation temporarily disabled');
-      return null;
-      
-      // Original code (commented out for now):
-      /*
       const hijriService = HijriService.getInstance();
       return await hijriService.getCurrentHijriDate();
-      */
     } catch (error) {
       console.error('❌ Error getting location-based date:', error);
       return null;

@@ -17,5 +17,8 @@ export default ({ config }) => ({
       // For physical device: Use http://YOUR_LOCAL_IP:3000 (not localhost)
       // For simulator: Use http://localhost:3000
       // API_URL: process.env.API_URL || 'http://localhost:3000',
+      
+      // Groq API for AI Noor
+      GROQ_API_KEY: process.env.GROQ_API_KEY || '',
     },
   });

@@ -57,7 +57,7 @@ export interface QuranStore extends QuranSettings {
 // ============================================
 
 const defaultSettings: QuranSettings = {
-  selectedTranslationId: TRANSLATION_IDS.SAHIH_INTERNATIONAL,
+  selectedTranslationId: 20, // Sahih International (Quran.com API v4)
   selectedTranslationName: 'Sahih International',
   arabicFontSize: 28,
   translationFontSize: 16,

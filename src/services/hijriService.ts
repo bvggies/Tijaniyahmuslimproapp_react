@@ -1,13 +1,17 @@
 import HijriDate from 'hijri-date';
 import LocationService, { UserLocation } from './locationService';
+import AlAdhanService from './alAdhanService';
 
 export interface HijriDateInfo {
   day: number;
   month: number;
   year: number;
   monthName: string;
+  monthNameArabic: string;
   dayName: string;
+  dayNameArabic: string;
   fullDate: string;
+  fullDateArabic: string;
   isToday: boolean;
 }
 
@@ -29,6 +33,33 @@ export interface IslamicDateDisplay {
   localTime: string;
 }
 
+// Islamic month names with Arabic
+const ISLAMIC_MONTHS = [
+  { name: 'Muharram', arabic: 'محرم' },
+  { name: 'Safar', arabic: 'صفر' },
+  { name: "Rabi' al-Awwal", arabic: 'ربيع الأول' },
+  { name: "Rabi' al-Thani", arabic: 'ربيع الثاني' },
+  { name: 'Jumada al-Awwal', arabic: 'جمادى الأولى' },
+  { name: 'Jumada al-Thani', arabic: 'جمادى الآخرة' },
+  { name: 'Rajab', arabic: 'رجب' },
+  { name: "Sha'ban", arabic: 'شعبان' },
+  { name: 'Ramadan', arabic: 'رمضان' },
+  { name: 'Shawwal', arabic: 'شوال' },
+  { name: "Dhu al-Qi'dah", arabic: 'ذو القعدة' },
+  { name: 'Dhu al-Hijjah', arabic: 'ذو الحجة' },
+];
+
+// Day names with Arabic
+const DAY_NAMES = [
+  { name: 'Sunday', arabic: 'الأحد' },
+  { name: 'Monday', arabic: 'الإثنين' },
+  { name: 'Tuesday', arabic: 'الثلاثاء' },
+  { name: 'Wednesday', arabic: 'الأربعاء' },
+  { name: 'Thursday', arabic: 'الخميس' },
+  { name: 'Friday', arabic: 'الجمعة' },
+  { name: 'Saturday', arabic: 'السبت' },
+];
+
 class HijriService {
   private static instance: HijriService;
   private locationService: LocationService;
@@ -45,94 +76,125 @@ class HijriService {
   }
 
   /**
-   * Get current Hijri date based on user's location
+   * Get current Hijri date based on user's location/timezone
+   * Uses AlAdhan API for accurate dates with local fallback
    */
   async getCurrentHijriDate(): Promise<IslamicDateDisplay | null> {
     try {
-      // TEMPORARILY DISABLE location-based Hijri date calculation
-      // This prevents the wrong Muharram 1 date from overriding the correct date
-      console.log('🚫 Location-based Hijri date calculation temporarily disabled');
-      return null;
-      
-      // Original code (commented out for now):
-      /*
+      // Try to get user's location for timezone
       const location = await this.locationService.getUserLocation();
-      if (!location) {
-        console.log('⚠️ No location available, using default timezone');
-        return this.getHijriDateForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      
+      // Get the device's timezone
+      const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const timezone = location?.timezone || deviceTimezone;
+      
+      console.log('🌍 Using timezone:', timezone);
+      console.log('📍 Location:', location?.city || 'Unknown', location?.country || 'Unknown');
+
+      // Try AlAdhan API first for accurate Hijri date
+      try {
+        const alAdhanService = AlAdhanService.getInstance();
+        const now = new Date();
+        const alAdhanResponse = await alAdhanService.getHijriDate(now);
+        
+        if (alAdhanResponse && alAdhanResponse.data) {
+          const hijri = alAdhanResponse.data.hijri;
+          const gregorian = alAdhanResponse.data.gregorian;
+          
+          console.log('✅ Using AlAdhan API for Hijri date:', hijri.date);
+          
+          // Check for Islamic holidays
+          const holidays = hijri.holidays || [];
+          
+          const hijriInfo: HijriDateInfo = {
+            day: parseInt(hijri.day),
+            month: hijri.month.number,
+            year: parseInt(hijri.year),
+            monthName: hijri.month.en,
+            monthNameArabic: hijri.month.ar,
+            dayName: hijri.weekday.en,
+            dayNameArabic: hijri.weekday.ar,
+            fullDate: `${hijri.day} ${hijri.month.en} ${hijri.year} AH`,
+            fullDateArabic: `${hijri.day} ${hijri.month.ar} ${hijri.year}`,
+            isToday: true,
+          };
+
+          const gregorianInfo = {
+            day: parseInt(gregorian.day),
+            month: gregorian.month.number,
+            year: parseInt(gregorian.year),
+            monthName: gregorian.month.en,
+            dayName: gregorian.weekday.en,
+            fullDate: `${gregorian.day} ${gregorian.month.en} ${gregorian.year}`,
+          };
+
+          // Get local time for the timezone
+          const localTime = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: timezone,
+            hour12: true,
+          });
+
+          return {
+            hijri: hijriInfo,
+            gregorian: gregorianInfo,
+            location: {
+              city: location?.city || 'Local',
+              country: location?.country || '',
+              timezone: timezone,
+            },
+            localTime,
+          };
+        }
+      } catch (alAdhanError) {
+        console.log('⚠️ AlAdhan API failed, using local calculation');
+        console.error('AlAdhan error:', alAdhanError);
       }
 
-      console.log('📍 Location found for Hijri date:', location.city, location.country, location.timezone);
-      const result = this.getHijriDateForTimezone(location.timezone, location);
-      
-      // Validate the result - if it's showing Muharram 1, it's likely wrong
-      if (result.hijri.month === 1 && result.hijri.day === 1) {
-        console.log('⚠️ Location-based Hijri date showing Muharram 1, using fallback');
-        return this.getFallbackHijriDate();
-      }
-      
-      return result;
-      */
+      // Fallback to local calculation
+      return this.getHijriDateForTimezone(timezone, location);
     } catch (error) {
       console.error('❌ Error getting Hijri date:', error);
-      return null;
+      return this.getFallbackHijriDate();
     }
   }
 
   /**
    * Get Hijri date for specific timezone
    */
-  getHijriDateForTimezone(timezone: string, location?: UserLocation): IslamicDateDisplay {
+  getHijriDateForTimezone(timezone: string, location?: UserLocation | null): IslamicDateDisplay {
     try {
       // Get current date in the specified timezone
       const now = new Date();
-      const localDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
       
-      console.log('🗓️ Current Gregorian date:', localDate.toLocaleDateString());
-      console.log('🌍 Timezone:', timezone);
-      
-      // Create Hijri date
-      const hijri = new HijriDate(localDate);
-      
-      console.log('🌙 Hijri date from library:', {
-        day: hijri.getDate(),
-        month: hijri.getMonth() + 1,
-        year: hijri.getFullYear(),
-        monthName: hijri.getMonthName(),
-        fullDate: `${hijri.getDate()} ${hijri.getMonthName()} ${hijri.getFullYear()} AH`
+      // Get the local date string for the timezone
+      const localDateStr = now.toLocaleString('en-US', { 
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
       });
       
-      // Check if the library result seems wrong (e.g., showing Muharram 1 when it should be Jumada al-Awwal)
-      const hijriYear = hijri.getFullYear();
-      const hijriMonth = hijri.getMonth() + 1;
-      const hijriDay = hijri.getDate();
+      console.log('🗓️ Local date string for timezone:', localDateStr);
       
-      let hijriInfo: HijriDateInfo;
+      // Parse the local date
+      const [datePart] = localDateStr.split(', ');
+      const [month, day, year] = datePart.split('/').map(Number);
+      const localDate = new Date(year, month - 1, day);
       
-      // If it's showing Muharram 1, it's likely wrong - use manual calculation
-      if (hijriMonth === 1 && hijriDay === 1) {
-        console.log('⚠️ Library showing Muharram 1, using manual calculation');
-        const manualHijri = this.getManualHijriDate(localDate);
-        console.log('🔧 Manual calculation result:', manualHijri);
-        
-        hijriInfo = {
-          ...manualHijri,
-          isToday: this.isToday(localDate),
-        };
-      } else {
-        // Use library result
-        hijriInfo = {
-          day: hijri.getDate(),
-          month: hijri.getMonth() + 1, // HijriDate uses 0-based months
-          year: hijri.getFullYear(),
-          monthName: hijri.getMonthName(),
-          dayName: hijri.getDayName(),
-          fullDate: `${hijri.getDate()} ${hijri.getMonthName()} ${hijri.getFullYear()} AH`,
-          isToday: this.isToday(localDate),
-        };
-      }
+      console.log('🗓️ Parsed local date:', localDate.toDateString());
+      
+      // Calculate Hijri date using the accurate algorithm
+      const hijriInfo = this.calculateHijriDate(localDate);
+      
+      console.log('🌙 Calculated Hijri date:', hijriInfo);
 
-      // Get Gregorian date info
+      // Get Gregorian date info for the timezone
       const gregorianInfo = {
         day: localDate.getDate(),
         month: localDate.getMonth() + 1,
@@ -148,19 +210,19 @@ class HijriService {
       };
 
       // Get local time
-      const localTime = localDate.toLocaleTimeString('en-US', {
+      const localTime = now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
         timeZone: timezone,
+        hour12: true,
       });
 
       return {
         hijri: hijriInfo,
         gregorian: gregorianInfo,
         location: {
-          city: location?.city || 'Unknown',
-          country: location?.country || 'Unknown',
+          city: location?.city || 'Local',
+          country: location?.country || '',
           timezone: timezone,
         },
         localTime,
@@ -168,8 +230,93 @@ class HijriService {
 
     } catch (error) {
       console.error('❌ Error creating Hijri date:', error);
-      // Fallback to current date
       return this.getFallbackHijriDate();
+    }
+  }
+
+  /**
+   * Calculate Hijri date from Gregorian date - uses AlAdhan API with fallback
+   */
+  private calculateHijriDate(gregorianDate: Date): HijriDateInfo {
+    // For sync calls, use local calculation
+    // AlAdhan API will be used in the async method
+    return this.localHijriCalculation(gregorianDate);
+  }
+
+  /**
+   * Get Hijri date from AlAdhan API (async)
+   */
+  async getHijriDateFromAPI(gregorianDate?: Date): Promise<HijriDateInfo | null> {
+    try {
+      const alAdhanService = AlAdhanService.getInstance();
+      const date = gregorianDate || new Date();
+      const response = await alAdhanService.getHijriDate(date);
+      
+      if (response && response.data?.hijri) {
+        const hijri = response.data.hijri;
+        const gregorian = response.data.gregorian;
+        
+        console.log('✅ Got Hijri date from AlAdhan API:', hijri.date);
+        
+        return {
+          day: parseInt(hijri.day),
+          month: hijri.month.number,
+          year: parseInt(hijri.year),
+          monthName: hijri.month.en,
+          monthNameArabic: hijri.month.ar,
+          dayName: hijri.weekday.en,
+          dayNameArabic: hijri.weekday.ar,
+          fullDate: `${hijri.day} ${hijri.month.en} ${hijri.year} AH`,
+          fullDateArabic: `${hijri.day} ${hijri.month.ar} ${hijri.year}`,
+          isToday: this.isToday(date),
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('❌ Error getting Hijri date from AlAdhan API:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Local Hijri calculation using hijri-date library
+   */
+  private localHijriCalculation(gregorianDate: Date): HijriDateInfo {
+    try {
+      // Try using the hijri-date library first
+      const hijri = new HijriDate(gregorianDate);
+      const hijriDay = hijri.getDate();
+      const hijriMonth = hijri.getMonth() + 1; // Library uses 0-based months
+      const hijriYear = hijri.getFullYear();
+      
+      // Validate the library result
+      if (hijriYear >= 1400 && hijriYear <= 1500 && hijriMonth >= 1 && hijriMonth <= 12 && hijriDay >= 1 && hijriDay <= 30) {
+        const monthInfo = ISLAMIC_MONTHS[hijriMonth - 1];
+        const dayOfWeek = gregorianDate.getDay();
+        const dayInfo = DAY_NAMES[dayOfWeek];
+        
+        return {
+          day: hijriDay,
+          month: hijriMonth,
+          year: hijriYear,
+          monthName: monthInfo.name,
+          monthNameArabic: monthInfo.arabic,
+          dayName: dayInfo.name,
+          dayNameArabic: dayInfo.arabic,
+          fullDate: `${hijriDay} ${monthInfo.name} ${hijriYear} AH`,
+          fullDateArabic: `${hijriDay} ${monthInfo.arabic} ${hijriYear}`,
+          isToday: this.isToday(gregorianDate),
+        };
+      }
+      
+      // Fallback to manual calculation if library result seems wrong
+      console.log('⚠️ Library result seems incorrect, using manual calculation');
+      return this.manualHijriCalculation(gregorianDate);
+      
+    } catch (error) {
+      console.error('❌ Error with hijri-date library:', error);
+      return this.manualHijriCalculation(gregorianDate);
     }
   }
 
@@ -184,26 +331,76 @@ class HijriService {
   }
 
   /**
-   * Get fallback Hijri date when location/timezone detection fails
+   * Manual Hijri calculation using Kuwaiti algorithm
+   */
+  private manualHijriCalculation(gregorianDate: Date): HijriDateInfo {
+    const dayOfWeek = gregorianDate.getDay();
+    const dayInfo = DAY_NAMES[dayOfWeek];
+    
+    // Calculate Julian Day Number
+    const gYear = gregorianDate.getFullYear();
+    const gMonth = gregorianDate.getMonth() + 1;
+    const gDay = gregorianDate.getDate();
+    
+    // Julian Day calculation
+    let jd: number;
+    if (gMonth <= 2) {
+      jd = Math.floor((gYear - 1) / 4) - Math.floor((gYear - 1) / 100) + Math.floor((gYear - 1) / 400) 
+           + Math.floor((367 * (gMonth + 12) - 362) / 12) + gDay + Math.floor(365.25 * (gYear - 1)) 
+           + 1721423.5;
+    } else {
+      jd = Math.floor(gYear / 4) - Math.floor(gYear / 100) + Math.floor(gYear / 400) 
+           + Math.floor((367 * gMonth - 362) / 12) + gDay + Math.floor(365.25 * gYear) 
+           + 1721423.5 - 2;
+    }
+    
+    // Islamic calendar epoch (Julian Day of 1 Muharram 1 AH)
+    const islamicEpoch = 1948439.5;
+    
+    // Calculate Islamic date
+    const l = Math.floor(jd - islamicEpoch) + 10632;
+    const n = Math.floor((l - 1) / 10631);
+    const l2 = l - 10631 * n + 354;
+    const j = Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719) 
+              + Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
+    const l3 = l2 - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) 
+               - Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+    
+    const hijriMonth = Math.floor((24 * l3) / 709);
+    const hijriDay = l3 - Math.floor((709 * hijriMonth) / 24);
+    const hijriYear = 30 * n + j - 30;
+    
+    // Validate and adjust
+    const validMonth = Math.max(1, Math.min(12, hijriMonth));
+    const validDay = Math.max(1, Math.min(30, hijriDay));
+    const validYear = Math.max(1400, Math.min(1500, hijriYear));
+    
+    const monthInfo = ISLAMIC_MONTHS[validMonth - 1];
+    
+    return {
+      day: validDay,
+      month: validMonth,
+      year: validYear,
+      monthName: monthInfo.name,
+      monthNameArabic: monthInfo.arabic,
+      dayName: dayInfo.name,
+      dayNameArabic: dayInfo.arabic,
+      fullDate: `${validDay} ${monthInfo.name} ${validYear} AH`,
+      fullDateArabic: `${validDay} ${monthInfo.arabic} ${validYear}`,
+      isToday: true,
+    };
+  }
+
+  /**
+   * Get fallback Hijri date
    */
   private getFallbackHijriDate(): IslamicDateDisplay {
     const now = new Date();
-    const hijri = new HijriDate(now);
-    
-    console.log('🔄 Using fallback Hijri date calculation');
-    console.log('🗓️ Fallback Gregorian:', now.toLocaleDateString());
-    console.log('🌙 Fallback Hijri:', `${hijri.getDate()} ${hijri.getMonthName()} ${hijri.getFullYear()} AH`);
+    const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const hijriInfo = this.calculateHijriDate(now);
     
     return {
-      hijri: {
-        day: hijri.getDate(),
-        month: hijri.getMonth() + 1,
-        year: hijri.getFullYear(),
-        monthName: hijri.getMonthName(),
-        dayName: hijri.getDayName(),
-        fullDate: `${hijri.getDate()} ${hijri.getMonthName()} ${hijri.getFullYear()} AH`,
-        isToday: true,
-      },
+      hijri: hijriInfo,
       gregorian: {
         day: now.getDate(),
         month: now.getMonth() + 1,
@@ -217,134 +414,16 @@ class HijriService {
         }),
       },
       location: {
-        city: 'Unknown',
-        country: 'Unknown',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        city: 'Local',
+        country: '',
+        timezone: deviceTimezone,
       },
       localTime: now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
+        hour12: true,
       }),
     };
-  }
-
-  /**
-   * Get accurate Hijri date using manual calculation
-   * This is a backup method when the hijri-date library fails
-   */
-  private getManualHijriDate(gregorianDate: Date): HijriDateInfo {
-    // More accurate manual calculation using a better algorithm
-    const epoch = new Date(622, 6, 16); // July 16, 622 CE (Muharram 1, 1 AH)
-    const daysSinceEpoch = Math.floor((gregorianDate.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // Use a more accurate calculation
-    const islamicYear = Math.floor(daysSinceEpoch / 354.36667) + 1;
-    const daysInYear = daysSinceEpoch % 354.36667;
-    
-    // Calculate month and day more accurately
-    let remainingDays = Math.floor(daysInYear);
-    let month = 1;
-    let day = 1;
-    
-    // Islamic months with their lengths (alternating 29/30 days)
-    const monthLengths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
-    
-    for (let i = 0; i < 12; i++) {
-      if (remainingDays <= monthLengths[i]) {
-        month = i + 1;
-        day = remainingDays + 1;
-        break;
-      }
-      remainingDays -= monthLengths[i];
-    }
-    
-    const monthNames = [
-      'Muharram', 'Safar', 'Rabi\' al-awwal', 'Rabi\' al-thani',
-      'Jumada al-awwal', 'Jumada al-thani', 'Rajab', 'Sha\'ban',
-      'Ramadan', 'Shawwal', 'Dhu al-Qi\'dah', 'Dhu al-Hijjah'
-    ];
-    
-    const result = {
-      day: Math.max(1, Math.min(30, day)),
-      month: Math.max(1, Math.min(12, month)),
-      year: islamicYear,
-      monthName: monthNames[Math.max(0, Math.min(11, month - 1))],
-      dayName: gregorianDate.toLocaleDateString('en-US', { weekday: 'long' }),
-      fullDate: `${Math.max(1, Math.min(30, day))} ${monthNames[Math.max(0, Math.min(11, month - 1))]} ${islamicYear} AH`,
-      isToday: true,
-    };
-    
-    console.log('🔧 Manual Hijri calculation:', result);
-    return result;
-  }
-
-  /**
-   * Get Hijri date for a specific Gregorian date
-   */
-  getHijriDateForGregorian(gregorianDate: Date, timezone?: string): HijriDateInfo {
-    try {
-      const hijri = new HijriDate(gregorianDate);
-      
-      return {
-        day: hijri.getDate(),
-        month: hijri.getMonth() + 1,
-        year: hijri.getFullYear(),
-        monthName: hijri.getMonthName(),
-        dayName: hijri.getDayName(),
-        fullDate: `${hijri.getDate()} ${hijri.getMonthName()} ${hijri.getFullYear()} AH`,
-        isToday: this.isToday(gregorianDate),
-      };
-    } catch (error) {
-      console.error('❌ Error converting to Hijri date:', error);
-      return {
-        day: 1,
-        month: 1,
-        year: 1446,
-        monthName: 'Muharram',
-        dayName: 'Monday',
-        fullDate: '1 Muharram 1446 AH',
-        isToday: false,
-      };
-    }
-  }
-
-  /**
-   * Get Gregorian date for a specific Hijri date
-   */
-  getGregorianDateForHijri(hijriDay: number, hijriMonth: number, hijriYear: number): Date {
-    try {
-      const hijri = new HijriDate();
-      hijri.setDate(hijriDay);
-      hijri.setMonth(hijriMonth - 1); // HijriDate uses 0-based months
-      hijri.setFullYear(hijriYear);
-      
-      return hijri.getGregorianDate();
-    } catch (error) {
-      console.error('❌ Error converting from Hijri date:', error);
-      return new Date();
-    }
-  }
-
-  /**
-   * Get Islamic month names
-   */
-  getIslamicMonthNames(): string[] {
-    return [
-      'Muharram', 'Safar', 'Rabi\' al-awwal', 'Rabi\' al-thani',
-      'Jumada al-awwal', 'Jumada al-thani', 'Rajab', 'Sha\'ban',
-      'Ramadan', 'Shawwal', 'Dhu al-Qi\'dah', 'Dhu al-Hijjah'
-    ];
-  }
-
-  /**
-   * Get Islamic day names
-   */
-  getIslamicDayNames(): string[] {
-    return [
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 
-      'Thursday', 'Friday', 'Saturday'
-    ];
   }
 
   /**
@@ -352,27 +431,43 @@ class HijriService {
    */
   isSpecialIslamicDay(): { isSpecial: boolean; occasion?: string } {
     try {
-      const hijri = new HijriDate();
-      const month = hijri.getMonth() + 1;
-      const day = hijri.getDate();
+      const now = new Date();
+      const hijriInfo = this.calculateHijriDate(now);
+      const month = hijriInfo.month;
+      const day = hijriInfo.day;
 
       // Special Islamic days
       if (month === 1 && day === 1) return { isSpecial: true, occasion: 'Islamic New Year' };
       if (month === 1 && day === 10) return { isSpecial: true, occasion: 'Day of Ashura' };
       if (month === 3 && day === 12) return { isSpecial: true, occasion: 'Mawlid al-Nabi' };
-      if (month === 7 && day === 27) return { isSpecial: true, occasion: 'Laylat al-Miraj' };
-      if (month === 7 && day === 15) return { isSpecial: true, occasion: 'Laylat al-Bara\'ah' };
-      if (month === 8 && day === 15) return { isSpecial: true, occasion: 'Laylat al-Qadr' };
+      if (month === 7 && day === 27) return { isSpecial: true, occasion: "Laylat al-Mi'raj" };
+      if (month === 8 && day === 15) return { isSpecial: true, occasion: "Laylat al-Bara'ah" };
       if (month === 9) return { isSpecial: true, occasion: 'Ramadan' };
+      if (month === 9 && day === 27) return { isSpecial: true, occasion: 'Laylat al-Qadr' };
       if (month === 10 && day === 1) return { isSpecial: true, occasion: 'Eid al-Fitr' };
       if (month === 12 && day === 9) return { isSpecial: true, occasion: 'Day of Arafah' };
       if (month === 12 && day === 10) return { isSpecial: true, occasion: 'Eid al-Adha' };
+      if (month === 12 && (day === 11 || day === 12 || day === 13)) return { isSpecial: true, occasion: 'Days of Tashriq' };
 
       return { isSpecial: false };
     } catch (error) {
       console.error('❌ Error checking special Islamic day:', error);
       return { isSpecial: false };
     }
+  }
+
+  /**
+   * Get Islamic month names
+   */
+  getIslamicMonthNames(): { name: string; arabic: string }[] {
+    return ISLAMIC_MONTHS;
+  }
+
+  /**
+   * Get Islamic day names
+   */
+  getIslamicDayNames(): { name: string; arabic: string }[] {
+    return DAY_NAMES;
   }
 }
 

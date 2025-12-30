@@ -1,11 +1,12 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
+import * as Crypto from 'expo-crypto';
 
 // Cloudinary Configuration
 const CLOUDINARY_CONFIG = {
   cloudName: 'dplvxodnd',
-  uploadPreset: 'tijaniyah_unsigned', // We'll use unsigned uploads for mobile
   apiKey: '373862586681547',
+  apiSecret: 'Ca4ClORTAdJA8-626EcAhD5CYSg',
 };
 
 export interface UploadResult {
@@ -34,13 +35,32 @@ class CloudinaryService {
   }
 
   /**
-   * Upload an image to Cloudinary from a local URI
+   * Generate SHA-1 signature for Cloudinary signed uploads
+   */
+  private async generateSignature(params: Record<string, string>): Promise<string> {
+    // Sort parameters alphabetically and create signature string
+    const sortedKeys = Object.keys(params).sort();
+    const signatureString = sortedKeys
+      .map(key => `${key}=${params[key]}`)
+      .join('&') + CLOUDINARY_CONFIG.apiSecret;
+    
+    // Generate SHA-1 hash
+    const hash = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA1,
+      signatureString
+    );
+    
+    return hash;
+  }
+
+  /**
+   * Upload an image to Cloudinary using signed uploads (no preset required)
    * @param localUri - The local file URI (from ImagePicker)
    * @param options - Upload options
    */
   async uploadImage(localUri: string, options: UploadOptions = {}): Promise<UploadResult> {
     try {
-      const { folder = 'tijaniyah', transformation, resourceType = 'image' } = options;
+      const { folder = 'tijaniyah', resourceType = 'image' } = options;
 
       // Get file info
       const fileInfo = await FileSystem.getInfoAsync(localUri);
@@ -53,6 +73,18 @@ class CloudinaryService {
       const fileType = uriParts[uriParts.length - 1] || 'jpg';
       const mimeType = this.getMimeType(fileType);
 
+      // Generate timestamp for signature
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+
+      // Parameters for signature (must be alphabetically sorted)
+      const signatureParams: Record<string, string> = {
+        folder,
+        timestamp,
+      };
+
+      // Generate signature
+      const signature = await this.generateSignature(signatureParams);
+
       // Create form data for upload
       const formData = new FormData();
       
@@ -64,18 +96,15 @@ class CloudinaryService {
       } as any;
       
       formData.append('file', file);
-      formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-      formData.append('cloud_name', CLOUDINARY_CONFIG.cloudName);
+      formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
       formData.append('folder', folder);
-      
-      if (transformation) {
-        formData.append('transformation', transformation);
-      }
 
       // Upload to Cloudinary
       const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${resourceType}/upload`;
       
-      console.log('📤 Uploading to Cloudinary...', uploadUrl);
+      console.log('📤 Uploading to Cloudinary (signed)...');
 
       const response = await fetch(uploadUrl, {
         method: 'POST',
@@ -114,7 +143,6 @@ class CloudinaryService {
   async uploadProfilePicture(localUri: string): Promise<UploadResult> {
     return this.uploadImage(localUri, {
       folder: 'tijaniyah/profiles',
-      transformation: 'c_fill,w_400,h_400,g_face,q_auto:good,f_auto',
     });
   }
 
@@ -124,7 +152,6 @@ class CloudinaryService {
   async uploadPostImage(localUri: string): Promise<UploadResult> {
     return this.uploadImage(localUri, {
       folder: 'tijaniyah/posts',
-      transformation: 'c_limit,w_1200,h_1200,q_auto:good,f_auto',
     });
   }
 
@@ -175,13 +202,47 @@ class CloudinaryService {
   }
 
   /**
-   * Delete an image from Cloudinary (requires backend support)
+   * Delete an image from Cloudinary
    */
   async deleteImage(publicId: string): Promise<{ success: boolean; error?: string }> {
-    // Note: Direct deletion from client requires signed uploads
-    // This should be done through the backend
-    console.log('Delete image:', publicId, '- This should be handled by the backend');
-    return { success: true };
+    try {
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      
+      const signatureParams: Record<string, string> = {
+        public_id: publicId,
+        timestamp,
+      };
+      
+      const signature = await this.generateSignature(signatureParams);
+      
+      const formData = new FormData();
+      formData.append('public_id', publicId);
+      formData.append('api_key', CLOUDINARY_CONFIG.apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/destroy`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      
+      const result = await response.json();
+      
+      if (result.result === 'ok') {
+        return { success: true };
+      }
+      
+      return { success: false, error: result.error?.message || 'Delete failed' };
+    } catch (error) {
+      console.error('❌ Delete error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
   }
 
   /**
@@ -205,4 +266,3 @@ export default CloudinaryService;
 
 // Export config for backend use
 export const CLOUDINARY_CLOUD_NAME = CLOUDINARY_CONFIG.cloudName;
-

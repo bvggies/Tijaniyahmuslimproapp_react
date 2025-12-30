@@ -235,4 +235,40 @@ export class ChatService {
       },
     });
   }
+
+  /**
+   * Get total unread message count across all conversations for a user
+   */
+  async getUnreadMessageCount(userId: string) {
+    // Get all conversations the user is part of
+    const conversations = await this.prisma.conversation.findMany({
+      where: {
+        participants: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const conversationIds = conversations.map(c => c.id);
+
+    if (conversationIds.length === 0) {
+      return { count: 0 };
+    }
+
+    // Count unread messages where the user is NOT the sender
+    const unreadCount = await this.prisma.message.count({
+      where: {
+        conversationId: { in: conversationIds },
+        senderId: { not: userId },
+        isRead: false,
+      },
+    });
+
+    return { count: unreadCount };
+  }
 }

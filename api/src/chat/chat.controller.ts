@@ -50,4 +50,10 @@ export class ChatController {
   markAsRead(@Request() req, @Param('conversationId') conversationId: string) {
     return this.chatService.markAsRead(conversationId, req.user.userId);
   }
+
+  @Get('unread-count')
+  @UseGuards(JwtAuthGuard)
+  getUnreadMessageCount(@Request() req) {
+    return this.chatService.getUnreadMessageCount(req.user.userId);
+  }
 }

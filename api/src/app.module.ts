@@ -9,6 +9,7 @@ import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { QuranModule } from './quran/quran.module';
+import { MakkahLiveModule } from './makkah-live/makkah-live.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { QuranModule } from './quran/quran.module';
     NotificationsModule,
     CloudinaryModule,
     QuranModule,
+    MakkahLiveModule,
   ],
   controllers: [HealthController],
 })

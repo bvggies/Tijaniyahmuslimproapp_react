@@ -1,10 +1,21 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import * as Notifications from 'expo-notifications';
 import NotificationService, { 
   NotificationSettings, 
   BackendNotificationPreferences,
   InAppNotification 
 } from '../services/notificationService';
 import { isAuthenticated } from '../services/api';
+
+// Toast notification data
+export interface ToastNotification {
+  id: string;
+  title: string;
+  body: string;
+  type: 'MESSAGE' | 'LIKE' | 'COMMENT' | 'SYSTEM' | 'EVENT' | 'REMINDER' | 'CAMPAIGN';
+  deepLink?: string | null;
+  senderName?: string | null;
+}
 
 interface NotificationContextType {
   // Local settings (for prayer/reminder scheduling)
@@ -26,6 +37,11 @@ interface NotificationContextType {
   markAllAsRead: () => Promise<void>;
   archiveNotification: (id: string) => Promise<void>;
   
+  // Toast notifications (in-app popup)
+  currentToast: ToastNotification | null;
+  showToast: (toast: ToastNotification) => void;
+  dismissToast: () => void;
+  
   // General
   permissionsGranted: boolean;
   isDeviceRegistered: boolean;
@@ -33,6 +49,10 @@ interface NotificationContextType {
   scheduleAllNotifications: () => Promise<void>;
   sendTestNotification: () => Promise<void>;
   refreshUnreadCount: () => Promise<void>;
+  
+  // Last received notification type (for navigation hints)
+  lastNotificationType: string | null;
+  clearLastNotificationType: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -78,22 +98,102 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  
+  // Toast notification state
+  const [currentToast, setCurrentToast] = useState<ToastNotification | null>(null);
+  const [lastNotificationType, setLastNotificationType] = useState<string | null>(null);
+  
+  // Subscription refs for cleanup
+  const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
+  const responseListenerRef = useRef<Notifications.Subscription | null>(null);
 
   const notificationService = NotificationService.getInstance();
+
+  // Handle incoming push notifications when app is in foreground
+  const handleForegroundNotification = useCallback((notification: Notifications.Notification) => {
+    console.log('📬 Received foreground notification:', notification.request.content);
+    
+    const { title, body, data } = notification.request.content;
+    
+    // Show in-app toast
+    if (title && body) {
+      const toastData: ToastNotification = {
+        id: notification.request.identifier || Date.now().toString(),
+        title: title,
+        body: body,
+        type: (data?.type as ToastNotification['type']) || 'SYSTEM',
+        deepLink: data?.deepLink as string | undefined,
+        senderName: data?.senderName as string | undefined,
+      };
+      
+      setCurrentToast(toastData);
+      setLastNotificationType(toastData.type);
+      
+      // Update unread count
+      setUnreadCount(prev => prev + 1);
+      
+      // Refresh notifications list
+      fetchNotifications(true);
+    }
+  }, []);
+
+  // Show toast notification
+  const showToast = useCallback((toast: ToastNotification) => {
+    setCurrentToast(toast);
+  }, []);
+
+  // Dismiss toast
+  const dismissToast = useCallback(() => {
+    setCurrentToast(null);
+  }, []);
+  
+  // Clear last notification type
+  const clearLastNotificationType = useCallback(() => {
+    setLastNotificationType(null);
+  }, []);
 
   // Initialize notifications on mount and when auth changes
   useEffect(() => {
     initializeNotifications();
+    
+    // Set up foreground notification listener
+    notificationListenerRef.current = Notifications.addNotificationReceivedListener(
+      handleForegroundNotification
+    );
+    
+    // Set up notification response listener (when user taps notification)
+    responseListenerRef.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log('📱 User tapped notification:', response.notification.request.content);
+        const data = response.notification.request.content.data;
+        if (data?.type) {
+          setLastNotificationType(data.type as string);
+        }
+        // Refresh notifications when user taps
+        if (isAuthenticated()) {
+          fetchNotifications(true);
+        }
+      }
+    );
     
     // Set up interval to refresh unread count
     const interval = setInterval(() => {
       if (isAuthenticated()) {
         refreshUnreadCount();
       }
-    }, 60000); // Every minute
+    }, 30000); // Every 30 seconds (more frequent for better UX)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      // Use the .remove() method on subscriptions (newer expo-notifications API)
+      if (notificationListenerRef.current) {
+        notificationListenerRef.current.remove();
+      }
+      if (responseListenerRef.current) {
+        responseListenerRef.current.remove();
+      }
+    };
+  }, [handleForegroundNotification]);
 
   const initializeNotifications = async () => {
     try {
@@ -274,12 +374,17 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     markAsRead,
     markAllAsRead,
     archiveNotification,
+    currentToast,
+    showToast,
+    dismissToast,
     permissionsGranted,
     isDeviceRegistered,
     requestPermissions,
     scheduleAllNotifications,
     sendTestNotification,
     refreshUnreadCount,
+    lastNotificationType,
+    clearLastNotificationType,
   };
 
   return (

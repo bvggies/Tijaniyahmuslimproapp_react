@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { tokens } from '../utils/designTokens';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -14,6 +15,8 @@ interface GlassTabBarProps {
 }
 
 export default function GlassTabBar({ state, descriptors, navigation }: GlassTabBarProps) {
+  const { unreadCount } = useNotifications();
+  
   return (
     <View style={styles.container}>
       <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
@@ -29,6 +32,9 @@ export default function GlassTabBar({ state, descriptors, navigation }: GlassTab
                   : route.name;
 
               const isFocused = state.index === index;
+              
+              // Show badge on "More" tab for unread notifications
+              const showBadge = route.name === 'More' && unreadCount > 0;
 
               return (
                 <TabItem
@@ -37,6 +43,7 @@ export default function GlassTabBar({ state, descriptors, navigation }: GlassTab
                   routeName={route.name}
                   isFocused={isFocused}
                   options={options}
+                  badge={showBadge ? unreadCount : undefined}
                   onPress={() => {
                     const event = navigation.emit({
                       type: 'tabPress',
@@ -73,11 +80,12 @@ interface TabItemProps {
   routeName: string;
   isFocused: boolean;
   options: any;
+  badge?: number;
   onPress: () => void;
   onLongPress: () => void;
 }
 
-function TabItem({ label, routeName, isFocused, options, onPress, onLongPress }: TabItemProps) {
+function TabItem({ label, routeName, isFocused, options, badge, onPress, onLongPress }: TabItemProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
@@ -145,6 +153,14 @@ function TabItem({ label, routeName, isFocused, options, onPress, onLongPress }:
             size={22}
             color={isFocused ? tokens.colors.accentTeal : tokens.colors.textSecondary}
           />
+          {/* Badge for unread notifications */}
+          {badge !== undefined && badge > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {badge > 99 ? '99+' : badge}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Active Indicator Dot */}
@@ -242,5 +258,26 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  
+  // Badge
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#FF4757',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: 'rgba(11, 63, 57, 0.85)',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

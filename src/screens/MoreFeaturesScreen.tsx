@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,34 +7,304 @@ import {
   TouchableOpacity,
   Dimensions,
   TextInput,
+  Animated,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { searchApp, SearchResult, getSearchSuggestions } from '../services/searchService';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 52) / 2;
 
-interface FeatureCardProps {
+// Category definitions
+const CATEGORIES = [
+  { id: 'all', label: 'All', icon: 'apps' },
+  { id: 'prayer', label: 'Prayer', icon: 'moon' },
+  { id: 'learn', label: 'Learn', icon: 'book' },
+  { id: 'community', label: 'Community', icon: 'people' },
+  { id: 'tools', label: 'Tools', icon: 'construct' },
+];
+
+// Featured items that appear at the top
+const FEATURED = [
+  { id: 'ai-noor', title: 'AI Noor', subtitle: 'Ask anything Islamic', icon: 'sparkles', gradient: ['#00BCD4', '#0097A7'], screen: 'AI Noor' },
+  { id: 'quran', title: 'Holy Quran', subtitle: 'Read & Listen', icon: 'book', gradient: ['#11C48D', '#0B9A6F'], screen: 'Quran' },
+];
+
+interface FeatureItem {
   title: string;
   description: string;
   icon: string;
   color: string;
-  onPress: () => void;
+  screen: string;
+  category: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon, color, onPress }) => (
-  <TouchableOpacity style={styles.featureCard} onPress={onPress}>
-    <View style={styles.glassCard}>
-      <View style={[styles.iconWrap, { backgroundColor: `${color}33` }]}>
-        <Ionicons name={icon as any} size={26} color={color} />
-      </View>
-      <Text style={styles.featureTitle}>{title}</Text>
-      <Text style={styles.featureDescription}>{description}</Text>
-    </View>
-  </TouchableOpacity>
-);
+const features: FeatureItem[] = [
+  {
+    title: 'Digital Tasbih',
+    description: 'Count your dhikr digitally',
+    icon: 'radio-button-on',
+    color: '#FFB300',
+    screen: 'Tasbih',
+    category: 'prayer',
+  },
+  {
+    title: 'Wazifa',
+    description: 'Daily spiritual practices',
+    icon: 'checkmark-done-circle',
+    color: '#FF8F00',
+    screen: 'Wazifa',
+    category: 'prayer',
+  },
+  {
+    title: 'Lazim Tracker',
+    description: 'Track daily commitments',
+    icon: 'list-circle',
+    color: '#2196F3',
+    screen: 'Lazim',
+    category: 'prayer',
+  },
+  {
+    title: 'Tijaniya Lazim',
+    description: 'Step-by-step guide',
+    icon: 'reader',
+    color: '#11C48D',
+    screen: 'TijaniyaLazim',
+    category: 'learn',
+  },
+  {
+    title: 'Azan',
+    description: 'Beautiful call to prayer',
+    icon: 'volume-high',
+    color: '#2E7D32',
+    screen: 'Azan',
+    category: 'prayer',
+  },
+  {
+    title: 'Zikr Jumma',
+    description: 'Friday special prayers',
+    icon: 'today',
+    color: '#9C27B0',
+    screen: 'ZikrJumma',
+    category: 'prayer',
+  },
+  {
+    title: 'Islamic Journal',
+    description: 'Reflect on your journey',
+    icon: 'journal',
+    color: '#FF5722',
+    screen: 'Journal',
+    category: 'tools',
+  },
+  {
+    title: 'Scholars',
+    description: 'Learn from scholars',
+    icon: 'school',
+    color: '#607D8B',
+    screen: 'Scholars',
+    category: 'learn',
+  },
+  {
+    title: 'Lessons',
+    description: 'Interactive courses',
+    icon: 'library',
+    color: '#4CAF50',
+    screen: 'Lessons',
+    category: 'learn',
+  },
+  {
+    title: 'Community',
+    description: 'Connect worldwide',
+    icon: 'chatbubbles',
+    color: '#E91E63',
+    screen: 'Community',
+    category: 'community',
+  },
+  {
+    title: 'Mosque Finder',
+    description: 'Find nearby mosques',
+    icon: 'location',
+    color: '#795548',
+    screen: 'Mosque',
+    category: 'tools',
+  },
+  {
+    title: 'Makkah Live',
+    description: 'Live from Holy Kaaba',
+    icon: 'videocam',
+    color: '#FFC107',
+    screen: 'Makkah Live',
+    category: 'prayer',
+  },
+  {
+    title: 'Donate',
+    description: 'Support Islamic causes',
+    icon: 'heart',
+    color: '#F44336',
+    screen: 'Donate',
+    category: 'community',
+  },
+  {
+    title: 'Zakat Calculator',
+    description: 'Calculate your Zakat',
+    icon: 'calculator',
+    color: '#00C853',
+    screen: 'ZakatCalculator',
+    category: 'tools',
+  },
+  {
+    title: 'Hajj Guide',
+    description: 'Complete pilgrimage guide',
+    icon: 'walk',
+    color: '#00BFA5',
+    screen: 'Hajj',
+    category: 'learn',
+  },
+  {
+    title: 'Notifications',
+    description: 'Prayer reminders',
+    icon: 'notifications',
+    color: '#673AB7',
+    screen: 'NotificationSettings',
+    category: 'tools',
+  },
+  {
+    title: 'Settings',
+    description: 'App preferences',
+    icon: 'settings',
+    color: '#78909C',
+    screen: 'Settings',
+    category: 'tools',
+  },
+];
+
+// Animated Feature Card Component
+const FeatureCard = ({ 
+  item, 
+  index, 
+  onPress 
+}: { 
+  item: FeatureItem; 
+  index: number; 
+  onPress: () => void;
+}) => {
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        delay: index * 50,
+        tension: 100,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        delay: index * 50,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.cardWrapper,
+        {
+          opacity: opacityAnim,
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={styles.featureCard}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        <View style={styles.cardGradientBorder}>
+          <View style={styles.cardInner}>
+            {/* Icon Container */}
+            <View style={[styles.iconContainer, { backgroundColor: `${item.color}20` }]}>
+              <View style={[styles.iconInner, { backgroundColor: item.color }]}>
+                <Ionicons name={item.icon as any} size={24} color="#FFFFFF" />
+              </View>
+            </View>
+            
+            {/* Content */}
+            <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+            <Text style={styles.cardDescription} numberOfLines={2}>{item.description}</Text>
+            
+            {/* Arrow indicator */}
+            <View style={styles.arrowContainer}>
+              <Ionicons name="arrow-forward" size={16} color={item.color} />
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
+// Featured Card Component
+const FeaturedCard = ({ 
+  item, 
+  onPress 
+}: { 
+  item: typeof FEATURED[0]; 
+  onPress: () => void;
+}) => {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.02,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+      <Animated.View style={[styles.featuredCard, { transform: [{ scale: pulseAnim }] }]}>
+        <LinearGradient
+          colors={item.gradient as [string, string]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.featuredGradient}
+        >
+          <View style={styles.featuredIconWrap}>
+            <Ionicons name={item.icon as any} size={28} color="#FFFFFF" />
+          </View>
+          <View style={styles.featuredContent}>
+            <Text style={styles.featuredTitle}>{item.title}</Text>
+            <Text style={styles.featuredSubtitle}>{item.subtitle}</Text>
+          </View>
+          <View style={styles.featuredArrow}>
+            <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.8)" />
+          </View>
+        </LinearGradient>
+      </Animated.View>
+    </TouchableOpacity>
+  );
+};
 
 export default function MoreFeaturesScreen({ navigation }: any) {
   const { t } = useLanguage();
@@ -42,6 +312,19 @@ export default function MoreFeaturesScreen({ navigation }: any) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // Animations
+  const headerAnim = useRef(new Animated.Value(0)).current;
+  const searchBarScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.timing(headerAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -56,285 +339,301 @@ export default function MoreFeaturesScreen({ navigation }: any) {
     }
   };
 
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    Animated.spring(searchBarScale, {
+      toValue: 1.02,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSearchBlur = () => {
+    setIsSearchFocused(false);
+    Animated.spring(searchBarScale, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  };
+
   const handleSuggestionPress = (suggestion: string) => {
     setSearchQuery(suggestion);
     handleSearch(suggestion);
   };
 
   const handleSearchResultPress = (result: SearchResult) => {
-    // Navigate to the appropriate screen based on the result
     if (result.screen) {
       navigation.navigate(result.screen);
     }
   };
 
   const handleAINoorSearch = () => {
-    // Navigate to AI Noor with the search query
     navigation.navigate('AI Noor', { searchQuery: searchQuery.trim() });
   };
 
-  const features = [
-    {
-      title: 'Digital Tasbih',
-      description: 'Count your dhikr with our digital tasbih',
-      icon: 'ellipse',
-      color: colors.accentYellow,
-      screen: 'Tasbih',
-    },
-    {
-      title: 'Wazifa',
-      description: 'Daily Islamic practices and routines',
-      icon: 'checkmark-circle',
-      color: colors.accentYellowDark,
-      screen: 'Wazifa',
-    },
-    {
-      title: 'Lazim Tracker',
-      description: 'Track your daily Islamic commitments',
-      icon: 'list',
-      color: '#2196F3',
-      screen: 'Lazim',
-    },
-    {
-      title: 'Tijaniya Lazim',
-      description: 'Complete guide to performing the Lazim with step-by-step instructions',
-      icon: 'book',
-      color: colors.accentTeal,
-      screen: 'TijaniyaLazim',
-    },
-    {
-      title: 'Azan',
-      description: 'Listen to beautiful Azan from famous mosques around the world',
-      icon: 'volume-high',
-      color: colors.primary,
-      screen: 'Azan',
-    },
-    {
-      title: 'Zikr Jumma',
-      description: 'Special Friday prayers and dhikr',
-      icon: 'calendar',
-      color: '#9C27B0',
-      screen: 'ZikrJumma',
-    },
-    {
-      title: 'Islamic Journal',
-      description: 'Reflect on your spiritual journey',
-      icon: 'book',
-      color: '#FF5722',
-      screen: 'Journal',
-    },
-    {
-      title: 'Scholars',
-      description: 'Learn from Islamic scholars and teachers',
-      icon: 'people',
-      color: '#607D8B',
-      screen: 'Scholars',
-    },
-    {
-      title: 'Lessons',
-      description: 'Interactive Islamic lessons and courses',
-      icon: 'school',
-      color: '#4CAF50',
-      screen: 'Lessons',
-    },
-    {
-      title: 'Community',
-      description: 'Connect with fellow Muslims worldwide',
-      icon: 'chatbubbles',
-      color: '#E91E63',
-      screen: 'Community',
-    },
-    {
-      title: 'Mosque Locator',
-      description: 'Find nearby mosques and prayer facilities',
-      icon: 'location',
-      color: '#795548',
-      screen: 'Mosque',
-    },
-    {
-      title: 'Makkah Live',
-      description: 'Watch live streams from the Holy Kaaba',
-      icon: 'videocam',
-      color: colors.accentYellow,
-      screen: 'Makkah Live',
-    },
-    {
-      title: 'AI Noor',
-      description: 'AI-powered Islamic assistant',
-      icon: 'bulb',
-      color: '#00BCD4',
-      screen: 'AI Noor',
-    },
-    {
-      title: 'Donate',
-      description: 'Support Islamic causes',
-      icon: 'heart',
-      color: '#F44336',
-      screen: 'Donate',
-    },
-    {
-      title: 'Zakat Calculator',
-      description: 'Calculate your obligatory charity (Zakat)',
-      icon: 'calculator',
-      color: '#4CAF50',
-      screen: 'ZakatCalculator',
-    },
-    {
-      title: 'Hajj',
-      description: 'Makkah Live, Hajj & Umrah, Hajj Journey',
-      icon: 'walk',
-      color: colors.accentGreen,
-      screen: 'Hajj',
-    },
-    {
-      title: 'Notifications',
-      description: 'Manage prayer and reminder notifications',
-      icon: 'notifications',
-      color: colors.primary,
-      screen: 'NotificationSettings',
-    },
-  ];
+  const filteredFeatures = features.filter(feature => {
+    if (selectedCategory !== 'all' && feature.category !== selectedCategory) {
+      return false;
+    }
+    if (searchQuery.trim()) {
+      return (
+        feature.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        feature.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return true;
+  });
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <LinearGradient
-        colors={[colors.surface, colors.background]}
-        style={styles.header}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Animated Header */}
+      <Animated.View
+        style={[
+          styles.headerContainer,
+          {
+            opacity: headerAnim,
+            transform: [
+              {
+                translateY: headerAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-20, 0],
+                }),
+              },
+            ],
+          },
+        ]}
       >
-        <Text style={styles.headerTitle}>{t('more.title')}</Text>
-        <Text style={styles.headerSubtitle}>Explore all Islamic tools and resources</Text>
-        
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color={colors.textSecondary} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t('more.search_placeholder')}
-              placeholderTextColor={colors.textSecondary}
-              value={searchQuery}
-              onChangeText={handleSearch}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-            />
-          </View>
-          
-          {/* Search Suggestions */}
-          {searchSuggestions.length > 0 && isSearchFocused && (
-            <View style={styles.suggestionsContainer}>
-              {searchSuggestions.map((suggestion, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.suggestionItem}
-                  onPress={() => handleSuggestionPress(suggestion)}
-                >
-                  <Ionicons name="search" size={16} color={colors.textSecondary} />
-                  <Text style={styles.suggestionText}>{suggestion}</Text>
-                </TouchableOpacity>
-              ))}
+        <LinearGradient
+          colors={[colors.primary, colors.accentTeal]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          {/* Header Content */}
+          <View style={styles.headerContent}>
+            <View>
+              <Text style={styles.headerTitle}>{t('more.title')}</Text>
+              <Text style={styles.headerSubtitle}>Explore all features & tools</Text>
             </View>
-          )}
-        </View>
-      </LinearGradient>
+            <View style={styles.headerStats}>
+              <View style={styles.statBadge}>
+                <Text style={styles.statNumber}>{features.length}</Text>
+                <Text style={styles.statLabel}>Features</Text>
+              </View>
+            </View>
+          </View>
 
-      {/* Search Results or Features Grid */}
-      {searchResults.length > 0 ? (
-        <View style={styles.searchResultsContainer}>
-          <Text style={styles.searchResultsTitle}>{t('more.search_results')}</Text>
-          {searchResults.map((result, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.searchResultItem}
-              onPress={() => handleSearchResultPress(result)}
-            >
-              <View style={styles.searchResultContent}>
-                <Text style={styles.searchResultTitle}>{result.title}</Text>
-                {result.titleArabic && (
-                  <Text style={styles.searchResultTitleArabic}>{result.titleArabic}</Text>
-                )}
-                <Text style={styles.searchResultDescription}>{result.description}</Text>
-                <Text style={styles.searchResultCategory}>{result.category}</Text>
-                {result.specialties && (
-                  <View style={styles.specialtiesContainer}>
-                    {result.specialties.slice(0, 3).map((specialty, idx) => (
-                      <View key={idx} style={styles.specialtyTag}>
-                        <Text style={styles.specialtyText}>{specialty}</Text>
-                      </View>
-                    ))}
-                  </View>
+          {/* Search Bar */}
+          <Animated.View
+            style={[
+              styles.searchWrapper,
+              { transform: [{ scale: searchBarScale }] },
+            ]}
+          >
+            <BlurView intensity={20} tint="light" style={styles.searchBlur}>
+              <View style={[
+                styles.searchBar,
+                isSearchFocused && styles.searchBarFocused,
+              ]}>
+                <Ionicons 
+                  name="search" 
+                  size={20} 
+                  color={isSearchFocused ? colors.accentTeal : 'rgba(255,255,255,0.6)'} 
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder={t('more.search_placeholder')}
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={searchQuery}
+                  onChangeText={handleSearch}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => handleSearch('')}>
+                    <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.6)" />
+                  </TouchableOpacity>
                 )}
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
-            </TouchableOpacity>
-          ))}
+            </BlurView>
+          </Animated.View>
+        </LinearGradient>
+      </Animated.View>
+
+      {/* Search Suggestions Overlay */}
+      {searchSuggestions.length > 0 && isSearchFocused && (
+        <View style={styles.suggestionsOverlay}>
+          <View style={styles.suggestionsContainer}>
+            {searchSuggestions.slice(0, 5).map((suggestion, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.suggestionItem}
+                onPress={() => handleSuggestionPress(suggestion)}
+              >
+                <Ionicons name="search-outline" size={18} color={colors.textSecondary} />
+                <Text style={styles.suggestionText}>{suggestion}</Text>
+                <Ionicons name="arrow-forward" size={16} color={colors.accentTeal} />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      ) : searchQuery.trim() ? (
-        <View style={styles.noResultsContainer}>
-          <Ionicons name="search-outline" size={64} color={colors.textSecondary} />
-          <Text style={styles.noResultsTitle}>No results found</Text>
-          <Text style={styles.noResultsSubtitle}>
-            We couldn't find "{searchQuery}" in our content
-          </Text>
-          
-          <View style={styles.aiSearchContainer}>
-            <Text style={styles.aiSearchTitle}>{t('more.search_with_ai')}</Text>
-            <Text style={styles.aiSearchSubtitle}>
-              {t('more.ai_search_subtitle')}
+      )}
+
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Search Results */}
+        {searchResults.length > 0 ? (
+          <View style={styles.searchResultsSection}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="search" size={18} color={colors.accentTeal} /> Search Results
             </Text>
-            
-            <TouchableOpacity 
-              style={styles.aiNoorButton}
-              onPress={handleAINoorSearch}
-            >
+            {searchResults.map((result, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.searchResultCard}
+                onPress={() => handleSearchResultPress(result)}
+              >
+                <View style={styles.searchResultContent}>
+                  <Text style={styles.searchResultTitle}>{result.title}</Text>
+                  {result.titleArabic && (
+                    <Text style={styles.searchResultArabic}>{result.titleArabic}</Text>
+                  )}
+                  <Text style={styles.searchResultDesc}>{result.description}</Text>
+                  <View style={styles.searchResultMeta}>
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryBadgeText}>{result.category}</Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.searchResultArrow}>
+                  <Ionicons name="chevron-forward" size={20} color={colors.accentTeal} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : searchQuery.trim() ? (
+          /* No Results State */
+          <View style={styles.noResultsContainer}>
+            <View style={styles.noResultsIcon}>
+              <Ionicons name="search-outline" size={48} color={colors.textSecondary} />
+            </View>
+            <Text style={styles.noResultsTitle}>No results found</Text>
+            <Text style={styles.noResultsText}>
+              Try searching with different keywords or ask AI Noor
+            </Text>
+            <TouchableOpacity style={styles.aiNoorButton} onPress={handleAINoorSearch}>
               <LinearGradient
-                colors={[colors.accentTeal, colors.accentGreen]}
+                colors={[colors.accentTeal, '#00BCD4']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
                 style={styles.aiNoorGradient}
               >
-                <Ionicons name="sparkles" size={20} color={colors.textPrimary} />
+                <Ionicons name="sparkles" size={20} color="#FFFFFF" />
                 <Text style={styles.aiNoorButtonText}>Ask AI Noor</Text>
               </LinearGradient>
             </TouchableOpacity>
-            
-            <Text style={styles.aiNoorDescription}>
-              AI Noor can help with Islamic questions, Quran, Hadith, Tijaniyya teachings, and more
-            </Text>
           </View>
-        </View>
-      ) : (
-      <View style={styles.featuresContainer}>
-          {features
-            .filter(feature => 
-              !searchQuery.trim() || 
-              feature.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              feature.description.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map((feature, index) => (
-          <FeatureCard
-            key={index}
-            title={feature.title}
-            description={feature.description}
-            icon={feature.icon}
-            color={feature.color}
-            onPress={() => navigation.navigate(feature.screen)}
-          />
-        ))}
-      </View>
-      )}
+        ) : (
+          <>
+            {/* Featured Section */}
+            <View style={styles.featuredSection}>
+              <Text style={styles.sectionTitle}>
+                <Ionicons name="star" size={18} color={colors.accentYellow} /> Featured
+              </Text>
+              {FEATURED.map((item) => (
+                <FeaturedCard
+                  key={item.id}
+                  item={item}
+                  onPress={() => navigation.navigate(item.screen)}
+                />
+              ))}
+            </View>
 
-      {/* App Info */}
-      <View style={styles.appInfoContainer}>
-        <View style={styles.appInfoCard}>
-          <Ionicons name="information-circle" size={24} color={colors.accentTeal} />
-          <View style={styles.appInfoContent}>
-            <Text style={styles.appInfoTitle}>Tijaniyah Muslim Pro</Text>
-            <Text style={styles.appInfoDescription}>
-              Your comprehensive Islamic companion app with all the tools you need for spiritual growth and daily practice.
-            </Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+            {/* Category Filter */}
+            <View style={styles.categorySection}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoryScroll}
+              >
+                {CATEGORIES.map((cat) => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[
+                      styles.categoryChip,
+                      selectedCategory === cat.id && styles.categoryChipActive,
+                    ]}
+                    onPress={() => setSelectedCategory(cat.id)}
+                  >
+                    <Ionicons
+                      name={cat.icon as any}
+                      size={16}
+                      color={selectedCategory === cat.id ? '#FFFFFF' : colors.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        styles.categoryChipText,
+                        selectedCategory === cat.id && styles.categoryChipTextActive,
+                      ]}
+                    >
+                      {cat.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Features Grid */}
+            <View style={styles.featuresSection}>
+              <Text style={styles.sectionTitle}>
+                <Ionicons name="apps" size={18} color={colors.accentGreen} /> All Features
+              </Text>
+              <View style={styles.featuresGrid}>
+                {filteredFeatures.map((feature, index) => (
+                  <FeatureCard
+                    key={feature.screen}
+                    item={feature}
+                    index={index}
+                    onPress={() => navigation.navigate(feature.screen)}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* App Info Card */}
+            <View style={styles.appInfoSection}>
+              <LinearGradient
+                colors={[`${colors.accentTeal}15`, `${colors.accentGreen}10`]}
+                style={styles.appInfoCard}
+              >
+                <View style={styles.appInfoIconWrap}>
+                  <LinearGradient
+                    colors={[colors.accentTeal, colors.accentGreen]}
+                    style={styles.appInfoIcon}
+                  >
+                    <Ionicons name="leaf" size={24} color="#FFFFFF" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.appInfoContent}>
+                  <Text style={styles.appInfoTitle}>Tijaniyah Muslim Pro</Text>
+                  <Text style={styles.appInfoDesc}>
+                    Your comprehensive Islamic companion for spiritual growth and daily practice.
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -343,85 +642,281 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    paddingTop: 50,
+  headerContainer: {
+    zIndex: 10,
+  },
+  headerGradient: {
+    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight || 40,
     paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
     marginTop: 4,
-    marginBottom: 16,
   },
-  searchContainer: {
-    position: 'relative',
+  headerStats: {
+    alignItems: 'flex-end',
+  },
+  statBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  statLabel: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
+  },
+  searchWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  searchBlur: {
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 25,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 16,
+  },
+  searchBarFocused: {
+    borderColor: colors.accentTeal,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   searchInput: {
     flex: 1,
-    color: colors.textPrimary,
     fontSize: 16,
-    marginLeft: 8,
+    color: '#FFFFFF',
+    marginLeft: 12,
+    marginRight: 8,
+  },
+  suggestionsOverlay: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 165 : 155,
+    left: 16,
+    right: 16,
+    zIndex: 100,
   },
   suggestionsContainer: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    marginTop: 4,
-    maxHeight: 200,
-    zIndex: 1000,
-    elevation: 5,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.divider,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   suggestionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.divider,
   },
   suggestionText: {
+    flex: 1,
+    fontSize: 15,
     color: colors.textPrimary,
-    fontSize: 14,
-    marginLeft: 8,
+    marginLeft: 12,
   },
-  searchResultsContainer: {
-    padding: 20,
+  scrollView: {
+    flex: 1,
   },
-  searchResultsTitle: {
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  featuredSection: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.textPrimary,
     marginBottom: 16,
   },
-  searchResultItem: {
+  featuredCard: {
+    marginBottom: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  featuredGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    padding: 20,
+  },
+  featuredIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  featuredContent: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  featuredTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  featuredSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 4,
+  },
+  featuredArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categorySection: {
+    marginTop: 24,
     marginBottom: 8,
+  },
+  categoryScroll: {
+    paddingHorizontal: 16,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.accentTeal,
+    borderColor: colors.accentTeal,
+  },
+  categoryChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginLeft: 6,
+  },
+  categoryChipTextActive: {
+    color: '#FFFFFF',
+  },
+  featuresSection: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  cardWrapper: {
+    width: CARD_WIDTH,
+    marginBottom: 12,
+  },
+  featureCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  cardGradientBorder: {
+    padding: 1,
+    borderRadius: 20,
+    backgroundColor: colors.divider,
+  },
+  cardInner: {
+    backgroundColor: colors.surface,
+    borderRadius: 19,
+    padding: 16,
+    minHeight: 150,
+  },
+  iconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  iconInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    lineHeight: 18,
+  },
+  arrowContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.divider,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchResultsSection: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  searchResultCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: colors.divider,
   },
@@ -432,171 +927,122 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.textPrimary,
-    marginBottom: 2,
   },
-  searchResultTitleArabic: {
+  searchResultArabic: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 4,
+    marginTop: 2,
   },
-  searchResultDescription: {
-    fontSize: 14,
+  searchResultDesc: {
+    fontSize: 13,
     color: colors.textSecondary,
-    marginBottom: 2,
+    marginTop: 4,
   },
-  searchResultCategory: {
-    fontSize: 12,
-    color: colors.accentTeal,
-    fontWeight: '500',
-  },
-  specialtiesContainer: {
+  searchResultMeta: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     marginTop: 8,
   },
-  specialtyTag: {
-    backgroundColor: colors.accentTeal + '20',
-    paddingHorizontal: 8,
+  categoryBadge: {
+    backgroundColor: `${colors.accentTeal}20`,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 6,
-    marginBottom: 4,
+    borderRadius: 8,
   },
-  specialtyText: {
-    fontSize: 10,
+  categoryBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
     color: colors.accentTeal,
-    fontWeight: '500',
+    textTransform: 'capitalize',
   },
-  noResultsContainer: {
-    flex: 1,
+  searchResultArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: `${colors.accentTeal}15`,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    marginLeft: 12,
+  },
+  noResultsContainer: {
+    alignItems: 'center',
     paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  noResultsIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   noResultsTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  noResultsSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  aiSearchContainer: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.accentTeal + '20',
-  },
-  aiSearchTitle: {
-    fontSize: 18,
     fontWeight: '700',
     color: colors.textPrimary,
     marginBottom: 8,
   },
-  aiSearchSubtitle: {
+  noResultsText: {
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 20,
+    marginBottom: 24,
+    lineHeight: 22,
   },
   aiNoorButton: {
-    marginBottom: 16,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: colors.accentTeal,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   aiNoorGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingVertical: 14,
   },
   aiNoorButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    color: '#FFFFFF',
     marginLeft: 8,
   },
-  aiNoorDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  featuresContainer: {
-    padding: 20,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  featureCard: {
-    width: (width - 60) / 2,
-    marginBottom: 16,
-    borderRadius: 16,
-  },
-  glassCard: {
-    padding: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-    minHeight: 140,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-  },
-  iconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 8,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  featureDescription: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    opacity: 0.9,
-    lineHeight: 16,
-  },
-  appInfoContainer: {
-    padding: 20,
-    paddingTop: 0,
+  appInfoSection: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
   appInfoCard: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.divider,
+    borderColor: `${colors.accentTeal}30`,
+  },
+  appInfoIconWrap: {
+    marginRight: 16,
+  },
+  appInfoIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   appInfoContent: {
     flex: 1,
-    marginLeft: 12,
   },
   appInfoTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  appInfoDescription: {
+  appInfoDesc: {
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,

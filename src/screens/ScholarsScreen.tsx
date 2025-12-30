@@ -39,63 +39,63 @@ const SCHOLARS: Scholar[] = [
   // 1. Sheikh Muhammad Gibrima
   {
     id: 'sheikh_muhammad_gibrima',
-    name: 'Sheikh Muhammad Gibrima (Zul-Ma'arif) (1902–1975)',
+    name: "Sheikh Muhammad Gibrima (Zul-Ma'arif) (1902–1975)",
     title: 'Distinguished Tijani Scholar & Sufi of Nguru, Nigeria',
-    bio: 'Sheikh Muhammad Gibrima (1902–1975) was a distinguished Islamic scholar and Sufi from Nguru, Yobe State, Nigeria. Born into a Kanuri family rooted in the Tijaniyya, he immersed himself in Islamic learning from an early age. A prolific author, he wrote works including Jihaazu Saarih, Suril Musuun, Sidrat Al Muntahaa, Far'u An Nawaal, and Shajarat Al Kaun. A pivotal moment in his journey was meeting Shaykh Ibrahim Niasse in Senegal, which strengthened his commitment to the Tijani path. He was honored with the epithet "Zul-Ma'arif" (Possessor of Knowledge) for his profound scholarship.',
+    bio: "Sheikh Muhammad Gibrima (1902–1975) was a distinguished Islamic scholar and Sufi from Nguru, Yobe State, Nigeria. Born into a Kanuri family rooted in the Tijaniyya, he immersed himself in Islamic learning from an early age. A prolific author, he wrote works including Jihaazu Saarih, Suril Musuun, Sidrat Al Muntahaa, Far'u An Nawaal, and Shajarat Al Kaun. A pivotal moment in his journey was meeting Shaykh Ibrahim Niasse in Senegal, which strengthened his commitment to the Tijani path. He was honored with the epithet 'Zul-Ma'arif' (Possessor of Knowledge) for his profound scholarship.",
     frenchBio: "Cheikh Muhammad Gibrima (1902–1975) était un érudit islamique distingué et soufi de Nguru, État de Yobe, Nigeria. Né dans une famille kanouri enracinée dans la Tijaniyya, il s'est plongé dans l'enseignement islamique dès son jeune âge. Auteur prolifique, il a écrit Jihaazu Saarih, Suril Musuun, Sidrat Al Muntahaa, Far'u An Nawaal et Shajarat Al Kaun. Un moment clé de son parcours fut sa rencontre avec Shaykh Ibrahim Niasse au Sénégal, qui renforça son engagement envers la voie tijaniyya. Il fut honoré du titre « Zul-Ma'arif » (Possesseur de la Connaissance) pour sa profonde érudition.",
     arabicBio: 'كان الشيخ محمد جِبْرِمَا (1902–1975) عالماً ومتصوفاً بارزاً من نْغورو بولاية يوبي في نيجيريا. وُلد في أسرة كانورية متجذّرة في الطريقة التجانية، وتشرّب علوم الإسلام منذ صغره. كان كاتباً غزير الإنتاج، ومن مؤلفاته: جهاز الصارح، سور المسون، سدرة المنتهى، فرع النوال، وشجرة الكون. وكانت نقطة تحوُّل في مسيرته لقاؤه بالشيخ إبراهيم نياس في السنغال، مما زاد التزامه بالطريقة التجانية. لُقِّب بـ «ذو المعارف» لعمق علمه.',
-    hausaBio: 'Sheikh Muhammad Gibrima (1902–1975) fitaccen malami ne kuma sufaye daga Nguru a jihar Yobe, Najeriya. An haife shi cikin iyalin Kanuri masu dogon alaka da Tijaniyya, ya tsunduma cikin ilimin addini tun ƙuruciya. Marubuci ne mai yawa; ya rubuta Jihaazu Saarih, Suril Musuun, Sidrat Al Muntahaa, Far'u An Nawaal, da Shajarat Al Kaun. Muhimmin mataki a tafiyarsa shi ne haduwarsa da Shaykh Ibrahim Niasse a Senegal, wanda ya ƙarfafa bin Tijaniyya. An girmama shi da lakabin "Zul‑Ma'arif" wato Mai Ilimi saboda zurfin iliminsa.',
+    hausaBio: "Sheikh Muhammad Gibrima (1902–1975) fitaccen malami ne kuma sufaye daga Nguru a jihar Yobe, Najeriya. An haife shi cikin iyalin Kanuri masu dogon alaka da Tijaniyya, ya tsunduma cikin ilimin addini tun ƙuruciya. Marubuci ne mai yawa; ya rubuta Jihaazu Saarih, Suril Musuun, Sidrat Al Muntahaa, Far'u An Nawaal, da Shajarat Al Kaun. Muhimmin mataki a tafiyarsa shi ne haduwarsa da Shaykh Ibrahim Niasse a Senegal, wanda ya ƙarfafa bin Tijaniyya. An girmama shi da lakabin 'Zul‑Ma'arif' wato Mai Ilimi saboda zurfin iliminsa.",
     specialties: ['Tariqa Tijaniyya', 'Sufism', 'Islamic Scholarship', 'Authorship', 'West African Islam'],
     image: require('../../assets/SHEIKH FATIHU.jpg'),
     details: [
       {
         heading: 'Early Life & Scholarship',
-        text: 'Born into a Kanuri Tijani family in Nguru, Sheikh Gibrima was immersed in Qur'an, fiqh, and Sufi ethics from an early age and became known for his precision in teaching and writing.',
-        frenchText: 'Né dans une famille kanouri tijani à Nguru, le Cheikh Gibrima fut plongé très tôt dans le Coran, le fiqh et l'éthique soufie, et se fit connaître par la rigueur de son enseignement et de ses écrits.',
+        text: "Born into a Kanuri Tijani family in Nguru, Sheikh Gibrima was immersed in Qur'an, fiqh, and Sufi ethics from an early age and became known for his precision in teaching and writing.",
+        frenchText: "Né dans une famille kanouri tijani à Nguru, le Cheikh Gibrima fut plongé très tôt dans le Coran, le fiqh et l'éthique soufie, et se fit connaître par la rigueur de son enseignement et de ses écrits.",
         arabicText: 'وُلِد في أسرة كانورية تجانية في نغورو، فتشرّب منذ صغره القرآن والفقه وأخلاق التصوف، وعُرف بدقته في التعليم والكتابة.',
-        hausaText: 'An haife shi cikin iyalin Kanuri na Tijaniyya a Nguru; tun ƙuruciya ya tsunduma cikin Alkur'ani, fiqhu da ɗabi'un Sufanci, ya kuma shahara da tsantseni a koyarwa da rubutu.'
+        hausaText: "An haife shi cikin iyalin Kanuri na Tijaniyya a Nguru; tun ƙuruciya ya tsunduma cikin Alkur'ani, fiqhu da ɗabi'un Sufanci, ya kuma shahara da tsantseni a koyarwa da rubutu."
       },
       {
         heading: 'Major Works',
-        text: 'Among his many writings are "Jihaazu Saarih," "Suril Musuun," "Sidrat Al Muntahaa," "Far'u An Nawaal," and "Shajarat Al Kaun," reflecting depth in theology and mysticism.',
-        frenchText: 'Parmi ses nombreux écrits figurent « Jihaazu Saarih », « Suril Musuun », « Sidrat Al Muntahaa », « Far'u An Nawaal » et « Shajarat Al Kaun », témoignant d'une grande profondeur en théologie et mystique.',
+        text: `Among his many writings are "Jihaazu Saarih," "Suril Musuun," "Sidrat Al Muntahaa," "Far'u An Nawaal," and "Shajarat Al Kaun," reflecting depth in theology and mysticism.`,
+        frenchText: `Parmi ses nombreux écrits figurent « Jihaazu Saarih », « Suril Musuun », « Sidrat Al Muntahaa », « Far'u An Nawaal » et « Shajarat Al Kaun », témoignant d'une grande profondeur en théologie et mystique.`,
         arabicText: 'من مؤلفاته الكثيرة: «جهاز الصارح»، «سور المسون»، «سدرة المنتهى»، «فرع النوال»، و«شجرة الكون»، وكلها تعكس عمقاً في العقيدة والتصوف.',
-        hausaText: 'Daga cikin ayyukansa akwai "Jihaazu Saarih," "Suril Musuun," "Sidrat Al Muntahaa," "Far'u An Nawaal," da "Shajarat Al Kaun," masu nuna zurfin aqida da tasawwufi.'
+        hausaText: `Daga cikin ayyukansa akwai "Jihaazu Saarih," "Suril Musuun," "Sidrat Al Muntahaa," "Far'u An Nawaal," da "Shajarat Al Kaun," masu nuna zurfin aqida da tasawwufi.`
       },
       {
         heading: 'Journey to Shaykh Ibrahim Niasse',
         text: 'His visit to Senegal to meet Shaykh Ibrahim Niasse profoundly shaped his spiritual path, leading to renewed commitment to the Tijaniyya and service to the Ummah.',
         frenchText: 'Sa visite au Sénégal pour rencontrer Shaykh Ibrahim Niasse a profondément marqué sa voie spirituelle, renforçant son engagement envers la Tijaniyya et le service de la Umma.',
         arabicText: 'كان لزيارته السنغال ولقائه بالشيخ إبراهيم نياس أثرٌ بالغ في مساره الروحي، مما جدّد التزامه بالطريقة التجانية وخدمة الأمة.',
-        hausaText: 'Ziyararsa zuwa Senegal inda ya haɗu da Shaykh Ibrahim Niasse ta yi matuƙar tasiri a tafiyarsa ta ruhaniya, ta ƙarfafa bin Tijaniyya da hidima ga al'umma.'
+        hausaText: "Ziyararsa zuwa Senegal inda ya haɗu da Shaykh Ibrahim Niasse ta yi matuƙar tasiri a tafiyarsa ta ruhaniya, ta ƙarfafa bin Tijaniyya da hidima ga al'umma."
       },
       {
-        heading: 'Zul‑Ma'arif – "Possessor of Knowledge"',
-        text: 'He was honored with the epithet "Zul‑Ma'arif" (ذو المعارف), meaning "Possessor of Knowledge," recognizing his profound mastery of Islamic sciences and Sufi insight.',
-        frenchText: 'Il fut honoré de l'épithète « Zul‑Ma'arif » (ذو المعارف), « Possesseur de la Connaissance », en reconnaissance de sa maîtrise des sciences islamiques et de sa pénétration soufie.',
+        heading: `Zul‑Ma'arif – "Possessor of Knowledge"`,
+        text: `He was honored with the epithet "Zul‑Ma'arif" (ذو المعارف), meaning "Possessor of Knowledge," recognizing his profound mastery of Islamic sciences and Sufi insight.`,
+        frenchText: `Il fut honoré de l'épithète « Zul‑Ma'arif » (ذو المعارف), « Possesseur de la Connaissance », en reconnaissance de sa maîtrise des sciences islamiques et de sa pénétration soufie.`,
         arabicText: 'لُقِّب بـ «ذو المعارف»، اعترافاً بتمكُّنه العميق من العلوم الإسلامية وبصيرته الصوفية.',
-        hausaText: 'An yi masa lakabi da "Zul‑Ma'arif" ma'ana "Mai Ilimi," a matsayin yabo ga ƙwarewarsa cikin ilimin addini da hangen sufaye.'
+        hausaText: `An yi masa lakabi da "Zul‑Ma'arif" ma'ana "Mai Ilimi," a matsayin yabo ga ƙwarewarsa cikin ilimin addini da hangen sufaye.`
       },
       {
         heading: 'Public Teaching & Method',
         text: 'Known for answering questions publicly so students could benefit, he cultivated scholars and companions through open discourse and practical guidance.',
-        frenchText: 'Connu pour répondre publiquement aux questions afin que les étudiants en profitent, il forma des savants et compagnons par le débat ouvert et l'orientation pratique.',
+        frenchText: `Connu pour répondre publiquement aux questions afin que les étudiants en profitent, il forma des savants et compagnons par le débat ouvert et l'orientation pratique.`,
         arabicText: 'اشتهر بإجابة الأسئلة علناً لينتفع بها الطلاب، وربّى العلماء والرفاق من خلال النقاش المفتوح والتوجيه العملي.',
-        hausaText: 'An san shi da bayar da amsoshi a bainar jama'a don dalibai su amfana, yana gina malamai da abokai ta tattaunawa budaddiya da shiriya ta aikace.'
+        hausaText: `An san shi da bayar da amsoshi a bainar jama'a don dalibai su amfana, yana gina malamai da abokai ta tattaunawa budaddiya da shiriya ta aikace.`
       },
       {
         heading: 'Return to Nguru & Service',
         text: 'Guided to return to Nguru, he made it a center for Islamic learning, mentoring many students and addressing complex questions from far and wide.',
         frenchText: 'Guidé à retourner à Nguru, il en fit un centre de savoir islamique, encadrant de nombreux étudiants et répondant à des questions complexes venues de loin.',
         arabicText: 'وُجِّه إلى العودة إلى نغورو، فجعله مركزاً للتعليم الإسلامي، ورعى العديد من الطلاب وتصدّى لمسائل معقدة من أصقاع شتى.',
-        hausaText: 'An yi masa jagora ya koma Nguru, inda ya mai da shi cibiyar ilimin Musulunci, yana kula da ɗalibai da yawa kuma yana amsa manyan tambayoyi daga ko'ina.'
+        hausaText: `An yi masa jagora ya koma Nguru, inda ya mai da shi cibiyar ilimin Musulunci, yana kula da ɗalibai da yawa kuma yana amsa manyan tambayoyi daga ko'ina.`
       },
       {
         heading: 'Legacy & Continuing Influence',
         text: 'His writings and students continue to shape Tijani learning in West Africa. His life remains a model of knowledge, humility, and service.',
-        frenchText: 'Ses écrits et ses élèves continuent de façonner l'apprentissage tijani en Afrique de l'Ouest. Sa vie demeure un modèle de savoir, d'humilité et de service.',
+        frenchText: `Ses écrits et ses élèves continuent de façonner l'apprentissage tijani en Afrique de l'Ouest. Sa vie demeure un modèle de savoir, d'humilité et de service.`,
         arabicText: 'كتبه وتلامذته لا يزالون يشكّلون التعلم التجاني في غرب أفريقيا. وتبقى حياته قدوة في العلم والتواضع والخدمة.',
-        hausaText: 'Littattafansa da almajiransa na cigaba da tsara koyon Tijaniyya a Yammacin Afirka. Rayuwarsa abin koyi ce na ilimi, tawali'u da hidima.'
+        hausaText: `Littattafansa da almajiransa na cigaba da tsara koyon Tijaniyya a Yammacin Afirka. Rayuwarsa abin koyi ce na ilimi, tawali'u da hidima.`
       }
     ]
   },
@@ -103,76 +103,76 @@ const SCHOLARS: Scholar[] = [
   {
     id: 'sheikh_aliyu_harazimi_kano',
     name: 'Shaykh Aliyu Harazimi (Kano) (1919–2013)',
-    title: 'Tijani Sufi Ascetic of Kano – Abu'l‑Anwar, Sahib al‑Dhikr',
-    bio: 'A renowned Tijani ascetic and guide in Kano, emblematic of piety (tsoron‑Allah) and world‑renunciation (gudun duniya). His zawiya in Hausawa became famous in the 1980s for energetic dhikr (La ilaha illa'Llah – Muhammadun Rasulullah) and training seekers toward ma'rifa.',
-    frenchBio: 'Ascète tijani et guide à Kano, emblème de piété (tsoron‑Allah) et de renoncement (gudun duniya). Sa zawiya à Hausawa devint célèbre dans les années 1980 pour le dhikr énergique (La ilaha illa'Llah – Muhammadun Rasulullah) et la formation des aspirants vers la ma'rifa.',
+    title: `Tijani Sufi Ascetic of Kano – Abu'l‑Anwar, Sahib al‑Dhikr`,
+    bio: `A renowned Tijani ascetic and guide in Kano, emblematic of piety (tsoron‑Allah) and world‑renunciation (gudun duniya). His zawiya in Hausawa became famous in the 1980s for energetic dhikr (La ilaha illa'Llah – Muhammadun Rasulullah) and training seekers toward ma'rifa.`,
+    frenchBio: `Ascète tijani et guide à Kano, emblème de piété (tsoron‑Allah) et de renoncement (gudun duniya). Sa zawiya à Hausawa devint célèbre dans les années 1980 pour le dhikr énergique (La ilaha illa'Llah – Muhammadun Rasulullah) et la formation des aspirants vers la ma'rifa.`,
     arabicBio: 'عارف تجاني وزاهد في كانو، مثال للتقوى وترك الدنيا. اشتهرت زاويته في حوساوا منذ الثمانينيات بالذكر القوي (لا إله إلا الله محمد رسول الله) وتربية السالكين نحو المعرفة بالله (المعرفة).',
-    hausaBio: 'Shahararren mai tasawwufi na Tijaniyya a Kano, abin koyi na tsoron Allah da gudun duniya. Zawiyarsa a Hausawa ta shahara tun shekarun 1980 da dhikr mai ƙarfi (La ilaha illa'Llah – Muhammadun Rasulullah) da tarbiyyar masu nema zuwa ma'rifa.',
+    hausaBio: `Shahararren mai tasawwufi na Tijaniyya a Kano, abin koyi na tsoron Allah da gudun duniya. Zawiyarsa a Hausawa ta shahara tun shekarun 1980 da dhikr mai ƙarfi (La ilaha illa'Llah – Muhammadun Rasulullah) da tarbiyyar masu nema zuwa ma'rifa.`,
     specialties: ['Tariqa Tijaniyya', 'Dhikr & Salawat', 'Asceticism', 'Spiritual Training', 'Kano History'],
     image: require('../../assets/sheikaliu.jpeg'),
     details: [
       {
         heading: 'Introduction & Asceticism',
-        text: 'Emerged amid modern urban consumerism as a living critique through ascetic life, discipline, and constant dhikr; revered as Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.',
-        frenchText: 'Apparu au milieu du consumérisme urbain moderne comme critique vivante par l'ascèse, la discipline et le dhikr constant; vénéré comme Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.',
+        text: `Emerged amid modern urban consumerism as a living critique through ascetic life, discipline, and constant dhikr; revered as Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.`,
+        frenchText: `Apparu au milieu du consumérisme urbain moderne comme critique vivante par l'ascèse, la discipline et le dhikr constant; vénéré comme Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.`,
         arabicText: 'برز وسط نمط الاستهلاك الحضري الحديث كنقد حي عبر الزهد والانضباط والذكر الدائم؛ مُجِّل كـ «أبي الأنوار» و«صاحب الذكر والصلاة» و«خادم رسول الله».',
-        hausaText: 'Ya bayyana a zamanin son duniya na birane a matsayin suka ta rayuwar zuhudu, ladabi da dhikr na dindindin; ana girmama shi a matsayin Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.'
+        hausaText: `Ya bayyana a zamanin son duniya na birane a matsayin suka ta rayuwar zuhudu, ladabi da dhikr na dindindin; ana girmama shi a matsayin Abu'l‑Anwar, Sahib al‑Dhikr wa'l‑Salat, Khadim Rasul Allah.`
       },
       {
         heading: 'Family Background & Education',
-        text: 'Born 9 Dhu'l‑Hijja 1336 AH (1919) in Hausawa, Kano; Fulani (Sullubawa/Yolawa). Early Qur'an and fiqh with his father; later with Malam Salihu studied the Tijani classic Jawahir al‑Ma'ani.',
-        frenchText: 'Né le 9 Dhu'l‑Hijja 1336 H (1919) à Hausawa (Kano); Peul (Sullubawa/Yolawa). Coran et fiqh avec son père; puis études avec Malam Salihu du classique tijani Jawahir al‑Ma'ani.',
+        text: `Born 9 Dhu'l‑Hijja 1336 AH (1919) in Hausawa, Kano; Fulani (Sullubawa/Yolawa). Early Qur'an and fiqh with his father; later with Malam Salihu studied the Tijani classic Jawahir al‑Ma'ani.`,
+        frenchText: `Né le 9 Dhu'l‑Hijja 1336 H (1919) à Hausawa (Kano); Peul (Sullubawa/Yolawa). Coran et fiqh avec son père; puis études avec Malam Salihu du classique tijani Jawahir al‑Ma'ani.`,
         arabicText: 'وُلد في 9 ذي الحجة 1336هـ (1919) في حوساوا بكانو؛ فلاني (سُلّباوة/يولاوة). بدأ بالقرآن والفقه عند والده؛ ثم درس مع م. صالِحُو «جواهر المعاني».',
-        hausaText: 'An haife shi 9 Zul‑Hijja 1336H (1919) a Hausawa, Kano; Fulani (Sullubawa/Yolawa). Ya fara da Alƙur'ani da fiqhu wurin mahaifi; daga baya tare da Malam Salihu ya karanta Jawahir al‑Ma'ani.'
+        hausaText: `An haife shi 9 Zul‑Hijja 1336H (1919) a Hausawa, Kano; Fulani (Sullubawa/Yolawa). Ya fara da Alƙur'ani da fiqhu wurin mahaifi; daga baya tare da Malam Salihu ya karanta Jawahir al‑Ma'ani.`
       },
       {
         heading: 'Teachers & Studies',
         text: 'Studied Maliki fiqh, usul, tafsir, Arabic and Sufism with Shaykh Usman Mai Hula; continued under close friend Shaykh Isa Mandawari and others (Malam Ado, Malam Inuwa).',
-        frenchText: 'Étudia fiqh malikite, usul, tafsir, arabe et soufisme avec Cheikh Usman Mai Hula; continua avec son ami intime Cheikh Isa Mandawari et d'autres (Malam Ado, Malam Inuwa).',
+        frenchText: `Étudia fiqh malikite, usul, tafsir, arabe et soufisme avec Cheikh Usman Mai Hula; continua avec son ami intime Cheikh Isa Mandawari et d'autres (Malam Ado, Malam Inuwa).`,
         arabicText: 'درس الفقه المالكي والأصول والتفسير والعربية والتصوف مع الشيخ عثمان ماي هولا؛ وواصل مع صديقه الشيخ عيسى منداواري وغيرهما (م. آدو، م. إينوا).',
         hausaText: 'Ya yi karatun fiqhun Maliki, usul, tafsiri, Larabci da Sufanci tare da Shaykh Usman Mai Hula; ya ci gaba da Shaykh Isa Mandawari da wasu (Malam Ado, Malam Inuwa).'
       },
       {
         heading: 'Tijaniyya & Fayda Network',
-        text: 'After Shaykh Ibrahim Niasse's 1945 Kano visit, he aligned with the Fayda network; underwent tarbiya in 1946 with Shaykh Abubakar Atiku and advanced training under Shaykh Muhammad Gibrima.',
-        frenchText: 'Après la visite de Cheikh Ibrahim Niasse à Kano en 1945, il s'aligna au réseau de la Fayda; accomplit la tarbiya en 1946 avec Cheikh Abubakar Atiku et une formation avancée auprès de Cheikh Muhammad Gibrima.',
+        text: `After Shaykh Ibrahim Niasse's 1945 Kano visit, he aligned with the Fayda network; underwent tarbiya in 1946 with Shaykh Abubakar Atiku and advanced training under Shaykh Muhammad Gibrima.`,
+        frenchText: `Après la visite de Cheikh Ibrahim Niasse à Kano en 1945, il s'aligna au réseau de la Fayda; accomplit la tarbiya en 1946 avec Cheikh Abubakar Atiku et une formation avancée auprès de Cheikh Muhammad Gibrima.`,
         arabicText: 'بعد زيارة الشيخ إبراهيم نياس لكانو سنة 1945، انتظم في شبكة الفيضة؛ وأخذ التربية سنة 1946 مع الشيخ أبوبكر عتيق وتدرّب عند الشيخ محمد جِبْرِمَا.',
         hausaText: 'Bayan ziyarar Shaykh Ibrahim Niasse a Kano (1945), ya shiga hanyar Fayda; ya yi tarbiya a 1946 tare da Shaykh Abubakar Atiku, ya ci gaba da horo wurin Shaykh Muhammad Gibrima.'
       },
       {
         heading: 'Retreats & Spiritual Stations',
         text: 'Entered khalwa over thirty times; under Shaykh Gibrima attained al‑Fath al‑Akbar and advanced stations (Sirr al‑Sirr), focusing on pure remembrance beyond worldly allure.',
-        frenchText: 'Entré en khalwa plus de trente fois; sous Cheikh Gibrima atteignit al‑Fath al‑Akbar et des stations avancées (Sirr al‑Sirr), concentrant son cœur sur le dhikr pur.',
+        frenchText: `Entré en khalwa plus de trente fois; sous Cheikh Gibrima atteignit al‑Fath al‑Akbar et des stations avancées (Sirr al‑Sirr), concentrant son cœur sur le dhikr pur.`,
         arabicText: 'دخل الخلوة أكثر من ثلاثين مرة؛ وتحت الشيخ جِبْرِمَا نال الفتح الأكبر ومقامات متقدمة (سر السر) مع ترك زخارف الدنيا.',
         hausaText: 'Ya shiga khalwa fiye da sau talatin; a ƙarƙashin Shaykh Gibrima ya samu al‑Fath al‑Akbar da manyan maqamai (Sirr al‑Sirr), ya mai da hankali kan dhikr tsantsa.'
       },
       {
         heading: 'Dhikr Style & Zawiya',
-        text: 'His Hausawa zawiya popularized the pulsating dhikr refrain "La ilaha illa'Llah – Muhammadun Rasulullah," spreading to other zawiyas across Kano and beyond.',
-        frenchText: 'Sa zawiya de Hausawa a popularisé le refrain de dhikr "La ilaha illa'Llah – Muhammadun Rasulullah", diffusé dans d'autres zawiyas de Kano et au‑delà.',
+        text: `His Hausawa zawiya popularized the pulsating dhikr refrain "La ilaha illa'Llah – Muhammadun Rasulullah," spreading to other zawiyas across Kano and beyond.`,
+        frenchText: `Sa zawiya de Hausawa a popularisé le refrain de dhikr "La ilaha illa'Llah – Muhammadun Rasulullah", diffusé dans d'autres zawiyas de Kano et au‑delà.`,
         arabicText: 'زاويته في حوساوا أشاعت لحن الذكر النابض «لا إله إلا الله محمد رسول الله»، وانتشر في الزوايا داخل كانو وخارجها.',
-        hausaText: 'Zawiyarsa ta Hausawa ta yada waƙar dhikr mai kaɗuwa "La ilaha illa'Llah – Muhammadun Rasulullah," ta bazu zuwa sauran zawiyoyi.'
+        hausaText: `Zawiyarsa ta Hausawa ta yada waƙar dhikr mai kaɗuwa "La ilaha illa'Llah – Muhammadun Rasulullah," ta bazu zuwa sauran zawiyoyi.`
       },
       {
         heading: 'Writings',
-        text: 'Authored works in spiritual psychology and salawat, e.g., Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.',
-        frenchText: 'Auteurs d'ouvrages en psychologie spirituelle et salawat, p.ex., Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.',
+        text: `Authored works in spiritual psychology and salawat, e.g., Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.`,
+        frenchText: `Auteurs d'ouvrages en psychologie spirituelle et salawat, p.ex., Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.`,
         arabicText: 'ألّف كتبًا في علم النفس الروحي والصلاة على النبي، مثل: كسر النفوس، جهود العاجز، سُلَّم المُحبين، سر الأسرار.',
-        hausaText: 'Ya rubuta ayyuka a ilimin halayen ruhaniya da salawat, misali: Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.'
+        hausaText: `Ya rubuta ayyuka a ilimin halayen ruhaniya da salawat, misali: Kasr al‑Nufus, Juhud al‑'Ajiz, Sullam al‑Muhibbin, Sirr al‑Asrar.`
       },
       {
         heading: 'Public Episodes & Ethos',
         text: 'Known for refusing gifts from political elites; episodes of admonition and repentance reinforced his ethos of zuhd, sincerity, and fear of Allah.',
-        frenchText: 'Réputé pour refuser les dons des élites politiques; des épisodes d'admonestation et de repentir ont renforcé son ethos de zuhd, sincérité et crainte d'Allah.',
+        frenchText: `Réputé pour refuser les dons des élites politiques; des épisodes d'admonestation et de repentir ont renforcé son ethos de zuhd, sincérité et crainte d'Allah.`,
         arabicText: 'أشهر بمقاطعة هبات النخبة السياسية؛ مواقف الوعظ والتوبة عزّزت خُلُقه في الزهد والإخلاص وخشية الله.',
-        hausaText: 'An san shi da ƙin karɓar kyautai daga masu mulki; labaran wa'azi da tuba sun ƙarfafa halayensa na zuhudu, gaskiya da tsoron Allah.'
+        hausaText: `An san shi da ƙin karɓar kyautai daga masu mulki; labaran wa'azi da tuba sun ƙarfafa halayensa na zuhudu, gaskiya da tsoron Allah.`
       },
       {
         heading: 'Passing & Legacy',
         text: 'Passed on 11 December 2013; buried at his Hausawa home. His nightly wazifa gatherings continue to draw crowds, embodying living Sufi devotion in Kano.',
-        frenchText: 'Décédé le 11 décembre 2013; inhumé à sa maison de Hausawa. Les wazifa nocturnes attirent encore des foules, illustrant la piété soufie vivante à Kano.',
+        frenchText: `Décédé le 11 décembre 2013; inhumé à sa maison de Hausawa. Les wazifa nocturnes attirent encore des foules, illustrant la piété soufie vivante à Kano.`,
         arabicText: 'توفي في 11 ديسمبر 2013؛ ودُفن في منزله بحوساوا. لا تزال وظائفه الليلية تجمع الجموع، شاهدة على حيوية التدين الصوفي في كانو.',
-        hausaText: 'Ya rasu 11 Disamba 2013; an binne shi a gidansa na Hausawa. Wazifa na kowacce dare na ci gaba da jawo jama'a, tamkar shaida ga rayayyen Sufanci a Kano.'
+        hausaText: `Ya rasu 11 Disamba 2013; an binne shi a gidansa na Hausawa. Wazifa na kowacce dare na ci gaba da jawo jama'a, tamkar shaida ga rayayyen Sufanci a Kano.`
       }
     ]
   },
@@ -182,65 +182,65 @@ const SCHOLARS: Scholar[] = [
     name: 'Sheikh Ahmad Abulfathi (RTA)',
     title: 'Maulana Ahmad bin Ali Al‑Yarwawi – Murshid of Tijaniyya',
     bio: 'Known as Maulana Sheikh Ahmad bin Ali Al‑Yarwawi (RTA), nicknamed Abul‑Abbas and widely known as Abulfathi for opening hearts to knowledge. A renowned Tijani guide who spread Islamic knowledge and virtues across Borno and beyond.',
-    frenchBio: 'Connu comme Maulana Cheikh Ahmad bin Ali Al‑Yarwawi (RTA), surnommé Abul‑Abbas et largement connu sous le nom Abulfathi pour l\'ouverture des cœurs à la science. Un guide tijani renommé qui a propagé le savoir islamique et les vertus au Borno et au‑delà.',
+    frenchBio: `Connu comme Maulana Cheikh Ahmad bin Ali Al‑Yarwawi (RTA), surnommé Abul‑Abbas et largement connu sous le nom Abulfathi pour l'ouverture des cœurs à la science. Un guide tijani renommé qui a propagé le savoir islamique et les vertus au Borno et au‑delà.`,
     arabicBio: 'المعروف بمولانا الشيخ أحمد بن علي اليَرْواوي (رضي الله عنه)، لُقِّب بأبي العباس، والمشهور بـ «أبي الفتح» لفتحه القلوب على العلم. من كبار مُرشدي التجانية؛ نشر العلم والفضائل في برنو وخارجها.',
-    hausaBio: 'Ana san shi da Maulana Sheikh Ahmad bin Ali Al‑Yarwawi (RTA), ana kiransa Abul‑Abbas, kuma shahararren lakabinsa Abulfathi – mai buda zukata ga ilimi. Jagora ne a Tijaniyya da ya yada ilimi da kyawawan dabi'u a Borno da wajensa.',
+    hausaBio: `Ana san shi da Maulana Sheikh Ahmad bin Ali Al‑Yarwawi (RTA), ana kiransa Abul‑Abbas, kuma shahararren lakabinsa Abulfathi – mai buda zukata ga ilimi. Jagora ne a Tijaniyya da ya yada ilimi da kyawawan dabi'u a Borno da wajensa.`,
     specialties: ['Tariqa Tijaniyya', 'Quran & Tafsir', 'Hadith', 'Fiqh', 'Education Reform'],
     image: require('../../assets/sheikhabulfathi.jpeg'),
     details: [
       {
         heading: 'Birth, Hometown & Upbringing',
         text: 'Born 1919 in Sandiya (Shanduwa), Konduga LGA, near Maiduguri, Borno. Raised with horsemanship, herding and rural skills.',
-        frenchText: 'Né en 1919 à Sandiya (Shanduwa), Konduga, près de Maiduguri (Borno). Élevé avec l'art équestre, l'élevage et les aptitudes rurales.',
+        frenchText: `Né en 1919 à Sandiya (Shanduwa), Konduga, près de Maiduguri (Borno). Élevé avec l'art équestre, l'élevage et les aptitudes rurales.`,
         arabicText: 'وُلد سنة 1919 في قرية سنديا (شندوا) بكوندوغا قرب ميدغري بولاية برنو. نشأ على الفروسية ورعي المواشي ومهارات الريف.',
         hausaText: 'An haife shi 1919 a Sandiya (Shanduwa), Konduga, kusa da Maiduguri a Borno. Ya tashi da dokanci, kiwon dabbobi da ƙwarewar karkara.'
       },
       {
         heading: 'Lineage',
         text: 'His paternal line reaches Al‑Hasan b. Ali (RTA) through notable ancestors; maternal side descends from Prince Zubair of Adamawa Emirate.',
-        frenchText: 'Sa lignée paternelle remonte à Al‑Hassan b. Ali (RTA) par des ancêtres éminents; du côté maternel, il descend du Prince Zubair de l'émirat d'Adamawa.',
+        frenchText: `Sa lignée paternelle remonte à Al‑Hassan b. Ali (RTA) par des ancêtres éminents; du côté maternel, il descend du Prince Zubair de l'émirat d'Adamawa.`,
         arabicText: 'نَسَبه من جهة الأب يصل إلى الحسن بن علي (رض) عبر أسلافٍ مشاهير؛ ومن جهة الأم إلى الأمير زبير من إمارة أداماوا.',
         hausaText: 'Asalin uban nasa ya kai ga Al‑Hasan ɗan Ali (RTA) ta manyan kakanni; na uwa kuma zuriyar Yarima Zubair na Daular Adamawa.'
       },
       {
         heading: 'Education & Teachers',
-        text: 'Early Qur'an with his father, then memorization at Gonori Garuwa. Studied Tafsir at Bunkure under Malam Abubakar Dawaki; fiqh and tasawwuf with scholars in Zaria, Katsina, Kano. Lived and studied long with Sheikh Abubakar Atiku Sanka (RTA).',
-        frenchText: 'Débuts en Coran chez son père puis hifz à Gonori Garuwa. Tafsir à Bunkure avec Malam Abubakar Dawaki; fiqh et tasawwuf avec des savants à Zaria, Katsina, Kano. Long séjour d'étude auprès du Cheikh Abubakar Atiku Sanka (RTA).',
+        text: `Early Qur'an with his father, then memorization at Gonori Garuwa. Studied Tafsir at Bunkure under Malam Abubakar Dawaki; fiqh and tasawwuf with scholars in Zaria, Katsina, Kano. Lived and studied long with Sheikh Abubakar Atiku Sanka (RTA).`,
+        frenchText: `Débuts en Coran chez son père puis hifz à Gonori Garuwa. Tafsir à Bunkure avec Malam Abubakar Dawaki; fiqh et tasawwuf avec des savants à Zaria, Katsina, Kano. Long séjour d'étude auprès du Cheikh Abubakar Atiku Sanka (RTA).`,
         arabicText: 'بدأ بالقرآن عند والده ثم أتم الحفظ في غونوري غاروا. درس التفسير في بنكوري على يد م. أبوبكر دواكي؛ والفقه والتصوف مع علماء في زاريا وكاتسينا وكانو. لازم الشيخ أبوبكر عتيقو سنكا (رض) زمناً.',
-        hausaText: 'Farkon Alƙur'ani wurin mahaifi, ya kammala hifzi a Gonori Garuwa. Ya yi Tafsiri a Bunkure tare da Malam Abubakar Dawaki; fiqhu da tasawwuf a Zaria, Katsina da Kano. Ya daɗe yana koyo wurin Sheikh Abubakar Atiku Sanka (RTA).'
+        hausaText: `Farkon Alƙur'ani wurin mahaifi, ya kammala hifzi a Gonori Garuwa. Ya yi Tafsiri a Bunkure tare da Malam Abubakar Dawaki; fiqhu da tasawwuf a Zaria, Katsina da Kano. Ya daɗe yana koyo wurin Sheikh Abubakar Atiku Sanka (RTA).`
       },
       {
         heading: 'Ijazah & Tijaniyya',
-        text: 'Initiated into Tariqa by Sheikh Malam Aala (1357 AH). Elevated by Sheikh Atiku Sanka to Muqaddam. Held numerous ijazāt: Qur'an (Sheikh Adam Arze), Hadith (Sheikh Muhammad b. Alawi al‑Maliki), and Silsalah Zahabiyya from Sheikh Ibrahim Niasse (RTA).',
-        frenchText: 'Initiation à la Tariqa par Cheikh Malam Aala (1357 H). Élevé au rang de Muqaddam par Cheikh Atiku Sanka. Nombreuses ijazāt: Coran (Cheikh Adam Arze), Hadith (Cheikh Muhammad b. Alawi al‑Maliki) et Silsalah Zahabiyya de Cheikh Ibrahim Niasse (RTA).',
+        text: `Initiated into Tariqa by Sheikh Malam Aala (1357 AH). Elevated by Sheikh Atiku Sanka to Muqaddam. Held numerous ijazāt: Qur'an (Sheikh Adam Arze), Hadith (Sheikh Muhammad b. Alawi al‑Maliki), and Silsalah Zahabiyya from Sheikh Ibrahim Niasse (RTA).`,
+        frenchText: `Initiation à la Tariqa par Cheikh Malam Aala (1357 H). Élevé au rang de Muqaddam par Cheikh Atiku Sanka. Nombreuses ijazāt: Coran (Cheikh Adam Arze), Hadith (Cheikh Muhammad b. Alawi al‑Maliki) et Silsalah Zahabiyya de Cheikh Ibrahim Niasse (RTA).`,
         arabicText: 'أُدخل الطريقة على يد الشيخ ملام آلا (1357هـ)، ورفعه الشيخ عتيقو سنكا إلى مُقدَّم. له إجازات كثيرة: القرآن (الشيخ آدم أرزي)، الحديث (الشيخ محمد بن علوي المالكي)، والسلسلة الذهبية من الشيخ إبراهيم نياس (رض).',
-        hausaText: 'Ya shiga Tariqa ta hannun Sheikh Malam Aala (1357H). Sheikh Atiku Sanka ya ɗaga shi zuwa Muqaddam. Ya samu ijazohi da dama: Alƙur'ani (Sheikh Adam Arze), Hadisi (Sheikh Muhammad b. Alawi al‑Maliki), Silsalah Zahabiyya daga Sheikh Ibrahim Niasse (RTA).'
+        hausaText: `Ya shiga Tariqa ta hannun Sheikh Malam Aala (1357H). Sheikh Atiku Sanka ya ɗaga shi zuwa Muqaddam. Ya samu ijazohi da dama: Alƙur'ani (Sheikh Adam Arze), Hadisi (Sheikh Muhammad b. Alawi al‑Maliki), Silsalah Zahabiyya daga Sheikh Ibrahim Niasse (RTA).`
       },
       {
         heading: 'Khalifatu Tijaniyya Designation',
         text: 'Sheikh Niasse (RTA) appointed him Khalifa for Borno in 1965 and formally "crowned" him in 1974 with an izār, stating: "We are pleased with him…his seniority…his truthful attachment." His seat remains in Dikwa, Borno.',
-        frenchText: 'Cheikh Niasse (RTA) le nomma Khalife pour le Borno en 1965 et le « couronna » officiellement en 1974 avec un izār, disant: « Nous sommes satisfaits de lui…son ancienneté…son attachement sincère. » Son siège est à Dikwa, Borno.',
+        frenchText: `Cheikh Niasse (RTA) le nomma Khalife pour le Borno en 1965 et le « couronna » officiellement en 1974 avec un izār, disant: « Nous sommes satisfaits de lui…son ancienneté…son attachement sincère. » Son siège est à Dikwa, Borno.`,
         arabicText: 'عيّنه الشيخ نياس (رض) خليفةً لبرنو سنة 1965 و«توّجه» رسمياً سنة 1974 بإزارٍ قائلاً: «رضينا به…أقدميّته…صدق انتسابه». مقره في دِكْوا ببرنو.',
         hausaText: 'Sheikh Niasse (RTA) ya naɗa shi Khalifa a Borno a 1965, a 1974 ya naɗa shi da izār yana cewa: "Mun yarda da shi…tsohonsa…gaskiyar alaƙarsa." Zama sa a Dikwa, Borno.'
       },
       {
         heading: 'Major Works & Publications',
-        text: 'Authored over 100 books/treatises: Qur'anic tafsir (Bayanul Qur'an), hadith commentary, fiqh, Sufi ethics, devotional poetry—in Arabic, Hausa, and Kanuri.',
-        frenchText: 'Plus de 100 ouvrages: tafsir coranique (Bayanul Qur'an), commentaire du hadith, fiqh, éthique soufie, poésie dévotionnelle—en arabe, haoussa et kanouri.',
+        text: `Authored over 100 books/treatises: Qur'anic tafsir (Bayanul Qur'an), hadith commentary, fiqh, Sufi ethics, devotional poetry—in Arabic, Hausa, and Kanuri.`,
+        frenchText: `Plus de 100 ouvrages: tafsir coranique (Bayanul Qur'an), commentaire du hadith, fiqh, éthique soufie, poésie dévotionnelle—en arabe, haoussa et kanouri.`,
         arabicText: 'ألّف أكثر من 100 كتاب/رسالة: تفسير قرآني (بيان القرآن)، شروح حديثية، فقه، أخلاق صوفية، وشعر تعبّدي—بالعربية والهوسا والكانورية.',
-        hausaText: 'Ya rubuta fiye da littattafai/risaloli 100: tafsiri na Alƙur'ani (Bayanul Qur'an), sharhin hadisi, fiqhu, ɗabi'un Sufanci, waƙoƙin ibada—cikin Larabci, Hausa da Kanuri.'
+        hausaText: `Ya rubuta fiye da littattafai/risaloli 100: tafsiri na Alƙur'ani (Bayanul Qur'an), sharhin hadisi, fiqhu, ɗabi'un Sufanci, waƙoƙin ibada—cikin Larabci, Hausa da Kanuri.`
       },
       {
         heading: 'Passing & Burial',
         text: 'Passed on 13 November 2014 (20 Muharram 1436). Buried at his Dikwa home beside his mother.',
-        frenchText: 'Décédé le 13 novembre 2014 (20 Muharram 1436). Inhumé à son domicile de Dikwa, près de sa mère.',
+        frenchText: `Décédé le 13 novembre 2014 (20 Muharram 1436). Inhumé à son domicile de Dikwa, près de sa mère.`,
         arabicText: 'توفي في 13 نوفمبر 2014 (20 محرّم 1436هـ). دُفن في منزله بدِكْوا إلى جانب والدته.',
         hausaText: 'Ya rasu 13 Nuwamba 2014 (20 Muharram 1436). An binne shi a gidansa na Dikwa kusa da mahaifiyarsa.'
       },
       {
         heading: 'Legacy',
         text: 'His students number in the thousands; his books circulate widely; his charitable foundations—orphanages, schools, mosques—persist; and his family continues his mission.',
-        frenchText: 'Des milliers d'élèves; ses livres circulent largement; ses fondations caritatives—orphelinats, écoles, mosquées—perdurent; sa famille poursuit sa mission.',
+        frenchText: `Des milliers d'élèves; ses livres circulent largement; ses fondations caritatives—orphelinats, écoles, mosquées—perdurent; sa famille poursuit sa mission.`,
         arabicText: 'تلامذته بالآلاف؛ وتنتشر كتبه بكثرة؛ وتستمر مؤسساته الخيرية—مأوى أيتام ومدارس ومساجد؛ وأسرته تواصل رسالته.',
         hausaText: 'Almajiransa su duk dubunnai; littattafansa sun bazu ƙwarai; gidajen agaji—maraye, makarantu, masallatai—sun ci gaba; danginsa suna ci gaba da aikinsa.'
       }
@@ -252,11 +252,11 @@ const SCHOLARS: Scholar[] = [
     name: 'Shaykh Ibrahim Niasse (1900–1975)',
     title: 'Baye – The Great Reviver of Tijaniyya',
     bio: 'Shaykh Ibrahim Niasse (1900–1975), known as Baye Niasse, was the most influential Tijani Sufi leader of the 20th century. Born in Kaolack, Senegal, he led the Fayda ("Flood") spiritual renewal, bringing millions into the Tijaniyya. His teachings emphasized divine love, direct spiritual experience, and service to humanity.',
-    frenchBio: 'Cheikh Ibrahim Niasse (1900–1975), dit Baye Niasse, fut le plus influent dirigeant soufi tijani du XXe siècle. Né à Kaolack (Sénégal), il a conduit le renouveau spirituel de la Fayda (« Le Flot »), amenant des millions à la Tijaniyya. Ses enseignements mettent l'accent sur l'amour divin, l'expérience spirituelle directe et le service à l'humanité.',
+    frenchBio: `Cheikh Ibrahim Niasse (1900–1975), dit Baye Niasse, fut le plus influent dirigeant soufi tijani du XXe siècle. Né à Kaolack (Sénégal), il a conduit le renouveau spirituel de la Fayda (« Le Flot »), amenant des millions à la Tijaniyya. Ses enseignements mettent l'accent sur l'amour divin, l'expérience spirituelle directe et le service à l'humanité.`,
     arabicBio: 'كان الشيخ إبراهيم نياس (1900–1975)، المعروف بـ «باي نياس»، أبرز قائد صوفي تجاني في القرن العشرين. وُلِد في كاولاك بالسنغال، وقاد التجديد الروحي للفيضة، مما أدخل الملايين في الطريقة التجانية. ركّزت تعاليمه على الحب الإلهي والتجربة الروحية المباشرة وخدمة الإنسانية.',
     hausaBio: 'Shaykh Ibrahim Niasse (1900–1975), wanda aka fi sani da Baye Niasse, shi ne shugaban Sufi na Tijaniyya mafi tasiri a ƙarni na 20. An haife shi a Kaolack, Senegal, ya jagoranci sabuntar ruhaniya na Fayda ("Ambaliya"), wanda ya kawo miliyoyin mutane cikin Tijaniyya. Koyarwarsa ta jaddada soyayyar Allah, ƙwarewar ruhaniya kai tsaye, da hidima ga ɗan adam.',
     specialties: ['Tariqa Tijaniyya', 'Fayda', 'Islamic Scholarship', 'Spiritual Training', 'Global Leadership'],
-    image: require('../../assets/shiekhibrahim.jpeg'),
+    image: require('../../assets/Shaykh Ibrahim.jpg'),
     details: [
       {
         heading: 'Birth & Early Life',
@@ -267,29 +267,29 @@ const SCHOLARS: Scholar[] = [
       },
       {
         heading: 'Education & Spiritual Formation',
-        text: 'Memorized the Qur'an by age 7. Studied under his father and numerous scholars across West Africa. Received the Tijaniyya wird from his father at a young age.',
-        frenchText: 'Mémorisa le Coran à 7 ans. Étudia auprès de son père et de nombreux savants d'Afrique de l'Ouest. Reçut le wird tijani de son père dès son jeune âge.',
+        text: `Memorized the Qur'an by age 7. Studied under his father and numerous scholars across West Africa. Received the Tijaniyya wird from his father at a young age.`,
+        frenchText: `Mémorisa le Coran à 7 ans. Étudia auprès de son père et de nombreux savants d'Afrique de l'Ouest. Reçut le wird tijani de son père dès son jeune âge.`,
         arabicText: 'حفظ القرآن في السابعة من عمره. درس على يد والده وعدد من العلماء في غرب أفريقيا. تلقى الورد التجاني من والده منذ صغره.',
-        hausaText: 'Ya haddace Alƙur'ani yana ɗan shekara 7. Ya karanta a ƙarƙashin mahaifinsa da malaman Afirka ta Yamma da yawa. Ya karɓi wirdin Tijaniyya daga mahaifinsa tun ƙuruciya.'
+        hausaText: `Ya haddace Alƙur'ani yana ɗan shekara 7. Ya karanta a ƙarƙashin mahaifinsa da malaman Afirka ta Yamma da yawa. Ya karɓi wirdin Tijaniyya daga mahaifinsa tun ƙuruciya.`
       },
       {
         heading: 'The Fayda (Divine Flood)',
         text: 'In 1929, he announced that Allah had granted him the "Fayda" (فيضة) – a spiritual opening that would bring masses to divine knowledge. This was prophesied by Sheikh Ahmad Tijani himself.',
-        frenchText: 'En 1929, il annonça qu'Allah lui avait accordé la « Fayda » (فيضة) – ouverture spirituelle qui amènerait les masses à la connaissance divine. Cela avait été prophétisé par Cheikh Ahmad Tijani.',
+        frenchText: `En 1929, il annonça qu'Allah lui avait accordé la « Fayda » (فيضة) – ouverture spirituelle qui amènerait les masses à la connaissance divine. Cela avait été prophétisé par Cheikh Ahmad Tijani.`,
         arabicText: 'في عام 1929 أعلن أن الله منحه «الفيضة» – فتحاً روحياً سيهدي الجماهير إلى المعرفة الربانية. وكانت هذه بشارة من الشيخ أحمد التجاني نفسه.',
-        hausaText: 'A shekara 1929, ya sanar cewa Allah ya ba shi "Fayda" (فيضة) – buɗewar ruhaniya da za ta kawo jama'a zuwa sanin Allah. Wannan an yi annabcinsa ta Shehu Ahmad Tijani da kansa.'
+        hausaText: `A shekara 1929, ya sanar cewa Allah ya ba shi "Fayda" (فيضة) – buɗewar ruhaniya da za ta kawo jama'a zuwa sanin Allah. Wannan an yi annabcinsa ta Shehu Ahmad Tijani da kansa.`
       },
       {
         heading: 'Global Influence',
         text: 'His followers number in the tens of millions across Africa, Europe, Asia, and the Americas. He traveled extensively to spread the Tijani message and was received by kings and presidents.',
         frenchText: 'Ses disciples se comptent par dizaines de millions en Afrique, Europe, Asie et Amériques. Il voyagea intensément pour diffuser le message tijani et fut reçu par rois et présidents.',
         arabicText: 'أتباعه بعشرات الملايين في أفريقيا وأوروبا وآسيا والأمريكتين. سافر كثيراً لنشر رسالة التجانية واستقبله ملوك ورؤساء.',
-        hausaText: 'Mabiyansa dubun-dubatar miliyoyin ne a ko'ina cikin Afirka, Turai, Asiya, da Amurka. Ya yi tafiye-tafiye da yawa don yada saƙon Tijaniyya kuma sarakuna da shugabannin ƙasashe sun karɓe shi.'
+        hausaText: `Mabiyansa dubun-dubatar miliyoyin ne a ko'ina cikin Afirka, Turai, Asiya, da Amurka. Ya yi tafiye-tafiye da yawa don yada saƙon Tijaniyya kuma sarakuna da shugabannin ƙasashe sun karɓe shi.`
       },
       {
         heading: 'Passing & Legacy',
         text: 'Passed away on 26 July 1975 in London during a medical trip. Buried in Medina Baye, Kaolack. His annual Mawlid celebration draws millions of pilgrims.',
-        frenchText: 'Décédé le 26 juillet 1975 à Londres lors d'un voyage médical. Enterré à Medina Baye, Kaolack. Son Mawlid annuel attire des millions de pèlerins.',
+        frenchText: `Décédé le 26 juillet 1975 à Londres lors d'un voyage médical. Enterré à Medina Baye, Kaolack. Son Mawlid annuel attire des millions de pèlerins.`,
         arabicText: 'توفي في 26 يوليو 1975 بلندن أثناء رحلة علاجية. دُفن في المدينة باي بكاولاك. يستقطب مولده السنوي ملايين الزوار.',
         hausaText: 'Ya rasu 26 Yuli 1975 a London yayin tafiya don lafiya. An binne shi a Medina Baye, Kaolack. Bukukuwan Maulid na shekara-shekara suna jawo miliyoyin mahajjata.'
       }
@@ -301,11 +301,11 @@ const SCHOLARS: Scholar[] = [
     name: 'Sidi Ahmad al-Tijani (1737–1815)',
     title: 'Founder of the Tijaniyya Order',
     bio: 'Sidi Ahmad al-Tijani (1737–1815) was the founder of the Tijaniyya Sufi order. Born in Ain Madhi, Algeria, he spent his life seeking spiritual perfection. After studying with many masters across North Africa, he received a direct spiritual opening from the Prophet Muhammad ﷺ in 1782, establishing the Tariqa Tijaniyya.',
-    frenchBio: 'Sidi Ahmad al-Tijani (1737–1815) fut le fondateur de l'ordre soufi Tijaniyya. Né à Aïn Madhi, en Algérie, il consacra sa vie à la quête de la perfection spirituelle. Après avoir étudié auprès de nombreux maîtres en Afrique du Nord, il reçut une ouverture spirituelle directe du Prophète Muhammad ﷺ en 1782, établissant la Tariqa Tijaniyya.',
+    frenchBio: `Sidi Ahmad al-Tijani (1737–1815) fut le fondateur de l'ordre soufi Tijaniyya. Né à Aïn Madhi, en Algérie, il consacra sa vie à la quête de la perfection spirituelle. Après avoir étudié auprès de nombreux maîtres en Afrique du Nord, il reçut une ouverture spirituelle directe du Prophète Muhammad ﷺ en 1782, établissant la Tariqa Tijaniyya.`,
     arabicBio: 'كان سيدي أحمد التجاني (1737–1815) مؤسس الطريقة التجانية الصوفية. وُلد في عين ماضي بالجزائر، وقضى حياته ساعياً إلى الكمال الروحي. بعد التتلمذ على كثير من المشايخ في شمال أفريقيا، تلقى فتحاً روحياً مباشراً من النبي محمد ﷺ عام 1782، مؤسساً الطريقة التجانية.',
     hausaBio: 'Sidi Ahmad al-Tijani (1737–1815) shi ne wanda ya kafa hanyar Sufi ta Tijaniyya. An haife shi a Ain Madhi, Algeria, ya yi rayuwarsa yana neman kamalar ruhaniya. Bayan ya karanta a wurin mashahuran malaman Arewacin Afirka da yawa, ya sami buɗewar ruhaniya kai tsaye daga Annabi Muhammad ﷺ a 1782, inda ya kafa Tariqa Tijaniyya.',
     specialties: ['Tariqa Tijaniyya', 'Sufism', 'Islamic Sciences', 'Spiritual Training', 'North African Islam'],
-    image: require('../../assets/mausoleum.jpeg'),
+    image: require('../../assets/Shaykh Ahmad.jpg'),
     details: [
       {
         heading: 'Birth & Early Life',
@@ -331,16 +331,16 @@ const SCHOLARS: Scholar[] = [
       {
         heading: 'Settlement in Fez',
         text: 'Settled permanently in Fez in 1798, where he spent his final years teaching and guiding seekers. His zawiya became a center of learning.',
-        frenchText: 'S'installa définitivement à Fès en 1798, y passant ses dernières années à enseigner et à guider les aspirants. Sa zawiya devint un centre de savoir.',
+        frenchText: `S'installa définitivement à Fès en 1798, y passant ses dernières années à enseigner et à guider les aspirants. Sa zawiya devint un centre de savoir.`,
         arabicText: 'استقر نهائياً في فاس عام 1798، وأمضى سنواته الأخيرة في التعليم وإرشاد السالكين. أصبحت زاويته مركزاً للعلم.',
         hausaText: 'Ya zauna a Fez na dindindin a shekara 1798, inda ya yi shekarunsa na ƙarshe yana koyarwa da shiryar da masu nema. Zawiyarsa ta zama cibiyar ilimi.'
       },
       {
         heading: 'Passing & Legacy',
         text: 'Passed away in 1815 in Fez and is buried there. His order spread across Africa, the Middle East, and beyond, with millions of followers today.',
-        frenchText: 'Décédé en 1815 à Fès où il est enterré. Son ordre s'est répandu en Afrique, au Moyen-Orient et au-delà, comptant aujourd'hui des millions de fidèles.',
+        frenchText: `Décédé en 1815 à Fès où il est enterré. Son ordre s'est répandu en Afrique, au Moyen-Orient et au-delà, comptant aujourd'hui des millions de fidèles.`,
         arabicText: 'توفي عام 1815 في فاس ودُفن فيها. انتشرت طريقته في أفريقيا والشرق الأوسط وما وراءها، وله الملايين من الأتباع اليوم.',
-        hausaText: 'Ya rasu a 1815 a Fez kuma an binne shi a can. Hanyarsa ta bazu ko'ina cikin Afirka, Gabas ta Tsakiya, da wajenta, tare da miliyoyin mabiya a yau.'
+        hausaText: `Ya rasu a 1815 a Fez kuma an binne shi a can. Hanyarsa ta bazu ko'ina cikin Afirka, Gabas ta Tsakiya, da wajenta, tare da miliyoyin mabiya a yau.`
       }
     ]
   },
@@ -350,11 +350,11 @@ const SCHOLARS: Scholar[] = [
     name: 'Al-Hajj Umar Tall (1797–1864)',
     title: 'Warrior Scholar & Khalifa of Tijaniyya in West Africa',
     bio: 'Al-Hajj Umar Tall (1797–1864) was a Fulani scholar, Islamic reformer, and Tijani leader who established the Toucouleur Empire. He was initiated into the Tijaniyya by Muhammad al-Ghali and became the Khalifa for the Tijaniyya in West Africa. His jihad efforts expanded Islamic influence across Senegambia and Mali.',
-    frenchBio: 'El Hadj Omar Tall (1797–1864) était un érudit peul, réformateur islamique et chef tijani qui fonda l'Empire toucouleur. Initié à la Tijaniyya par Muhammad al-Ghali, il devint Khalife de la Tijaniyya en Afrique de l'Ouest. Son jihad étendit l'influence islamique à travers la Sénégambie et le Mali.',
+    frenchBio: `El Hadj Omar Tall (1797–1864) était un érudit peul, réformateur islamique et chef tijani qui fonda l'Empire toucouleur. Initié à la Tijaniyya par Muhammad al-Ghali, il devint Khalife de la Tijaniyya en Afrique de l'Ouest. Son jihad étendit l'influence islamique à travers la Sénégambie et le Mali.`,
     arabicBio: 'كان الحاج عمر تال (1797–1864) عالماً فُلانياً ومُصلحاً إسلامياً وقائداً تجانياً أسّس إمبراطورية التوكولور. تلقى التجانية من محمد الغالي وأصبح خليفة التجانية في غرب أفريقيا. وسّع جهادُه النفوذَ الإسلامي في السنغامبيا ومالي.',
     hausaBio: 'Al-Hajj Umar Tall (1797–1864) malamin Fulani ne, mai gyaran addinin Musulunci, kuma shugaban Tijaniyya wanda ya kafa Daular Toucouleur. An shigar da shi cikin Tijaniyya ta Muhammad al-Ghali kuma ya zama Khalifa na Tijaniyya a Yammacin Afirka. Jihadin sa ya fadada tasirin Musulunci a cikin Senegambia da Mali.',
     specialties: ['Tariqa Tijaniyya', 'Jihad', 'Islamic Reform', 'Leadership', 'West African History'],
-    image: require('../../assets/el_hadj_umar.jpeg'),
+    image: require('../../assets/Umar.jpg'),
     details: [
       {
         heading: 'Birth & Origin',
@@ -366,21 +366,21 @@ const SCHOLARS: Scholar[] = [
       {
         heading: 'Pilgrimage & Initiation',
         text: 'During his hajj (1827–1830), he met Muhammad al-Ghali in Medina, who initiated him into the Tijaniyya and appointed him Khalifa for West Africa.',
-        frenchText: 'Au cours de son hajj (1827–1830), il rencontra Muhammad al-Ghali à Médine, qui l'initia à la Tijaniyya et le nomma Khalife pour l'Afrique de l'Ouest.',
+        frenchText: `Au cours de son hajj (1827–1830), il rencontra Muhammad al-Ghali à Médine, qui l'initia à la Tijaniyya et le nomma Khalife pour l'Afrique de l'Ouest.`,
         arabicText: 'في حجه (1827–1830) التقى بمحمد الغالي في المدينة، فأدخله في التجانية وولّاه خليفة غرب أفريقيا.',
         hausaText: 'A lokacin hajjinsa (1827–1830), ya haɗu da Muhammad al-Ghali a Madina, wanda ya shigar da shi cikin Tijaniyya kuma ya naɗa shi Khalifa na Yammacin Afirka.'
       },
       {
         heading: 'The Jihad',
         text: 'Launched a jihad in 1852 that created the Toucouleur Empire, conquering much of present-day Mali and Senegal and establishing Islamic governance.',
-        frenchText: 'Lança un jihad en 1852, fondant l'Empire toucouleur, conquérant une grande partie des actuels Mali et Sénégal et établissant une gouvernance islamique.',
+        frenchText: `Lança un jihad en 1852, fondant l'Empire toucouleur, conquérant une grande partie des actuels Mali et Sénégal et établissant une gouvernance islamique.`,
         arabicText: 'أطلق جهاداً عام 1852 أسّس به إمبراطورية التوكولور، وفتح مناطق واسعة من مالي والسنغال الحاليين وأقام حكماً إسلامياً.',
         hausaText: 'Ya fara jihadi a 1852 wanda ya haifar da Daular Toucouleur, inda ya ci yawancin yankunan Mali da Senegal na yanzu kuma ya kafa mulkin Musulunci.'
       },
       {
         heading: 'Passing & Legacy',
         text: 'Died in 1864 near Bandiagara, Mali. His legacy includes spreading the Tijaniyya across West Africa and his influential work "Kitab Rimah."',
-        frenchText: 'Décédé en 1864 près de Bandiagara, Mali. Son héritage inclut la diffusion de la Tijaniyya en Afrique de l'Ouest et son œuvre influente « Kitab Rimah ».',
+        frenchText: `Décédé en 1864 près de Bandiagara, Mali. Son héritage inclut la diffusion de la Tijaniyya en Afrique de l'Ouest et son œuvre influente « Kitab Rimah ».`,
         arabicText: 'توفي عام 1864 قرب بانديغارا في مالي. يشمل إرثه نشر التجانية في غرب أفريقيا ومؤلَّفه المؤثر «كتاب الرماح».',
         hausaText: 'Ya rasu a 1864 kusa da Bandiagara, Mali. Gadonsa ya haɗa da yada Tijaniyya a Yammacin Afirka da littafinsa mai tasiri "Kitab Rimah."'
       }

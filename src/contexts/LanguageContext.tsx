@@ -80,6 +80,7 @@ const translations = {
     'scholars.title': 'Tijaniya Scholars',
     'scholars.subtitle': 'Learn about the great scholars of Tariqa Tijaniyya',
     'scholars.search_placeholder': 'Search scholars...',
+    'scholars.view_profile': 'View Profile',
     'scholar_detail.biography': 'Biography',
     'scholar_detail.details': 'Details',
 
@@ -588,6 +589,7 @@ const translations = {
     'scholars.title': 'Savants Tijaniyya',
     'scholars.subtitle': 'Découvrez les grands savants de la Tariqa Tijaniyya',
     'scholars.search_placeholder': 'Rechercher des savants...',
+    'scholars.view_profile': 'Voir le Profil',
     'scholar_detail.biography': 'Biographie',
     'scholar_detail.details': 'Détails',
 
@@ -1096,6 +1098,7 @@ const translations = {
     'scholars.title': 'Malaman Tijaniyya',
     'scholars.subtitle': 'Koyo game da manyan malaman Tariqa Tijaniyya',
     'scholars.search_placeholder': 'Nemo malamai...',
+    'scholars.view_profile': 'Duba Bayanan Martaba',
     'scholar_detail.biography': 'Tarihin Rayuwa',
     'scholar_detail.details': 'Cikakkun Bayanai',
 
@@ -1604,6 +1607,7 @@ const translations = {
     'scholars.title': 'علماء التجانية',
     'scholars.subtitle': 'تعرّف على كبار علماء الطريقة التجانية',
     'scholars.search_placeholder': 'ابحث عن العلماء...',
+    'scholars.view_profile': 'عرض الملف الشخصي',
     'scholar_detail.biography': 'السيرة',
     'scholar_detail.details': 'تفاصيل',
 
@@ -1845,6 +1849,7 @@ const translations = {
     'scholars.title': 'Malamai na Tijaniyya',
     'scholars.subtitle': 'Koyi game da manyan malamai na Tariqa Tijaniyya',
     'scholars.search_placeholder': 'Nemo malamai...',
+    'scholars.view_profile': 'Duba Bayanan Martaba',
     'scholar_detail.biography': 'Tarihin Rayuwa',
     'scholar_detail.details': 'Cikakkun bayanai',
     

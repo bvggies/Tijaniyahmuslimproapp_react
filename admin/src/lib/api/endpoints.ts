@@ -1,4 +1,4 @@
-import { get, post, patch, del } from './client';
+import { get, post, patch, put, del } from './client';
 import {
   AuthResponse,
   LoginCredentials,
@@ -299,6 +299,66 @@ export const newsApi = {
 export const auditLogsApi = {
   getAll: (params?: { page?: number; limit?: number; userId?: string; action?: string; entityType?: string }) =>
     get<PaginatedResponse<AuditLog>>('/audit-logs', params),
+};
+
+// ==================== MAKKAH LIVE ====================
+export interface MakkahLiveChannel {
+  id: string;
+  title: string;
+  titleArabic?: string;
+  subtitle?: string;
+  type: 'YOUTUBE_LIVE' | 'TV_CHANNEL';
+  category: 'MAKKAH' | 'MADINAH' | 'QURAN' | 'ISLAMIC' | 'NEWS' | 'EDUCATIONAL';
+  youtubeId?: string;
+  websiteUrl?: string;
+  logo?: string;
+  thumbnailUrl?: string;
+  sortOrder: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMakkahChannelDto {
+  title: string;
+  titleArabic?: string;
+  subtitle?: string;
+  type: 'YOUTUBE_LIVE' | 'TV_CHANNEL';
+  category: 'MAKKAH' | 'MADINAH' | 'QURAN' | 'ISLAMIC' | 'NEWS' | 'EDUCATIONAL';
+  youtubeId?: string;
+  websiteUrl?: string;
+  logo?: string;
+  thumbnailUrl?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+  isFeatured?: boolean;
+}
+
+export const makkahLiveApi = {
+  getAll: () => get<MakkahLiveChannel[]>('/makkah-live/admin/channels'),
+  
+  getById: (id: string) => get<MakkahLiveChannel>(`/makkah-live/channels/${id}`),
+  
+  create: (data: CreateMakkahChannelDto) => 
+    post<MakkahLiveChannel>('/makkah-live/admin/channels', data),
+  
+  update: (id: string, data: Partial<CreateMakkahChannelDto>) =>
+    put<MakkahLiveChannel>(`/makkah-live/admin/channels/${id}`, data),
+  
+  delete: (id: string) => del(`/makkah-live/admin/channels/${id}`),
+  
+  toggleStatus: (id: string) =>
+    put<MakkahLiveChannel>(`/makkah-live/admin/channels/${id}/toggle-status`),
+  
+  toggleFeatured: (id: string) =>
+    put<MakkahLiveChannel>(`/makkah-live/admin/channels/${id}/toggle-featured`),
+  
+  reorder: (orders: { id: string; sortOrder: number }[]) =>
+    put<MakkahLiveChannel[]>('/makkah-live/admin/channels/reorder', { orders }),
+  
+  seed: () => post<{ message: string; count: number }>('/makkah-live/admin/seed'),
 };
 
 // ==================== SYSTEM ====================

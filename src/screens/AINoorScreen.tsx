@@ -1,11 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TextInput, 
+  TouchableOpacity, 
+  FlatList, 
+  KeyboardAvoidingView, 
+  Platform, 
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  StatusBar,
+  ScrollView,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTimeFormat } from '../contexts/TimeFormatContext';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type Message = {
   id: string;
@@ -14,7 +31,10 @@ type Message = {
   timestamp: Date;
 };
 
-const OPENAI_API_KEY = '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';
+// Groq API Configuration
+import Constants from 'expo-constants';
+const GROQ_API_KEY = (Constants.expoConfig?.extra as any)?.GROQ_API_KEY || '';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const SYSTEM_PROMPT = `You are AI Noor, a knowledgeable and compassionate Islamic assistant. You help Muslims with:
 
@@ -37,6 +57,56 @@ Always respond with:
 
 Keep responses concise but informative, and always end with Islamic phrases like "May Allah guide us all" or "Barakallahu feeki".`;
 
+// Quick suggestion chips
+const SUGGESTIONS = [
+  { id: '1', text: 'Dua for morning', icon: 'sunny-outline' },
+  { id: '2', text: 'Surah Al-Fatiha', icon: 'book-outline' },
+  { id: '3', text: 'Tijaniyya Wird', icon: 'heart-outline' },
+  { id: '4', text: 'Prayer times', icon: 'time-outline' },
+];
+
+// Typing indicator component
+const TypingIndicator = () => {
+  const dot1 = useRef(new Animated.Value(0)).current;
+  const dot2 = useRef(new Animated.Value(0)).current;
+  const dot3 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animate = (dot: Animated.Value, delay: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
+        ])
+      ).start();
+    };
+
+    animate(dot1, 0);
+    animate(dot2, 150);
+    animate(dot3, 300);
+  }, []);
+
+  const dotStyle = (dot: Animated.Value) => ({
+    transform: [{ translateY: dot.interpolate({ inputRange: [0, 1], outputRange: [0, -6] }) }],
+  });
+
+  return (
+    <View style={styles.typingContainer}>
+      <View style={styles.typingBubble}>
+        <View style={styles.aiAvatarSmall}>
+          <Text style={styles.aiAvatarEmoji}>✨</Text>
+        </View>
+        <View style={styles.typingDots}>
+          <Animated.View style={[styles.typingDot, dotStyle(dot1)]} />
+          <Animated.View style={[styles.typingDot, dotStyle(dot2)]} />
+          <Animated.View style={[styles.typingDot, dotStyle(dot3)]} />
+        </View>
+      </View>
+    </View>
+  );
+};
+
 export default function AINoorScreen({ route }: any) {
   const { searchQuery } = route.params || {};
   const insets = useSafeAreaInsets();
@@ -47,35 +117,46 @@ export default function AINoorScreen({ route }: any) {
     { 
       id: 'm1', 
       role: 'assistant', 
-      content: 'Assalamu alaikum! I am AI Noor, your Islamic assistant. Ask me anything about Islam, prayer, Quran, Tijaniyya, or spiritual guidance. May Allah bless our conversation!',
+      content: 'Assalamu alaikum! ☪️\n\nI am AI Noor, your Islamic companion. I\'m here to help you with:\n\n• Quran & Hadith guidance\n• Duas and supplications\n• Tijaniyya teachings\n• Prayer and spiritual advice\n\nHow may I assist you today?',
       timestamp: new Date()
     }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const flatListRef = useRef<FlatList>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   // Auto-send search query if provided
   useEffect(() => {
     if (searchQuery && searchQuery.trim()) {
       setInput(searchQuery);
-      // Auto-send the search query after a short delay
       setTimeout(() => {
         onSend();
       }, 500);
     }
   }, [searchQuery]);
 
-  const callOpenAI = async (userMessage: string, conversationHistory: Message[]) => {
+  const callGroqAI = async (userMessage: string, conversationHistory: Message[]) => {
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      console.log('🤖 Calling Groq API...');
+      
+      const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'llama-3.3-70b-versatile',
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             ...conversationHistory.map(msg => ({
@@ -84,19 +165,23 @@ export default function AINoorScreen({ route }: any) {
             })),
             { role: 'user', content: userMessage }
           ],
-          max_tokens: 500,
+          max_tokens: 1024,
           temperature: 0.7,
+          top_p: 0.9,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        const errorData = await response.text();
+        console.error('Groq API Error Response:', errorData);
+        throw new Error(`Groq API error: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('✅ Groq API response received');
       return data.choices[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
     } catch (error) {
-      console.error('OpenAI API Error:', error);
+      console.error('Groq API Error:', error);
       return 'I apologize, but I am experiencing technical difficulties. Please check your internet connection and try again. May Allah bless you!';
     }
   };
@@ -105,6 +190,8 @@ export default function AINoorScreen({ route }: any) {
     const content = input.trim();
     if (!content || isLoading) return;
 
+    setShowSuggestions(false);
+    
     const userMsg: Message = { 
       id: String(Date.now()), 
       role: 'user', 
@@ -117,7 +204,7 @@ export default function AINoorScreen({ route }: any) {
     setIsLoading(true);
 
     try {
-      const aiResponse = await callOpenAI(content, messages);
+      const aiResponse = await callGroqAI(content, messages);
       const assistantMsg: Message = { 
         id: String(Date.now() + 1), 
         role: 'assistant', 
@@ -138,181 +225,482 @@ export default function AINoorScreen({ route }: any) {
     }
   };
 
+  const handleSuggestion = (suggestion: string) => {
+    setInput(suggestion);
+    setShowSuggestions(false);
+  };
+
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
   }, [messages]);
 
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
-        <Text style={styles.headerTitle}>{t('ai_noor.title')}</Text>
-        <Text style={styles.headerSubtitle}>{t('ai_noor.subtitle')}</Text>
-      </LinearGradient>
-
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
-        renderItem={({ item }) => (
-          <View style={[styles.bubble, item.role === 'assistant' ? styles.bubbleAssistant : styles.bubbleUser]}>
-            {item.role === 'assistant' ? (
-              <Ionicons name="sparkles" size={14} color={colors.accentTeal} style={{ marginRight: 6 }} />
-            ) : (
-              <Ionicons name="person" size={14} color={colors.accentYellow} style={{ marginRight: 6 }} />
-            )}
-            <Text style={item.role === 'assistant' ? styles.textAssistant : styles.textUser}>{item.content}</Text>
-            <Text style={styles.timestamp}>
-              {formatTime(item.timestamp)}
-            </Text>
+  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
+    const isAI = item.role === 'assistant';
+    
+    return (
+      <Animated.View 
+        style={[
+          styles.messageRow,
+          isAI ? styles.messageRowAI : styles.messageRowUser,
+          { opacity: fadeAnim }
+        ]}
+      >
+        {isAI && (
+          <View style={styles.aiAvatar}>
+            <LinearGradient
+              colors={['#00BFA5', '#00897B']}
+              style={styles.avatarGradient}
+            >
+              <Text style={styles.avatarEmoji}>✨</Text>
+            </LinearGradient>
           </View>
         )}
-      />
-
-      {isLoading && (
-        <View style={[styles.loadingContainer, { bottom: 90 }]}>
-          <ActivityIndicator size="small" color={colors.accentTeal} />
-          <Text style={styles.loadingText}>{t('ai_noor.thinking')}</Text>
-        </View>
-      )}
-
-      <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 20) + 80 }]}>
-        <TextInput
-          value={input}
-          onChangeText={setInput}
-          placeholder={t('ai_noor.placeholder')}
-          placeholderTextColor={colors.textSecondary}
-          style={styles.input}
-          returnKeyType="send"
-          onSubmitEditing={onSend}
-          multiline
-          maxLength={500}
-        />
-        <TouchableOpacity 
-          style={[styles.send, (!input.trim() || isLoading) && styles.sendDisabled]} 
-          onPress={onSend}
-          disabled={!input.trim() || isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.textSecondary} />
-          ) : (
-            <Ionicons name="send" size={18} color={input.trim() ? colors.accentTeal : colors.textSecondary} />
+        
+        <View style={[styles.messageBubble, isAI ? styles.aiBubble : styles.userBubble]}>
+          {isAI && (
+            <View style={styles.aiLabel}>
+              <Ionicons name="sparkles" size={10} color={colors.accentTeal} />
+              <Text style={styles.aiLabelText}>AI Noor</Text>
+            </View>
           )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <Text style={[styles.messageText, isAI ? styles.aiText : styles.userText]}>
+            {item.content}
+          </Text>
+          <Text style={[styles.timestamp, isAI ? styles.aiTimestamp : styles.userTimestamp]}>
+            {formatTime(item.timestamp)}
+          </Text>
+        </View>
+        
+        {!isAI && (
+          <View style={styles.userAvatar}>
+            <LinearGradient
+              colors={['#FFB74D', '#FF9800']}
+              style={styles.avatarGradient}
+            >
+              <Ionicons name="person" size={16} color="#FFFFFF" />
+            </LinearGradient>
+          </View>
+        )}
+      </Animated.View>
+    );
+  };
+
+  // Calculate bottom padding for Android to avoid bottom nav bar
+  const bottomPadding = Platform.OS === 'android' ? 100 : Math.max(insets.bottom, 20) + 80;
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header */}
+      <LinearGradient 
+        colors={[colors.accentTeal, '#00897B', colors.primary]} 
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: insets.top + 10 }]}
+      >
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <View style={styles.headerIcon}>
+              <Text style={styles.headerIconEmoji}>✨</Text>
+            </View>
+            <View>
+              <Text style={styles.headerTitle}>AI Noor</Text>
+              <Text style={styles.headerSubtitle}>Your Islamic Companion</Text>
+            </View>
+          </View>
+          
+          <View style={styles.headerRight}>
+            <View style={styles.statusBadge}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.statusText}>Online</Text>
+            </View>
+            <View style={styles.poweredBy}>
+              <Ionicons name="flash" size={10} color="#FFD700" />
+              <Text style={styles.poweredByText}>Groq AI</Text>
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
+
+      {/* Messages */}
+      <KeyboardAvoidingView 
+        style={styles.chatContainer} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderMessage}
+          contentContainerStyle={[
+            styles.messagesList,
+            { paddingBottom: bottomPadding + 80 }
+          ]}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={isLoading ? <TypingIndicator /> : null}
+        />
+
+        {/* Suggestions */}
+        {showSuggestions && messages.length === 1 && (
+          <View style={styles.suggestionsContainer}>
+            <Text style={styles.suggestionsTitle}>Quick Questions</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.suggestionsList}
+            >
+              {SUGGESTIONS.map((suggestion) => (
+                <TouchableOpacity
+                  key={suggestion.id}
+                  style={styles.suggestionChip}
+                  onPress={() => handleSuggestion(suggestion.text)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name={suggestion.icon as any} size={16} color={colors.accentTeal} />
+                  <Text style={styles.suggestionText}>{suggestion.text}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Input Area */}
+        <View style={[styles.inputContainer, { paddingBottom: bottomPadding }]}>
+          <BlurView intensity={80} tint="dark" style={styles.inputBlur}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                value={input}
+                onChangeText={setInput}
+                placeholder="Ask anything about Islam..."
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+                returnKeyType="send"
+                onSubmitEditing={onSend}
+                multiline
+                maxLength={500}
+              />
+              <TouchableOpacity 
+                style={[
+                  styles.sendButton, 
+                  (!input.trim() || isLoading) && styles.sendButtonDisabled
+                ]} 
+                onPress={onSend}
+                disabled={!input.trim() || isLoading}
+                activeOpacity={0.7}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <LinearGradient
+                    colors={input.trim() ? ['#00BFA5', '#00897B'] : [colors.divider, colors.divider]}
+                    style={styles.sendButtonGradient}
+                  >
+                    <Ionicons 
+                      name="send" 
+                      size={18} 
+                      color={input.trim() ? '#FFFFFF' : colors.textSecondary} 
+                    />
+                  </LinearGradient>
+                )}
+              </TouchableOpacity>
+            </View>
+          </BlurView>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: colors.background 
+    backgroundColor: colors.background,
   },
+  
+  // Header
   header: { 
-    paddingTop: 50, 
-    paddingBottom: 12, 
-    paddingHorizontal: 16 
+    paddingBottom: 16, 
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  headerIconEmoji: {
+    fontSize: 24,
   },
   headerTitle: { 
-    color: colors.textPrimary, 
-    fontSize: 22, 
-    fontWeight: '800' 
+    color: '#FFFFFF', 
+    fontSize: 24, 
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   headerSubtitle: { 
-    color: colors.textSecondary, 
-    marginTop: 4 
+    color: 'rgba(255,255,255,0.8)', 
+    fontSize: 13,
+    marginTop: 2,
   },
-  bubble: { 
-    maxWidth: '86%', 
-    borderRadius: 14, 
-    padding: 12, 
-    marginBottom: 10, 
-    flexDirection: 'row', 
-    alignItems: 'flex-start',
-    position: 'relative'
+  headerRight: {
+    alignItems: 'flex-end',
   },
-  bubbleAssistant: { 
-    backgroundColor: colors.mintSurface, 
-    alignSelf: 'flex-start',
-    borderTopLeftRadius: 4
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 4,
   },
-  bubbleUser: { 
-    backgroundColor: colors.surface, 
-    alignSelf: 'flex-end',
-    borderTopRightRadius: 4
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4CAF50',
+    marginRight: 6,
   },
-  textAssistant: { 
-    color: colors.textDark,
+  statusText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  poweredBy: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  poweredByText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 10,
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+
+  // Chat
+  chatContainer: {
     flex: 1,
-    lineHeight: 20
   },
-  textUser: { 
+  messagesList: {
+    padding: 16,
+    paddingTop: 20,
+  },
+  
+  // Message Rows
+  messageRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'flex-end',
+  },
+  messageRowAI: {
+    justifyContent: 'flex-start',
+  },
+  messageRowUser: {
+    justifyContent: 'flex-end',
+  },
+  
+  // Avatars
+  aiAvatar: {
+    marginRight: 8,
+  },
+  userAvatar: {
+    marginLeft: 8,
+  },
+  avatarGradient: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarEmoji: {
+    fontSize: 18,
+  },
+  
+  // Message Bubbles
+  messageBubble: {
+    maxWidth: SCREEN_WIDTH * 0.72,
+    borderRadius: 20,
+    padding: 14,
+    paddingBottom: 24,
+  },
+  aiBubble: {
+    backgroundColor: colors.surface,
+    borderBottomLeftRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.divider,
+  },
+  userBubble: {
+    backgroundColor: colors.accentTeal,
+    borderBottomRightRadius: 6,
+  },
+  aiLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  aiLabelText: {
+    fontSize: 11,
+    color: colors.accentTeal,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  aiText: {
     color: colors.textPrimary,
-    flex: 1,
-    lineHeight: 20
+  },
+  userText: {
+    color: '#FFFFFF',
   },
   timestamp: {
     position: 'absolute',
-    bottom: 4,
-    right: 8,
+    bottom: 6,
+    right: 12,
     fontSize: 10,
-    color: colors.textSecondary,
-    opacity: 0.7
   },
-  loadingContainer: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
+  aiTimestamp: {
+    color: colors.textSecondary,
+  },
+  userTimestamp: {
+    color: 'rgba(255,255,255,0.7)',
+  },
+  
+  // Typing Indicator
+  typingContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  typingBubble: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: 20,
-    alignSelf: 'center'
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: colors.divider,
   },
-  loadingText: {
+  aiAvatarSmall: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.accentTeal,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  aiAvatarEmoji: {
+    fontSize: 12,
+  },
+  typingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.accentTeal,
+    marginHorizontal: 2,
+  },
+  
+  // Suggestions
+  suggestionsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  suggestionsTitle: {
+    fontSize: 13,
     color: colors.textSecondary,
-    marginLeft: 8,
-    fontSize: 12
+    marginBottom: 10,
+    fontWeight: '600',
   },
-  composer: { 
-    position: 'absolute', 
-    left: 0, 
-    right: 0, 
-    bottom: 0, 
-    padding: 10,
-    flexDirection: 'row', 
-    alignItems: 'flex-end', 
+  suggestionsList: {
+    paddingRight: 16,
+  },
+  suggestionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: colors.accentTeal + '40',
+  },
+  suggestionText: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  
+  // Input
+  inputContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  inputBlur: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: colors.divider
+    borderTopColor: colors.divider,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    paddingLeft: 16,
+    paddingRight: 4,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.divider,
   },
   input: { 
     flex: 1, 
     color: colors.textPrimary, 
-    backgroundColor: colors.background, 
-    borderRadius: 12, 
-    paddingHorizontal: 12, 
-    paddingVertical: 10, 
-    marginRight: 8,
+    fontSize: 15,
+    paddingVertical: 10,
     maxHeight: 100,
-    textAlignVertical: 'top'
+    lineHeight: 20,
   },
-  send: { 
-    width: 40, 
-    height: 40, 
-    borderRadius: 20, 
-    backgroundColor: colors.mintSurface, 
-    alignItems: 'center', 
-    justifyContent: 'center' 
+  sendButton: {
+    marginLeft: 8,
   },
-  sendDisabled: {
-    backgroundColor: colors.divider,
-    opacity: 0.5
-  }
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+  sendButtonGradient: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

@@ -112,15 +112,15 @@ export const getVersesByChapterAsync = async (
   
   // Try cache first (unless force refresh)
   if (!forceRefresh) {
-    try {
+  try {
       const cached = await AsyncStorage.getItem(cacheKey);
-      if (cached) {
-        const parsed: QuranVerse[] = JSON.parse(cached);
+    if (cached) {
+      const parsed: QuranVerse[] = JSON.parse(cached);
         const chapterMeta = quranChapters.find(c => c.id === chapterId);
         if (parsed && parsed.length >= (chapterMeta?.verses || 0)) {
           return parsed;
         }
-      }
+    }
     } catch (e) {
       console.log('Cache read error:', e);
     }
@@ -227,10 +227,10 @@ export const searchQuran = async (
       if (cached) {
         const verses: QuranVerse[] = JSON.parse(cached);
         const matches = verses.filter(verse =>
-          verse.translation.toLowerCase().includes(lowercaseQuery) ||
+    verse.translation.toLowerCase().includes(lowercaseQuery) ||
           verse.transliteration?.toLowerCase().includes(lowercaseQuery) ||
-          verse.arabic.includes(query)
-        );
+    verse.arabic.includes(query)
+  );
         matchingVerses.push(...matches);
       }
     } catch (e) {
@@ -247,7 +247,7 @@ export const getBookmarks = async (): Promise<QuranBookmark[]> => {
     const stored = await AsyncStorage.getItem(BOOKMARKS_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch {
-    return [];
+  return [];
   }
 };
 

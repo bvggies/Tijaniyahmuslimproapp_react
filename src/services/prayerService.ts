@@ -1,5 +1,6 @@
 import { PrayerTime } from '../types';
 import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
+import AlAdhanService, { CalculationMethod as AlAdhanMethod } from './alAdhanService';
 
 // Helper function to format time from Date object
 export const formatTime = (date: Date, timeFormat: '12h' | '24h' = '12h'): string => {
@@ -16,6 +17,22 @@ export const formatTime = (date: Date, timeFormat: '12h' | '24h' = '12h'): strin
       hour12: false,
     });
   }
+};
+
+// Helper function to format time string (HH:mm) to Date object
+const parseTimeString = (timeStr: string, referenceDate?: Date): Date => {
+  const date = referenceDate ? new Date(referenceDate) : new Date();
+  // Remove timezone info like "(EAT)" from the string
+  const cleanTimeStr = timeStr.replace(/\s*\([^)]*\)\s*/g, '').trim();
+  const [hours, minutes] = cleanTimeStr.split(':').map(Number);
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
+
+// Helper function to format AlAdhan time to display format
+const formatAlAdhanTime = (timeStr: string, timeFormat: '12h' | '24h' = '12h'): string => {
+  const date = parseTimeString(timeStr);
+  return formatTime(date, timeFormat);
 };
 
 // Helper function to format time with seconds
@@ -91,8 +108,13 @@ const calculateCountdown = (targetDate: Date, currentDate: Date): { countdown: s
   }
 };
 
-// Prayer times calculation using Adhan library
-export const getPrayerTimes = async (latitude: number, longitude: number, timeFormat: '12h' | '24h' = '12h'): Promise<PrayerTime[]> => {
+// Prayer times calculation - Uses AlAdhan API with local Adhan library fallback
+export const getPrayerTimes = async (
+  latitude: number, 
+  longitude: number, 
+  timeFormat: '12h' | '24h' = '12h',
+  calculationMethod?: AlAdhanMethod
+): Promise<PrayerTime[]> => {
   try {
     console.log('🕌 Getting prayer times for coordinates:', latitude, longitude);
     
@@ -100,67 +122,126 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
     if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
       throw new Error(`Invalid coordinates: lat=${latitude}, lng=${longitude}`);
     }
-    
-    // Use real Adhan library for accurate prayer times
-    const coordinates = new Coordinates(latitude, longitude);
-    const params = CalculationMethod.MuslimWorldLeague();
-    const date = new Date();
-    
-    console.log('📅 Prayer times date:', date.toLocaleDateString());
-    console.log('🌍 Coordinates:', coordinates.latitude, coordinates.longitude);
-    
-    const prayerTimes = new PrayerTimes(coordinates, date, params);
-    
-    console.log('✅ Prayer times calculated successfully');
-    
-    // Convert Adhan prayer times to our format
-    const prayerTimesList: PrayerTime[] = [
-      { 
-        name: 'Fajr', 
-        time: formatTime(prayerTimes.fajr, timeFormat),
-        timeWithSeconds: formatTimeWithSeconds(prayerTimes.fajr, timeFormat),
-        isNext: false, 
-        isCurrent: false,
-        dateTime: prayerTimes.fajr
-      },
-      { 
-        name: 'Dhuhr', 
-        time: formatTime(prayerTimes.dhuhr, timeFormat),
-        timeWithSeconds: formatTimeWithSeconds(prayerTimes.dhuhr, timeFormat),
-        isNext: false, 
-        isCurrent: false,
-        dateTime: prayerTimes.dhuhr
-      },
-      { 
-        name: 'Asr', 
-        time: formatTime(prayerTimes.asr, timeFormat),
-        timeWithSeconds: formatTimeWithSeconds(prayerTimes.asr, timeFormat),
-        isNext: false, 
-        isCurrent: false,
-        dateTime: prayerTimes.asr
-      },
-      { 
-        name: 'Maghrib', 
-        time: formatTime(prayerTimes.maghrib, timeFormat),
-        timeWithSeconds: formatTimeWithSeconds(prayerTimes.maghrib, timeFormat),
-        isNext: false, 
-        isCurrent: false,
-        dateTime: prayerTimes.maghrib
-      },
-      { 
-        name: 'Isha', 
-        time: formatTime(prayerTimes.isha, timeFormat),
-        timeWithSeconds: formatTimeWithSeconds(prayerTimes.isha, timeFormat),
-        isNext: false, 
-        isCurrent: false,
-        dateTime: prayerTimes.isha
-      },
-    ];
+
+    const now = new Date();
+    let prayerTimesList: PrayerTime[] = [];
+
+    // Try AlAdhan API first for accurate times
+    try {
+      const alAdhanService = AlAdhanService.getInstance();
+      const alAdhanData = await alAdhanService.getPrayerTimes(
+        latitude, 
+        longitude, 
+        now,
+        { method: calculationMethod }
+      );
+
+      if (alAdhanData && alAdhanData.data?.timings) {
+        console.log('✅ Using AlAdhan API prayer times');
+        console.log('📍 Timezone:', alAdhanData.data.meta?.timezone);
+        console.log('📅 Date:', alAdhanData.data.date?.readable);
+        
+        const timings = alAdhanData.data.timings;
+        
+        prayerTimesList = [
+          {
+            name: 'Fajr',
+            time: formatAlAdhanTime(timings.Fajr, timeFormat),
+            timeWithSeconds: formatAlAdhanTime(timings.Fajr, timeFormat),
+            isNext: false,
+            isCurrent: false,
+            dateTime: parseTimeString(timings.Fajr, now),
+          },
+          {
+            name: 'Dhuhr',
+            time: formatAlAdhanTime(timings.Dhuhr, timeFormat),
+            timeWithSeconds: formatAlAdhanTime(timings.Dhuhr, timeFormat),
+            isNext: false,
+            isCurrent: false,
+            dateTime: parseTimeString(timings.Dhuhr, now),
+          },
+          {
+            name: 'Asr',
+            time: formatAlAdhanTime(timings.Asr, timeFormat),
+            timeWithSeconds: formatAlAdhanTime(timings.Asr, timeFormat),
+            isNext: false,
+            isCurrent: false,
+            dateTime: parseTimeString(timings.Asr, now),
+          },
+          {
+            name: 'Maghrib',
+            time: formatAlAdhanTime(timings.Maghrib, timeFormat),
+            timeWithSeconds: formatAlAdhanTime(timings.Maghrib, timeFormat),
+            isNext: false,
+            isCurrent: false,
+            dateTime: parseTimeString(timings.Maghrib, now),
+          },
+          {
+            name: 'Isha',
+            time: formatAlAdhanTime(timings.Isha, timeFormat),
+            timeWithSeconds: formatAlAdhanTime(timings.Isha, timeFormat),
+            isNext: false,
+            isCurrent: false,
+            dateTime: parseTimeString(timings.Isha, now),
+          },
+        ];
+      } else {
+        throw new Error('AlAdhan API returned no data');
+      }
+    } catch (alAdhanError) {
+      console.log('⚠️ AlAdhan API failed, falling back to local Adhan library');
+      console.error('AlAdhan error:', alAdhanError);
+      
+      // Fallback to local Adhan library
+      const coordinates = new Coordinates(latitude, longitude);
+      const params = CalculationMethod.MuslimWorldLeague();
+      const prayerTimes = new PrayerTimes(coordinates, now, params);
+      
+      prayerTimesList = [
+        { 
+          name: 'Fajr', 
+          time: formatTime(prayerTimes.fajr, timeFormat),
+          timeWithSeconds: formatTimeWithSeconds(prayerTimes.fajr, timeFormat),
+          isNext: false, 
+          isCurrent: false,
+          dateTime: prayerTimes.fajr
+        },
+        { 
+          name: 'Dhuhr', 
+          time: formatTime(prayerTimes.dhuhr, timeFormat),
+          timeWithSeconds: formatTimeWithSeconds(prayerTimes.dhuhr, timeFormat),
+          isNext: false, 
+          isCurrent: false,
+          dateTime: prayerTimes.dhuhr
+        },
+        { 
+          name: 'Asr', 
+          time: formatTime(prayerTimes.asr, timeFormat),
+          timeWithSeconds: formatTimeWithSeconds(prayerTimes.asr, timeFormat),
+          isNext: false, 
+          isCurrent: false,
+          dateTime: prayerTimes.asr
+        },
+        { 
+          name: 'Maghrib', 
+          time: formatTime(prayerTimes.maghrib, timeFormat),
+          timeWithSeconds: formatTimeWithSeconds(prayerTimes.maghrib, timeFormat),
+          isNext: false, 
+          isCurrent: false,
+          dateTime: prayerTimes.maghrib
+        },
+        { 
+          name: 'Isha', 
+          time: formatTime(prayerTimes.isha, timeFormat),
+          timeWithSeconds: formatTimeWithSeconds(prayerTimes.isha, timeFormat),
+          isNext: false, 
+          isCurrent: false,
+          dateTime: prayerTimes.isha
+        },
+      ];
+    }
 
     // Determine current and next prayer
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
     let nextPrayerIndex = -1;
     let currentPrayerIndex = -1;
 
@@ -168,7 +249,7 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
     for (let i = 0; i < prayerTimesList.length; i++) {
       const prayerDate = prayerTimesList[i].dateTime!;
       
-      // If prayer time is in the future (including tomorrow)
+      // If prayer time is in the future
       if (prayerDate.getTime() > now.getTime()) {
         nextPrayerIndex = i;
         break;
@@ -186,7 +267,6 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
 
     // Current prayer is the one before next prayer
     currentPrayerIndex = nextPrayerIndex === 0 ? prayerTimesList.length - 1 : nextPrayerIndex - 1;
-    
 
     // Update the prayer times with current/next flags and countdown
     const updatedPrayerTimes = prayerTimesList.map((prayer, index) => {
@@ -201,7 +281,6 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
         const countdownData = calculateCountdown(prayer.dateTime, now);
         countdown = countdownData.countdown;
         secondsUntil = countdownData.secondsUntil;
-        
       }
       
       return {
@@ -213,13 +292,14 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
       };
     });
 
+    console.log('✅ Prayer times ready with next prayer:', updatedPrayerTimes.find(p => p.isNext)?.name);
     return updatedPrayerTimes;
   } catch (error) {
     console.error('❌ Error calculating prayer times:', error);
     console.error('📍 Coordinates that failed:', { latitude, longitude });
     
-    // Return default times in case of error
-    const fallbackTimes = [
+    // Return default times in case of all errors
+    const fallbackTimes: PrayerTime[] = [
       { name: 'Fajr', time: '05:30', isNext: false, isCurrent: false },
       { name: 'Dhuhr', time: '12:15', isNext: false, isCurrent: false },
       { name: 'Asr', time: '15:45', isNext: false, isCurrent: false },
@@ -227,8 +307,32 @@ export const getPrayerTimes = async (latitude: number, longitude: number, timeFo
       { name: 'Isha', time: '19:45', isNext: false, isCurrent: false },
     ];
     
-    console.log('🔄 Using fallback prayer times');
+    console.log('🔄 Using hardcoded fallback prayer times');
     return fallbackTimes;
+  }
+};
+
+// Get additional prayer data (Sunrise, Imsak, Midnight)
+export const getAdditionalPrayerTimes = async (
+  latitude: number,
+  longitude: number,
+  timeFormat: '12h' | '24h' = '12h'
+): Promise<{ sunrise: string; imsak: string; midnight: string } | null> => {
+  try {
+    const alAdhanService = AlAdhanService.getInstance();
+    const specialTimes = await alAdhanService.getSpecialTimes(latitude, longitude);
+    
+    if (specialTimes) {
+      return {
+        sunrise: formatAlAdhanTime(specialTimes.sunrise, timeFormat),
+        imsak: formatAlAdhanTime(specialTimes.imsak, timeFormat),
+        midnight: formatAlAdhanTime(specialTimes.midnight, timeFormat),
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Error getting additional prayer times:', error);
+    return null;
   }
 };
 

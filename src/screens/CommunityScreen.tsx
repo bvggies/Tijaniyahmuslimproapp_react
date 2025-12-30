@@ -665,7 +665,11 @@ export default function CommunityScreen() {
     <View style={styles.postCard}>
       {/* Post Header */}
       <View style={styles.postHeader}>
-        <View style={styles.authorInfo}>
+        <TouchableOpacity 
+          style={styles.authorInfo}
+          onPress={() => startChat(item.author)}
+          activeOpacity={0.7}
+        >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
               {item.author.name.charAt(0).toUpperCase()}
@@ -673,15 +677,16 @@ export default function CommunityScreen() {
           </View>
           <View style={styles.authorDetails}>
             <View style={styles.authorNameRow}>
-              <Text style={styles.authorName}>{item.author.name}</Text>
+              <Text style={styles.authorNameTappable}>{item.author.name}</Text>
               {item.author.isVerified && (
                 <Ionicons name="checkmark-circle" size={16} color={colors.accentTeal} />
               )}
+              <Ionicons name="chatbubble-outline" size={12} color={colors.accentTeal} style={{ marginLeft: 4 }} />
             </View>
             <Text style={styles.authorUsername}>@{item.author.username}</Text>
             <Text style={styles.postDate}>{formatDate(item.date)}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
         <View style={styles.postHeaderActions}>
           <TouchableOpacity 
             style={styles.chatButton}
@@ -765,14 +770,25 @@ export default function CommunityScreen() {
         <View style={styles.commentsSection}>
           {item.comments.map(comment => (
             <View key={comment.id} style={styles.comment}>
-              <View style={styles.commentAvatar}>
+              <TouchableOpacity 
+                style={styles.commentAvatar}
+                onPress={() => startChat(comment.author)}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.commentAvatarText}>
                   {comment.author.name.charAt(0).toUpperCase()}
                 </Text>
-              </View>
+              </TouchableOpacity>
               <View style={styles.commentContent}>
                 <View style={styles.commentHeader}>
-                  <Text style={styles.commentAuthor}>{comment.author.name}</Text>
+                  <TouchableOpacity 
+                    onPress={() => startChat(comment.author)}
+                    style={styles.commentAuthorTouchable}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.commentAuthorTappable}>{comment.author.name}</Text>
+                    <Ionicons name="chatbubble-outline" size={10} color={colors.accentTeal} style={{ marginLeft: 4 }} />
+                  </TouchableOpacity>
                   <Text style={styles.commentDate}>{comment.date}</Text>
                 </View>
                 <Text style={styles.commentText}>{comment.content}</Text>
@@ -1255,6 +1271,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 4,
   },
+  authorNameTappable: {
+    color: colors.accentTeal,
+    fontWeight: '600',
+    fontSize: 16,
+    marginRight: 4,
+  },
   authorUsername: {
     color: colors.textSecondary,
     fontSize: 14,
@@ -1342,6 +1364,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     marginRight: 8,
+  },
+  commentAuthorTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  commentAuthorTappable: {
+    color: colors.accentTeal,
+    fontWeight: '600',
+    fontSize: 14,
   },
   commentDate: {
     color: colors.textSecondary,

@@ -87,22 +87,41 @@ export function useVersesByChapter(
   }
 ) {
   const {
-    translationId = TRANSLATION_IDS.SAHIH_INTERNATIONAL,
+    translationId = 20, // Sahih International (Quran.com API v4)
     perPage = 20,
     enabled = true,
     language = 'en',
   } = options || {};
   
+  console.log('📖 useVersesByChapter - Using translation ID:', translationId);
+  
   return useInfiniteQuery({
     queryKey: quranKeys.versesByChapter(chapterId, translationId),
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await quranRepo.getVersesByChapter(chapterId, {
-        page: pageParam,
-        perPage,
-        translationIds: [translationId],
-        language,
-      });
-      return result;
+      try {
+        const result = await quranRepo.getVersesByChapter(chapterId, {
+          page: pageParam,
+          perPage,
+          translationIds: [translationId],
+          language,
+        });
+        return result;
+      } catch (error: any) {
+        // If it's a SQLite error, log it and rethrow with a user-friendly message
+        if (error.message?.includes('NativeDatabase') || error.message?.includes('SQLite')) {
+          console.warn('⚠️ SQLite error, fetching from API without cache:', error.message);
+          // Try again with forceRefresh to bypass cache
+          const result = await quranRepo.getVersesByChapter(chapterId, {
+            page: pageParam,
+            perPage,
+            translationIds: [translationId],
+            language,
+            forceRefresh: true,
+          });
+          return result;
+        }
+        throw error;
+      }
     },
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination?.next_page) {
@@ -114,6 +133,8 @@ export function useVersesByChapter(
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     enabled: enabled && chapterId > 0 && chapterId <= 114,
+    retry: 2,
+    retryDelay: 1000,
   });
 }
 

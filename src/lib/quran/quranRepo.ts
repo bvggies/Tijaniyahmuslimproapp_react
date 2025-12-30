@@ -3,9 +3,10 @@
  * 
  * Strategy:
  * 1. Try network first for fresh data
- * 2. Cache the results
+ * 2. Cache the results (if SQLite available)
  * 3. If network fails, return cached data
  * 4. Track sync state for background updates
+ * 5. Graceful fallback when SQLite is unavailable (online-only mode)
  */
 
 import * as Network from 'expo-network';
@@ -72,8 +73,13 @@ export async function getChapters(
   try {
     const chapters = await quranApi.getChapters(language);
     
-    // Cache the results
-    await quranCache.upsertChapters(chapters);
+    // Try to cache the results (non-blocking, ignore errors)
+    try {
+      await quranCache.upsertChapters(chapters);
+    } catch (cacheError) {
+      console.warn('⚠️ Failed to cache chapters:', cacheError);
+      // Continue without caching - online-only mode
+    }
     
     return { chapters, fromCache: false };
   } catch (error) {
@@ -141,12 +147,22 @@ export async function getVersesByChapter(
   const offset = (page - 1) * perPage;
   
   // Get chapter info for verse count
-  const chapter = await getChapter(chapterId);
-  const expectedVerseCount = chapter?.verses_count || 0;
+  let expectedVerseCount = 0;
+  try {
+    const chapter = await getChapter(chapterId);
+    expectedVerseCount = chapter?.verses_count || 0;
+  } catch (error) {
+    console.warn('⚠️ Could not get chapter info:', error);
+  }
   
   // Check if we have complete cached data for this chapter
-  const cachedCount = await quranCache.getCachedVerseCount(chapterId);
-  const hasCompleteCacheForChapter = cachedCount >= expectedVerseCount;
+  let cachedCount = 0;
+  try {
+    cachedCount = await quranCache.getCachedVerseCount(chapterId);
+  } catch (error) {
+    console.warn('⚠️ Cache check failed:', error);
+  }
+  const hasCompleteCacheForChapter = cachedCount >= expectedVerseCount && expectedVerseCount > 0;
   
   // If not forcing refresh and we have complete cache
   if (!forceRefresh && hasCompleteCacheForChapter) {
@@ -210,9 +226,14 @@ export async function getVersesByChapter(
       language,
     });
     
-    // Cache the verses
+    // Try to cache the verses (non-blocking, ignore errors)
     if (result.verses.length > 0) {
-      await quranCache.upsertVerses(result.verses);
+      try {
+        await quranCache.upsertVerses(result.verses);
+      } catch (cacheError) {
+        console.warn('⚠️ Failed to cache verses:', cacheError);
+        // Continue without caching - online-only mode
+      }
     }
     
     return {

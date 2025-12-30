@@ -1,17 +1,36 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { WebView } from 'react-native-webview';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../services/api';
 
+// API Response type
+interface MakkahLiveChannel {
+  id: string;
+  title: string;
+  titleArabic?: string;
+  subtitle?: string;
+  type: 'YOUTUBE_LIVE' | 'TV_CHANNEL';
+  category: 'MAKKAH' | 'MADINAH' | 'QURAN' | 'ISLAMIC' | 'NEWS' | 'EDUCATIONAL';
+  youtubeId?: string;
+  websiteUrl?: string;
+  logo?: string;
+  thumbnailUrl?: string;
+  sortOrder: number;
+  isActive: boolean;
+  isFeatured: boolean;
+}
+
+// Local types for backwards compatibility
 type Channel = {
   id: string;
   title: string;
   subtitle: string;
-  youtubeId: string; // video id for watch/embed
+  youtubeId: string;
 };
 
 type TVChannel = {
@@ -19,11 +38,12 @@ type TVChannel = {
   title: string;
   subtitle: string;
   websiteUrl: string;
-  logo: string; // emoji or icon
+  logo: string;
   category: 'islamic' | 'quran' | 'news' | 'educational';
 };
 
-const CHANNELS: Channel[] = [
+// Fallback hardcoded channels in case API fails
+const FALLBACK_CHANNELS: Channel[] = [
   {
     id: 'makkah-live-stream-1',
     title: '🕋 Makkah Live Stream 1',
@@ -38,8 +58,7 @@ const CHANNELS: Channel[] = [
   },
 ];
 
-const TV_CHANNELS: TVChannel[] = [
-  // Quran Channels
+const FALLBACK_TV_CHANNELS: TVChannel[] = [
   {
     id: 'quran-tv-saudi',
     title: '📺 Quran TV Saudi Arabia',
@@ -57,30 +76,6 @@ const TV_CHANNELS: TVChannel[] = [
     category: 'islamic'
   },
   {
-    id: 'al-majd-quran',
-    title: '📺 Al Majd Quran',
-    subtitle: 'Quran recitation and Islamic content',
-    websiteUrl: 'https://almajd.tv',
-    logo: '📺',
-    category: 'quran'
-  },
-  {
-    id: 'al-resalah-tv',
-    title: '📺 Al Resalah TV',
-    subtitle: 'Islamic educational and cultural content',
-    websiteUrl: 'https://alresalah.tv',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'al-huda-tv',
-    title: '📺 Al Huda TV',
-    subtitle: 'Islamic guidance and education',
-    websiteUrl: 'https://alhuda.tv',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
     id: 'peace-tv',
     title: '📺 Peace TV',
     subtitle: 'Global Islamic television network',
@@ -88,62 +83,71 @@ const TV_CHANNELS: TVChannel[] = [
     logo: '📺',
     category: 'islamic'
   },
-  {
-    id: 'islam-channel',
-    title: '📺 Islam Channel',
-    subtitle: 'UK-based Islamic television',
-    websiteUrl: 'https://islamchannel.tv',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'huda-tv',
-    title: '📺 Huda TV',
-    subtitle: 'Islamic satellite television',
-    websiteUrl: 'https://hudatv.net',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'al-noor-tv',
-    title: '📺 Al Noor TV',
-    subtitle: 'Islamic educational programming',
-    websiteUrl: 'https://alnoortv.com',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'al-kawthar-tv',
-    title: '📺 Al Kawthar TV',
-    subtitle: 'Islamic cultural and educational content',
-    websiteUrl: 'https://alkawthartv.com',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'al-eman-tv',
-    title: '📺 Al Eman TV',
-    subtitle: 'Islamic faith and guidance',
-    websiteUrl: 'https://aleman.tv',
-    logo: '📺',
-    category: 'islamic'
-  },
-  {
-    id: 'al-fajr-tv',
-    title: '📺 Al Fajr TV',
-    subtitle: 'Islamic news and current affairs',
-    websiteUrl: 'https://alfajrtv.com',
-    logo: '📺',
-    category: 'news'
-  }
 ];
 
 export default function MakkahLiveScreen() {
   const { t } = useLanguage();
-  const [active, setActive] = useState<Channel>(CHANNELS[0]);
+  const [channels, setChannels] = useState<Channel[]>(FALLBACK_CHANNELS);
+  const [tvChannels, setTVChannels] = useState<TVChannel[]>(FALLBACK_TV_CHANNELS);
+  const [active, setActive] = useState<Channel>(FALLBACK_CHANNELS[0]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showStreamHelp, setShowStreamHelp] = useState(false);
   const [quality, setQuality] = useState<'sd'|'hd'>('hd');
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // Fetch channels from API
+  const fetchChannels = async (showRefresh = false) => {
+    if (showRefresh) setIsRefreshing(true);
+    
+    try {
+      const response = await api.getMakkahLiveChannels({ activeOnly: true });
+      
+      if (response && Array.isArray(response)) {
+        // Separate YouTube and TV channels
+        const youtubeChannels: Channel[] = response
+          .filter((ch: MakkahLiveChannel) => ch.type === 'YOUTUBE_LIVE' && ch.youtubeId)
+          .map((ch: MakkahLiveChannel) => ({
+            id: ch.id,
+            title: ch.logo ? `${ch.logo} ${ch.title}` : ch.title,
+            subtitle: ch.subtitle || '',
+            youtubeId: ch.youtubeId!,
+          }));
+
+        const tvChs: TVChannel[] = response
+          .filter((ch: MakkahLiveChannel) => ch.type === 'TV_CHANNEL' && ch.websiteUrl)
+          .map((ch: MakkahLiveChannel) => ({
+            id: ch.id,
+            title: ch.logo ? `${ch.logo} ${ch.title}` : `📺 ${ch.title}`,
+            subtitle: ch.subtitle || '',
+            websiteUrl: ch.websiteUrl!,
+            logo: ch.logo || '📺',
+            category: ch.category.toLowerCase() as 'islamic' | 'quran' | 'news' | 'educational',
+          }));
+
+        if (youtubeChannels.length > 0) {
+          setChannels(youtubeChannels);
+          setActive(youtubeChannels[0]);
+        }
+
+        if (tvChs.length > 0) {
+          setTVChannels(tvChs);
+        }
+
+        setFetchError(null);
+      }
+    } catch (error) {
+      console.log('📺 Using fallback channels (API unavailable):', error);
+      setFetchError('Using offline channels');
+      // Keep using fallback channels
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChannels();
+  }, []);
 
   const openInYouTube = (channel: Channel) => {
     const url = `https://www.youtube.com/watch?v=${channel.youtubeId}`;
@@ -184,12 +188,10 @@ export default function MakkahLiveScreen() {
   };
 
   const currentSrc = useMemo(() => {
-    // Simulate HD/SD by switching between HD channel and 24/7 channel
     if (quality === 'hd') return active.youtubeId;
-    // fallback to first (24/7) if not already that
-    const sd = CHANNELS.find(c => c.id === 'makkah-live-24-7') || active;
+    const sd = channels.find(c => c.id.includes('24-7')) || active;
     return sd.youtubeId;
-  }, [quality, active]);
+  }, [quality, active, channels]);
 
   return (
     <View style={styles.container}>
@@ -213,6 +215,14 @@ export default function MakkahLiveScreen() {
         style={commonScreenStyles.scrollContainer}
         contentContainerStyle={commonScreenStyles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => fetchChannels(true)}
+            tintColor={colors.accentTeal}
+            colors={[colors.accentTeal]}
+          />
+        }
       >
         {/* Stream Help Notification */}
         {showStreamHelp && (
@@ -229,6 +239,14 @@ export default function MakkahLiveScreen() {
                 <Ionicons name="close" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
+          </View>
+        )}
+
+        {/* Offline indicator */}
+        {fetchError && (
+          <View style={styles.offlineBanner}>
+            <Ionicons name="cloud-offline" size={16} color={colors.textSecondary} />
+            <Text style={styles.offlineText}>{fetchError}</Text>
           </View>
         )}
 
@@ -250,7 +268,6 @@ export default function MakkahLiveScreen() {
         <WebView
           style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
           source={{ 
-            // Use privacy-enhanced mode to reduce prompts and tracking
             uri: `https://www.youtube-nocookie.com/embed/${currentSrc}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1`
           }}
           allowsFullscreenVideo={true}
@@ -269,7 +286,6 @@ export default function MakkahLiveScreen() {
             const { nativeEvent } = syntheticEvent;
             console.warn('WebView error: ', nativeEvent);
             setIsLoading(false);
-            // If YouTube player throws config error (e.g., error 153), suggest opening in YouTube or switching streams
             setShowStreamHelp(true);
           }}
           onHttpError={(syntheticEvent) => {
@@ -290,7 +306,6 @@ export default function MakkahLiveScreen() {
             try {
               const url = new URL(request.url);
               const host = url.hostname.toLowerCase();
-              // Allow the main embed host and static resources, block sign-in/consent pages
               if (host.endsWith('youtube-nocookie.com') || host.endsWith('ytimg.com')) {
                 return true;
               }
@@ -301,7 +316,6 @@ export default function MakkahLiveScreen() {
             return true;
           }}
           onMessage={(event) => {
-            // Handle YouTube player messages
             console.log('YouTube message:', event.nativeEvent.data);
           }}
         />
@@ -311,7 +325,7 @@ export default function MakkahLiveScreen() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16 }}
-        data={CHANNELS}
+        data={channels}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -335,7 +349,7 @@ export default function MakkahLiveScreen() {
         </View>
 
         <FlatList
-          data={TV_CHANNELS}
+          data={tvChannels}
           numColumns={2}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
@@ -417,6 +431,22 @@ const styles = StyleSheet.create({
   closeHelpButton: {
     padding: 4,
     marginLeft: 8,
+  },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    marginHorizontal: 16,
+    marginTop: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+  },
+  offlineText: {
+    color: colors.textSecondary,
+    fontSize: 12,
   },
   playerCard: { height: 250, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
   prayerStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8 },
