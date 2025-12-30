@@ -11,6 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { QuranModule } from './quran/quran.module';
 import { MakkahLiveModule } from './makkah-live/makkah-live.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     QuranModule,
     MakkahLiveModule,
     AnalyticsModule,
+    AiModule,
   ],
   controllers: [HealthController],
 })

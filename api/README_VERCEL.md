@@ -35,6 +35,9 @@
    vercel env add CORS_ORIGIN
    # Enter your frontend URL or "*"
    
+   vercel env add GROQ_API_KEY
+   # Enter your Groq API key (get from https://console.groq.com/)
+   
    # Deploy
    vercel --prod
    ```
@@ -60,6 +63,7 @@ Required in Vercel dashboard:
 - `DATABASE_URL` - `postgresql://neondb_owner:npg_Dq3XziHrt4xM@ep-broad-queen-ahyn14aw-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require`
 - `JWT_SECRET` - Random 32+ character string (generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
 - `CORS_ORIGIN` - Your frontend URL (or "*")
+- `GROQ_API_KEY` - Your Groq API key for AI Noor (get from https://console.groq.com/)
 
 ## Testing
 

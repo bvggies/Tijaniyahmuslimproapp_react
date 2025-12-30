@@ -33,6 +33,9 @@ API_URL=http://localhost:3000
 CLOUDINARY_CLOUD_NAME=dplvxodnd
 CLOUDINARY_API_KEY=373862586681547
 CLOUDINARY_API_SECRET=Ca4ClORTAdJA8-626EcAhD5CYSg
+
+# Groq API Configuration (AI Noor)
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ## Generate JWT Secret
@@ -70,6 +73,7 @@ Set these environment variables in Vercel dashboard:
 - `CLOUDINARY_CLOUD_NAME` - Your Cloudinary cloud name
 - `CLOUDINARY_API_KEY` - Your Cloudinary API key
 - `CLOUDINARY_API_SECRET` - Your Cloudinary API secret
+- `GROQ_API_KEY` - Your Groq API key for AI Noor (get from https://console.groq.com/)
 
 See [docs/VERCEL_DEPLOYMENT.md](../docs/VERCEL_DEPLOYMENT.md) for details.
 
