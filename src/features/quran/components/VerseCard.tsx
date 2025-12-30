@@ -42,7 +42,7 @@ function VerseCardComponent({
   showBismillah = false,
 }: VerseCardProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const { arabicFontSize, translationFontSize, showTranslation } = useQuranStore();
+  const { arabicFontSize, translationFontSize } = useQuranStore();
   
   // Get translation text
   const translationText = verse.translations?.[0]?.text || '';
@@ -136,9 +136,13 @@ function VerseCardComponent({
           </Text>
         </View>
         
-        {/* Translation */}
-        {showTranslation && translationText && (
+        {/* English Translation */}
+        {translationText && (
           <View style={styles.translationContainer}>
+            <View style={styles.translationHeader}>
+              <Ionicons name="language-outline" size={14} color={colors.accentTeal} />
+              <Text style={styles.translationLabel}>English Translation</Text>
+            </View>
             <Text
               style={[styles.translationText, { fontSize: translationFontSize }]}
               selectable
@@ -249,10 +253,30 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: colors.divider,
+    backgroundColor: `${colors.accentTeal}08`,
+    marginTop: 8,
+    marginHorizontal: -16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  translationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    gap: 6,
+  },
+  translationLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.accentTeal,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   translationText: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.textPrimary,
     lineHeight: 26,
   },
   footer: {
