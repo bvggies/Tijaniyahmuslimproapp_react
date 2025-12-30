@@ -111,7 +111,7 @@ export const TranslationSchema = z.object({
   id: z.number(),
   name: z.string(),
   author_name: z.string(),
-  slug: z.string().optional(),
+  slug: z.string().nullable().optional(),
   language_name: z.string(),
   translated_name: TranslatedNameSchema.optional(),
 });
