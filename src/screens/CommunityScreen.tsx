@@ -370,12 +370,18 @@ export default function CommunityScreen() {
   };
 
   const toggleLike = async (postId: string) => {
+    // Optimistic update
     setPosts(prev => prev.map(post => post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post));
     try {
+      // Ensure we're authenticated before making the request
+      await ensureAuthenticated();
+      
       const liked = posts.find(p => p.id === postId)?.isLiked;
       if (liked) await api.unlikePost(postId);
       else await api.likePost(postId);
-    } catch (e) {
+    } catch (e: any) {
+      console.error('❌ Failed to toggle like:', e.message);
+      // Revert optimistic update on error
       setPosts(prev => prev.map(post => post.id === postId ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 } : post));
     }
   };
@@ -616,11 +622,15 @@ export default function CommunityScreen() {
     setPosts(prev => prev.map(post => post.id === postId ? { ...post, comments: [...post.comments, optimistic] } : post));
     setNewComment('');
     try {
+      // Ensure we're authenticated before making the request
+      await ensureAuthenticated();
+      
       await api.addComment(postId, optimistic.content);
       // Optionally refetch single post to get real comment from server
-    } catch (e) {
+    } catch (e: any) {
+      console.error('❌ Failed to add comment:', e.message);
       setPosts(prev => prev.map(post => post.id === postId ? { ...post, comments: post.comments.filter(c => c.id !== optimistic.id) } : post));
-      Alert.alert('Error', 'Failed to add comment');
+      Alert.alert('Error', 'Failed to add comment. Please try again.');
     }
   };
 

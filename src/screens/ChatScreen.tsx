@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { api } from '../services/api';
+import { api, ensureAuthenticated } from '../services/api';
 
 interface Conversation {
   id: string;
@@ -44,12 +44,23 @@ export default function ChatScreen() {
   const loadConversations = async () => {
     try {
       console.log('🔄 Loading conversations...');
+      
+      // Ensure user is authenticated before loading
+      await ensureAuthenticated();
+      
       const data = await api.getConversations();
       setConversations(data || []);
       console.log('✅ Loaded', data?.length || 0, 'conversations');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to load conversations:', error);
-      Alert.alert('Error', 'Failed to load conversations. Please try again.');
+      
+      // Don't show error alert for auth issues - just show empty state
+      if (error.message?.includes('Not authenticated') || error.message?.includes('401')) {
+        console.log('⚠️ User not authenticated for chat');
+        setConversations([]);
+      } else {
+        Alert.alert('Error', 'Failed to load conversations. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
