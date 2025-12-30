@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   IconButton,
   Chip,
   TextField,
@@ -224,9 +223,20 @@ export default function MakkahLivePage() {
         YouTube Live Streams ({youtubeChannels.length})
       </Typography>
       
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: 2,
+          mb: 4,
+        }}
+      >
         {youtubeChannels.map((channel) => (
-          <Grid item xs={12} md={6} lg={4} key={channel.id}>
+          <Box key={channel.id}>
             <ChannelCard
               channel={channel}
               onEdit={() => handleOpenDialog(channel)}
@@ -239,16 +249,16 @@ export default function MakkahLivePage() {
               getCategoryColor={getCategoryColor}
               getCategoryLabel={getCategoryLabel}
             />
-          </Grid>
+          </Box>
         ))}
         {youtubeChannels.length === 0 && (
-          <Grid item xs={12}>
+          <Box>
             <Alert severity="info">
               No YouTube live streams configured. Add one to get started.
             </Alert>
-          </Grid>
+          </Box>
         )}
-      </Grid>
+      </Box>
 
       <Divider sx={{ my: 4 }} />
 
@@ -258,9 +268,19 @@ export default function MakkahLivePage() {
         TV Channels ({tvChannels.length})
       </Typography>
 
-      <Grid container spacing={2}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: 2,
+        }}
+      >
         {tvChannels.map((channel) => (
-          <Grid item xs={12} md={6} lg={4} key={channel.id}>
+          <Box key={channel.id}>
             <ChannelCard
               channel={channel}
               onEdit={() => handleOpenDialog(channel)}
@@ -273,16 +293,16 @@ export default function MakkahLivePage() {
               getCategoryColor={getCategoryColor}
               getCategoryLabel={getCategoryLabel}
             />
-          </Grid>
+          </Box>
         ))}
         {tvChannels.length === 0 && (
-          <Grid item xs={12}>
+          <Box>
             <Alert severity="info">
               No TV channels configured. Add one to get started.
             </Alert>
-          </Grid>
+          </Box>
         )}
-      </Grid>
+      </Box>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>

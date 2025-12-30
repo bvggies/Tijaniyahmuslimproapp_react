@@ -48,6 +48,7 @@ async function main() {
       passwordHash: adminPassword,
       name: 'Super Administrator',
       avatarUrl: null,
+      role: 'ADMIN',
     },
   });
   console.log(`✅ Created admin user: ${adminUser.email}`);
@@ -58,6 +59,7 @@ async function main() {
       passwordHash: moderatorPassword,
       name: 'Content Moderator',
       avatarUrl: null,
+      role: 'MODERATOR',
     },
   });
   console.log(`✅ Created moderator user: ${moderatorUser.email}`);

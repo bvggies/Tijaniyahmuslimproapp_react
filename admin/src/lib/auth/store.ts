@@ -39,12 +39,18 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
+          console.log('🔐 Attempting login for:', email);
           const response = await authApi.login({ email, password });
+          console.log('✅ Login response:', response);
           
           // Check if user has admin access
           const allowedRoles: UserRole[] = ['ADMIN', 'MODERATOR', 'SCHOLAR', 'SUPPORT', 'VIEWER'];
-          if (!allowedRoles.includes(response.user.role)) {
-            throw new Error('Access denied. Admin privileges required.');
+          const userRole = response.user?.role || 'USER';
+          console.log('👤 User role:', userRole);
+          
+          if (!allowedRoles.includes(userRole as UserRole)) {
+            console.error('❌ Access denied - User role:', userRole, 'Allowed roles:', allowedRoles);
+            throw new Error(`Access denied. Admin privileges required. Your role: ${userRole}`);
           }
           
           setStoredToken(response.accessToken);
@@ -54,12 +60,20 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
+          console.log('✅ Login successful');
         } catch (error: any) {
+          console.error('❌ Login error:', error);
+          const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+          console.error('Error details:', {
+            message: errorMessage,
+            status: error.response?.status,
+            data: error.response?.data,
+          });
           set({
             user: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error.message || 'Login failed',
+            error: errorMessage,
           });
           throw error;
         }
