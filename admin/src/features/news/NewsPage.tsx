@@ -166,8 +166,12 @@ export default function NewsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">News Management</h1>
-          <p className="text-muted-foreground">Create and manage news articles</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            News Management
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Create and manage news articles, announcements, and updates for your community
+          </p>
         </div>
         <Button size="sm" onClick={() => handleOpenForm()}>
           <Plus className="h-4 w-4 mr-2" />

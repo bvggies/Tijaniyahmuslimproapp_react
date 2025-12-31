@@ -18,7 +18,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
     <header
       className={cn(
         'sticky top-0 z-30 h-16 border-b border-border',
-        'bg-white/80 dark:bg-primary-900/80 backdrop-blur-xl',
+        'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl',
         'transition-all duration-300'
       )}
     >

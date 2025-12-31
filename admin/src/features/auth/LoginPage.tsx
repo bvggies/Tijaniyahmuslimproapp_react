@@ -58,14 +58,18 @@ export default function LoginPage() {
       <Card className="w-full max-w-md relative bg-white/80 dark:bg-primary-900/80 backdrop-blur-xl border-white/20 shadow-2xl">
         <CardHeader className="text-center pb-0">
           {/* Logo */}
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg mb-4">
-            <svg
-              className="w-10 h-10 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg mb-4 overflow-hidden">
+            <img 
+              src="/appicon.png" 
+              alt="Tijaniyah Muslim Pro" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to gradient if image fails
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.parentElement!.innerHTML = '<svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+              }}
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-primary-800 dark:text-primary-100">
             Tijaniyah Admin

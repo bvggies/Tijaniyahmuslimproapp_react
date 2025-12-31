@@ -14,17 +14,15 @@ import { ActivityFeed } from './components/ActivityFeed';
 import { UserGrowthChart, DonationsChart } from './components/Charts';
 import { 
   useOverviewStats, 
-  useRecentActivity, 
+  useRecentActivity,
+  useDailyStats,
   mockOverviewData, 
-  mockDailyStats, 
-  mockActivityData 
+  mockDailyStats,
 } from './hooks/useDashboardData';
 import { formatCurrency, formatNumber } from '../../lib/utils';
 import { toast } from '../../components/ui/use-toast';
 
 export default function DashboardPage() {
-  const [useMockData, setUseMockData] = useState(false);
-  
   // Real API queries
   const { 
     data: overviewData, 
@@ -39,16 +37,14 @@ export default function DashboardPage() {
     error: activityError 
   } = useRecentActivity();
 
-  // Use mock data as fallback when API fails or returns empty
-  useEffect(() => {
-    if (overviewError || activityError) {
-      setUseMockData(true);
-    }
-  }, [overviewError, activityError]);
+  // Get date range for daily stats (last 7 days)
+  const endDate = new Date().toISOString().split('T')[0];
+  const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const { data: dailyStatsData } = useDailyStats(startDate, endDate);
 
-  const stats = useMockData || !overviewData ? mockOverviewData : overviewData;
-  const activities = useMockData || !activityData ? mockActivityData : activityData;
-  const chartData = mockDailyStats; // Always use mock for charts since API doesn't exist yet
+  const stats = overviewData || mockOverviewData;
+  const activities = activityData || [];
+  const chartData = dailyStatsData || mockDailyStats;
 
   const handleRefresh = async () => {
     try {
@@ -59,16 +55,18 @@ export default function DashboardPage() {
     }
   };
 
-  const isLoading = isLoadingOverview && !useMockData;
+  const isLoading = isLoadingOverview;
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here's what's happening with Tijaniyah.
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Welcome back! Here's what's happening with your Tijaniyah community.
           </p>
         </div>
         <Button
@@ -83,15 +81,6 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* Mock data indicator */}
-      {useMockData && (
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <span className="text-sm text-amber-700 dark:text-amber-300">
-            Using demo data. Connect to API for live statistics.
-          </span>
-        </div>
-      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -179,8 +168,8 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <ActivityFeed
           activities={activities}
-          isLoading={isLoadingActivity && !useMockData}
-          error={useMockData ? null : (activityError as Error | null)}
+          isLoading={isLoadingActivity}
+          error={activityError as Error | null}
         />
         
         {/* Quick Actions / Additional Stats */}

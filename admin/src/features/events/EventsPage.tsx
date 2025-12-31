@@ -46,7 +46,6 @@ import {
   useDeleteEvent,
   usePublishEvent,
   useUnpublishEvent,
-  mockEvents,
   eventCategories,
 } from './hooks/useEvents';
 import { Event, CreateEventDto } from '../../lib/api/types';
@@ -59,8 +58,6 @@ export default function EventsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
-  const [useMockData, setUseMockData] = useState(false);
-
   // API Queries
   const { data, isLoading, error, refetch } = useEvents({
     search,
@@ -74,31 +71,10 @@ export default function EventsPage() {
   const publishMutation = usePublishEvent();
   const unpublishMutation = useUnpublishEvent();
 
-  // Use mock data as fallback
-  useEffect(() => {
-    if (error) {
-      setUseMockData(true);
-    }
-  }, [error]);
-
   // Filter events
-  const events = useMockData
-    ? mockEvents.filter((event) => {
-        const matchesSearch =
-          event.title.toLowerCase().includes(search.toLowerCase()) ||
-          event.description.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = categoryFilter === 'all' || event.category === categoryFilter;
-        return matchesSearch && matchesCategory;
-      })
-    : data?.data || [];
+  const events = data?.data || [];
 
   const handleCreate = async (eventData: CreateEventDto) => {
-    if (useMockData) {
-      toast.info('Demo mode', 'Event creation is simulated in demo mode');
-      setShowForm(false);
-      return;
-    }
-    
     try {
       await createMutation.mutateAsync(eventData);
       setShowForm(false);
@@ -108,10 +84,7 @@ export default function EventsPage() {
   };
 
   const handleUpdate = async (eventData: CreateEventDto) => {
-    if (!editingEvent || useMockData) {
-      if (useMockData) {
-        toast.info('Demo mode', 'Event updates are simulated in demo mode');
-      }
+    if (!editingEvent) {
       setEditingEvent(null);
       return;
     }
@@ -125,10 +98,7 @@ export default function EventsPage() {
   };
 
   const handleDelete = async () => {
-    if (!deletingEvent || useMockData) {
-      if (useMockData) {
-        toast.info('Demo mode', 'Event deletion is simulated in demo mode');
-      }
+    if (!deletingEvent) {
       setDeletingEvent(null);
       return;
     }
@@ -142,11 +112,6 @@ export default function EventsPage() {
   };
 
   const handleTogglePublish = async (event: Event) => {
-    if (useMockData) {
-      toast.info('Demo mode', 'Publish status changes are simulated in demo mode');
-      return;
-    }
-
     try {
       if (event.isPublished) {
         await unpublishMutation.mutateAsync(event.id);
@@ -163,9 +128,11 @@ export default function EventsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Event Management</h1>
-          <p className="text-muted-foreground">
-            Create and manage events for the community
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            Event Management
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Create and manage community events, conferences, and gatherings
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -180,15 +147,6 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Demo data indicator */}
-      {useMockData && (
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-amber-600" />
-          <span className="text-sm text-amber-700 dark:text-amber-300">
-            Showing demo events. Connect to API for live event management.
-          </span>
-        </div>
-      )}
 
       {/* Filters */}
       <Card>
@@ -222,7 +180,7 @@ export default function EventsPage() {
 
       {/* Events Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {isLoading && !useMockData ? (
+        {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="pt-6">

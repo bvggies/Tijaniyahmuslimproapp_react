@@ -94,18 +94,22 @@ export function Sidebar() {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg overflow-hidden">
+                <img 
+                  src="/appicon.png" 
+                  alt="Tijaniyah Muslim Pro" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to gradient if image fails
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML = '<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+                  }}
+                />
               </div>
               {!sidebarCollapsed && (
                 <div className="flex flex-col">
-                  <span className="font-bold text-primary-700 dark:text-primary-200">Tijaniyah</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-300">Tijaniyah</span>
                   <span className="text-xs text-muted-foreground">Admin Panel</span>
                 </div>
               )}
@@ -136,9 +140,9 @@ export function Sidebar() {
                     className={({ isActive }) =>
                       cn(
                         'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                        'hover:bg-primary-100 dark:hover:bg-primary-800',
+                        'hover:bg-emerald-50 dark:hover:bg-emerald-900/20',
                         isActive
-                          ? 'bg-primary-100 text-primary-700 dark:bg-primary-800 dark:text-primary-200 shadow-sm'
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm'
                           : 'text-muted-foreground hover:text-foreground',
                         sidebarCollapsed && 'justify-center px-2'
                       )
@@ -159,7 +163,7 @@ export function Sidebar() {
                 <button
                   className={cn(
                     'flex items-center gap-3 w-full rounded-xl p-2 transition-colors',
-                    'hover:bg-primary-100 dark:hover:bg-primary-800',
+                    'hover:bg-emerald-50 dark:hover:bg-emerald-900/20',
                     sidebarCollapsed && 'justify-center'
                   )}
                 >
@@ -189,7 +193,7 @@ export function Sidebar() {
                     onClick={() => setTheme(option.value)}
                     className={cn(
                       'gap-2',
-                      theme === option.value && 'bg-primary-100 dark:bg-primary-800'
+                      theme === option.value && 'bg-emerald-100 dark:bg-emerald-900/30'
                     )}
                   >
                     <option.icon className="h-4 w-4" />

@@ -90,8 +90,19 @@ export class AnalyticsService {
     const donationsWeek = 0;
     const donationsMonth = 0;
 
-    // Get upcoming events (if you have an events table, otherwise return 0)
-    const upcomingEvents = 0; // TODO: Implement when events table exists
+    // Get upcoming events
+    const now = new Date();
+    const upcomingEvents = await this.prisma.event.count({
+      where: {
+        isPublished: true,
+        startDate: {
+          gte: now,
+        },
+        status: {
+          in: ['UPCOMING', 'ONGOING'],
+        },
+      },
+    });
 
     // Wazifa and Lazim completions (if you have these tables, otherwise return 0)
     const wazifaCompletions = 0; // TODO: Implement when wazifa table exists

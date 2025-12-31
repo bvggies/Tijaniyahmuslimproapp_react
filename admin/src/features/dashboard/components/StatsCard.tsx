@@ -1,5 +1,7 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, LucideIcon } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { cn } from '../../../lib/utils';
@@ -45,7 +47,7 @@ const colorClasses = {
     text: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-100 dark:bg-red-900/50',
   },
-};
+} as const;
 
 export function StatsCard({
   title,
@@ -56,16 +58,17 @@ export function StatsCard({
   color = 'primary',
   isLoading = false,
 }: StatsCardProps) {
-  const colors = colorClasses[color];
+  // ✅ SAFE fallback (prevents runtime crash)
+  const safeColor =
+    color in colorClasses ? color : 'primary';
+
+  const colors = colorClasses[safeColor];
 
   if (isLoading) {
     return (
       <Card className="overflow-hidden">
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-10 w-10 rounded-xl" />
-          </div>
+          <Skeleton className="h-4 w-24" />
         </CardHeader>
         <CardContent>
           <Skeleton className="h-8 w-20 mb-2" />
@@ -77,7 +80,7 @@ export function StatsCard({
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
@@ -89,12 +92,14 @@ export function StatsCard({
               colors.gradient
             )}
           >
-            <Icon className="h-5 w-5 text-white" />
+            <Icon className="text-white" size={20} />
           </div>
         </div>
       </CardHeader>
+
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
+
         {change && (
           <div
             className={cn(
@@ -104,8 +109,8 @@ export function StatsCard({
               trend === 'neutral' && 'text-muted-foreground'
             )}
           >
-            {trend === 'up' && <ArrowUpRight className="h-4 w-4" />}
-            {trend === 'down' && <ArrowDownRight className="h-4 w-4" />}
+            {trend === 'up' && <ArrowUpRight size={16} />}
+            {trend === 'down' && <ArrowDownRight size={16} />}
             <span>{change}</span>
           </div>
         )}
@@ -114,7 +119,10 @@ export function StatsCard({
   );
 }
 
-// Featured stat card with gradient background
+// =======================
+// Featured Stats Card
+// =======================
+
 export function FeaturedStatsCard({
   title,
   value,
@@ -151,23 +159,9 @@ export function FeaturedStatsCard({
               <p className="text-white/70 text-sm mt-1">{subtitle}</p>
             )}
           </div>
-          <Icon className="h-12 w-12 text-white/30" />
+          <Icon color="white" size={48} opacity={0.3} />
         </div>
       </CardContent>
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

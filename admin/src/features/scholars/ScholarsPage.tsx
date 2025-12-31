@@ -6,8 +6,12 @@ export default function ScholarsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Scholars & Lessons</h1>
-        <p className="text-muted-foreground">Manage scholars and their lessons.</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          Scholars & Lessons
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Manage Islamic scholars, their profiles, and educational content
+        </p>
       </div>
       
       <Card>
