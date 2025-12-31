@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface Activity {
@@ -39,142 +39,193 @@ export interface OverviewStats {
 
 @Injectable()
 export class AnalyticsService {
+  private readonly logger = new Logger(AnalyticsService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async getOverview(): Promise<OverviewStats> {
-    const now = new Date();
-    
-    // Get total users
-    const totalUsers = await this.prisma.user.count();
+    try {
+      const now = new Date();
+      
+      // Get total users
+      const totalUsers = await this.prisma.user.count().catch((error) => {
+        this.logger.error('Error counting total users:', error);
+        return 0;
+      });
 
-    // Get active users (logged in within last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const activeUsers7d = await this.prisma.user.count({
-      where: {
-        updatedAt: {
-          gte: sevenDaysAgo,
+      // Get active users (logged in within last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const activeUsers7d = await this.prisma.user.count({
+        where: {
+          updatedAt: {
+            gte: sevenDaysAgo,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting active users 7d:', error);
+        return 0;
+      });
 
-    // Get active users (logged in within last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const activeUsers30d = await this.prisma.user.count({
-      where: {
-        updatedAt: {
-          gte: thirtyDaysAgo,
+      // Get active users (logged in within last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const activeUsers30d = await this.prisma.user.count({
+        where: {
+          updatedAt: {
+            gte: thirtyDaysAgo,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting active users 30d:', error);
+        return 0;
+      });
 
-    // Get new users today
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const newUsersToday = await this.prisma.user.count({
-      where: {
-        createdAt: {
-          gte: todayStart,
+      // Get new users today
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const newUsersToday = await this.prisma.user.count({
+        where: {
+          createdAt: {
+            gte: todayStart,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting new users today:', error);
+        return 0;
+      });
 
-    // Get posts today
-    const postsToday = await this.prisma.communityPost.count({
-      where: {
-        createdAt: {
-          gte: todayStart,
+      // Get posts today
+      const postsToday = await this.prisma.communityPost.count({
+        where: {
+          createdAt: {
+            gte: todayStart,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting posts today:', error);
+        return 0;
+      });
 
-    // Get posts yesterday for comparison
-    const yesterdayStart = new Date(todayStart);
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-    const yesterdayEnd = new Date(todayStart);
-    const postsYesterday = await this.prisma.communityPost.count({
-      where: {
-        createdAt: {
-          gte: yesterdayStart,
-          lt: todayStart,
+      // Get posts yesterday for comparison
+      const yesterdayStart = new Date(todayStart);
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      const postsYesterday = await this.prisma.communityPost.count({
+        where: {
+          createdAt: {
+            gte: yesterdayStart,
+            lt: todayStart,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting posts yesterday:', error);
+        return 0;
+      });
 
-    // Get total users from last month for comparison (users that existed at the start of last month)
-    const lastMonthStart = new Date();
-    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
-    lastMonthStart.setDate(1);
-    lastMonthStart.setHours(0, 0, 0, 0);
-    const totalUsersLastMonth = await this.prisma.user.count({
-      where: {
-        createdAt: {
-          lt: lastMonthStart,
+      // Get total users from last month for comparison (users that existed at the start of last month)
+      const lastMonthStart = new Date();
+      lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
+      lastMonthStart.setDate(1);
+      lastMonthStart.setHours(0, 0, 0, 0);
+      const totalUsersLastMonth = await this.prisma.user.count({
+        where: {
+          createdAt: {
+            lt: lastMonthStart,
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting total users last month:', error);
+        return 0;
+      });
 
-    // Get upcoming events from last week for comparison
-    const lastWeekStart = new Date();
-    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-    const upcomingEventsLastWeek = await this.prisma.event.count({
-      where: {
-        isPublished: true,
-        startDate: {
-          gte: lastWeekStart,
-          lt: now,
+      // Get upcoming events from last week for comparison
+      const lastWeekStart = new Date();
+      lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+      const upcomingEventsLastWeek = await this.prisma.event.count({
+        where: {
+          isPublished: true,
+          startDate: {
+            gte: lastWeekStart,
+            lt: now,
+          },
+          status: {
+            in: ['UPCOMING', 'ONGOING'],
+          },
         },
-        status: {
-          in: ['UPCOMING', 'ONGOING'],
+      }).catch((error) => {
+        this.logger.error('Error counting upcoming events last week:', error);
+        return 0;
+      });
+
+      // Get pending reports (if you have a reports table, otherwise return 0)
+      const reportsPending = 0; // TODO: Implement when reports table exists
+
+      // Get donations today (if you have a donations table, otherwise return 0)
+      const donationsToday = 0; // TODO: Implement when donations table exists
+      const donationsWeek = 0;
+      const donationsMonth = 0;
+
+      // Get upcoming events
+      const upcomingEvents = await this.prisma.event.count({
+        where: {
+          isPublished: true,
+          startDate: {
+            gte: now,
+          },
+          status: {
+            in: ['UPCOMING', 'ONGOING'],
+          },
         },
-      },
-    });
+      }).catch((error) => {
+        this.logger.error('Error counting upcoming events:', error);
+        return 0;
+      });
 
-    // Get pending reports (if you have a reports table, otherwise return 0)
-    const reportsPending = 0; // TODO: Implement when reports table exists
+      // Wazifa and Lazim completions (if you have these tables, otherwise return 0)
+      const wazifaCompletions = 0; // TODO: Implement when wazifa table exists
+      const lazimCompletions = 0; // TODO: Implement when lazim table exists
 
-    // Get donations today (if you have a donations table, otherwise return 0)
-    const donationsToday = 0; // TODO: Implement when donations table exists
-    const donationsWeek = 0;
-    const donationsMonth = 0;
-
-    // Get upcoming events
-    const upcomingEvents = await this.prisma.event.count({
-      where: {
-        isPublished: true,
-        startDate: {
-          gte: now,
-        },
-        status: {
-          in: ['UPCOMING', 'ONGOING'],
-        },
-      },
-    });
-
-    // Wazifa and Lazim completions (if you have these tables, otherwise return 0)
-    const wazifaCompletions = 0; // TODO: Implement when wazifa table exists
-    const lazimCompletions = 0; // TODO: Implement when lazim table exists
-
-    return {
-      totalUsers,
-      activeUsers7d,
-      activeUsers30d,
-      newUsersToday,
-      postsToday,
-      reportsPending,
-      donationsToday,
-      donationsWeek,
-      donationsMonth,
-      upcomingEvents,
-      wazifaCompletions,
-      lazimCompletions,
-      // Comparison data
-      totalUsersLastMonth,
-      postsYesterday,
-      upcomingEventsLastWeek,
-      donationsMonthLastMonth: 0, // TODO: Calculate when donations table exists
-    };
+      return {
+        totalUsers,
+        activeUsers7d,
+        activeUsers30d,
+        newUsersToday,
+        postsToday,
+        reportsPending,
+        donationsToday,
+        donationsWeek,
+        donationsMonth,
+        upcomingEvents,
+        wazifaCompletions,
+        lazimCompletions,
+        // Comparison data
+        totalUsersLastMonth,
+        postsYesterday,
+        upcomingEventsLastWeek,
+        donationsMonthLastMonth: 0, // TODO: Calculate when donations table exists
+      };
+    } catch (error) {
+      this.logger.error('Error in getOverview:', error);
+      // Return default values instead of throwing
+      return {
+        totalUsers: 0,
+        activeUsers7d: 0,
+        activeUsers30d: 0,
+        newUsersToday: 0,
+        postsToday: 0,
+        reportsPending: 0,
+        donationsToday: 0,
+        donationsWeek: 0,
+        donationsMonth: 0,
+        upcomingEvents: 0,
+        wazifaCompletions: 0,
+        lazimCompletions: 0,
+        totalUsersLastMonth: 0,
+        postsYesterday: 0,
+        upcomingEventsLastWeek: 0,
+        donationsMonthLastMonth: 0,
+      };
+    }
   }
 
   async getDailyStats(startDate: string, endDate: string): Promise<DailyStats[]> {
