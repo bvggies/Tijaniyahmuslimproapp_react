@@ -173,13 +173,17 @@ export const api = {
   testAuth: () => http('/posts?limit=1'),
 
   // Auth
-  signup: (email: string, password: string, name?: string) =>
-    http('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, name }) }),
+  signup: async (email: string, password: string, name?: string) => {
+    const data = await http('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, name }) });
+    if (data?.accessToken) await setToken(data.accessToken);
+    return data;
+  },
   login: async (email: string, password: string) => {
     const data = await http('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
     if (data?.accessToken) await setToken(data.accessToken);
     return data;
   },
+  getMe: () => http('/auth/me'),
 
   // Community
   listPosts: (limit = 20, cursor?: string) =>

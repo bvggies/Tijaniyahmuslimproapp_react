@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, AuthState, LoginCredentials, RegisterData, AuthContextType } from '../types/auth';
-
-const AUTH_STORAGE_KEY = 'tijaniyah_auth_user';
-const USERS_STORAGE_KEY = 'tijaniyah_users_data';
+import { api, loadStoredToken, clearToken, getToken } from '../services/api';
 
 type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
@@ -78,325 +75,95 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+// Map backend user to app User type
+const mapBackendUserToAppUser = (backendUser: any): User => {
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    name: backendUser.name || 'User',
+    phone: backendUser.phone,
+    profilePicture: backendUser.avatarUrl,
+    role: backendUser.role?.toLowerCase() === 'admin' || backendUser.role?.toLowerCase() === 'super_admin' 
+      ? 'super_admin' 
+      : backendUser.role?.toLowerCase() === 'moderator' 
+        ? 'moderator' 
+        : 'user',
+    location: backendUser.location,
+    preferences: {
+      prayerMethod: 'MWL',
+      language: 'en',
+      notifications: true,
+    },
+    createdAt: backendUser.createdAt || new Date().toISOString(),
+    lastLogin: new Date().toISOString(),
+  };
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authState, dispatch] = useReducer(authReducer, initialState);
 
-  // Load user from storage on app start
+  // Load user from stored token on app start
   useEffect(() => {
-    const initializeApp = async () => {
-      await createAdminUsersIfNeeded(); // Create admin users first
-      await initializeDemoAccount(); // Initialize demo account
-      await loadStoredToken();
-      await loadStoredUser();
-    };
-    initializeApp();
-  }, []);
-
-  const loadStoredToken = async () => {
-    try {
-      const { loadStoredToken } = await import('../services/api');
-      await loadStoredToken();
-    } catch (error) {
-      console.error('Error loading stored token:', error);
-    }
-  };
-
-  const createAdminUsersIfNeeded = async () => {
-    try {
-      const users = await getStoredUsers();
-      
-      // Create admin user if not exists
-      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
-      if (!adminUserExists) {
-        const adminUser: User = {
-          id: 'admin-user-001',
-          email: 'admin@tijaniyahpro.com',
-          name: 'Super Administrator',
-          phone: '+233 558415813',
-          role: 'super_admin',
-          location: {
-            city: 'Accra',
-            country: 'Ghana',
-          },
-          preferences: {
-            prayerMethod: 'MWL',
-            language: 'en',
-            notifications: true,
-          },
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-        };
-        
-        const updatedUsers = [...users, adminUser];
-        await storeUsers(updatedUsers);
-        console.log('✅ Admin user created');
-      }
-      
-      // Create moderator user if not exists
-      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
-      if (!moderatorUserExists) {
-        const moderatorUser: User = {
-          id: 'moderator-user-001',
-          email: 'moderator@tijaniyahpro.com',
-          name: 'Content Moderator',
-          phone: '+233 558415813',
-          role: 'moderator',
-          location: {
-            city: 'Accra',
-            country: 'Ghana',
-          },
-          preferences: {
-            prayerMethod: 'MWL',
-            language: 'en',
-            notifications: true,
-          },
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-        };
-        
-        const updatedUsers = [...users, moderatorUser];
-        await storeUsers(updatedUsers);
-        console.log('✅ Moderator user created');
-      }
-    } catch (error) {
-      console.error('Error creating admin users:', error);
-    }
-  };
-
-  const initializeDemoAccount = async () => {
-    try {
-      const users = await getStoredUsers();
-      const demoUserExists = users.find(u => u.email === 'demo@tijaniyah.com');
-      
-      if (!demoUserExists) {
-        const demoUser: User = {
-          id: 'demo-user-001',
-          email: 'demo@tijaniyah.com',
-          name: 'Demo User',
-          phone: '+233 558415813',
-          role: 'user',
-          location: {
-            city: 'Accra',
-            country: 'Ghana',
-          },
-          preferences: {
-            prayerMethod: 'MWL',
-            language: 'en',
-            notifications: true,
-          },
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-        };
-        
-        const updatedUsers = [...users, demoUser];
-        await storeUsers(updatedUsers);
-      }
-
-      // Initialize admin users
-      const adminUserExists = users.find(u => u.email === 'admin@tijaniyahpro.com');
-      if (!adminUserExists) {
-        const adminUser: User = {
-          id: 'admin-user-001',
-          email: 'admin@tijaniyahpro.com',
-          name: 'Super Administrator',
-          phone: '+233 558415813',
-          role: 'super_admin',
-          location: {
-            city: 'Accra',
-            country: 'Ghana',
-          },
-          preferences: {
-            prayerMethod: 'MWL',
-            language: 'en',
-            notifications: true,
-          },
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-        };
-        
-        const updatedUsers = [...users, adminUser];
-        await storeUsers(updatedUsers);
-      }
-
-      // Initialize moderator user
-      const moderatorUserExists = users.find(u => u.email === 'moderator@tijaniyahpro.com');
-      if (!moderatorUserExists) {
-        const moderatorUser: User = {
-          id: 'moderator-user-001',
-          email: 'moderator@tijaniyahpro.com',
-          name: 'Content Moderator',
-          phone: '+233 558415813',
-          role: 'moderator',
-          location: {
-            city: 'Accra',
-            country: 'Ghana',
-          },
-          preferences: {
-            prayerMethod: 'MWL',
-            language: 'en',
-            notifications: true,
-          },
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-        };
-        
-        const updatedUsers = [...users, moderatorUser];
-        await storeUsers(updatedUsers);
-      }
-
-      // Also ensure demo user exists in backend
+    const initializeAuth = async () => {
       try {
-        const { api } = await import('../services/api');
-        await api.signup('demo@tijaniyah.com', 'demo123', 'Demo User');
-        console.log('✅ Demo user created in backend');
-      } catch (backendError: any) {
-        if (backendError.message?.includes('User already exists')) {
-          console.log('✅ Demo user already exists in backend');
+        // Load stored token
+        const token = await loadStoredToken();
+        
+        if (token) {
+          console.log('✅ Found stored token, fetching user data...');
+          try {
+            // Fetch user data from backend
+            const userData = await api.getMe();
+            const user = mapBackendUserToAppUser(userData);
+            dispatch({ type: 'SET_USER', payload: user });
+            console.log('✅ User loaded from backend:', user.email);
+          } catch (error: any) {
+            console.log('⚠️ Token invalid or expired:', error.message);
+            // Token is invalid, clear it
+            await clearToken();
+            dispatch({ type: 'SET_LOADING', payload: false });
+          }
         } else {
-          console.log('⚠️ Failed to create demo user in backend:', backendError.message);
+          console.log('📝 No stored token found');
+          dispatch({ type: 'SET_LOADING', payload: false });
         }
-      }
-    } catch (error) {
-      console.error('Error initializing demo account:', error);
-    }
-  };
-
-  const loadStoredUser = async () => {
-    try {
-      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        dispatch({ type: 'SET_USER', payload: user });
-      } else {
+      } catch (error) {
+        console.error('Error initializing auth:', error);
         dispatch({ type: 'SET_LOADING', payload: false });
       }
-    } catch (error) {
-      console.error('Error loading stored user:', error);
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
-  };
-
-  const storeUser = async (user: User) => {
-    try {
-      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    } catch (error) {
-      console.error('Error storing user:', error);
-    }
-  };
-
-  const removeStoredUser = async () => {
-    try {
-      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
-    } catch (error) {
-      console.error('Error removing stored user:', error);
-    }
-  };
-
-  const getStoredUsers = async (): Promise<User[]> => {
-    try {
-      const storedUsers = await AsyncStorage.getItem(USERS_STORAGE_KEY);
-      return storedUsers ? JSON.parse(storedUsers) : [];
-    } catch (error) {
-      console.error('Error loading stored users:', error);
-      return [];
-    }
-  };
-
-  const storeUsers = async (users: User[]) => {
-    try {
-      await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    } catch (error) {
-      console.error('Error storing users:', error);
-    }
-  };
+    };
+    
+    initializeAuth();
+  }, []);
 
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const users = await getStoredUsers();
-      console.log('🔍 Available users:', users.map(u => ({ email: u.email, role: u.role })));
-      console.log('🔍 Looking for user:', credentials.email);
+      console.log('🔐 Attempting login for:', credentials.email);
       
-      const user = users.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
-
-      if (!user) {
-        console.log('❌ User not found in stored users');
-        throw new Error('User not found. Please check your email or register.');
+      // Authenticate with backend
+      const response = await api.login(credentials.email, credentials.password);
+      
+      if (response?.user) {
+        const user = mapBackendUserToAppUser(response.user);
+        dispatch({ type: 'SET_USER', payload: user });
+        console.log('✅ Login successful:', user.email);
+      } else {
+        throw new Error('Invalid response from server');
       }
-
-      console.log('✅ User found:', { email: user.email, role: user.role });
-
-      // In a real app, you would verify the password hash here
-      // For demo purposes, we'll accept any password for existing users
-      if (!credentials.password) {
-        throw new Error('Password is required');
+    } catch (error: any) {
+      console.error('❌ Login failed:', error.message);
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (error.message?.includes('Invalid credentials')) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (error.message?.includes('Network') || error.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection.';
       }
-
-      // Special handling for demo account
-      if (user.email === 'demo@tijaniyah.com' && credentials.password !== 'demo123') {
-        throw new Error('Invalid password for demo account. Use: demo123');
-      }
-
-      // Special handling for admin accounts
-      if (user.email === 'admin@tijaniyahpro.com' && credentials.password !== 'admin123') {
-        throw new Error('Invalid password for admin account. Use: admin123');
-      }
-
-      if (user.email === 'moderator@tijaniyahpro.com' && credentials.password !== 'moderator123') {
-        throw new Error('Invalid password for moderator account. Use: moderator123');
-      }
-
-      // Also authenticate with backend
-      try {
-        const { api } = await import('../services/api');
-        const response = await api.login(credentials.email, credentials.password);
-        console.log('✅ Backend authentication successful');
-        // Store the token for future API calls
-        if (response?.accessToken) {
-          const { setToken } = await import('../services/api');
-          await setToken(response.accessToken);
-        }
-      } catch (backendError: any) {
-        console.log('⚠️ Backend authentication failed:', backendError.message);
-        
-        // If user doesn't exist in backend, try to create them
-        if (backendError.message?.includes('Invalid credentials') || backendError.message?.includes('User not found')) {
-          console.log('🔄 User not found in backend, attempting to create account...');
-          try {
-            const { api } = await import('../services/api');
-            await api.signup(credentials.email, credentials.password, user.name);
-            console.log('✅ Backend account created successfully');
-            
-            // Now try to login again
-            const loginResponse = await api.login(credentials.email, credentials.password);
-            if (loginResponse?.accessToken) {
-              const { setToken } = await import('../services/api');
-              await setToken(loginResponse.accessToken);
-              console.log('✅ Backend login successful after account creation');
-            }
-          } catch (signupError: any) {
-            console.log('❌ Failed to create backend account:', signupError.message);
-            // Continue with local login even if backend fails
-          }
-        }
-      }
-
-      // Update last login
-      const updatedUser = {
-        ...user,
-        lastLogin: new Date().toISOString(),
-      };
-
-      // Update user in storage
-      const updatedUsers = users.map(u => u.id === user.id ? updatedUser : u);
-      await storeUsers(updatedUsers);
-      await storeUser(updatedUser);
-
-      dispatch({ type: 'SET_USER', payload: updatedUser });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Login failed' });
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
     }
   };
 
@@ -419,65 +186,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Please enter a valid email address');
       }
 
-      const users = await getStoredUsers();
+      console.log('📝 Attempting registration for:', data.email);
       
-      // Check if user already exists
-      const existingUser = users.find(u => u.email.toLowerCase() === data.email.toLowerCase());
-      if (existingUser) {
-        throw new Error('An account with this email already exists');
+      // Register with backend
+      const response = await api.signup(data.email, data.password, data.name);
+      
+      if (response?.user) {
+        const user = mapBackendUserToAppUser(response.user);
+        dispatch({ type: 'SET_USER', payload: user });
+        console.log('✅ Registration successful:', user.email);
+      } else {
+        throw new Error('Invalid response from server');
       }
-
-      // Create new user
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: data.email.toLowerCase(),
-        name: data.name.trim(),
-        phone: data.phone?.trim(),
-        profilePicture: data.profilePicture,
-        role: 'user', // Default role for new users
-        location: data.location,
-        preferences: {
-          prayerMethod: 'MWL',
-          language: 'en',
-          notifications: true,
-        },
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-      };
-
-      // Also create account on backend
-      try {
-        const { api } = await import('../services/api');
-        await api.signup(data.email, data.password, data.name);
-        console.log('✅ Backend account created successfully');
-      } catch (backendError: any) {
-        console.log('⚠️ Backend account creation failed:', backendError.message);
-        // Continue with local registration even if backend fails
+    } catch (error: any) {
+      console.error('❌ Registration failed:', error.message);
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (error.message?.includes('User already exists')) {
+        errorMessage = 'An account with this email already exists.';
+      } else if (error.message?.includes('Network') || error.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
-
-      // Store user
-      const updatedUsers = [...users, newUser];
-      await storeUsers(updatedUsers);
-      await storeUser(newUser);
-
-      dispatch({ type: 'SET_USER', payload: newUser });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Registration failed' });
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
     }
   };
 
   const logout = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await removeStoredUser();
-      // Clear the authentication token
-      try {
-        const { clearToken } = await import('../services/api');
-        await clearToken();
-      } catch (tokenError) {
-        console.error('Error clearing token:', tokenError);
-      }
+      await clearToken();
       dispatch({ type: 'LOGOUT' });
+      console.log('✅ Logged out successfully');
     } catch (error) {
       console.error('Error during logout:', error);
       dispatch({ type: 'LOGOUT' });
@@ -495,13 +237,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const users = await getStoredUsers();
+      // For now, update locally since we don't have a profile update endpoint
       const updatedUser = { ...authState.user, ...updates };
-      
-      const updatedUsers = users.map(u => u.id === authState.user!.id ? updatedUser : u);
-      await storeUsers(updatedUsers);
-      await storeUser(updatedUser);
-
       dispatch({ type: 'SET_USER', payload: updatedUser });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Update failed' });
@@ -513,17 +250,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const users = await getStoredUsers();
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-      if (!user) {
-        throw new Error('No account found with this email address');
-      }
-
-      // In a real app, you would send a password reset email here
-      // For demo purposes, we'll just show a success message
+      // TODO: Implement password reset API endpoint
+      console.log('🔄 Password reset requested for:', email);
       dispatch({ type: 'SET_LOADING', payload: false });
-      // You could dispatch a success message here
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Password reset failed' });
     }
