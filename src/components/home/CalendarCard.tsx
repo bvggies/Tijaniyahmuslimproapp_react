@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { tokens as designTokens } from '../utils/designTokens';
+import { tokens } from '../../utils/designTokens';
 import { IslamicDateData } from '../../services/mockData';
 import { SkeletonLoader } from '../ui';
 

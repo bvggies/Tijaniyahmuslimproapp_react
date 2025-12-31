@@ -45,8 +45,8 @@ export interface AnalyticsOverview {
   activeUsers7d: number;
   activeUsers30d: number;
   newUsersToday: number;
-  newUsersWeek: number;
-  premiumUsers: number;
+  newUsersWeek?: number;
+  premiumUsers?: number;
   postsToday: number;
   reportsPending: number;
   donationsToday: number;
@@ -55,6 +55,11 @@ export interface AnalyticsOverview {
   upcomingEvents: number;
   wazifaCompletions?: number;
   lazimCompletions?: number;
+  // Comparison data for calculating changes
+  totalUsersLastMonth?: number;
+  postsYesterday?: number;
+  upcomingEventsLastWeek?: number;
+  donationsMonthLastMonth?: number;
 }
 
 export interface DailyAnalytics {

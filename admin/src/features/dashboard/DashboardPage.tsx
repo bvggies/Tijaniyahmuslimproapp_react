@@ -16,8 +16,6 @@ import {
   useOverviewStats, 
   useRecentActivity,
   useDailyStats,
-  mockOverviewData, 
-  mockDailyStats,
 } from './hooks/useDashboardData';
 import { formatCurrency, formatNumber } from '../../lib/utils';
 import { toast } from '../../components/ui/use-toast';
@@ -42,9 +40,30 @@ export default function DashboardPage() {
   const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const { data: dailyStatsData } = useDailyStats(startDate, endDate);
 
-  const stats = overviewData || mockOverviewData;
+  // Always use real data, show loading state if not available
+  const stats = overviewData;
   const activities = activityData || [];
-  const chartData = dailyStatsData || mockDailyStats;
+  const chartData = dailyStatsData || [];
+
+  // Calculate percentage changes from real data
+  const calculateChange = (current: number, previous: number | undefined): { value: string; trend: 'up' | 'down' | 'neutral' } => {
+    if (!previous || previous === 0) {
+      return { value: 'No previous data', trend: 'neutral' };
+    }
+    const change = ((current - previous) / previous) * 100;
+    const absChange = Math.abs(change);
+    return {
+      value: `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`,
+      trend: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral',
+    };
+  };
+
+  const totalUsersChange = stats ? calculateChange(stats.totalUsers, stats.totalUsersLastMonth) : { value: 'Loading...', trend: 'neutral' as const };
+  const postsChange = stats ? calculateChange(stats.postsToday, stats.postsYesterday) : { value: 'Loading...', trend: 'neutral' as const };
+  const eventsChange = stats && stats.upcomingEventsLastWeek !== undefined 
+    ? { value: `${stats.upcomingEvents - (stats.upcomingEventsLastWeek || 0)} new this week`, trend: (stats.upcomingEvents > (stats.upcomingEventsLastWeek || 0)) ? 'up' as const : 'neutral' as const }
+    : { value: 'Loading...', trend: 'neutral' as const };
+  const donationsChange = stats ? calculateChange(stats.donationsMonth, stats.donationsMonthLastMonth) : { value: 'Loading...', trend: 'neutral' as const };
 
   const handleRefresh = async () => {
     try {
@@ -86,36 +105,36 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Users"
-          value={formatNumber(stats.totalUsers)}
-          change="+12% from last month"
-          trend="up"
+          value={stats ? formatNumber(stats.totalUsers) : '0'}
+          change={totalUsersChange.value + (stats?.totalUsersLastMonth ? ' from last month' : '')}
+          trend={totalUsersChange.trend}
           icon={Users}
           color="primary"
           isLoading={isLoading}
         />
         <StatsCard
           title="Posts Today"
-          value={formatNumber(stats.postsToday)}
-          change="+8% from yesterday"
-          trend="up"
+          value={stats ? formatNumber(stats.postsToday) : '0'}
+          change={postsChange.value + (stats?.postsYesterday !== undefined ? ' from yesterday' : '')}
+          trend={postsChange.trend}
           icon={MessageSquare}
           color="blue"
           isLoading={isLoading}
         />
         <StatsCard
           title="Upcoming Events"
-          value={stats.upcomingEvents}
-          change="+2 new this week"
-          trend="up"
+          value={stats ? stats.upcomingEvents.toString() : '0'}
+          change={eventsChange.value}
+          trend={eventsChange.trend}
           icon={Calendar}
           color="purple"
           isLoading={isLoading}
         />
         <StatsCard
           title="Donations (Month)"
-          value={formatCurrency(stats.donationsMonth)}
-          change="-3% from last month"
-          trend="down"
+          value={stats ? formatCurrency(stats.donationsMonth) : '$0'}
+          change={donationsChange.value + (stats?.donationsMonthLastMonth !== undefined ? ' from last month' : '')}
+          trend={donationsChange.trend}
           icon={DollarSign}
           color="gold"
           isLoading={isLoading}
@@ -126,7 +145,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <FeaturedStatsCard
           title="Pending Reports"
-          value={stats.reportsPending}
+          value={stats ? stats.reportsPending : 0}
           subtitle="Requires attention"
           icon={AlertTriangle}
           gradient="bg-gradient-to-br from-primary-500 to-primary-600"
@@ -134,16 +153,16 @@ export default function DashboardPage() {
         />
         <FeaturedStatsCard
           title="Active Users (7d)"
-          value={formatNumber(stats.activeUsers7d)}
-          subtitle={`${((stats.activeUsers7d / stats.totalUsers) * 100).toFixed(1)}% of total`}
+          value={stats ? formatNumber(stats.activeUsers7d) : '0'}
+          subtitle={stats && stats.totalUsers > 0 ? `${((stats.activeUsers7d / stats.totalUsers) * 100).toFixed(1)}% of total` : 'Calculating...'}
           icon={TrendingUp}
           gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
           isLoading={isLoading}
         />
         <FeaturedStatsCard
           title="Today's Donations"
-          value={formatCurrency(stats.donationsToday)}
-          subtitle={`${stats.donationsWeek ? formatCurrency(stats.donationsWeek) : '$0'} this week`}
+          value={stats ? formatCurrency(stats.donationsToday) : '$0'}
+          subtitle={stats ? `${formatCurrency(stats.donationsWeek)} this week` : 'Loading...'}
           icon={DollarSign}
           gradient="bg-gradient-to-br from-amber-500 to-amber-600"
           isLoading={isLoading}
@@ -178,7 +197,7 @@ export default function DashboardPage() {
           <div className="grid gap-4">
             <StatsCard
               title="New Users Today"
-              value={stats.newUsersToday}
+              value={stats ? stats.newUsersToday : 0}
               change="Active registrations"
               trend="neutral"
               icon={Users}
@@ -187,14 +206,14 @@ export default function DashboardPage() {
             />
             <StatsCard
               title="Active Users (30d)"
-              value={formatNumber(stats.activeUsers30d)}
-              change={`${((stats.activeUsers30d / stats.totalUsers) * 100).toFixed(1)}% engagement`}
+              value={stats ? formatNumber(stats.activeUsers30d) : '0'}
+              change={stats && stats.totalUsers > 0 ? `${((stats.activeUsers30d / stats.totalUsers) * 100).toFixed(1)}% engagement` : 'Calculating...'}
               trend="up"
               icon={TrendingUp}
               color="blue"
               isLoading={isLoading}
             />
-            {stats.wazifaCompletions !== undefined && (
+            {stats && stats.wazifaCompletions !== undefined && (
               <StatsCard
                 title="Wazifa Completions"
                 value={formatNumber(stats.wazifaCompletions)}

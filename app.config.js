@@ -20,5 +20,10 @@ export default ({ config }) => ({
       
       // Groq API for AI Noor
       GROQ_API_KEY: process.env.GROQ_API_KEY || '',
+      
+      // EAS Project ID for push notifications
+      eas: {
+        projectId: '0c6679dc-cf6b-41f2-be84-fc83580cb435',
+      },
     },
   });

@@ -185,8 +185,14 @@ class NotificationService {
         return this.expoPushToken;
       }
 
+      // Get projectId from config, with fallback to Constants projectId
+      const projectId = 
+        Constants.expoConfig?.extra?.eas?.projectId || 
+        Constants.expoConfig?.projectId || 
+        '0c6679dc-cf6b-41f2-be84-fc83580cb435'; // Fallback from .easrc
+      
       const token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId,
+        projectId,
       });
       
       this.expoPushToken = token.data;

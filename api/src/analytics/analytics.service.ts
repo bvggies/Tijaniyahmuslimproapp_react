@@ -30,6 +30,11 @@ export interface OverviewStats {
   upcomingEvents: number;
   wazifaCompletions: number;
   lazimCompletions: number;
+  // Comparison data for calculating changes
+  totalUsersLastMonth?: number;
+  postsYesterday?: number;
+  upcomingEventsLastWeek?: number;
+  donationsMonthLastMonth?: number;
 }
 
 @Injectable()
@@ -37,6 +42,8 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async getOverview(): Promise<OverviewStats> {
+    const now = new Date();
+    
     // Get total users
     const totalUsers = await this.prisma.user.count();
 
@@ -82,6 +89,48 @@ export class AnalyticsService {
       },
     });
 
+    // Get posts yesterday for comparison
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    const yesterdayEnd = new Date(todayStart);
+    const postsYesterday = await this.prisma.communityPost.count({
+      where: {
+        createdAt: {
+          gte: yesterdayStart,
+          lt: todayStart,
+        },
+      },
+    });
+
+    // Get total users from last month for comparison (users that existed at the start of last month)
+    const lastMonthStart = new Date();
+    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
+    lastMonthStart.setDate(1);
+    lastMonthStart.setHours(0, 0, 0, 0);
+    const totalUsersLastMonth = await this.prisma.user.count({
+      where: {
+        createdAt: {
+          lt: lastMonthStart,
+        },
+      },
+    });
+
+    // Get upcoming events from last week for comparison
+    const lastWeekStart = new Date();
+    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+    const upcomingEventsLastWeek = await this.prisma.event.count({
+      where: {
+        isPublished: true,
+        startDate: {
+          gte: lastWeekStart,
+          lt: now,
+        },
+        status: {
+          in: ['UPCOMING', 'ONGOING'],
+        },
+      },
+    });
+
     // Get pending reports (if you have a reports table, otherwise return 0)
     const reportsPending = 0; // TODO: Implement when reports table exists
 
@@ -91,7 +140,6 @@ export class AnalyticsService {
     const donationsMonth = 0;
 
     // Get upcoming events
-    const now = new Date();
     const upcomingEvents = await this.prisma.event.count({
       where: {
         isPublished: true,
@@ -121,6 +169,11 @@ export class AnalyticsService {
       upcomingEvents,
       wazifaCompletions,
       lazimCompletions,
+      // Comparison data
+      totalUsersLastMonth,
+      postsYesterday,
+      upcomingEventsLastWeek,
+      donationsMonthLastMonth: 0, // TODO: Calculate when donations table exists
     };
   }
 
