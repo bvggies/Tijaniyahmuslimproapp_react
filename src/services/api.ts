@@ -272,6 +272,61 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ message, conversationHistory }),
     }),
+
+  // Events - Public
+  getEvents: () => http('/events/public'),
+  getUpcomingEvents: () => http('/events/upcoming'),
+  getEvent: (id: string) => http(`/events/public/${encodeURIComponent(id)}`),
+
+  // Events - Admin
+  getEventsAdmin: (params?: { page?: number; limit?: number; category?: string; status?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', String(params.page));
+    if (params?.limit) queryParams.append('limit', String(params.limit));
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.status) queryParams.append('status', params.status);
+    const queryString = queryParams.toString();
+    return http(`/events${queryString ? `?${queryString}` : ''}`);
+  },
+  createEvent: (data: any) => http('/events', { method: 'POST', body: JSON.stringify(data) }),
+  updateEvent: (id: string, data: any) => http(`/events/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteEvent: (id: string) => http(`/events/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  // News - Public
+  getNews: () => http('/news/public'),
+  getFeaturedNews: () => http('/news/featured'),
+  getNewsItem: (id: string) => http(`/news/public/${encodeURIComponent(id)}`),
+
+  // News - Admin
+  getNewsAdmin: (params?: { page?: number; limit?: number; category?: string; priority?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', String(params.page));
+    if (params?.limit) queryParams.append('limit', String(params.limit));
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.priority) queryParams.append('priority', params.priority);
+    const queryString = queryParams.toString();
+    return http(`/news${queryString ? `?${queryString}` : ''}`);
+  },
+  createNews: (data: any) => http('/news', { method: 'POST', body: JSON.stringify(data) }),
+  updateNews: (id: string, data: any) => http(`/news/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteNews: (id: string) => http(`/news/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  // Scholars - Public
+  getScholars: () => http('/scholars/public'),
+  getScholar: (id: string) => http(`/scholars/public/${encodeURIComponent(id)}`),
+
+  // Scholars - Admin
+  getScholarsAdmin: (params?: { page?: number; limit?: number; search?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', String(params.page));
+    if (params?.limit) queryParams.append('limit', String(params.limit));
+    if (params?.search) queryParams.append('search', params.search);
+    const queryString = queryParams.toString();
+    return http(`/scholars${queryString ? `?${queryString}` : ''}`);
+  },
+  createScholar: (data: any) => http('/scholars', { method: 'POST', body: JSON.stringify(data) }),
+  updateScholar: (id: string, data: any) => http(`/scholars/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteScholar: (id: string) => http(`/scholars/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 };
 
 export async function ensureDemoAuth() {

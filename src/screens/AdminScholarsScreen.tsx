@@ -17,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { api } from '../services/api';
 
 interface Scholar {
   id: string;
@@ -102,154 +103,44 @@ const AdminScholarsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const loadScholars = async () => {
     try {
-      // TODO: Replace with actual API call
-      const mockScholars: Scholar[] = [
-        {
-          id: '1',
-          name: 'Sheikh Ahmad Tijani',
-          nameArabic: 'الشيخ أحمد التجاني',
-          title: 'Founder of Tijaniyah Tariqa',
-          titleArabic: 'مؤسس الطريقة التجانية',
-          biography: 'Sheikh Ahmad Tijani was a prominent Sufi scholar and the founder of the Tijaniyah Tariqa...',
-          biographyArabic: 'كان الشيخ أحمد التجاني عالماً صوفياً بارزاً ومؤسس الطريقة التجانية...',
-          specialization: ['tijaniyah', 'tasawwuf', 'fiqh'],
-          country: 'Morocco',
-          city: 'Fez',
-          birthYear: 1737,
-          deathYear: 1815,
-          isAlive: false,
-          isActive: true,
-          isFeatured: true,
-          profileImage: 'https://example.com/sheikh-ahmad-tijani.jpg',
-          achievements: [
-            'Founded the Tijaniyah Tariqa',
-            'Authored numerous spiritual works',
-            'Established centers of learning'
-          ],
-          achievementsArabic: [
-            'أسس الطريقة التجانية',
-            'ألف العديد من الأعمال الروحية',
-            'أنشأ مراكز التعلم'
-          ],
-          books: [
-            'Jawahir al-Ma\'ani',
-            'Rimah Hizb al-Rahim',
-            'Al-Faydah al-Ahmadiyyah'
-          ],
-          booksArabic: [
-            'جواهر المعاني',
-            'رماح حزب الرحيم',
-            'الفيضة الأحمدية'
-          ],
-          website: 'https://tijaniyah.org',
-          socialMedia: {
-            twitter: '@tijaniyah',
-            facebook: 'TijaniyahOfficial',
-            youtube: 'TijaniyahChannel'
-          },
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T10:00:00Z',
-          followers: 12500,
-          lessonsCount: 45,
-          booksCount: 12,
-        },
-        {
-          id: '2',
-          name: 'Sheikh Ibrahim Niasse',
-          nameArabic: 'الشيخ إبراهيم نياس',
-          title: 'Khalifa of Tijaniyah',
-          titleArabic: 'خليفة التجانية',
-          biography: 'Sheikh Ibrahim Niasse was a renowned Tijaniyah scholar and spiritual leader...',
-          biographyArabic: 'كان الشيخ إبراهيم نياس عالماً تجانياً مرموقاً وقائداً روحياً...',
-          specialization: ['tijaniyah', 'tasawwuf', 'quran'],
-          country: 'Senegal',
-          city: 'Kaolack',
-          birthYear: 1900,
-          deathYear: 1975,
-          isAlive: false,
-          isActive: true,
-          isFeatured: true,
-          profileImage: 'https://example.com/sheikh-ibrahim-niasse.jpg',
-          achievements: [
-            'Expanded Tijaniyah globally',
-            'Established Islamic schools',
-            'Promoted Islamic education'
-          ],
-          achievementsArabic: [
-            'وسع التجانية عالمياً',
-            'أنشأ المدارس الإسلامية',
-            'روج للتعليم الإسلامي'
-          ],
-          books: [
-            'Kashif al-Ilbas',
-            'Ruh al-Adab',
-            'Al-Faydah al-Tijaniyyah'
-          ],
-          booksArabic: [
-            'كاشف الإلباس',
-            'روح الأدب',
-            'الفيضة التجانية'
-          ],
-          createdAt: '2024-01-14T14:30:00Z',
-          updatedAt: '2024-01-16T09:15:00Z',
-          followers: 8900,
-          lessonsCount: 38,
-          booksCount: 8,
-        },
-        {
-          id: '3',
-          name: 'Sheikh Muhammad al-Hafiz',
-          nameArabic: 'الشيخ محمد الحافظ',
-          title: 'Contemporary Tijaniyah Scholar',
-          titleArabic: 'عالم تجاني معاصر',
-          biography: 'Sheikh Muhammad al-Hafiz is a contemporary scholar specializing in Tijaniyah studies...',
-          biographyArabic: 'الشيخ محمد الحافظ عالم معاصر متخصص في الدراسات التجانية...',
-          specialization: ['tijaniyah', 'hadith', 'history'],
-          country: 'Nigeria',
-          city: 'Kano',
-          birthYear: 1965,
-          isAlive: true,
-          isActive: true,
-          isFeatured: false,
-          profileImage: 'https://example.com/sheikh-muhammad-hafiz.jpg',
-          achievements: [
-            'Modern Tijaniyah interpretation',
-            'Digital Islamic education',
-            'Interfaith dialogue'
-          ],
-          achievementsArabic: [
-            'تفسير التجانية الحديث',
-            'التعليم الإسلامي الرقمي',
-            'الحوار بين الأديان'
-          ],
-          books: [
-            'Tijaniyah in Modern Times',
-            'Digital Islamic Learning',
-            'Contemporary Sufism'
-          ],
-          booksArabic: [
-            'التجانية في العصر الحديث',
-            'التعلم الإسلامي الرقمي',
-            'التصوف المعاصر'
-          ],
-          website: 'https://hafizscholar.org',
-          contactEmail: 'contact@hafizscholar.org',
-          socialMedia: {
-            twitter: '@hafizscholar',
-            facebook: 'HafizScholar',
-            youtube: 'HafizScholarChannel'
-          },
-          createdAt: '2024-01-13T09:15:00Z',
-          updatedAt: '2024-01-13T09:15:00Z',
-          followers: 3200,
-          lessonsCount: 25,
-          booksCount: 5,
-        },
-      ];
-      setScholars(mockScholars);
-      calculateStats(mockScholars);
+      const response = await api.getScholarsAdmin();
+      const scholarsData = response.data || response;
+      // Map backend data to frontend format
+      const mappedScholars: Scholar[] = scholarsData.map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        nameArabic: s.nameArabic || '',
+        title: s.title || '',
+        titleArabic: '',
+        biography: s.biography || '',
+        biographyArabic: '',
+        specialization: s.specialty ? [s.specialty] : [],
+        country: s.location || '',
+        city: '',
+        birthYear: s.birthYear,
+        deathYear: s.deathYear,
+        isAlive: s.isAlive,
+        isActive: s.isPublished,
+        isFeatured: false,
+        profileImage: s.imageUrl,
+        achievements: [],
+        achievementsArabic: [],
+        books: [],
+        booksArabic: [],
+        website: '',
+        socialMedia: {},
+        contactEmail: '',
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt,
+        followers: 0,
+        lessonsCount: 0,
+        booksCount: 0,
+      }));
+      setScholars(mappedScholars);
+      calculateStats(mappedScholars);
     } catch (error) {
       console.error('Error loading scholars:', error);
+      Alert.alert('Error', 'Failed to load scholars');
     }
   };
 

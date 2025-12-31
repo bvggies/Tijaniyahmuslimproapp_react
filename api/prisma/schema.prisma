@@ -363,3 +363,107 @@ model MakkahLiveChannel {
   @@index([category, isActive])
   @@index([sortOrder])
 }
+
+// ==========================================
+// EVENTS SYSTEM
+// ==========================================
+
+enum EventCategory {
+  CONFERENCE
+  SEMINAR
+  WORKSHOP
+  CELEBRATION
+  OTHER
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Event {
+  id                  String        @id @default(cuid())
+  title               String
+  description         String
+  location            String
+  startDate           DateTime
+  endDate             DateTime
+  imageUrl            String?
+  category            EventCategory @default(OTHER)
+  status              EventStatus   @default(UPCOMING)
+  isPublished         Boolean       @default(false)
+  maxAttendees        Int?
+  registrationRequired Boolean      @default(false)
+  createdBy           String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([startDate])
+  @@index([status, isPublished])
+  @@index([category])
+}
+
+// ==========================================
+// NEWS SYSTEM
+// ==========================================
+
+enum NewsCategory {
+  GENERAL
+  EVENTS
+  ANNOUNCEMENTS
+  UPDATES
+}
+
+enum NewsPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model News {
+  id          String       @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?
+  imageUrl    String?
+  category    NewsCategory @default(GENERAL)
+  priority    NewsPriority @default(MEDIUM)
+  isPublished Boolean      @default(false)
+  isFeatured  Boolean      @default(false)
+  viewCount   Int          @default(0)
+  createdBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([isPublished, createdAt])
+  @@index([category])
+  @@index([priority])
+}
+
+// ==========================================
+// SCHOLARS SYSTEM
+// ==========================================
+
+model Scholar {
+  id          String   @id @default(cuid())
+  name        String
+  nameArabic  String?
+  title       String?
+  biography   String?
+  imageUrl    String?
+  birthYear   Int?
+  deathYear   Int?
+  location    String?
+  specialty   String?
+  isAlive     Boolean  @default(true)
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([sortOrder])
+}

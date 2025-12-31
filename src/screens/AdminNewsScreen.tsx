@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../services/api';
 
 interface NewsItem {
   id: string;
@@ -59,32 +60,23 @@ const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const loadNewsItems = async () => {
     try {
-      // TODO: Replace with actual API call
-      const mockNews: NewsItem[] = [
-        {
-          id: '1',
-          title: 'New Islamic Calendar Feature',
-          content: 'We have added a new Islamic calendar feature with Hijri date conversion...',
-          category: 'updates',
-          priority: 'high',
-          isPublished: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T10:00:00Z',
-        },
-        {
-          id: '2',
-          title: 'Upcoming Tijaniyya Conference',
-          content: 'Join us for the annual Tijaniyya conference in Kaolack, Senegal...',
-          category: 'events',
-          priority: 'medium',
-          isPublished: true,
-          createdAt: '2024-01-10T14:30:00Z',
-          updatedAt: '2024-01-10T14:30:00Z',
-        },
-      ];
-      setNewsItems(mockNews);
+      const response = await api.getNewsAdmin();
+      const newsData = response.data || response;
+      const mappedNews: NewsItem[] = newsData.map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        content: n.content,
+        imageUrl: n.imageUrl,
+        category: n.category?.toLowerCase() || 'general',
+        priority: n.priority?.toLowerCase() || 'medium',
+        isPublished: n.isPublished,
+        createdAt: n.createdAt,
+        updatedAt: n.updatedAt,
+      }));
+      setNewsItems(mappedNews);
     } catch (error) {
       console.error('Error loading news items:', error);
+      Alert.alert('Error', 'Failed to load news');
     }
   };
 
@@ -95,24 +87,25 @@ const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         return;
       }
 
-      const newsItem: NewsItem = {
-        id: editingItem?.id || Date.now().toString(),
-        ...formData,
-        createdAt: editingItem?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      const newsData = {
+        title: formData.title,
+        content: formData.content,
+        imageUrl: formData.imageUrl || undefined,
+        category: formData.category,
+        priority: formData.priority,
+        isPublished: formData.isPublished,
       };
 
       if (editingItem) {
-        setNewsItems(prev => prev.map(item => 
-          item.id === editingItem.id ? newsItem : item
-        ));
+        await api.updateNews(editingItem.id, newsData);
       } else {
-        setNewsItems(prev => [newsItem, ...prev]);
+        await api.createNews(newsData);
       }
 
       setShowAddModal(false);
       setEditingItem(null);
       resetForm();
+      loadNewsItems(); // Reload from API
       Alert.alert('Success', 'News item saved successfully');
     } catch (error) {
       console.error('Error saving news item:', error);
@@ -144,7 +137,8 @@ const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              setNewsItems(prev => prev.filter(item => item.id !== id));
+              await api.deleteNews(id);
+              loadNewsItems(); // Reload from API
               Alert.alert('Success', 'News item deleted successfully');
             } catch (error) {
               console.error('Error deleting news item:', error);

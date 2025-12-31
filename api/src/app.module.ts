@@ -13,6 +13,9 @@ import { MakkahLiveModule } from './makkah-live/makkah-live.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AiModule } from './ai/ai.module';
 import { UsersModule } from './users/users.module';
+import { EventsModule } from './events/events.module';
+import { NewsModule } from './news/news.module';
+import { ScholarsModule } from './scholars/scholars.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { UsersModule } from './users/users.module';
     AnalyticsModule,
     AiModule,
     UsersModule,
+    EventsModule,
+    NewsModule,
+    ScholarsModule,
   ],
   controllers: [HealthController],
 })

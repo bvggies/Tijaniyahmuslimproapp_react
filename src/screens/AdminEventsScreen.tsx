@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../services/api';
 
 interface Event {
   id: string;
@@ -75,45 +76,31 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const loadEvents = async () => {
     try {
-      // TODO: Replace with actual API call
-      const mockEvents: Event[] = [
-        {
-          id: '1',
-          title: 'Annual Tijaniyya Conference',
-          description: 'Join us for the annual Tijaniyya conference featuring renowned scholars and spiritual leaders.',
-          location: 'Kaolack, Senegal',
-          startDate: '2024-03-15',
-          endDate: '2024-03-17',
-          startTime: '09:00',
-          endTime: '18:00',
-          category: 'conference',
-          status: 'upcoming',
-          isPublished: true,
-          maxAttendees: 500,
-          registrationRequired: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T10:00:00Z',
-        },
-        {
-          id: '2',
-          title: 'Islamic Knowledge Workshop',
-          description: 'A comprehensive workshop on Islamic jurisprudence and spirituality.',
-          location: 'Online',
-          startDate: '2024-02-20',
-          endDate: '2024-02-20',
-          startTime: '14:00',
-          endTime: '17:00',
-          category: 'workshop',
-          status: 'upcoming',
-          isPublished: true,
-          registrationRequired: false,
-          createdAt: '2024-01-10T14:30:00Z',
-          updatedAt: '2024-01-10T14:30:00Z',
-        },
-      ];
-      setEvents(mockEvents);
+      const response = await api.getEventsAdmin();
+      const eventsData = response.data || response;
+      // Map backend data to frontend format
+      const mappedEvents: Event[] = eventsData.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        location: e.location,
+        startDate: e.startDate?.split('T')[0] || '',
+        endDate: e.endDate?.split('T')[0] || '',
+        startTime: e.startDate?.split('T')[1]?.substring(0, 5) || '09:00',
+        endTime: e.endDate?.split('T')[1]?.substring(0, 5) || '18:00',
+        imageUrl: e.imageUrl,
+        category: e.category?.toLowerCase() || 'other',
+        status: e.status?.toLowerCase() || 'upcoming',
+        isPublished: e.isPublished,
+        maxAttendees: e.maxAttendees,
+        registrationRequired: e.registrationRequired,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      }));
+      setEvents(mappedEvents);
     } catch (error) {
       console.error('Error loading events:', error);
+      Alert.alert('Error', 'Failed to load events');
     }
   };
 
@@ -124,25 +111,30 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         return;
       }
 
-      const event: Event = {
-        id: editingEvent?.id || Date.now().toString(),
-        ...formData,
+      const eventData = {
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        startDate: `${formData.startDate}T${formData.startTime || '09:00'}:00.000Z`,
+        endDate: `${formData.endDate}T${formData.endTime || '18:00'}:00.000Z`,
+        imageUrl: formData.imageUrl || undefined,
+        category: formData.category,
+        status: formData.status,
+        isPublished: formData.isPublished,
         maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
-        createdAt: editingEvent?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        registrationRequired: formData.registrationRequired,
       };
 
       if (editingEvent) {
-        setEvents(prev => prev.map(item => 
-          item.id === editingEvent.id ? event : item
-        ));
+        await api.updateEvent(editingEvent.id, eventData);
       } else {
-        setEvents(prev => [event, ...prev]);
+        await api.createEvent(eventData);
       }
 
       setShowAddModal(false);
       setEditingEvent(null);
       resetForm();
+      loadEvents(); // Reload events from API
       Alert.alert('Success', 'Event saved successfully');
     } catch (error) {
       console.error('Error saving event:', error);
@@ -181,7 +173,8 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              setEvents(prev => prev.filter(item => item.id !== id));
+              await api.deleteEvent(id);
+              loadEvents(); // Reload from API
               Alert.alert('Success', 'Event deleted successfully');
             } catch (error) {
               console.error('Error deleting event:', error);
