@@ -64,8 +64,8 @@ export default function NewsPage() {
 
   // API Queries
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['news', { search, category: categoryFilter !== 'all' ? categoryFilter : undefined }],
-    queryFn: () => newsApi.getAll({ search, category: categoryFilter !== 'all' ? categoryFilter : undefined, limit: 100 }),
+    queryKey: ['news', { category: categoryFilter !== 'all' ? categoryFilter : undefined }],
+    queryFn: () => newsApi.getAll({ category: categoryFilter !== 'all' ? categoryFilter : undefined, limit: 100 }),
   });
 
   // Mutations
