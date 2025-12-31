@@ -120,6 +120,22 @@ export default function MakkahLivePage() {
   };
 
   const handleSubmit = async () => {
+    // Validate required fields
+    if (!formData.title || formData.title.trim() === '') {
+      alert('Please enter a title for the channel');
+      return;
+    }
+
+    if (formData.type === 'YOUTUBE_LIVE' && (!formData.youtubeId || formData.youtubeId.trim() === '')) {
+      alert('Please enter a YouTube Video ID');
+      return;
+    }
+
+    if (formData.type === 'TV_CHANNEL' && (!formData.websiteUrl || formData.websiteUrl.trim() === '')) {
+      alert('Please enter a website URL');
+      return;
+    }
+
     try {
       if (selectedChannel) {
         await updateChannel.mutateAsync({ id: selectedChannel.id, data: formData });
@@ -129,6 +145,7 @@ export default function MakkahLivePage() {
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving channel:', error);
+      alert('Failed to save channel. Please try again.');
     }
   };
 

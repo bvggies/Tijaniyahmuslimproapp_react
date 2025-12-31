@@ -10,14 +10,14 @@ import {
   Trash2, 
   Eye, 
   EyeOff,
-  ExternalLink,
-  Image as ImageIcon,
+  RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
+import { Skeleton } from '../../components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -35,6 +35,9 @@ import {
 } from '../../components/ui/dialog';
 import { toast } from '../../components/ui/use-toast';
 import { formatDate, cn } from '../../lib/utils';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { newsApi } from '../../lib/api';
+import { NewsArticle } from '../../lib/api/types';
 
 const newsSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -51,53 +54,70 @@ type NewsFormData = z.infer<typeof newsSchema>;
 
 const categories = ['Community', 'Events', 'Education', 'Global', 'Local', 'Announcements'];
 
-const mockNews = [
-  {
-    id: '1',
-    title: 'Annual Mawlid Celebration Brings Together Thousands',
-    excerpt: 'The grand celebration of Prophet Muhammad\'s birthday gathered Muslims from across the region in a beautiful display of unity and devotion.',
-    content: 'Full article content here...',
-    category: 'Community',
-    imageUrl: 'https://example.com/mawlid.jpg',
-    source: 'Islamic Times',
-    isPublished: true,
-    publishedAt: '2024-01-28T10:00:00Z',
-    createdBy: 'admin',
-    createdAt: '2024-01-28T09:00:00Z',
-    updatedAt: '2024-01-28T10:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'New Mosque Opens in Downtown Accra',
-    excerpt: 'A beautiful new mosque has opened its doors, featuring stunning Islamic architecture and modern facilities for the community.',
-    content: 'Full article content here...',
-    category: 'Local',
-    source: 'Ghana Muslim News',
-    isPublished: true,
-    publishedAt: '2024-01-27T14:00:00Z',
-    createdBy: 'moderator',
-    createdAt: '2024-01-27T12:00:00Z',
-    updatedAt: '2024-01-27T14:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Ramadan Preparation Tips for Busy Muslims',
-    excerpt: 'Practical advice for preparing spiritually and physically for the holy month while managing work and family responsibilities.',
-    content: 'Full article content here...',
-    category: 'Education',
-    isPublished: false,
-    createdBy: 'scholar',
-    createdAt: '2024-01-26T09:00:00Z',
-    updatedAt: '2024-01-26T09:00:00Z',
-  },
-];
-
 export default function NewsPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
-  const [editingNews, setEditingNews] = useState<typeof mockNews[0] | null>(null);
-  const [deletingNews, setDeletingNews] = useState<typeof mockNews[0] | null>(null);
+  const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
+  const [deletingNews, setDeletingNews] = useState<NewsArticle | null>(null);
+  const queryClient = useQueryClient();
+
+  // API Queries
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['news', { search, category: categoryFilter !== 'all' ? categoryFilter : undefined }],
+    queryFn: () => newsApi.getAll({ search, category: categoryFilter !== 'all' ? categoryFilter : undefined, limit: 100 }),
+  });
+
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<NewsArticle>) => newsApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Article created', 'Article has been created successfully.');
+    },
+    onError: (error: Error) => {
+      toast.error('Creation failed', error.message);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<NewsArticle> }) =>
+      newsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Article updated', 'Article has been updated successfully.');
+    },
+    onError: (error: Error) => {
+      toast.error('Update failed', error.message);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => newsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Article deleted', 'Article has been deleted.');
+    },
+    onError: (error: Error) => {
+      toast.error('Delete failed', error.message);
+    },
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: (id: string) => newsApi.publish(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Article published', 'Article is now visible to users.');
+    },
+  });
+
+  const unpublishMutation = useMutation({
+    mutationFn: (id: string) => newsApi.unpublish(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Article unpublished', 'Article is now hidden from users.');
+    },
+  });
 
   const {
     register,
@@ -111,7 +131,8 @@ export default function NewsPage() {
     defaultValues: { isPublished: false },
   });
 
-  const filteredNews = mockNews.filter((article) => {
+  const news = data?.data || [];
+  const filteredNews = news.filter((article) => {
     const matchesSearch = 
       article.title.toLowerCase().includes(search.toLowerCase()) ||
       article.excerpt.toLowerCase().includes(search.toLowerCase());
@@ -119,7 +140,7 @@ export default function NewsPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleOpenForm = (article?: typeof mockNews[0]) => {
+  const handleOpenForm = (article?: NewsArticle) => {
     if (article) {
       setEditingNews(article);
       reset({
@@ -138,27 +159,60 @@ export default function NewsPage() {
     setShowForm(true);
   };
 
-  const onSubmit = (data: NewsFormData) => {
-    toast.success(
-      editingNews ? 'Article updated' : 'Article created',
-      `"${data.title}" has been ${editingNews ? 'updated' : 'created'} (demo mode)`
-    );
-    setShowForm(false);
-    reset();
-  };
-
-  const handleDelete = () => {
-    if (deletingNews) {
-      toast.success('Article deleted', `"${deletingNews.title}" has been deleted (demo mode)`);
-      setDeletingNews(null);
+  const onSubmit = async (data: NewsFormData) => {
+    try {
+      if (editingNews) {
+        await updateMutation.mutateAsync({
+          id: editingNews.id,
+          data: {
+            title: data.title,
+            excerpt: data.excerpt,
+            content: data.content,
+            category: data.category,
+            imageUrl: data.imageUrl || undefined,
+            source: data.source || undefined,
+            isPublished: data.isPublished,
+          },
+        });
+      } else {
+        await createMutation.mutateAsync({
+          title: data.title,
+          excerpt: data.excerpt,
+          content: data.content,
+          category: data.category,
+          imageUrl: data.imageUrl || undefined,
+          source: data.source || undefined,
+          isPublished: data.isPublished,
+        });
+      }
+      setShowForm(false);
+      reset();
+    } catch {
+      // Error handled by mutation
     }
   };
 
-  const togglePublish = (article: typeof mockNews[0]) => {
-    toast.success(
-      article.isPublished ? 'Article unpublished' : 'Article published',
-      `"${article.title}" is now ${article.isPublished ? 'hidden' : 'live'} (demo mode)`
-    );
+  const handleDelete = async () => {
+    if (deletingNews) {
+      try {
+        await deleteMutation.mutateAsync(deletingNews.id);
+        setDeletingNews(null);
+      } catch {
+        // Error handled by mutation
+      }
+    }
+  };
+
+  const togglePublish = async (article: NewsArticle) => {
+    try {
+      if (article.isPublished) {
+        await unpublishMutation.mutateAsync(article.id);
+      } else {
+        await publishMutation.mutateAsync(article.id);
+      }
+    } catch {
+      // Error handled by mutation
+    }
   };
 
   return (
@@ -173,18 +227,16 @@ export default function NewsPage() {
             Create and manage news articles, announcements, and updates for your community
           </p>
         </div>
-        <Button size="sm" onClick={() => handleOpenForm()}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Article
-        </Button>
-      </div>
-
-      {/* Demo indicator */}
-      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-center gap-2">
-        <Newspaper className="h-4 w-4 text-amber-600" />
-        <span className="text-sm text-amber-700 dark:text-amber-300">
-          Showing demo articles. Connect to API for live news management.
-        </span>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button size="sm" onClick={() => handleOpenForm()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Article
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -217,7 +269,35 @@ export default function NewsPage() {
 
       {/* News Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredNews.map((article) => (
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <Skeleton className="h-32 w-full mb-4 rounded-xl" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredNews.length === 0 ? (
+          <Card className="col-span-full">
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Newspaper className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium">No articles found</h3>
+                <p className="text-muted-foreground mt-1">
+                  Create your first article to get started
+                </p>
+                <Button className="mt-4" onClick={() => handleOpenForm()}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Article
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredNews.map((article) => (
           <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="h-32 bg-gradient-to-br from-primary-400 to-primary-600 relative flex items-center justify-center">
               {article.imageUrl ? (
@@ -274,7 +354,8 @@ export default function NewsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Create/Edit Dialog */}
@@ -344,7 +425,7 @@ export default function NewsPage() {
               <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending}>
                 {editingNews ? 'Save Changes' : 'Create Article'}
               </Button>
             </DialogFooter>
@@ -363,7 +444,9 @@ export default function NewsPage() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeletingNews(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="destructive" onClick={handleDelete} isLoading={deleteMutation.isPending}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

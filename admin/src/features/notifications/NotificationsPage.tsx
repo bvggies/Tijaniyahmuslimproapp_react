@@ -222,7 +222,11 @@ export default function NotificationsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Sent</p>
-                <p className="text-2xl font-bold">28.4K</p>
+                <p className="text-2xl font-bold">
+                  {formatNumber(
+                    campaigns.reduce((sum, c) => sum + (c.sentCount || 0), 0)
+                  )}
+                </p>
               </div>
               <Send className="h-8 w-8 text-primary-500" />
             </div>
@@ -233,7 +237,14 @@ export default function NotificationsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Avg. Open Rate</p>
-                <p className="text-2xl font-bold">68.5%</p>
+                <p className="text-2xl font-bold">
+                  {(() => {
+                    const campaignsWithOpenRate = campaigns.filter(c => c.openRate !== undefined);
+                    if (campaignsWithOpenRate.length === 0) return '0%';
+                    const avgOpenRate = campaignsWithOpenRate.reduce((sum, c) => sum + (c.openRate || 0), 0) / campaignsWithOpenRate.length;
+                    return `${(avgOpenRate * 100).toFixed(1)}%`;
+                  })()}
+                </p>
               </div>
               <Mail className="h-8 w-8 text-emerald-500" />
             </div>
@@ -244,7 +255,9 @@ export default function NotificationsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Scheduled</p>
-                <p className="text-2xl font-bold">3</p>
+                <p className="text-2xl font-bold">
+                  {campaigns.filter(c => c.status === 'scheduled').length}
+                </p>
               </div>
               <Clock className="h-8 w-8 text-amber-500" />
             </div>
@@ -255,7 +268,9 @@ export default function NotificationsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Active Automations</p>
-                <p className="text-2xl font-bold">5</p>
+                <p className="text-2xl font-bold">
+                  {campaigns.filter(c => c.trigger !== 'manual' && c.status === 'sent').length}
+                </p>
               </div>
               <Zap className="h-8 w-8 text-purple-500" />
             </div>

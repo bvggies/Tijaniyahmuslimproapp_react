@@ -161,11 +161,18 @@ export interface ModerationAction {
 export interface Scholar {
   id: string;
   name: string;
-  bio: string;
+  nameArabic?: string;
+  title?: string;
+  biography?: string;
   imageUrl?: string;
-  isVerified: boolean;
-  specialization: string[];
-  lessonsCount: number;
+  birthYear?: number;
+  deathYear?: number;
+  location?: string;
+  specialty?: string;
+  isAlive: boolean;
+  isPublished: boolean;
+  sortOrder: number;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }

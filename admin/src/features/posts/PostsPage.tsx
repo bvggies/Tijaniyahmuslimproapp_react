@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Search, 
   MessageSquare, 
   AlertTriangle, 
   Eye, 
-  EyeOff,
+  EyeOff, 
   Lock,
   Unlock,
   Pin,
   Trash2,
   RefreshCw,
-  Filter,
   CheckCircle,
   XCircle,
 } from 'lucide-react';
@@ -37,116 +36,106 @@ import {
 } from '../../components/ui/dialog';
 import { cn, formatRelativeTime, getInitials } from '../../lib/utils';
 import { toast } from '../../components/ui/use-toast';
-
-// Mock posts data
-const mockPosts = [
-  {
-    id: '1',
-    content: 'Assalamu Alaikum! Welcome to the Tijaniyah community. May Allah bless us all on this spiritual journey. 🌙',
-    userId: '1',
-    userName: 'Demo User',
-    userAvatarUrl: null,
-    likesCount: 45,
-    commentsCount: 12,
-    isPinned: true,
-    isLocked: false,
-    isHidden: false,
-    createdAt: '2024-01-28T10:00:00Z',
-    updatedAt: '2024-01-28T10:00:00Z',
-    mediaUrls: [],
-  },
-  {
-    id: '2',
-    content: 'Just completed my morning wazifa. Feeling blessed and grateful. Alhamdulillah! 🙏',
-    userId: '2',
-    userName: 'Ahmad Hassan',
-    userAvatarUrl: null,
-    likesCount: 32,
-    commentsCount: 8,
-    isPinned: false,
-    isLocked: false,
-    isHidden: false,
-    createdAt: '2024-01-28T08:30:00Z',
-    updatedAt: '2024-01-28T08:30:00Z',
-    mediaUrls: [],
-  },
-  {
-    id: '3',
-    content: 'Question: What are the best resources for beginners learning about Tijaniyah? Any recommendations?',
-    userId: '3',
-    userName: 'Fatima Ali',
-    userAvatarUrl: null,
-    likesCount: 18,
-    commentsCount: 25,
-    isPinned: false,
-    isLocked: false,
-    isHidden: false,
-    createdAt: '2024-01-27T16:00:00Z',
-    updatedAt: '2024-01-27T16:00:00Z',
-    mediaUrls: [],
-  },
-  {
-    id: '4',
-    content: 'This content has been flagged for review due to community guidelines violation.',
-    userId: '4',
-    userName: 'Anonymous User',
-    userAvatarUrl: null,
-    likesCount: 2,
-    commentsCount: 0,
-    isPinned: false,
-    isLocked: true,
-    isHidden: true,
-    createdAt: '2024-01-26T12:00:00Z',
-    updatedAt: '2024-01-27T09:00:00Z',
-    mediaUrls: [],
-  },
-];
-
-const mockReports = [
-  {
-    id: '1',
-    type: 'post',
-    targetId: '4',
-    reportedBy: '5',
-    reporterName: 'Ibrahim Khan',
-    reason: 'Inappropriate content',
-    description: 'This post contains misleading information about Islamic practices.',
-    status: 'pending',
-    createdAt: '2024-01-27T08:00:00Z',
-  },
-  {
-    id: '2',
-    type: 'comment',
-    targetId: '12',
-    reportedBy: '6',
-    reporterName: 'Aisha Mohammed',
-    reason: 'Spam',
-    description: 'User is posting promotional links repeatedly.',
-    status: 'pending',
-    createdAt: '2024-01-26T15:00:00Z',
-  },
-  {
-    id: '3',
-    type: 'post',
-    targetId: '8',
-    reportedBy: '7',
-    reporterName: 'Omar Said',
-    reason: 'Harassment',
-    description: 'User is targeting another community member with offensive comments.',
-    status: 'reviewed',
-    createdAt: '2024-01-25T10:00:00Z',
-  },
-];
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { postsApi, reportsApi } from '../../lib/api';
+import { Post, Report } from '../../lib/api/types';
 
 export default function PostsPage() {
   const [activeTab, setActiveTab] = useState<'posts' | 'reports'>('posts');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedPost, setSelectedPost] = useState<typeof mockPosts[0] | null>(null);
-  const [selectedReport, setSelectedReport] = useState<typeof mockReports[0] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  const filteredPosts = mockPosts.filter((post) => {
+  // API Queries
+  const { data: postsData, isLoading: isLoadingPosts, refetch: refetchPosts } = useQuery({
+    queryKey: ['posts', { search, statusFilter }],
+    queryFn: () => postsApi.getAll({ search, limit: 100 }),
+  });
+
+  const { data: reportsData, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
+    queryKey: ['reports', { status: 'pending' }],
+    queryFn: () => reportsApi.getAll({ status: 'pending', limit: 100 }),
+  });
+
+  // Mutations
+  const pinMutation = useMutation({
+    mutationFn: (id: string) => postsApi.pin(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post pinned', 'Post has been pinned.');
+    },
+  });
+
+  const unpinMutation = useMutation({
+    mutationFn: (id: string) => postsApi.unpin(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post unpinned', 'Post has been unpinned.');
+    },
+  });
+
+  const hideMutation = useMutation({
+    mutationFn: (id: string) => postsApi.hide(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post hidden', 'Post has been hidden from users.');
+    },
+  });
+
+  const unhideMutation = useMutation({
+    mutationFn: (id: string) => postsApi.unhide(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post shown', 'Post is now visible to users.');
+    },
+  });
+
+  const lockMutation = useMutation({
+    mutationFn: (id: string) => postsApi.lock(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post locked', 'Post comments have been locked.');
+    },
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: (id: string) => postsApi.unlock(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post unlocked', 'Post comments are now open.');
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: (id: string) => postsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post deleted', 'Post has been deleted.');
+    },
+  });
+
+  const resolveReportMutation = useMutation({
+    mutationFn: ({ id, action, reason }: { id: string; action: string; reason: string }) =>
+      reportsApi.resolve(id, action, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      toast.success('Report resolved', 'Report has been resolved.');
+    },
+  });
+
+  const dismissReportMutation = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      reportsApi.dismiss(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      toast.success('Report dismissed', 'Report has been dismissed.');
+    },
+  });
+
+  const posts = postsData?.data || [];
+  const reports = reportsData?.data || [];
+
+  const filteredPosts = posts.filter((post) => {
     const matchesSearch = 
       post.content.toLowerCase().includes(search.toLowerCase()) ||
       post.userName.toLowerCase().includes(search.toLowerCase());
@@ -159,15 +148,57 @@ export default function PostsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const pendingReports = mockReports.filter((r) => r.status === 'pending');
+  const pendingReports = reports.filter((r) => r.status === 'pending');
 
-  const handlePostAction = (action: string, post: typeof mockPosts[0]) => {
-    toast.info('Demo mode', `${action} action simulated for post`);
+  const handlePostAction = async (action: string, post: Post) => {
+    try {
+      switch (action) {
+        case 'Pin':
+          await pinMutation.mutateAsync(post.id);
+          break;
+        case 'Unpin':
+          await unpinMutation.mutateAsync(post.id);
+          break;
+        case 'Hide':
+          await hideMutation.mutateAsync(post.id);
+          break;
+        case 'Show':
+          await unhideMutation.mutateAsync(post.id);
+          break;
+        case 'Lock':
+          await lockMutation.mutateAsync(post.id);
+          break;
+        case 'Unlock':
+          await unlockMutation.mutateAsync(post.id);
+          break;
+        case 'Delete':
+          if (window.confirm('Are you sure you want to delete this post?')) {
+            await deletePostMutation.mutateAsync(post.id);
+          }
+          break;
+      }
+    } catch (error) {
+      // Error handled by mutation
+    }
   };
 
-  const handleReportAction = (action: 'resolve' | 'dismiss', report: typeof mockReports[0]) => {
-    toast.info('Demo mode', `Report ${action}d successfully (simulated)`);
-    setSelectedReport(null);
+  const handleReportAction = async (action: 'resolve' | 'dismiss', report: Report) => {
+    try {
+      if (action === 'resolve') {
+        await resolveReportMutation.mutateAsync({
+          id: report.id,
+          action: 'warn',
+          reason: 'Report resolved by admin',
+        });
+      } else {
+        await dismissReportMutation.mutateAsync({
+          id: report.id,
+          reason: 'Report dismissed by admin',
+        });
+      }
+    } catch (error) {
+      // Error handled by mutation
+    }
   };
 
   return (
@@ -175,13 +206,18 @@ export default function PostsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Posts & Moderation</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            Posts & Moderation
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Manage community posts and handle reports
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => {
+            refetchPosts();
+            refetchReports();
+          }}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -190,35 +226,28 @@ export default function PostsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-border pb-2">
-        <Button
-          variant={activeTab === 'posts' ? 'default' : 'ghost'}
-          onClick={() => setActiveTab('posts')}
-        >
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Posts ({mockPosts.length})
-        </Button>
-        <Button
-          variant={activeTab === 'reports' ? 'default' : 'ghost'}
-          onClick={() => setActiveTab('reports')}
-          className="relative"
-        >
-          <AlertTriangle className="h-4 w-4 mr-2" />
-          Reports ({pendingReports.length})
-          {pendingReports.length > 0 && (
-            <Badge variant="destructive" className="ml-2">
-              {pendingReports.length}
-            </Badge>
-          )}
-        </Button>
+          <Button
+            variant={activeTab === 'posts' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('posts')}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Posts ({posts.length})
+          </Button>
+          <Button
+            variant={activeTab === 'reports' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('reports')}
+            className="relative"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Reports ({pendingReports.length})
+            {pendingReports.length > 0 && (
+              <Badge variant="destructive" className="ml-2">
+                {pendingReports.length}
+              </Badge>
+            )}
+          </Button>
       </div>
 
-      {/* Demo indicator */}
-      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-center gap-2">
-        <Filter className="h-4 w-4 text-amber-600" />
-        <span className="text-sm text-amber-700 dark:text-amber-300">
-          Showing demo data. Connect to API for live moderation.
-        </span>
-      </div>
 
       {activeTab === 'posts' ? (
         <>
@@ -257,7 +286,20 @@ export default function PostsPage() {
               <CardTitle>Posts ({filteredPosts.length})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {filteredPosts.map((post) => (
+              {isLoadingPosts ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-32 w-full" />
+                  ))}
+                </div>
+              ) : filteredPosts.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium">No posts found</p>
+                  <p className="text-sm">No posts match your search criteria.</p>
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
                 <div
                   key={post.id}
                   className={cn(
@@ -325,7 +367,8 @@ export default function PostsPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
         </>
@@ -339,7 +382,20 @@ export default function PostsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {mockReports.map((report) => (
+            {isLoadingReports ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-24 w-full" />
+                ))}
+              </div>
+            ) : reports.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No reports found</p>
+                <p className="text-sm">All reports have been resolved.</p>
+              </div>
+            ) : (
+              reports.map((report) => (
               <div
                 key={report.id}
                 className={cn(
@@ -385,7 +441,8 @@ export default function PostsPage() {
                   )}
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       )}
