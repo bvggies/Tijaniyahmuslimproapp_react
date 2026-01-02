@@ -54,6 +54,8 @@ import {
 } from '@mui/icons-material';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import ScreenshotsGallery from './ScreenshotsGallery';
+import PhoneMockup from './PhoneMockup';
 
 const LandingPage = () => {
   const theme = useTheme();
@@ -431,24 +433,12 @@ const LandingPage = () => {
                       textAlign: 'center',
                       position: 'relative',
                       zIndex: 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
-                    <Box
-                      component="img"
-                      src="/logo.png"
-                      alt="Tijaniyah Muslim Pro"
-                      sx={{
-                        width: '100%',
-                        maxWidth: { xs: 300, md: 500 },
-                        height: 'auto',
-                        filter: 'drop-shadow(0 20px 60px rgba(212, 175, 55, 0.3))',
-                        animation: 'float 6s ease-in-out infinite',
-                        '@keyframes float': {
-                          '0%, 100%': { transform: 'translateY(0px)' },
-                          '50%': { transform: 'translateY(-20px)' },
-                        },
-                      }}
-                    />
+                    <PhoneMockup />
                   </Box>
                 </Grow>
               </Grid>
@@ -725,6 +715,9 @@ const LandingPage = () => {
             </Box>
           </Container>
         </Box>
+
+        {/* Screenshots Gallery Section */}
+        <ScreenshotsGallery />
 
         {/* Why Choose Section */}
         <Box sx={{ py: { xs: 8, md: 12 }, background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)' }}>
