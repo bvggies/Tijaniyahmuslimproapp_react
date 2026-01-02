@@ -5,7 +5,9 @@ import {
   Typography,
   Paper,
   Divider,
+  Chip,
 } from '@mui/material';
+import { Gavel, Description, VerifiedUser, Balance, Security, AccountCircle } from '@mui/icons-material';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
@@ -15,36 +17,68 @@ const TermsAndConditions = () => {
       <Navbar />
       <Box sx={{ pt: 10, pb: 8, minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
         <Container maxWidth="lg">
-          <Paper sx={{ p: { xs: 3, md: 6 }, mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                mb: 2,
-                color: '#052F2A',
-              }}
-            >
-              Terms and Conditions
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 4 }}>
-              <strong>Effective Date:</strong> October 26, 2024<br />
-              <strong>Last Updated:</strong> October 26, 2024
-            </Typography>
+          <Paper 
+            sx={{ 
+              p: { xs: 4, md: 8 }, 
+              mb: 4,
+              borderRadius: 4,
+              boxShadow: '0 8px 32px rgba(5, 47, 42, 0.1)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro"
+                sx={{
+                  height: 60,
+                  width: 'auto',
+                }}
+              />
+              <Box>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 800,
+                    mb: 1,
+                    color: '#052F2A',
+                    fontSize: { xs: '2rem', md: '2.5rem' },
+                  }}
+                >
+                  Terms and Conditions
+                </Typography>
+                <Chip
+                  icon={<Gavel />}
+                  label="Last Updated: October 26, 2024"
+                  sx={{
+                    backgroundColor: '#052F2A15',
+                    color: '#052F2A',
+                    fontWeight: 600,
+                  }}
+                />
+              </Box>
+            </Box>
 
-            <Divider sx={{ my: 4 }} />
+            <Divider sx={{ my: 4, borderColor: '#052F2A20' }} />
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              1. Agreement to Terms
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.8, color: '#333' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 4 }}>
+              <Description sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                1. Agreement to Terms
+              </Typography>
+            </Box>
+            <Typography variant="body1" sx={{ mb: 4, lineHeight: 1.9, color: '#444', fontSize: '1.05rem' }}>
               By downloading, installing, or using the Tijaniyah Muslim Pro mobile application ("App"), 
               you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, 
               please do not use the App.
             </Typography>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              2. Description of Service
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <Balance sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                2. Description of Service
+              </Typography>
+            </Box>
             <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.8, color: '#333' }}>
               Tijaniyah Muslim Pro is a comprehensive Islamic mobile application designed to support Muslims 
               in their spiritual journey, particularly those following the Tijaniyya Tariqa. The App provides:
@@ -74,9 +108,12 @@ const TermsAndConditions = () => {
               <li><Typography variant="body1" sx={{ lineHeight: 1.8, color: '#333' }}><strong>Niyyah Supplications:</strong> Proper intention prayers for all practices</Typography></li>
             </Box>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              3. User Accounts
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <VerifiedUser sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                3. User Accounts
+              </Typography>
+            </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: '#052F2A', mt: 3 }}>
               3.1 Account Creation
@@ -98,9 +135,12 @@ const TermsAndConditions = () => {
               <li><Typography variant="body1" sx={{ lineHeight: 1.8, color: '#333' }}>We reserve the right to suspend or terminate accounts for violations</Typography></li>
             </Box>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              4. Acceptable Use
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <Gavel sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                4. Acceptable Use
+              </Typography>
+            </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: '#052F2A', mt: 3 }}>
               4.1 Permitted Uses
@@ -273,14 +313,24 @@ const TermsAndConditions = () => {
 
             <Divider sx={{ my: 4 }} />
 
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: '#052F2A' }}>
+            <Box sx={{ textAlign: 'center', mt: 6, p: 4, backgroundColor: '#052F2A10', borderRadius: 3 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro"
+                sx={{
+                  height: 80,
+                  width: 'auto',
+                  mb: 2,
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#052F2A' }}>
                 Tijaniyah Muslim Pro
               </Typography>
-              <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+              <Typography variant="body1" sx={{ color: '#666', fontStyle: 'italic', mb: 2 }}>
                 Serving the Muslim community with technology and faith
               </Typography>
-              <Typography variant="body2" sx={{ color: '#666', mt: 2 }}>
+              <Typography variant="body2" sx={{ color: '#666' }}>
                 These Terms of Service are effective as of October 26, 2024, and apply to all users of the Tijaniyah Muslim Pro mobile application.
               </Typography>
             </Box>

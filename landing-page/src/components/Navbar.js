@@ -103,14 +103,30 @@ const Navbar = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                gap: 1.5,
                 cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '1.5rem',
-                color: 'white',
               }}
               onClick={() => navigate('/')}
             >
-              🕌 Tijaniyah Muslim Pro
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro Logo"
+                sx={{
+                  height: { xs: 40, md: 48 },
+                  width: 'auto',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '1.1rem', md: '1.5rem' },
+                  color: 'white',
+                  display: { xs: 'none', sm: 'block' },
+                }}
+              >
+                Tijaniyah Muslim Pro
+              </Typography>
             </Box>
 
             {isMobile ? (

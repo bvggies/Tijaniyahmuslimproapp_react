@@ -5,7 +5,9 @@ import {
   Typography,
   Paper,
   Divider,
+  Chip,
 } from '@mui/material';
+import { Security, VerifiedUser, Lock, Policy } from '@mui/icons-material';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
@@ -15,37 +17,68 @@ const PrivacyPolicy = () => {
       <Navbar />
       <Box sx={{ pt: 10, pb: 8, minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
         <Container maxWidth="lg">
-          <Paper sx={{ p: { xs: 3, md: 6 }, mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                mb: 2,
-                color: '#052F2A',
-              }}
-            >
-              Privacy Policy
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 4 }}>
-              <strong>Effective Date:</strong> October 26, 2024<br />
-              <strong>Last Updated:</strong> October 26, 2024
-            </Typography>
+          <Paper 
+            sx={{ 
+              p: { xs: 4, md: 8 }, 
+              mb: 4,
+              borderRadius: 4,
+              boxShadow: '0 8px 32px rgba(5, 47, 42, 0.1)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro"
+                sx={{
+                  height: 60,
+                  width: 'auto',
+                }}
+              />
+              <Box>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 800,
+                    mb: 1,
+                    color: '#052F2A',
+                    fontSize: { xs: '2rem', md: '2.5rem' },
+                  }}
+                >
+                  Privacy Policy
+                </Typography>
+                <Chip
+                  icon={<Security />}
+                  label="Last Updated: October 26, 2024"
+                  sx={{
+                    backgroundColor: '#052F2A15',
+                    color: '#052F2A',
+                    fontWeight: 600,
+                  }}
+                />
+              </Box>
+            </Box>
+            <Divider sx={{ my: 4, borderColor: '#052F2A20' }} />
 
-            <Divider sx={{ my: 4 }} />
-
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              1. Introduction
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.8, color: '#333' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 4 }}>
+              <Policy sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                1. Introduction
+              </Typography>
+            </Box>
+            <Typography variant="body1" sx={{ mb: 4, lineHeight: 1.9, color: '#444', fontSize: '1.05rem' }}>
               Tijaniyah Muslim Pro ("we," "our," or "us") is committed to protecting your privacy. 
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information 
               when you use our mobile application ("App"). Please read this Privacy Policy carefully. 
               If you do not agree with the terms of this Privacy Policy, please do not access the App.
             </Typography>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              2. Information We Collect
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <Lock sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                2. Information We Collect
+              </Typography>
+            </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: '#052F2A', mt: 3 }}>
               2.1 Personal Information
@@ -85,9 +118,12 @@ const PrivacyPolicy = () => {
               Tasbih counts and spiritual progress, Journal entries and reflections, Community interactions and discussions.
             </Typography>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              3. How We Use Your Information
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <VerifiedUser sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                3. How We Use Your Information
+              </Typography>
+            </Box>
             <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.8, color: '#333' }}>
               We use the collected information for the following purposes:
             </Typography>
@@ -119,9 +155,12 @@ const PrivacyPolicy = () => {
               and experiences, and moderate content to maintain respectful discussions.
             </Typography>
 
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#052F2A', mt: 4 }}>
-              4. Information Sharing and Disclosure
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, mt: 5 }}>
+              <Security sx={{ color: '#052F2A', fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#052F2A' }}>
+                4. Information Sharing and Disclosure
+              </Typography>
+            </Box>
             <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.8, color: '#333' }}>
               We do not sell, trade, or otherwise transfer your personal information to third parties without 
               your consent, except in the following circumstances:
@@ -261,14 +300,24 @@ const PrivacyPolicy = () => {
 
             <Divider sx={{ my: 4 }} />
 
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: '#052F2A' }}>
+            <Box sx={{ textAlign: 'center', mt: 6, p: 4, backgroundColor: '#052F2A10', borderRadius: 3 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro"
+                sx={{
+                  height: 80,
+                  width: 'auto',
+                  mb: 2,
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#052F2A' }}>
                 Tijaniyah Muslim Pro
               </Typography>
-              <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+              <Typography variant="body1" sx={{ color: '#666', fontStyle: 'italic', mb: 2 }}>
                 Your trusted companion for Islamic spiritual growth
               </Typography>
-              <Typography variant="body2" sx={{ color: '#666', mt: 2 }}>
+              <Typography variant="body2" sx={{ color: '#666' }}>
                 This Privacy Policy is effective as of October 26, 2024, and applies to all users of the Tijaniyah Muslim Pro mobile application.
               </Typography>
             </Box>

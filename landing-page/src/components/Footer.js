@@ -33,9 +33,20 @@ const Footer = () => {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
-              🕌 Tijaniyah Muslim Pro
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="Tijaniyah Muslim Pro Logo"
+                sx={{
+                  height: 50,
+                  width: 'auto',
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Tijaniyah Muslim Pro
+              </Typography>
+            </Box>
             <Typography variant="body2" sx={{ mb: 2, color: 'rgba(255,255,255,0.8)' }}>
               Your Complete Islamic Companion for Spiritual Growth. 
               Supporting Muslims worldwide in their journey of faith.
