@@ -304,8 +304,8 @@ const LandingPage = () => {
             },
           }}
         >
-          <Container maxWidth="lg">
-            <Grid container spacing={4} alignItems="center">
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+            <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
               <Grid item xs={12} md={6}>
                 <Fade in timeout={1000}>
                   <Box>
@@ -314,23 +314,24 @@ const LandingPage = () => {
                       src="/logo.png"
                       alt="Tijaniyah Muslim Pro"
                       sx={{
-                        height: { xs: 80, md: 120 },
+                        height: { xs: 60, sm: 80, md: 120 },
                         width: 'auto',
-                        mb: 3,
+                        mb: { xs: 2, md: 3 },
                         filter: 'drop-shadow(0 4px 20px rgba(212, 175, 55, 0.3))',
                       }}
                     />
                     <Typography
                       variant="h1"
                       sx={{
-                        fontSize: { xs: '2.5rem', md: '3.8rem' },
+                        fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3.8rem' },
                         fontWeight: 800,
-                        mb: 3,
-                        lineHeight: 1.2,
+                        mb: { xs: 2, md: 3 },
+                        lineHeight: { xs: 1.3, md: 1.2 },
                         background: 'linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%)',
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
+                        px: { xs: 1, md: 0 },
                       }}
                     >
                       Your Complete Islamic Companion
@@ -338,32 +339,38 @@ const LandingPage = () => {
                     <Typography
                       variant="h5"
                       sx={{
-                        mb: 4,
+                        mb: { xs: 3, md: 4 },
                         color: 'rgba(255,255,255,0.95)',
                         fontWeight: 400,
-                        lineHeight: 1.7,
-                        fontSize: { xs: '1.1rem', md: '1.25rem' },
+                        lineHeight: { xs: 1.6, md: 1.7 },
+                        fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' },
+                        px: { xs: 1, md: 0 },
                       }}
                     >
                       Designed specifically for followers of the Tijaniyya Tariqa and all Muslims seeking spiritual growth. 
                       All-in-one Islamic tools in the palm of your hand.
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 4 }}>
+                    <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, flexWrap: 'wrap', mb: { xs: 3, md: 4 }, width: '100%' }}>
                       <Button
                         variant="contained"
                         size="large"
+                        fullWidth={isMobile}
                         sx={{
                           background: 'linear-gradient(135deg, #D4AF37 0%, #E5C866 100%)',
                           color: '#052F2A',
                           fontWeight: 700,
-                          px: 4,
-                          py: 1.8,
-                          fontSize: '1.1rem',
+                          px: { xs: 3, md: 4 },
+                          py: { xs: 1.5, md: 1.8 },
+                          fontSize: { xs: '0.95rem', md: '1.1rem' },
+                          minHeight: { xs: '48px', md: 'auto' },
                           boxShadow: '0 8px 24px rgba(212, 175, 55, 0.4)',
                           '&:hover': {
                             background: 'linear-gradient(135deg, #E5C866 0%, #D4AF37 100%)',
-                            transform: 'translateY(-3px)',
+                            transform: { xs: 'none', md: 'translateY(-3px)' },
                             boxShadow: '0 12px 32px rgba(212, 175, 55, 0.5)',
+                          },
+                          '&:active': {
+                            transform: 'scale(0.98)',
                           },
                           transition: 'all 0.3s ease',
                         }}
@@ -378,20 +385,25 @@ const LandingPage = () => {
                       <Button
                         variant="outlined"
                         size="large"
+                        fullWidth={isMobile}
                         sx={{
                           borderColor: 'rgba(255,255,255,0.8)',
                           borderWidth: 2,
                           color: 'white',
                           fontWeight: 600,
-                          px: 4,
-                          py: 1.8,
-                          fontSize: '1.1rem',
+                          px: { xs: 3, md: 4 },
+                          py: { xs: 1.5, md: 1.8 },
+                          fontSize: { xs: '0.95rem', md: '1.1rem' },
+                          minHeight: { xs: '48px', md: 'auto' },
                           backdropFilter: 'blur(10px)',
                           backgroundColor: 'rgba(255,255,255,0.1)',
                           '&:hover': {
                             borderColor: 'white',
                             backgroundColor: 'rgba(255,255,255,0.2)',
-                            transform: 'translateY(-2px)',
+                            transform: { xs: 'none', md: 'translateY(-2px)' },
+                          },
+                          '&:active': {
+                            transform: 'scale(0.98)',
                           },
                           transition: 'all 0.3s ease',
                         }}
@@ -403,22 +415,22 @@ const LandingPage = () => {
                         Explore Features
                       </Button>
                     </Box>
-                    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', gap: { xs: 2, md: 3 }, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CheckCircle sx={{ color: '#D4AF37', fontSize: 24 }} />
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        <CheckCircle sx={{ color: '#D4AF37', fontSize: { xs: 20, md: 24 } }} />
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', fontSize: { xs: '0.85rem', md: '0.875rem' } }}>
                           Free to Download
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CheckCircle sx={{ color: '#D4AF37', fontSize: 24 }} />
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        <CheckCircle sx={{ color: '#D4AF37', fontSize: { xs: 20, md: 24 } }} />
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', fontSize: { xs: '0.85rem', md: '0.875rem' } }}>
                           Works Offline
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CheckCircle sx={{ color: '#D4AF37', fontSize: 24 }} />
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                        <CheckCircle sx={{ color: '#D4AF37', fontSize: { xs: 20, md: 24 } }} />
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', fontSize: { xs: '0.85rem', md: '0.875rem' } }}>
                           Multi-Language
                         </Typography>
                       </Box>
@@ -447,16 +459,17 @@ const LandingPage = () => {
         </Box>
 
         {/* Features Section */}
-        <Box id="features" sx={{ py: { xs: 8, md: 12 }, backgroundColor: '#F8F9FA' }}>
-          <Container maxWidth="lg">
-            <Box sx={{ textAlign: 'center', mb: 8 }}>
+        <Box id="features" sx={{ py: { xs: 6, md: 12 }, backgroundColor: '#F8F9FA' }}>
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
               <Typography
                 variant="h2"
                 sx={{
                   fontWeight: 800,
-                  mb: 2,
+                  mb: { xs: 1.5, md: 2 },
                   color: '#052F2A',
-                  fontSize: { xs: '2rem', md: '3rem' },
+                  fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Comprehensive Features
@@ -467,7 +480,9 @@ const LandingPage = () => {
                   color: '#666',
                   maxWidth: '700px',
                   mx: 'auto',
-                  lineHeight: 1.8,
+                  lineHeight: { xs: 1.6, md: 1.8 },
+                  fontSize: { xs: '0.95rem', md: '1.25rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Everything you need for your spiritual journey in one beautiful, comprehensive app
@@ -475,19 +490,21 @@ const LandingPage = () => {
             </Box>
 
             {/* Core Features */}
-            <Box sx={{ mb: 8 }}>
+            <Box sx={{ mb: { xs: 5, md: 8 } }}>
               <Typography
                 variant="h4"
                 sx={{
                   fontWeight: 700,
-                  mb: 4,
+                  mb: { xs: 3, md: 4 },
                   color: '#052F2A',
                   textAlign: 'center',
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Core Islamic Features
               </Typography>
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
                 {coreFeatures.map((feature, index) => (
                   <Grid item xs={12} sm={6} md={4} key={index}>
                     <Grow in timeout={300 + index * 50}>
@@ -503,17 +520,19 @@ const LandingPage = () => {
                           },
                         }}
                       >
-                        <CardContent sx={{ p: 3.5 }}>
+                        <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
                           <Box
                             sx={{
                               color: feature.color,
-                              mb: 2,
+                              mb: { xs: 1.5, md: 2 },
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
                             }}
                           >
-                            {feature.icon}
+                            <Box sx={{ fontSize: { xs: 32, md: 40 } }}>
+                              {React.cloneElement(feature.icon, { sx: { fontSize: { xs: 32, md: 40 } } })}
+                            </Box>
                             <Chip
                               label={feature.category}
                               size="small"
@@ -521,7 +540,8 @@ const LandingPage = () => {
                                 backgroundColor: `${feature.color}15`,
                                 color: feature.color,
                                 fontWeight: 600,
-                                fontSize: '0.7rem',
+                                fontSize: { xs: '0.65rem', md: '0.7rem' },
+                                height: { xs: 20, md: 24 },
                               }}
                             />
                           </Box>
@@ -529,9 +549,9 @@ const LandingPage = () => {
                             variant="h5"
                             sx={{
                               fontWeight: 700,
-                              mb: 1.5,
+                              mb: { xs: 1, md: 1.5 },
                               color: '#052F2A',
-                              fontSize: '1.3rem',
+                              fontSize: { xs: '1.1rem', md: '1.3rem' },
                             }}
                           >
                             {feature.title}
@@ -540,8 +560,8 @@ const LandingPage = () => {
                             variant="body2"
                             sx={{
                               color: '#666',
-                              lineHeight: 1.8,
-                              fontSize: '0.95rem',
+                              lineHeight: { xs: 1.6, md: 1.8 },
+                              fontSize: { xs: '0.875rem', md: '0.95rem' },
                             }}
                           >
                             {feature.description}
@@ -555,19 +575,21 @@ const LandingPage = () => {
             </Box>
 
             {/* Tijaniyya Features */}
-            <Box sx={{ mb: 8 }}>
+            <Box sx={{ mb: { xs: 5, md: 8 } }}>
               <Typography
                 variant="h4"
                 sx={{
                   fontWeight: 700,
-                  mb: 4,
+                  mb: { xs: 3, md: 4 },
                   color: '#052F2A',
                   textAlign: 'center',
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Tijaniyya-Specific Features
               </Typography>
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
                 {tijaniyyaFeatures.map((feature, index) => (
                   <Grid item xs={12} sm={6} md={4} key={index}>
                     <Grow in timeout={300 + index * 50}>
@@ -583,17 +605,19 @@ const LandingPage = () => {
                           },
                         }}
                       >
-                        <CardContent sx={{ p: 3.5 }}>
+                        <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
                           <Box
                             sx={{
                               color: feature.color,
-                              mb: 2,
+                              mb: { xs: 1.5, md: 2 },
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
                             }}
                           >
-                            {feature.icon}
+                            <Box sx={{ fontSize: { xs: 32, md: 40 } }}>
+                              {React.cloneElement(feature.icon, { sx: { fontSize: { xs: 32, md: 40 } } })}
+                            </Box>
                             <Chip
                               label={feature.category}
                               size="small"
@@ -601,7 +625,8 @@ const LandingPage = () => {
                                 backgroundColor: `${feature.color}15`,
                                 color: feature.color,
                                 fontWeight: 600,
-                                fontSize: '0.7rem',
+                                fontSize: { xs: '0.65rem', md: '0.7rem' },
+                                height: { xs: 20, md: 24 },
                               }}
                             />
                           </Box>
@@ -609,9 +634,9 @@ const LandingPage = () => {
                             variant="h5"
                             sx={{
                               fontWeight: 700,
-                              mb: 1.5,
+                              mb: { xs: 1, md: 1.5 },
                               color: '#052F2A',
-                              fontSize: '1.3rem',
+                              fontSize: { xs: '1.1rem', md: '1.3rem' },
                             }}
                           >
                             {feature.title}
@@ -620,8 +645,8 @@ const LandingPage = () => {
                             variant="body2"
                             sx={{
                               color: '#666',
-                              lineHeight: 1.8,
-                              fontSize: '0.95rem',
+                              lineHeight: { xs: 1.6, md: 1.8 },
+                              fontSize: { xs: '0.875rem', md: '0.95rem' },
                             }}
                           >
                             {feature.description}
@@ -640,14 +665,16 @@ const LandingPage = () => {
                 variant="h4"
                 sx={{
                   fontWeight: 700,
-                  mb: 4,
+                  mb: { xs: 3, md: 4 },
                   color: '#052F2A',
                   textAlign: 'center',
+                  fontSize: { xs: '1.5rem', md: '2rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Education & Community Features
               </Typography>
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
                 {educationalFeatures.map((feature, index) => (
                   <Grid item xs={12} sm={6} md={4} key={index}>
                     <Grow in timeout={300 + index * 50}>
@@ -720,23 +747,24 @@ const LandingPage = () => {
         <ScreenshotsGallery />
 
         {/* Why Choose Section */}
-        <Box sx={{ py: { xs: 8, md: 12 }, background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)' }}>
-          <Container maxWidth="lg">
-            <Box sx={{ textAlign: 'center', mb: 8 }}>
+        <Box sx={{ py: { xs: 6, md: 12 }, background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)' }}>
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
               <Typography
                 variant="h2"
                 sx={{
                   fontWeight: 800,
-                  mb: 2,
+                  mb: { xs: 1.5, md: 2 },
                   color: '#052F2A',
-                  fontSize: { xs: '2rem', md: '3rem' },
+                  fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Why Choose Tijaniyah Muslim Pro?
               </Typography>
             </Box>
 
-            <Grid container spacing={4}>
+            <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
               {[
                 {
                   icon: <CheckCircle sx={{ fontSize: 60 }} />,
@@ -780,24 +808,24 @@ const LandingPage = () => {
                     <Box
                       sx={{
                         textAlign: 'center',
-                        p: 4,
+                        p: { xs: 3, md: 4 },
                         borderRadius: 3,
                         background: 'white',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          transform: 'translateY(-8px)',
+                          transform: { xs: 'none', md: 'translateY(-8px)' },
                           boxShadow: `0 12px 32px ${item.color}20`,
                         },
                       }}
                     >
-                      <Box sx={{ color: item.color, mb: 2 }}>
-                        {item.icon}
+                      <Box sx={{ color: item.color, mb: { xs: 1.5, md: 2 }, fontSize: { xs: 48, md: 60 } }}>
+                        {React.cloneElement(item.icon, { sx: { fontSize: { xs: 48, md: 60 } } })}
                       </Box>
-                      <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#052F2A' }}>
+                      <Typography variant="h5" sx={{ fontWeight: 700, mb: { xs: 1.5, md: 2 }, color: '#052F2A', fontSize: { xs: '1.1rem', md: '1.5rem' } }}>
                         {item.title}
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.7 }}>
+                      <Typography variant="body1" sx={{ color: '#666', lineHeight: { xs: 1.6, md: 1.7 }, fontSize: { xs: '0.9rem', md: '1rem' } }}>
                         {item.description}
                       </Typography>
                     </Box>
@@ -814,7 +842,7 @@ const LandingPage = () => {
           sx={{
             background: 'linear-gradient(135deg, #052F2A 0%, #0A5D52 50%, #0D7A6B 100%)',
             color: 'white',
-            py: { xs: 10, md: 15 },
+            py: { xs: 6, sm: 8, md: 15 },
             position: 'relative',
             overflow: 'hidden',
             '&::before': {
@@ -828,16 +856,16 @@ const LandingPage = () => {
             },
           }}
         >
-          <Container maxWidth="lg">
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             <Box sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
               <Box
                 component="img"
                 src="/logo.png"
                 alt="Tijaniyah Muslim Pro"
                 sx={{
-                  height: { xs: 100, md: 150 },
+                  height: { xs: 70, sm: 100, md: 150 },
                   width: 'auto',
-                  mb: 4,
+                  mb: { xs: 3, md: 4 },
                   filter: 'drop-shadow(0 8px 32px rgba(212, 175, 55, 0.4))',
                 }}
               />
@@ -845,12 +873,14 @@ const LandingPage = () => {
                 variant="h2"
                 sx={{
                   fontWeight: 800,
-                  mb: 3,
-                  fontSize: { xs: '2rem', md: '3.5rem' },
+                  mb: { xs: 2, md: 3 },
+                  fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3.5rem' },
                   background: 'linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
+                  px: { xs: 2, md: 0 },
+                  lineHeight: { xs: 1.3, md: 1.2 },
                 }}
               >
                 Start Your Spiritual Journey Today
@@ -858,32 +888,39 @@ const LandingPage = () => {
               <Typography
                 variant="h6"
                 sx={{
-                  mb: 5,
+                  mb: { xs: 4, md: 5 },
                   color: 'rgba(255,255,255,0.95)',
                   maxWidth: '700px',
                   mx: 'auto',
-                  lineHeight: 1.8,
-                  fontSize: { xs: '1rem', md: '1.2rem' },
+                  lineHeight: { xs: 1.6, md: 1.8 },
+                  fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                  px: { xs: 2, md: 0 },
                 }}
               >
                 Download Tijaniyah Muslim Pro now and experience the most comprehensive Islamic app with 30+ features designed for your spiritual growth
               </Typography>
-              <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: { xs: 2, md: 3 }, justifyContent: 'center', flexWrap: 'wrap', width: '100%', px: { xs: 2, md: 0 } }}>
                 <Button
                   variant="contained"
                   size="large"
+                  fullWidth={isMobile}
                   sx={{
                     background: 'linear-gradient(135deg, #D4AF37 0%, #E5C866 100%)',
                     color: '#052F2A',
                     fontWeight: 700,
-                    px: 5,
-                    py: 2,
-                    fontSize: '1.2rem',
+                    px: { xs: 3, md: 5 },
+                    py: { xs: 1.5, md: 2 },
+                    fontSize: { xs: '0.95rem', md: '1.2rem' },
+                    minHeight: { xs: '48px', md: 'auto' },
+                    maxWidth: { xs: '100%', sm: '300px', md: 'none' },
                     boxShadow: '0 8px 24px rgba(212, 175, 55, 0.4)',
                     '&:hover': {
                       background: 'linear-gradient(135deg, #E5C866 0%, #D4AF37 100%)',
-                      transform: 'translateY(-4px)',
+                      transform: { xs: 'none', md: 'translateY(-4px)' },
                       boxShadow: '0 12px 32px rgba(212, 175, 55, 0.5)',
+                    },
+                    '&:active': {
+                      transform: 'scale(0.98)',
                     },
                     transition: 'all 0.3s ease',
                   }}
@@ -894,20 +931,26 @@ const LandingPage = () => {
                 <Button
                   variant="outlined"
                   size="large"
+                  fullWidth={isMobile}
                   sx={{
                     borderColor: 'rgba(255,255,255,0.8)',
                     borderWidth: 2,
                     color: 'white',
                     fontWeight: 600,
-                    px: 5,
-                    py: 2,
-                    fontSize: '1.2rem',
+                    px: { xs: 3, md: 5 },
+                    py: { xs: 1.5, md: 2 },
+                    fontSize: { xs: '0.95rem', md: '1.2rem' },
+                    minHeight: { xs: '48px', md: 'auto' },
+                    maxWidth: { xs: '100%', sm: '300px', md: 'none' },
                     backdropFilter: 'blur(10px)',
                     backgroundColor: 'rgba(255,255,255,0.1)',
                     '&:hover': {
                       borderColor: 'white',
                       backgroundColor: 'rgba(255,255,255,0.2)',
-                      transform: 'translateY(-4px)',
+                      transform: { xs: 'none', md: 'translateY(-4px)' },
+                    },
+                    '&:active': {
+                      transform: 'scale(0.98)',
                     },
                     transition: 'all 0.3s ease',
                   }}

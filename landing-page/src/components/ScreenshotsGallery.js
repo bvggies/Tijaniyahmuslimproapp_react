@@ -80,17 +80,18 @@ const ScreenshotsGallery = () => {
       }}
     >
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <PhoneAndroid sx={{ fontSize: 48, color: '#052F2A' }} />
+            <PhoneAndroid sx={{ fontSize: { xs: 36, md: 48 }, color: '#052F2A' }} />
           </Box>
           <Typography
             variant="h2"
             sx={{
               fontWeight: 800,
-              mb: 2,
+              mb: { xs: 1.5, md: 2 },
               color: '#052F2A',
-              fontSize: { xs: '2rem', md: '3rem' },
+              fontSize: { xs: '1.75rem', sm: '2rem', md: '3rem' },
+              px: { xs: 2, md: 0 },
             }}
           >
             See It In Action
@@ -101,14 +102,16 @@ const ScreenshotsGallery = () => {
               color: '#666',
               maxWidth: '700px',
               mx: 'auto',
-              lineHeight: 1.8,
+              lineHeight: { xs: 1.6, md: 1.8 },
+              fontSize: { xs: '0.95rem', md: '1.25rem' },
+              px: { xs: 2, md: 0 },
             }}
           >
             Explore the beautiful interface and powerful features of Tijaniyah Muslim Pro
           </Typography>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }}>
           {screenshots.map((screenshot, index) => (
             <Grid item xs={6} sm={4} md={3} key={index}>
               <Zoom in timeout={300 + index * 50}>
@@ -237,17 +240,19 @@ const ScreenshotsGallery = () => {
               onClick={handleClose}
               sx={{
                 position: 'absolute',
-                top: 8,
-                right: 8,
+                top: { xs: 4, md: 8 },
+                right: { xs: 4, md: 8 },
                 zIndex: 2,
                 color: 'white',
                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                minWidth: { xs: '44px', md: 'auto' },
+                minHeight: { xs: '44px', md: 'auto' },
                 '&:hover': {
                   backgroundColor: 'rgba(0, 0, 0, 0.7)',
                 },
               }}
             >
-              <Close />
+              <Close sx={{ fontSize: { xs: 24, md: 28 } }} />
             </IconButton>
 
             {selectedImage !== null && (
@@ -269,34 +274,38 @@ const ScreenshotsGallery = () => {
                   onClick={handlePrevious}
                   sx={{
                     position: 'absolute',
-                    left: 8,
+                    left: { xs: 4, md: 8 },
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: 'white',
                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    minWidth: { xs: '44px', md: 'auto' },
+                    minHeight: { xs: '44px', md: 'auto' },
                     '&:hover': {
                       backgroundColor: 'rgba(0, 0, 0, 0.7)',
                     },
                   }}
                 >
-                  <ChevronLeft />
+                  <ChevronLeft sx={{ fontSize: { xs: 24, md: 28 } }} />
                 </IconButton>
 
                 <IconButton
                   onClick={handleNext}
                   sx={{
                     position: 'absolute',
-                    right: 8,
+                    right: { xs: 4, md: 8 },
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: 'white',
                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    minWidth: { xs: '44px', md: 'auto' },
+                    minHeight: { xs: '44px', md: 'auto' },
                     '&:hover': {
                       backgroundColor: 'rgba(0, 0, 0, 0.7)',
                     },
                   }}
                 >
-                  <ChevronRight />
+                  <ChevronRight sx={{ fontSize: { xs: 24, md: 28 } }} />
                 </IconButton>
 
                 <Box

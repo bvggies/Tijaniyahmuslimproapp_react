@@ -15,13 +15,13 @@ const TermsAndConditions = () => {
   return (
     <Box>
       <Navbar />
-      <Box sx={{ pt: 10, pb: 8, minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
-        <Container maxWidth="lg">
+      <Box sx={{ pt: { xs: 8, md: 10 }, pb: { xs: 4, md: 8 }, minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           <Paper 
             sx={{ 
-              p: { xs: 4, md: 8 }, 
-              mb: 4,
-              borderRadius: 4,
+              p: { xs: 2.5, sm: 3, md: 8 }, 
+              mb: { xs: 2, md: 4 },
+              borderRadius: { xs: 2, md: 4 },
               boxShadow: '0 8px 32px rgba(5, 47, 42, 0.1)',
             }}
           >

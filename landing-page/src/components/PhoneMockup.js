@@ -23,8 +23,8 @@ const PhoneMockup = () => {
     <Box
       sx={{
         position: 'relative',
-        width: { xs: 250, md: 350 },
-        height: { xs: 500, md: 700 },
+        width: { xs: 200, sm: 250, md: 350 },
+        height: { xs: 400, sm: 500, md: 700 },
         mx: 'auto',
         perspective: '1000px',
       }}
