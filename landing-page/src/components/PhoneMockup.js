@@ -7,6 +7,14 @@ const screenshots = [
   '/screenshots/IMG_4228.PNG',
   '/screenshots/IMG_4229.PNG',
   '/screenshots/IMG_4230.PNG',
+  '/screenshots/IMG_4231.PNG',
+  '/screenshots/IMG_4232.PNG',
+  '/screenshots/IMG_4233.PNG',
+  '/screenshots/IMG_4234.PNG',
+  '/screenshots/IMG_4235.PNG',
+  '/screenshots/IMG_4236.PNG',
+  '/screenshots/IMG_4237.PNG',
+  '/screenshots/IMG_4238.PNG',
 ];
 
 const PhoneMockup = () => {
