@@ -23,7 +23,7 @@ export function useEvents(params: UseEventsParams = {}) {
     queryKey: eventQueryKeys.list(params),
     queryFn: () => eventsApi.getAll(params),
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache old data
+    gcTime: 0, // Don't cache old data (gcTime replaces cacheTime in React Query v5)
   });
 }
 

@@ -166,7 +166,7 @@ export class NewsService {
           content: data.content.trim(),
           excerpt: excerpt,
           imageUrl: data.imageUrl?.trim() || null,
-          category: category as any,
+          category: categoryName,
           priority: priority as any,
           isPublished: data.isPublished || false,
           isFeatured: data.isFeatured || false,

@@ -71,8 +71,8 @@ export default function EventsPage() {
   const publishMutation = usePublishEvent();
   const unpublishMutation = useUnpublishEvent();
 
-  // Filter events
-  const events = data?.data || [];
+  // Filter events - handle paginated response
+  const events = (data as any)?.data || [];
 
   const handleCreate = async (eventData: CreateEventDto) => {
     try {
@@ -212,7 +212,7 @@ export default function EventsPage() {
             </CardContent>
           </Card>
         ) : (
-          events.map((event) => (
+          events.map((event: Event) => (
             <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               {/* Event Image */}
               <div className="h-32 bg-gradient-to-br from-primary-400 to-primary-600 relative">

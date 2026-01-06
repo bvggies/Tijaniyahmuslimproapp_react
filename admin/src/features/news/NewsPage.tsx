@@ -69,15 +69,9 @@ export default function NewsPage() {
     queryFn: () => newsCategoriesApi.getAll(true), // Only active categories
   });
 
-  const categories = categoriesData?.map(cat => cat.name) || ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
-
-  // Fetch categories from API
-  const { data: categoriesData } = useQuery({
-    queryKey: ['news-categories'],
-    queryFn: () => newsCategoriesApi.getAll(true), // Only active categories
-  });
-
-  const categories = categoriesData?.map(cat => cat.name) || ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
+  const categories = Array.isArray(categoriesData) 
+    ? categoriesData.map((cat: NewsCategory) => cat.name)
+    : ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
 
   // API Queries
   const { data, isLoading, error, refetch } = useQuery({
