@@ -137,8 +137,8 @@ export default function PostsPage() {
 
   const filteredPosts = posts.filter((post) => {
     const matchesSearch = 
-      post.content.toLowerCase().includes(search.toLowerCase()) ||
-      post.userName.toLowerCase().includes(search.toLowerCase());
+      (post.content?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (post.userName?.toLowerCase() || '').includes(search.toLowerCase());
     const matchesStatus = 
       statusFilter === 'all' ||
       (statusFilter === 'pinned' && post.isPinned) ||
@@ -316,7 +316,7 @@ export default function PostsPage() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium">{post.userName}</span>
+                        <span className="font-medium">{post.userName || 'Unknown User'}</span>
                         <span className="text-sm text-muted-foreground">
                           {formatRelativeTime(post.createdAt)}
                         </span>
@@ -324,7 +324,7 @@ export default function PostsPage() {
                         {post.isHidden && <Badge variant="destructive">Hidden</Badge>}
                         {post.isLocked && <Badge variant="warning">Locked</Badge>}
                       </div>
-                      <p className="mt-1 text-sm">{post.content}</p>
+                      <p className="mt-1 text-sm">{post.content || '(No content)'}</p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span>❤️ {post.likesCount}</span>
                         <span>💬 {post.commentsCount}</span>

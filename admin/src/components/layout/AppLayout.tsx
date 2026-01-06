@@ -14,7 +14,7 @@ export function AppLayout({ children, title, subtitle }: AppLayoutProps) {
   const { sidebarCollapsed } = useUIStore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-primary-950 dark:via-primary-900 dark:to-primary-950">
+    <div className="min-h-screen bg-background">
       <Sidebar />
       <div
         className={cn(

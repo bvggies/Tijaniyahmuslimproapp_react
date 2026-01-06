@@ -65,24 +65,47 @@ export const useUIStore = create<UIState>()(
 
 // Initialize theme on load
 if (typeof window !== 'undefined') {
+  const applyTheme = (theme: Theme) => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+  };
+
+  // Apply theme immediately to prevent flash
   const stored = localStorage.getItem('tijaniyah-admin-ui');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
       const theme = parsed.state?.theme || 'system';
-      const root = window.document.documentElement;
-      
-      if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-        root.classList.add(systemTheme);
-      } else {
-        root.classList.add(theme);
-      }
+      applyTheme(theme);
     } catch {
-      // Default to system
+      applyTheme('system');
     }
+  } else {
+    applyTheme('system');
   }
+
+  // Listen for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    const stored = localStorage.getItem('tijaniyah-admin-ui');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.state?.theme === 'system') {
+          applyTheme('system');
+        }
+      } catch {
+        // Ignore
+      }
+    }
+  });
 }
 

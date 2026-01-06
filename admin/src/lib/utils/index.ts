@@ -67,7 +67,10 @@ export function truncate(str: string, length: number): string {
 }
 
 // Generate initials from name
-export function getInitials(name: string): string {
+export function getInitials(name: string | undefined | null): string {
+  if (!name || typeof name !== 'string') {
+    return '??';
+  }
   return name
     .split(' ')
     .map((n) => n[0])

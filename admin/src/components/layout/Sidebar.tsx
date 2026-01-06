@@ -83,7 +83,7 @@ export function Sidebar() {
       <aside
         className={cn(
           'fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out',
-          'bg-white/90 dark:bg-primary-900/95 backdrop-blur-xl border-r border-border',
+          'bg-card/90 dark:bg-card/95 backdrop-blur-xl border-r border-border',
           sidebarCollapsed ? 'w-20' : 'w-64',
           // Mobile styles
           'lg:translate-x-0',

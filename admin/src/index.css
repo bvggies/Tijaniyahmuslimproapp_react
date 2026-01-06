@@ -36,33 +36,33 @@
   }
   
   .dark {
-    --background: 150 50% 5%;
-    --foreground: 150 20% 95%;
+    --background: 150 30% 8%;
+    --foreground: 150 10% 98%;
     
-    --card: 150 40% 8%;
-    --card-foreground: 150 20% 95%;
+    --card: 150 25% 10%;
+    --card-foreground: 150 10% 98%;
     
-    --popover: 150 40% 8%;
-    --popover-foreground: 150 20% 95%;
+    --popover: 150 25% 10%;
+    --popover-foreground: 150 10% 98%;
     
-    --primary: 153 51% 45%;
+    --primary: 153 51% 50%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 150 30% 15%;
-    --secondary-foreground: 150 20% 90%;
+    --secondary: 150 20% 18%;
+    --secondary-foreground: 150 10% 95%;
     
-    --muted: 150 25% 12%;
-    --muted-foreground: 150 15% 60%;
+    --muted: 150 20% 15%;
+    --muted-foreground: 150 10% 70%;
     
-    --accent: 153 51% 45%;
+    --accent: 153 51% 50%;
     --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 62% 50%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 150 25% 18%;
-    --input: 150 25% 18%;
-    --ring: 153 51% 45%;
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 153 51% 50%;
   }
 }
 
@@ -144,6 +144,18 @@
   
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(64, 145, 108, 0.5);
+  }
+  
+  .dark .scrollbar-thin {
+    scrollbar-color: rgba(16, 185, 129, 0.4) transparent;
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.6);
   }
 }
 

@@ -125,7 +125,32 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
   };
 
   const renderCurrentScreen = () => {
-    const screenProps = { navigation: { goBack: () => setCurrentScreen('dashboard') } };
+    // Map screen names from AdminDashboard to internal screen IDs
+    const screenNameMap: Record<string, string> = {
+      'AdminNews': 'news',
+      'AdminEvents': 'events',
+      'AdminUsers': 'users',
+      'AdminDonations': 'donations',
+      'AdminUploads': 'uploads',
+      'AdminLessons': 'lessons',
+      'AdminScholars': 'scholars',
+      'AdminSettings': 'settings',
+      'AdminAnalytics': 'analytics',
+    };
+
+    const screenProps = { 
+      navigation: { 
+        goBack: () => setCurrentScreen('dashboard'),
+        navigate: (screen: string) => {
+          const mappedScreen = screenNameMap[screen] || screen.toLowerCase().replace('admin', '');
+          setCurrentScreen(mappedScreen);
+          // On mobile, hide sidebar after navigation
+          if (isMobile) {
+            setSidebarVisible(false);
+          }
+        }
+      } 
+    };
 
     switch (currentScreen) {
       case 'login':

@@ -1,9 +1,15 @@
 import React from 'react';
-import { Menu, Bell, Search } from 'lucide-react';
+import { Menu, Bell, Search, Sun, Moon, Monitor } from 'lucide-react';
 import { useUIStore } from '../../lib/store';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import { cn } from '../../lib/utils';
 
 interface TopbarProps {
@@ -12,13 +18,19 @@ interface TopbarProps {
 }
 
 export function Topbar({ title, subtitle }: TopbarProps) {
-  const { setSidebarMobileOpen, unreadNotifications } = useUIStore();
+  const { setSidebarMobileOpen, unreadNotifications, theme, setTheme } = useUIStore();
+
+  const themeOptions = [
+    { value: 'light' as const, label: 'Light', icon: Sun },
+    { value: 'dark' as const, label: 'Dark', icon: Moon },
+    { value: 'system' as const, label: 'System', icon: Monitor },
+  ];
 
   return (
     <header
       className={cn(
         'sticky top-0 z-30 h-16 border-b border-border',
-        'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl',
+        'bg-background/95 backdrop-blur-xl',
         'transition-all duration-300'
       )}
     >
@@ -53,9 +65,39 @@ export function Topbar({ title, subtitle }: TopbarProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
-              className="w-64 pl-9 h-9 bg-white dark:bg-primary-800"
+              className="w-64 pl-9 h-9 bg-background"
             />
           </div>
+
+          {/* Theme Switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                {theme === 'light' ? (
+                  <Sun className="h-5 w-5" />
+                ) : theme === 'dark' ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Monitor className="h-5 w-5" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              {themeOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => setTheme(option.value)}
+                  className={cn(
+                    'gap-2 cursor-pointer',
+                    theme === option.value && 'bg-accent text-accent-foreground'
+                  )}
+                >
+                  <option.icon className="h-4 w-4" />
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
