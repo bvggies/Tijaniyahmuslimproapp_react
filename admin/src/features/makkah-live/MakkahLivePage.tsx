@@ -137,15 +137,30 @@ export default function MakkahLivePage() {
     }
 
     try {
+      // Clean up form data: remove empty strings for optional fields
+      const cleanedData = {
+        ...formData,
+        titleArabic: formData.titleArabic?.trim() || undefined,
+        subtitle: formData.subtitle?.trim() || undefined,
+        youtubeId: formData.youtubeId?.trim() || undefined,
+        websiteUrl: formData.websiteUrl?.trim() || undefined,
+        logo: formData.logo?.trim() || undefined,
+        thumbnailUrl: formData.thumbnailUrl?.trim() || undefined,
+      };
+
       if (selectedChannel) {
-        await updateChannel.mutateAsync({ id: selectedChannel.id, data: formData });
+        await updateChannel.mutateAsync({ id: selectedChannel.id, data: cleanedData });
       } else {
-        await createChannel.mutateAsync(formData);
+        await createChannel.mutateAsync(cleanedData);
       }
       handleCloseDialog();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving channel:', error);
-      alert('Failed to save channel. Please try again.');
+      const errorMessage = error?.response?.data?.message || 
+                          (Array.isArray(error?.response?.data?.message) 
+                            ? error.response.data.message.join(', ') 
+                            : error?.message || 'Failed to save channel. Please try again.');
+      alert(errorMessage);
     }
   };
 

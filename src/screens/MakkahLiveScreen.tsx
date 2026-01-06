@@ -95,6 +95,8 @@ export default function MakkahLiveScreen() {
   const [showStreamHelp, setShowStreamHelp] = useState(false);
   const [quality, setQuality] = useState<'sd'|'hd'>('hd');
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Fetch channels from API
   const fetchChannels = async (showRefresh = false) => {
@@ -232,6 +234,8 @@ export default function MakkahLiveScreen() {
   const handleChannelChange = (channel: Channel) => {
     setActive(channel);
     setIsLoading(true);
+    setVideoError(null);
+    setRetryCount(0);
   };
 
   const toggleStreamHelp = () => {
@@ -267,6 +271,14 @@ export default function MakkahLiveScreen() {
     const sd = channels.find(c => c.id.includes('24-7')) || active;
     return sd.youtubeId;
   }, [quality, active, channels]);
+
+  // Validate YouTube ID format (should be 11 characters, alphanumeric and hyphens/underscores)
+  const isValidYouTubeId = (id: string) => {
+    if (!id) return false;
+    // YouTube video IDs are typically 11 characters
+    // Allow alphanumeric, hyphens, and underscores
+    return /^[a-zA-Z0-9_-]{11}$/.test(id);
+  };
 
   return (
     <View style={styles.container}>
@@ -340,41 +352,103 @@ export default function MakkahLiveScreen() {
         </View>
 
         <View style={styles.playerCard}>
-        {isLoading && (
+        {isLoading && !videoError && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.accentTeal} />
             <Text style={styles.loadingText}>{t('makkah_live.loading')}</Text>
           </View>
         )}
-        <WebView
-          style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
-          source={{ 
-            uri: `https://www.youtube-nocookie.com/embed/${currentSrc}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1`
-          }}
-          allowsFullscreenVideo={true}
-          allowsInlineMediaPlayback={true}
-          mediaPlaybackRequiresUserAction={true}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-          scalesPageToFit={true}
-          mixedContentMode="compatibility"
-          thirdPartyCookiesEnabled={false}
-          setSupportMultipleWindows={false}
-          onLoadStart={() => setIsLoading(true)}
-          onLoadEnd={() => setIsLoading(false)}
-          onError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn('WebView error: ', nativeEvent);
-            setIsLoading(false);
-            setShowStreamHelp(true);
-          }}
-          onHttpError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn('WebView HTTP error: ', nativeEvent);
-            setIsLoading(false);
-            setShowStreamHelp(true);
-          }}
+        
+        {videoError ? (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={48} color={colors.accentRed} />
+            <Text style={styles.errorTitle}>Video Playback Error</Text>
+            <Text style={styles.errorMessage}>
+              {!isValidYouTubeId(currentSrc) 
+                ? 'Invalid YouTube video ID. Please check the channel configuration in admin dashboard.'
+                : videoError
+              }
+            </Text>
+            <View style={styles.errorActions}>
+              <TouchableOpacity
+                style={styles.retryButton}
+                onPress={() => {
+                  setVideoError(null);
+                  setRetryCount(prev => prev + 1);
+                  setIsLoading(true);
+                }}
+              >
+                <Ionicons name="refresh" size={20} color="#FFFFFF" />
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.openYoutubeButton}
+                onPress={() => openInYouTube(active)}
+              >
+                <Ionicons name="logo-youtube" size={20} color="#FFFFFF" />
+                <Text style={styles.openYoutubeButtonText}>Open in YouTube</Text>
+              </TouchableOpacity>
+            </View>
+            {channels.length > 1 && (
+              <TouchableOpacity
+                style={styles.switchChannelButton}
+                onPress={() => {
+                  const currentIndex = channels.findIndex(c => c.id === active.id);
+                  const nextIndex = (currentIndex + 1) % channels.length;
+                  handleChannelChange(channels[nextIndex]);
+                  setVideoError(null);
+                  setRetryCount(0);
+                }}
+              >
+                <Ionicons name="swap-horizontal" size={16} color={colors.accentTeal} />
+                <Text style={styles.switchChannelText}>Try Another Stream</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <WebView
+            key={`${currentSrc}-${retryCount}`}
+            style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
+            source={{ 
+              uri: `https://www.youtube-nocookie.com/embed/${currentSrc}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1&origin=${encodeURIComponent('https://tijaniyahmuslimpro.com')}`
+            }}
+            allowsFullscreenVideo={true}
+            allowsInlineMediaPlayback={true}
+            mediaPlaybackRequiresUserAction={false}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+            scalesPageToFit={true}
+            mixedContentMode="compatibility"
+            thirdPartyCookiesEnabled={false}
+            setSupportMultipleWindows={false}
+            onLoadStart={() => {
+              setIsLoading(true);
+              setVideoError(null);
+            }}
+            onLoadEnd={() => {
+              setIsLoading(false);
+              // Check if page loaded successfully after a short delay
+              setTimeout(() => {
+                // If still loading after 5 seconds, might be an error
+              }, 5000);
+            }}
+            onError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.warn('WebView error: ', nativeEvent);
+              setIsLoading(false);
+              setVideoError('Unable to load video. The stream may be unavailable or restricted.');
+            }}
+            onHttpError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.warn('WebView HTTP error: ', nativeEvent);
+              setIsLoading(false);
+              if (nativeEvent.statusCode === 403 || nativeEvent.statusCode === 404) {
+                setVideoError('Video is not available for embedding. Try opening in YouTube app.');
+              } else {
+                setVideoError('Network error. Please check your connection and try again.');
+              }
+            }}
           onShouldStartLoadWithRequest={(request) => {
             const disallowedHosts = [
               'accounts.google.com',
@@ -397,9 +471,27 @@ export default function MakkahLiveScreen() {
             return true;
           }}
           onMessage={(event) => {
-            console.log('YouTube message:', event.nativeEvent.data);
+            const data = event.nativeEvent.data;
+            console.log('YouTube message:', data);
+            // Handle YouTube player errors
+            try {
+              const message = JSON.parse(data);
+              if (message?.event === 'error' || message?.error) {
+                setVideoError('Video playback error. Try opening in YouTube app.');
+                setIsLoading(false);
+              }
+            } catch {
+              // Not JSON, ignore
+            }
+          }}
+          renderError={(errorDomain, errorCode, errorDesc) => {
+            console.warn('WebView render error:', { errorDomain, errorCode, errorDesc });
+            setVideoError(`Video error: ${errorDesc || 'Unknown error'}`);
+            setIsLoading(false);
+            return null;
           }}
         />
+          )}
       </View>
 
       <FlatList
@@ -558,6 +650,73 @@ const styles = StyleSheet.create({
     marginTop: 12, 
     fontSize: 16, 
     fontWeight: '600' 
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: colors.surface,
+  },
+  errorTitle: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  errorActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accentTeal,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  openYoutubeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF0000',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
+  },
+  openYoutubeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  switchChannelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  switchChannelText: {
+    color: colors.accentTeal,
+    fontSize: 12,
+    fontWeight: '600',
   },
   // TV Channels Section Styles
   tvChannelsSection: {

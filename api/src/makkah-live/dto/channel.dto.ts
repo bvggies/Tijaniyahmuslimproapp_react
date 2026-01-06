@@ -20,10 +20,12 @@ export class CreateChannelDto {
   title: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   titleArabic?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   subtitle?: string;
 
@@ -34,18 +36,22 @@ export class CreateChannelDto {
   category: ChannelCategory;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   youtubeId?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsUrl()
   websiteUrl?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   logo?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsUrl()
   thumbnailUrl?: string;
 
@@ -65,14 +71,17 @@ export class CreateChannelDto {
 
 export class UpdateChannelDto {
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   title?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   titleArabic?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   subtitle?: string;
 
@@ -85,18 +94,22 @@ export class UpdateChannelDto {
   category?: ChannelCategory;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   youtubeId?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsUrl()
   websiteUrl?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   logo?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsUrl()
   thumbnailUrl?: string;
 

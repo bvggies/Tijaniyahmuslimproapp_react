@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { MakkahLiveService } from './makkah-live.service';
 import { CreateChannelDto, UpdateChannelDto, ChannelQueryDto } from './dto/channel.dto';
@@ -49,7 +50,24 @@ export class MakkahLiveController {
   @Post('admin/channels')
   @UseGuards(JwtAuthGuard)
   async createChannel(@Body() dto: CreateChannelDto, @Req() req: any) {
-    return this.makkahLiveService.createChannel(dto, req.user?.id);
+    try {
+      // Validate that required fields are present based on type
+      if (dto.type === 'YOUTUBE_LIVE' && !dto.youtubeId) {
+        throw new BadRequestException('youtubeId is required for YOUTUBE_LIVE type');
+      }
+      if (dto.type === 'TV_CHANNEL' && !dto.websiteUrl) {
+        throw new BadRequestException('websiteUrl is required for TV_CHANNEL type');
+      }
+      
+      return await this.makkahLiveService.createChannel(dto, req.user?.id);
+    } catch (error: any) {
+      console.error('Error creating channel:', error);
+      console.error('DTO received:', JSON.stringify(dto, null, 2));
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(error.message || 'Failed to create channel');
+    }
   }
 
   /**

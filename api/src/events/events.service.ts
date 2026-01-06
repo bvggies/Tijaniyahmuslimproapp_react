@@ -61,7 +61,7 @@ export class EventsService {
       where: {
         isPublished: true,
         startDate: { gte: new Date() },
-        status: { in: ['UPCOMING', 'ONGOING'] },
+        status: { in: ['UPCOMING', 'ONGOING'] as any },
       },
       orderBy: { startDate: 'asc' },
       take: 10,
