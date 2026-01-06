@@ -1,10 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl, Alert, Image } from 'react-native';
 import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { WebView } from 'react-native-webview';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
 
@@ -423,62 +422,38 @@ export default function MakkahLiveScreen() {
             )}
           </View>
         ) : (
-          <WebView
-            key={`${currentSrc}-${retryCount}`}
+          <TouchableOpacity
             style={styles.youtubePlayerContainer}
-            source={{
-              uri: `https://www.youtube.com/embed/${currentSrc}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&enablejsapi=1&mute=0&loop=0&playlist=${currentSrc}`,
-            }}
-            allowsFullscreenVideo={true}
-            allowsInlineMediaPlayback={true}
-            mediaPlaybackRequiresUserAction={false}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            startInLoadingState={true}
-            scalesPageToFit={true}
-            mixedContentMode="always"
-            thirdPartyCookiesEnabled={true}
-            setSupportMultipleWindows={false}
-            onLoadStart={() => {
-              setIsLoading(true);
-              setVideoError(null);
-            }}
-            onLoadEnd={() => {
-              setTimeout(() => {
-                setIsLoading(false);
-                setVideoError(null);
-              }, 1000);
-            }}
-            onError={(syntheticEvent) => {
-              const { nativeEvent } = syntheticEvent;
-              console.warn('WebView error:', nativeEvent);
-              setIsLoading(false);
-              setVideoError('Unable to load video. Opening in YouTube app...');
-              setTimeout(() => {
-                openInYouTube(active);
-              }, 2000);
-            }}
-            onHttpError={(syntheticEvent) => {
-              const { nativeEvent } = syntheticEvent;
-              console.warn('WebView HTTP error:', nativeEvent);
-              setIsLoading(false);
-              if (nativeEvent.statusCode === 403) {
-                setVideoError('Video embedding is restricted. Opening in YouTube app...');
-                setTimeout(() => openInYouTube(active), 1500);
-              } else if (nativeEvent.statusCode === 404) {
-                setVideoError('Video not found. The stream may have ended.');
-              } else {
-                setVideoError('Network error. Please check your connection.');
-              }
-            }}
-            renderError={(errorDomain, errorCode, errorDesc) => {
-              console.warn('WebView render error:', { errorDomain, errorCode, errorDesc });
-              setVideoError(`Video error: ${errorDesc || 'Unknown error'}. Opening in YouTube app...`);
-              setIsLoading(false);
-              setTimeout(() => openInYouTube(active), 2000);
-              return null;
-            }}
-          />
+            activeOpacity={0.9}
+            onPress={() => openInYouTube(active)}
+          >
+            <View style={styles.youtubeThumbnailContainer}>
+              <Image
+                source={{ uri: `https://img.youtube.com/vi/${currentSrc}/maxresdefault.jpg` }}
+                style={styles.youtubeThumbnail}
+                onError={() => {
+                  // If thumbnail fails, try lower quality
+                  console.log('Thumbnail load failed');
+                }}
+              />
+              <View style={styles.playButtonOverlay}>
+                <LinearGradient
+                  colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)']}
+                  style={styles.playButtonGradient}
+                >
+                  <View style={styles.playButton}>
+                    <Ionicons name="play" size={48} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.playButtonText}>Tap to Watch Live</Text>
+                  <Text style={styles.playButtonSubtext}>Opens in YouTube</Text>
+                </LinearGradient>
+              </View>
+              <View style={styles.liveBadge}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveText}>LIVE</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
           )}
       </View>
 
@@ -616,6 +591,81 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: '#000',
+  },
+  youtubeThumbnailContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  youtubeThumbnail: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playButtonGradient: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 0, 0, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  playButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 8,
+  },
+  playButtonSubtext: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    opacity: 0.9,
+    marginTop: 4,
+  },
+  liveBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF0000',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    gap: 6,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  liveText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   prayerStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8 },
   prayerItem: { color: colors.textSecondary, fontSize: 12 },

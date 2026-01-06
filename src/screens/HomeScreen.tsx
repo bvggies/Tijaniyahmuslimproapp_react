@@ -73,7 +73,7 @@ export default function HomeScreen({ navigation }: any) {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [islamicDate, setIslamicDate] = useState(getIslamicDate());
-  const [upcomingEvents, setUpcomingEvents] = useState(getUpcomingIslamicEvents());
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -344,12 +344,13 @@ export default function HomeScreen({ navigation }: any) {
         }))
         .slice(0, 6); // Limit to 6 articles
       
+      // Always update news, even if empty (to clear mock data)
       setNewsArticles(mappedNews);
       console.log('✅ Loaded', mappedNews.length, 'news articles from API');
     } catch (error) {
       console.error('⚠️ Failed to load news from API:', error);
-      // Fallback to mock data if API fails
-      setNewsArticles(mockNewsArticles.slice(0, 6));
+      // Clear news on error instead of showing mock data
+      setNewsArticles([]);
     } finally {
       setIsLoadingNews(false);
     }

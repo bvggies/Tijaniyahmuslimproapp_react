@@ -195,8 +195,9 @@ export default function NewsPage() {
           content: data.content,
           category: data.category,
           imageUrl: data.imageUrl || undefined,
-          source: data.source || undefined,
+          priority: data.priority || 'MEDIUM',
           isPublished: data.isPublished,
+          isFeatured: data.isFeatured || false,
         });
       }
       setShowForm(false);

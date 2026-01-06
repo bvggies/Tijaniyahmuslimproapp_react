@@ -72,7 +72,8 @@ export default function EventsPage() {
   const unpublishMutation = useUnpublishEvent();
 
   // Filter events - handle paginated response
-  const events = (data as any)?.data || [];
+  // Check if data is paginated or direct array
+  const events = Array.isArray(data) ? data : ((data as any)?.data || []);
 
   const handleCreate = async (eventData: CreateEventDto) => {
     try {

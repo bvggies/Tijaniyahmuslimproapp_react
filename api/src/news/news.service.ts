@@ -202,7 +202,12 @@ export class NewsService {
       // Handle missing column errors
       if (error.message && error.message.includes('does not exist')) {
         const columnMatch = error.message.match(/column ['"]([^'"]+)['"]/i);
-        const columnName = columnMatch ? columnMatch[1] : 'unknown';
+        const columnName = columnMatch ? columnMatch[1] : (error.meta?.target?.[0] || 'unknown');
+        console.error('[NewsService] Database column error:', {
+          message: error.message,
+          meta: error.meta,
+          columnName,
+        });
         throw new BadRequestException(
           `Database column '${columnName}' does not exist. Please run database migrations to add missing columns.`
         );
