@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const privacy = document.getElementById('btn-privacy');
   const terms = document.getElementById('btn-terms');
 
-  if (android) android.href = '#'; // e.g., Play Store URL
+  if (android) android.href = 'https://play.google.com/store/apps/details?id=com.tijaniyahpro.app'; // Play Store URL
   if (ios) ios.href = '#'; // e.g., App Store URL or TestFlight
   if (github) github.href = 'https://github.com/bvggies/Tijaniyahmuslimproapp_react';
   if (privacy) privacy.href = '#';

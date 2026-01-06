@@ -901,6 +901,10 @@ const LandingPage = () => {
               </Typography>
               <Box sx={{ display: 'flex', gap: { xs: 2, md: 3 }, justifyContent: 'center', flexWrap: 'wrap', width: '100%', px: { xs: 2, md: 0 } }}>
                 <Button
+                  component="a"
+                  href="https://play.google.com/store/apps/details?id=com.tijaniyahpro.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   variant="contained"
                   size="large"
                   fullWidth={isMobile}
@@ -923,6 +927,7 @@ const LandingPage = () => {
                       transform: 'scale(0.98)',
                     },
                     transition: 'all 0.3s ease',
+                    textDecoration: 'none',
                   }}
                   startIcon={<Download />}
                 >
