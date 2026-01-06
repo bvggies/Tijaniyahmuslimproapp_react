@@ -44,14 +44,51 @@ export class EventsController {
     @Query('category') category?: string,
     @Query('status') status?: string,
     @Query('published') published?: string,
+    @Query('search') search?: string,
   ) {
-    return this.eventsService.findAll({
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      category,
-      status,
-      published: published ? published === 'true' : undefined,
-    });
+    try {
+      // Parse and validate page
+      let parsedPage: number | undefined;
+      if (page) {
+        parsedPage = parseInt(page, 10);
+        if (isNaN(parsedPage) || parsedPage < 1) {
+          parsedPage = 1;
+        }
+      }
+
+      // Parse and validate limit
+      let parsedLimit: number | undefined;
+      if (limit) {
+        parsedLimit = parseInt(limit, 10);
+        if (isNaN(parsedLimit) || parsedLimit < 1) {
+          parsedLimit = 20;
+        }
+        // Cap limit at 100 to prevent performance issues
+        if (parsedLimit > 100) {
+          parsedLimit = 100;
+        }
+      }
+
+      return this.eventsService.findAll({
+        page: parsedPage,
+        limit: parsedLimit,
+        category: category && category.trim() ? category.trim() : undefined,
+        status: status && status.trim() ? status.trim() : undefined,
+        published: published ? published === 'true' : undefined,
+        search: search && search.trim() ? search.trim() : undefined,
+      });
+    } catch (error: any) {
+      console.error('Error in events findAll:', error);
+      console.error('Query params:', { page, limit, category, status, published, search });
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Wrap other errors
+      throw new BadRequestException(error.message || 'Failed to fetch events');
+    }
   }
 
   @Get(':id')

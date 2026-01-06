@@ -173,7 +173,7 @@ export class AnalyticsService {
             gte: now,
           },
           status: {
-            in: ['UPCOMING', 'ONGOING'],
+            in: ['UPCOMING', 'ONGOING'] as any,
           },
         },
       }).catch((error) => {

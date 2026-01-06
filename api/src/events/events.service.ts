@@ -11,42 +11,90 @@ export class EventsService {
     category?: string;
     status?: string;
     published?: boolean;
+    search?: string;
   }) {
-    const page = params?.page || 1;
-    const limit = params?.limit || 20;
-    const skip = (page - 1) * limit;
+    try {
+      const page = params?.page || 1;
+      const limit = params?.limit || 20;
+      const skip = (page - 1) * limit;
 
-    const where: any = {};
-    
-    if (params?.category) {
-      where.category = params.category.toUpperCase();
-    }
-    if (params?.status) {
-      where.status = params.status.toUpperCase();
-    }
-    if (params?.published !== undefined) {
-      where.isPublished = params.published;
-    }
+      const where: any = {};
+      
+      // Handle category filter with validation
+      if (params?.category && params.category.trim()) {
+        const validCategories = ['CONFERENCE', 'SEMINAR', 'WORKSHOP', 'CELEBRATION', 'OTHER'];
+        const categoryUpper = params.category.toUpperCase().trim();
+        if (validCategories.includes(categoryUpper)) {
+          where.category = categoryUpper;
+        }
+      }
+      
+      // Handle status filter with validation
+      if (params?.status && params.status.trim()) {
+        const validStatuses = ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED'];
+        const statusUpper = params.status.toUpperCase().trim();
+        if (validStatuses.includes(statusUpper)) {
+          where.status = statusUpper;
+        }
+      }
+      
+      // Handle published filter
+      if (params?.published !== undefined) {
+        where.isPublished = params.published;
+      }
 
-    const [events, total] = await Promise.all([
-      this.prisma.event.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { startDate: 'asc' },
-      }),
-      this.prisma.event.count({ where }),
-    ]);
+      // Handle search filter - only add if search term is not empty
+      if (params?.search && typeof params.search === 'string' && params.search.trim().length > 0) {
+        const searchTerm = params.search.trim();
+        where.OR = [
+          { title: { contains: searchTerm, mode: 'insensitive' } },
+          { description: { contains: searchTerm, mode: 'insensitive' } },
+          { location: { contains: searchTerm, mode: 'insensitive' } },
+        ];
+      }
 
-    return {
-      data: events,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      const [events, total] = await Promise.all([
+        this.prisma.event.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { startDate: 'asc' },
+        }),
+        this.prisma.event.count({ where }),
+      ]);
+
+      return {
+        data: events,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error: any) {
+      console.error('Error in events service findAll:', error);
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+      });
+      
+      // Handle Prisma errors
+      if (error.code === 'P2001') {
+        throw new NotFoundException('Record not found');
+      }
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Wrap other errors
+      throw new InternalServerErrorException(
+        error.message || 'Failed to fetch events. Please check the server logs for details.'
+      );
+    }
   }
 
   async findPublished() {
@@ -105,21 +153,37 @@ export class EventsService {
         throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`);
       }
 
+      // Build data object with only valid fields
+      const eventData: any = {
+        title: data.title.trim(),
+        description: data.description.trim(),
+        location: data.location.trim(),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        category: category as any,
+        status: status as any,
+        isPublished: data.isPublished || false,
+      };
+
+      // Only include optional fields if they have values
+      if (data.imageUrl && data.imageUrl.trim()) {
+        eventData.imageUrl = data.imageUrl.trim();
+      }
+
+      if (data.maxAttendees !== undefined && data.maxAttendees !== null) {
+        eventData.maxAttendees = data.maxAttendees;
+      }
+
+      if (data.registrationRequired !== undefined) {
+        eventData.registrationRequired = data.registrationRequired;
+      }
+
+      if (data.createdBy) {
+        eventData.createdBy = data.createdBy;
+      }
+
       return await this.prisma.event.create({
-        data: {
-          title: data.title.trim(),
-          description: data.description.trim(),
-          location: data.location.trim(),
-          startDate: data.startDate,
-          endDate: data.endDate,
-          imageUrl: data.imageUrl?.trim() || null,
-          category: category as any,
-          status: status as any,
-          isPublished: data.isPublished || false,
-          maxAttendees: data.maxAttendees || null,
-          registrationRequired: data.registrationRequired || false,
-          createdBy: data.createdBy || null,
-        },
+        data: eventData,
       });
     } catch (error: any) {
       console.error('Error in events service create:', error);
@@ -129,6 +193,7 @@ export class EventsService {
         message: error.message,
         stack: error.stack,
       });
+      console.error('Event data attempted:', JSON.stringify(eventData, null, 2));
       
       // Handle Prisma errors
       if (error.code === 'P2002') {
@@ -136,6 +201,15 @@ export class EventsService {
       }
       if (error.code === 'P2003') {
         throw new BadRequestException('Invalid reference: ' + (error.meta?.field_name || 'unknown field'));
+      }
+      
+      // Handle missing column errors
+      if (error.message && error.message.includes('does not exist')) {
+        const columnMatch = error.message.match(/column ['"]([^'"]+)['"]/i);
+        const columnName = columnMatch ? columnMatch[1] : 'unknown';
+        throw new BadRequestException(
+          `Database column '${columnName}' does not exist. Please run database migrations to add missing columns.`
+        );
       }
       
       // Re-throw NestJS exceptions as-is
