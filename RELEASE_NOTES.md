@@ -1,57 +1,146 @@
-# Release Notes - Version 1.0.1 (Build 5)
+# Release Notes
 
-## What's New
+## Version 1.0.5 (Latest)
 
-✨ **Enhanced Messaging Experience**
-- Modernized conversation interface with beautiful glassmorphism design
-- Improved message alignment and color coding for better readability
-- Added elegant Islamic background patterns with subtle opacity
-- Fixed text input positioning to prevent navigation bar overlap
+### 🎉 Major Features
 
-🔔 **Smart Notification System**
-- Unread message counter now accurately updates in real-time
-- Messages automatically marked as read when viewing conversations
-- Improved notification handling for better user experience
+#### Admin Dashboard Enhancements
+- **Complete CRUD Interfaces**: Fully functional Create, Read, Update, Delete interfaces for:
+  - Scholars & Lessons management
+  - Posts moderation with real-time API integration
+  - News articles management
+  - Content management (Duas, Wazifa, Jumma Dhikr)
+  - Makkah Live channels management
 
-🤖 **AI Noor Improvements**
-- Enhanced AI chat feature with improved reliability
-- Better error handling and connection stability
-- Optimized for production builds
+- **Real-time Analytics Dashboard**
+  - Dashboard now uses real database data instead of mock data
+  - Calculated percentage changes from historical data
+  - Real-time statistics for:
+    - Total users and growth metrics
+    - Daily posts and engagement
+    - Upcoming events tracking
+    - Donations tracking
+    - Active users (7-day and 30-day periods)
+    - Pending reports monitoring
 
-🐛 **Bug Fixes & Performance**
-- Fixed various UI/UX issues in conversation screens
-- Improved app stability and performance
-- Enhanced overall user experience
+#### API Integration
+- All admin pages now connected to live backend API
+- Removed all demo/mock data indicators
+- Real-time data synchronization across all admin features
+
+### 🐛 Bug Fixes
+
+#### Dashboard & Analytics
+- Fixed dashboard analytics cards showing only loading states
+- Fixed 500 errors in analytics endpoint with comprehensive error handling
+- Improved null/undefined value handling in analytics display
+- Fixed loading state logic to properly show data when available
+- Added graceful error handling that returns default values instead of crashing
+
+#### Mobile App
+- Fixed CalendarCard import path for designTokens
+- Fixed push notification projectId configuration
+- Added EAS projectId to app.config.js for proper push notification setup
+- Fixed notification service with projectId fallback mechanism
+
+#### API & Backend
+- Added comprehensive error handling to analytics service
+- Individual query error handling prevents cascading failures
+- Added detailed logging for debugging database issues
+- Fixed news API search parameter issue
+
+### 🔧 Technical Improvements
+
+#### Error Handling
+- Analytics endpoint now returns default values (zeros) instead of throwing 500 errors
+- Individual database queries have error catching to prevent total failure
+- Better error logging for troubleshooting production issues
+- Graceful degradation when database queries fail
+
+#### Code Quality
+- Improved null/undefined value handling with null coalescing operators
+- Better loading state management
+- Enhanced debug logging for troubleshooting
+- More descriptive fallback messages
+
+### 📱 Mobile App Updates
+
+#### Push Notifications
+- Fixed EAS projectId configuration
+- Added fallback mechanism for projectId retrieval
+- Improved error handling in notification service
+
+#### UI/UX
+- Fixed import paths for design tokens
+- Improved error messages and loading states
+
+### 🔒 Stability & Reliability
+
+- Analytics endpoint no longer crashes on database errors
+- Dashboard displays data even when some queries fail
+- Better error recovery mechanisms
+- Improved logging for production debugging
+
+### 📊 Admin Dashboard Features
+
+#### New Capabilities
+- Scholars CRUD: Create, edit, publish/unpublish, and delete scholar profiles
+- Posts Moderation: Hide, pin, lock, delete posts with real-time updates
+- News Management: Full CRUD for news articles with publish/unpublish
+- Content Management: Manage Duas, Wazifa, and Jumma Dhikr content
+- Makkah Live: Manage live streaming channels with form validation
+
+#### Analytics Improvements
+- Real-time data from database
+- Percentage change calculations
+- Historical comparison data
+- Better error handling and display
+
+### 🚀 Deployment
+
+- All changes pushed to main branch
+- Backend error handling ready for Vercel deployment
+- Frontend improvements ready for production
 
 ---
 
-## Play Store Release Note (Short Version - 500 characters max)
+## Previous Versions
 
-**Version 1.0.1 - Enhanced Messaging & UI Improvements**
+### Version 1.0.4
+- Initial admin dashboard implementation
+- Basic API integration
+- Authentication improvements
 
-✨ Modernized conversation interface with beautiful design and improved message alignment
-🔔 Smart unread message counter with real-time updates
-🤖 Enhanced AI Noor chat feature with better reliability
-🎨 Added elegant Islamic background patterns
-🐛 Fixed text input positioning and various UI improvements
-
----
-
-## Play Store Release Note (Very Short - 200 characters max)
-
-**Version 1.0.1**
-
-✨ Modernized messaging UI with improved alignment and colors
-🔔 Smart unread counter updates
-🤖 Enhanced AI Noor chat reliability
-🎨 Beautiful Islamic background patterns
-🐛 Bug fixes and performance improvements
+### Version 1.0.3
+- Events and News API endpoints
+- Scholars API implementation
+- Admin screen updates
 
 ---
 
-## Play Store Release Note (Ultra Short - 100 characters max)
+## Upgrade Notes
 
-**Version 1.0.1**
+### For Developers
+- Ensure EAS projectId is configured in app.config.js
+- Backend analytics endpoint now requires error handling
+- All admin CRUD operations now use real API endpoints
 
-Modernized messaging UI, smart notifications, enhanced AI chat, and bug fixes.
+### For Users
+- No action required
+- Improved stability and error handling
+- Better performance and reliability
 
+---
+
+## Known Issues
+
+- Some analytics may show zeros if database queries fail (graceful degradation)
+- Check Vercel logs for detailed error information if issues occur
+
+---
+
+## Next Steps
+
+- Monitor analytics endpoint performance
+- Review error logs for any database connection issues
+- Continue improving error handling and user feedback

@@ -234,21 +234,40 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
       <View style={styles.quickActionsSection}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.quickActionsGrid}>
-          <TouchableOpacity style={styles.quickActionButton}>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AdminNews')}
+          >
             <Ionicons name="add-circle" size={24} color="#4CAF50" />
             <Text style={styles.quickActionText}>Add News</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickActionButton}>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AdminEvents')}
+          >
             <Ionicons name="calendar-plus" size={24} color="#FF9800" />
             <Text style={styles.quickActionText}>Add Event</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickActionButton}>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AdminScholars')}
+          >
             <Ionicons name="person-add" size={24} color="#2196F3" />
             <Text style={styles.quickActionText}>Add Scholar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickActionButton}>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AdminLessons')}
+          >
             <Ionicons name="book-plus" size={24} color="#795548" />
             <Text style={styles.quickActionText}>Add Lesson</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AdminUsers')}
+          >
+            <Ionicons name="person-add-outline" size={24} color="#4CAF50" />
+            <Text style={styles.quickActionText}>Add User</Text>
           </TouchableOpacity>
         </View>
       </View>

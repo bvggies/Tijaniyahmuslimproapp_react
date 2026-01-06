@@ -97,7 +97,7 @@ const AdminButton = () => {
       style={styles.adminButton}
       onPress={() => navigation.navigate('AdminPanel')}
     >
-      <Ionicons name="shield-checkmark" size={24} color={colors.accentTeal} />
+      <Ionicons name="shield-checkmark" size={24} color={Colors.accentTeal} />
       <Text style={styles.adminButtonText}>Admin Panel</Text>
     </TouchableOpacity>
   );
@@ -118,7 +118,7 @@ const AdminButton = () => {
       style={styles.adminButton}
       onPress={() => navigation.navigate('AdminPanel')}
     >
-      <Ionicons name="shield-checkmark" size={24} color={colors.accentTeal} />
+      <Ionicons name="shield-checkmark" size={24} color={Colors.accentTeal} />
       <Text style={styles.adminButtonText}>Admin Panel</Text>
     </TouchableOpacity>
   );
