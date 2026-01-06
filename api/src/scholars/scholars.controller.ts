@@ -40,7 +40,8 @@ export class ScholarsController {
     return this.scholarsService.findAll({
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      search,
+      // Only pass search if it's not empty
+      search: search && search.trim().length > 0 ? search.trim() : undefined,
       published: published ? published === 'true' : undefined,
     });
   }

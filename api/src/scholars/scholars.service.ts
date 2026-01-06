@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -11,49 +11,70 @@ export class ScholarsService {
     published?: boolean;
     search?: string;
   }) {
-    const page = params?.page || 1;
-    const limit = params?.limit || 20;
-    const skip = (page - 1) * limit;
+    try {
+      const page = params?.page || 1;
+      const limit = params?.limit || 20;
+      const skip = (page - 1) * limit;
 
-    const where: any = {};
-    
-    if (params?.published !== undefined) {
-      where.isPublished = params.published;
+      const where: any = {};
+      
+      if (params?.published !== undefined) {
+        where.isPublished = params.published;
+      }
+      // Only add search filter if search term is provided and not empty
+      if (params?.search && params.search.trim().length > 0) {
+        const searchTerm = params.search.trim();
+        where.OR = [
+          { name: { contains: searchTerm, mode: 'insensitive' } },
+          { nameArabic: { contains: searchTerm, mode: 'insensitive' } },
+          { title: { contains: searchTerm, mode: 'insensitive' } },
+        ];
+      }
+
+      const [scholars, total] = await Promise.all([
+        this.prisma.scholar.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { sortOrder: 'asc' },
+        }),
+        this.prisma.scholar.count({ where }),
+      ]);
+
+      return {
+        data: scholars,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error: any) {
+      console.error('Error in scholars service findAll:', error);
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+      });
+      throw new InternalServerErrorException(
+        error.message || 'Failed to fetch scholars. Please check the server logs for details.'
+      );
     }
-    if (params?.search) {
-      where.OR = [
-        { name: { contains: params.search, mode: 'insensitive' } },
-        { nameArabic: { contains: params.search, mode: 'insensitive' } },
-        { title: { contains: params.search, mode: 'insensitive' } },
-      ];
-    }
-
-    const [scholars, total] = await Promise.all([
-      this.prisma.scholar.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { sortOrder: 'asc' },
-      }),
-      this.prisma.scholar.count({ where }),
-    ]);
-
-    return {
-      data: scholars,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
   }
 
   async findPublished() {
-    return this.prisma.scholar.findMany({
-      where: { isPublished: true },
-      orderBy: { sortOrder: 'asc' },
-    });
+    try {
+      return await this.prisma.scholar.findMany({
+        where: { isPublished: true },
+        orderBy: { sortOrder: 'asc' },
+      });
+    } catch (error: any) {
+      console.error('Error in scholars service findPublished:', error);
+      throw new InternalServerErrorException(
+        error.message || 'Failed to fetch published scholars.'
+      );
+    }
   }
 
   async findOne(id: string) {
