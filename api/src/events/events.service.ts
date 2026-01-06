@@ -138,6 +138,9 @@ export class EventsService {
     registrationRequired?: boolean;
     createdBy?: string;
   }) {
+    // Build data object with only valid fields (moved outside try for error logging)
+    let eventData: any = null;
+    
     try {
       // Validate category enum
       const validCategories = ['CONFERENCE', 'SEMINAR', 'WORKSHOP', 'CELEBRATION', 'OTHER'];
@@ -154,7 +157,7 @@ export class EventsService {
       }
 
       // Build data object with only valid fields
-      const eventData: any = {
+      eventData = {
         title: data.title.trim(),
         description: data.description.trim(),
         location: data.location.trim(),
@@ -193,7 +196,9 @@ export class EventsService {
         message: error.message,
         stack: error.stack,
       });
-      console.error('Event data attempted:', JSON.stringify(eventData, null, 2));
+      if (eventData) {
+        console.error('Event data attempted:', JSON.stringify(eventData, null, 2));
+      }
       
       // Handle Prisma errors
       if (error.code === 'P2002') {

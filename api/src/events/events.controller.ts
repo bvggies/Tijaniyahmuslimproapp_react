@@ -10,6 +10,7 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { AdminGuard } from '../common/admin.guard';
