@@ -222,6 +222,18 @@ export class EventsController {
     return this.eventsService.update(id, data);
   }
 
+  @Patch(':id/publish')
+  @UseGuards(AdminGuard)
+  publish(@Param('id') id: string) {
+    return this.eventsService.publish(id);
+  }
+
+  @Patch(':id/unpublish')
+  @UseGuards(AdminGuard)
+  unpublish(@Param('id') id: string) {
+    return this.eventsService.unpublish(id);
+  }
+
   @Delete(':id')
   @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {

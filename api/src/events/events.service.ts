@@ -322,6 +322,28 @@ export class EventsService {
     });
   }
 
+  async publish(id: string) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+    return this.prisma.event.update({
+      where: { id },
+      data: { isPublished: true },
+    });
+  }
+
+  async unpublish(id: string) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+    return this.prisma.event.update({
+      where: { id },
+      data: { isPublished: false },
+    });
+  }
+
   async remove(id: string) {
     return this.prisma.event.delete({ where: { id } });
   }
