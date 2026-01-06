@@ -39,8 +39,11 @@ export function useCreateEvent() {
   
   return useMutation({
     mutationFn: (data: CreateEventDto) => eventsApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: eventQueryKeys.lists() });
+    onSuccess: (newEvent) => {
+      // Invalidate all event list queries regardless of filters
+      queryClient.invalidateQueries({ queryKey: eventQueryKeys.all });
+      // Also refetch to ensure we get the latest data
+      queryClient.refetchQueries({ queryKey: eventQueryKeys.lists() });
       toast.success('Event created', 'Event has been created successfully.');
     },
     onError: (error: Error) => {

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -12,41 +12,80 @@ export class NewsService {
     priority?: string;
     published?: boolean;
   }) {
-    const page = params?.page || 1;
-    const limit = params?.limit || 20;
-    const skip = (page - 1) * limit;
+    try {
+      const page = params?.page || 1;
+      const limit = params?.limit || 20;
+      const skip = (page - 1) * limit;
 
-    const where: any = {};
-    
-    if (params?.category) {
-      where.category = params.category.toUpperCase();
-    }
-    if (params?.priority) {
-      where.priority = params.priority.toUpperCase();
-    }
-    if (params?.published !== undefined) {
-      where.isPublished = params.published;
-    }
+      const where: any = {};
+      
+      // Handle category filter with validation
+      if (params?.category && params.category.trim()) {
+        const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
+        const categoryUpper = params.category.toUpperCase().trim();
+        if (validCategories.includes(categoryUpper)) {
+          where.category = categoryUpper;
+        }
+      }
+      
+      // Handle priority filter with validation
+      if (params?.priority && params.priority.trim()) {
+        const validPriorities = ['LOW', 'MEDIUM', 'HIGH'];
+        const priorityUpper = params.priority.toUpperCase().trim();
+        if (validPriorities.includes(priorityUpper)) {
+          where.priority = priorityUpper;
+        }
+      }
+      
+      // Handle published filter
+      if (params?.published !== undefined) {
+        where.isPublished = params.published;
+      }
 
-    const [news, total] = await Promise.all([
-      this.prisma.news.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.news.count({ where }),
-    ]);
+      const [news, total] = await Promise.all([
+        this.prisma.news.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.news.count({ where }),
+      ]);
 
-    return {
-      data: news,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      console.log(`[NewsService] Found ${news.length} articles (total: ${total}) with filters:`, where);
+
+      return {
+        data: news,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error: any) {
+      console.error('Error in news service findAll:', error);
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+      });
+      
+      // Handle Prisma errors
+      if (error.code === 'P2001') {
+        throw new NotFoundException('Record not found');
+      }
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Wrap other errors
+      throw new InternalServerErrorException(
+        error.message || 'Failed to fetch news articles. Please check the server logs for details.'
+      );
+    }
   }
 
   async findPublished() {
@@ -93,19 +132,90 @@ export class NewsService {
     isFeatured?: boolean;
     createdBy?: string;
   }) {
-    return this.prisma.news.create({
-      data: {
-        title: data.title,
-        content: data.content,
-        excerpt: data.excerpt || data.content.substring(0, 200),
-        imageUrl: data.imageUrl,
-        category: (data.category?.toUpperCase() as any) || 'GENERAL',
-        priority: (data.priority?.toUpperCase() as any) || 'MEDIUM',
-        isPublished: data.isPublished || false,
-        isFeatured: data.isFeatured || false,
-        createdBy: data.createdBy,
-      },
-    });
+    try {
+      // Validate required fields
+      if (!data.title || !data.title.trim()) {
+        throw new BadRequestException('Title is required');
+      }
+      if (!data.content || !data.content.trim()) {
+        throw new BadRequestException('Content is required');
+      }
+
+      // Validate category enum
+      const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
+      const category = data.category?.toUpperCase() || 'GENERAL';
+      if (!validCategories.includes(category)) {
+        throw new BadRequestException(`Invalid category: ${category}. Must be one of: ${validCategories.join(', ')}`);
+      }
+
+      // Validate priority enum
+      const validPriorities = ['LOW', 'MEDIUM', 'HIGH'];
+      const priority = data.priority?.toUpperCase() || 'MEDIUM';
+      if (!validPriorities.includes(priority)) {
+        throw new BadRequestException(`Invalid priority: ${priority}. Must be one of: ${validPriorities.join(', ')}`);
+      }
+
+      // Generate excerpt if not provided
+      const excerpt = data.excerpt?.trim() || data.content.trim().substring(0, 200);
+
+      const createdArticle = await this.prisma.news.create({
+        data: {
+          title: data.title.trim(),
+          content: data.content.trim(),
+          excerpt: excerpt,
+          imageUrl: data.imageUrl?.trim() || null,
+          category: category as any,
+          priority: priority as any,
+          isPublished: data.isPublished || false,
+          isFeatured: data.isFeatured || false,
+          createdBy: data.createdBy || null,
+        },
+      });
+
+      console.log('[NewsService] Article created successfully:', {
+        id: createdArticle.id,
+        title: createdArticle.title,
+        isPublished: createdArticle.isPublished,
+        createdAt: createdArticle.createdAt,
+      });
+
+      return createdArticle;
+    } catch (error: any) {
+      console.error('Error in news service create:', error);
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+        stack: error.stack,
+      });
+      
+      // Handle Prisma errors
+      if (error.code === 'P2002') {
+        throw new BadRequestException('A record with this information already exists');
+      }
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid reference: ' + (error.meta?.field_name || 'unknown field'));
+      }
+      
+      // Handle missing column errors
+      if (error.message && error.message.includes('does not exist')) {
+        const columnMatch = error.message.match(/column ['"]([^'"]+)['"]/i);
+        const columnName = columnMatch ? columnMatch[1] : 'unknown';
+        throw new BadRequestException(
+          `Database column '${columnName}' does not exist. Please run database migrations to add missing columns.`
+        );
+      }
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Wrap other errors
+      throw new InternalServerErrorException(
+        error.message || 'Failed to create news article. Please check the server logs for details.'
+      );
+    }
   }
 
   async update(id: string, data: Partial<{

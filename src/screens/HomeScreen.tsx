@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   StyleSheet,
@@ -53,6 +54,7 @@ import {
   IslamicDateData,
   LocationData,
 } from '../services/mockData';
+import { api } from '../services/api';
 
 export default function HomeScreen({ navigation }: any) {
   // Context hooks
@@ -78,6 +80,10 @@ export default function HomeScreen({ navigation }: any) {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   
+  // News state
+  const [newsArticles, setNewsArticles] = useState<any[]>([]);
+  const [isLoadingNews, setIsLoadingNews] = useState(false);
+  
   // Loading states
   const [isLoadingPrayers, setIsLoadingPrayers] = useState(true);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
@@ -94,6 +100,7 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => {
     loadLocationAndPrayerTimes();
     loadDailyReminder();
+    loadNews();
 
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -101,6 +108,14 @@ export default function HomeScreen({ navigation }: any) {
       useNativeDriver: true,
     }).start();
   }, [timeFormat]);
+
+  // Reload news when screen comes into focus (so new articles appear immediately)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('🎯 Home screen focused, reloading news...');
+      loadNews();
+    }, [])
+  );
 
   // Effect: Update current time every second
   useEffect(() => {
@@ -266,6 +281,39 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
+  // Load news from API
+  const loadNews = async () => {
+    setIsLoadingNews(true);
+    try {
+      const response = await api.getNews();
+      const newsData = Array.isArray(response) ? response : (response?.data || []);
+      
+      // Map API response to NewsArticleData format
+      const mappedNews = newsData
+        .filter((article: any) => article.isPublished) // Only show published articles
+        .map((article: any) => ({
+          id: article.id,
+          title: article.title,
+          excerpt: article.excerpt || article.content?.substring(0, 150) || '',
+          imageUrl: article.imageUrl || '',
+          category: article.category || 'GENERAL',
+          timestamp: article.createdAt ? new Date(article.createdAt).toISOString() : new Date().toISOString(),
+          source: 'Tijaniyah Muslim Pro',
+          url: `news://article/${article.id}`,
+        }))
+        .slice(0, 6); // Limit to 6 articles
+      
+      setNewsArticles(mappedNews);
+      console.log('✅ Loaded', mappedNews.length, 'news articles from API');
+    } catch (error) {
+      console.error('⚠️ Failed to load news from API:', error);
+      // Fallback to mock data if API fails
+      setNewsArticles(mockNewsArticles.slice(0, 6));
+    } finally {
+      setIsLoadingNews(false);
+    }
+  };
+
   const loadDailyReminder = (timezone?: string) => {
     const reminder = getDailyReminder(timezone);
     setDailyReminder(reminder);
@@ -273,8 +321,11 @@ export default function HomeScreen({ navigation }: any) {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadLocationAndPrayerTimes();
-    loadDailyReminder(currentTimezone);
+    await Promise.all([
+      loadLocationAndPrayerTimes(),
+      loadDailyReminder(currentTimezone),
+      loadNews(),
+    ]);
     setRefreshing(false);
   }, [currentTimezone]);
 
@@ -504,8 +555,9 @@ export default function HomeScreen({ navigation }: any) {
 
           {/* News Feed */}
           <NewsFeedSection
-            articles={mockNewsArticles}
-            isLoading={false}
+            articles={newsArticles}
+            isLoading={isLoadingNews}
+            onRefresh={loadNews}
           />
 
           {/* Bottom Padding for Tab Bar */}

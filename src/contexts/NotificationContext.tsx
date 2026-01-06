@@ -132,10 +132,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       // Update unread count
       setUnreadCount(prev => prev + 1);
       
-      // Refresh notifications list
+      // Refresh notifications list immediately when notification is received
       fetchNotifications(true);
+      refreshUnreadCount();
     }
-  }, []);
+  }, [fetchNotifications, refreshUnreadCount]);
 
   // Show toast notification
   const showToast = useCallback((toast: ToastNotification) => {
@@ -172,14 +173,17 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         // Refresh notifications when user taps
         if (isAuthenticated()) {
           fetchNotifications(true);
+          refreshUnreadCount();
         }
       }
     );
     
-    // Set up interval to refresh unread count
+    // Set up interval to refresh unread count and notifications
     const interval = setInterval(() => {
       if (isAuthenticated()) {
         refreshUnreadCount();
+        // Also refresh notifications list every 30 seconds to catch new ones
+        fetchNotifications(false); // Don't reset cursor, just refresh
       }
     }, 30000); // Every 30 seconds (more frequent for better UX)
 

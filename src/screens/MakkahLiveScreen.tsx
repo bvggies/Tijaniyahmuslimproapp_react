@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl, Alert } from 'react-native';
 import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -227,8 +227,25 @@ export default function MakkahLiveScreen() {
   }, []);
 
   const openInYouTube = (channel: Channel) => {
-    const url = `https://www.youtube.com/watch?v=${channel.youtubeId}`;
-    Linking.openURL(url);
+    // Try YouTube app first, then fallback to web
+    const youtubeAppUrl = `vnd.youtube:${channel.youtubeId}`;
+    const youtubeWebUrl = `https://www.youtube.com/watch?v=${channel.youtubeId}`;
+    
+    Linking.canOpenURL(youtubeAppUrl)
+      .then((supported) => {
+        if (supported) {
+          return Linking.openURL(youtubeAppUrl);
+        } else {
+          return Linking.openURL(youtubeWebUrl);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to open YouTube:', err);
+        // Fallback to web URL
+        Linking.openURL(youtubeWebUrl).catch(() => {
+          Alert.alert('Error', 'Could not open YouTube. Please check your connection and try again.');
+        });
+      });
   };
 
   const handleChannelChange = (channel: Channel) => {
@@ -408,9 +425,114 @@ export default function MakkahLiveScreen() {
         ) : (
           <WebView
             key={`${currentSrc}-${retryCount}`}
-            style={{ flex: 1, borderRadius: 14, overflow: 'hidden' }}
+            style={{ flex: 1, borderRadius: 14, overflow: 'hidden', backgroundColor: '#000' }}
             source={{ 
-              uri: `https://www.youtube-nocookie.com/embed/${currentSrc}?autoplay=0&rel=0&modestbranding=1&playsinline=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0&enablejsapi=1&origin=${encodeURIComponent('https://tijaniyahmuslimpro.com')}`
+              html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                  <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+                    #player-container { width: 100%; height: 100%; position: relative; }
+                    #youtube-player { width: 100%; height: 100%; border: none; }
+                    .error-message { 
+                      color: #fff; 
+                      text-align: center; 
+                      padding: 20px; 
+                      font-family: Arial, sans-serif;
+                      display: none;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div id="player-container">
+                    <iframe 
+                      id="youtube-player"
+                      src="https://www.youtube.com/embed/${currentSrc}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&enablejsapi=1&origin=${encodeURIComponent('https://tijaniyahmuslimpro.com')}"
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                    ></iframe>
+                    <div id="error-message" class="error-message"></div>
+                  </div>
+                  <script>
+                    (function() {
+                      var iframe = document.getElementById('youtube-player');
+                      var errorCount = 0;
+                      var checkInterval;
+                      
+                      function sendMessage(type, data) {
+                        if (window.ReactNativeWebView) {
+                          window.ReactNativeWebView.postMessage(JSON.stringify({ type: type, data: data }));
+                        }
+                      }
+                      
+                      function handleError(message) {
+                        errorCount++;
+                        sendMessage('error', { message: message, count: errorCount });
+                        if (errorCount >= 2) {
+                          sendMessage('embed_failed', { message: 'YouTube embedding failed. Please use YouTube app.' });
+                        }
+                      }
+                      
+                      // Monitor iframe load
+                      iframe.addEventListener('load', function() {
+                        sendMessage('iframe_loaded', { success: true });
+                        // Check if iframe actually loaded content after a delay
+                        setTimeout(function() {
+                          try {
+                            // Try to access iframe content (will fail if cross-origin, which is expected)
+                            var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            sendMessage('iframe_accessible', { accessible: true });
+                          } catch (e) {
+                            // Cross-origin is normal, but check if we can detect errors
+                            sendMessage('iframe_accessible', { accessible: false, reason: 'cross-origin' });
+                          }
+                        }, 2000);
+                      });
+                      
+                      iframe.addEventListener('error', function(e) {
+                        handleError('Iframe load error');
+                      });
+                      
+                      // Monitor for YouTube player errors via postMessage
+                      window.addEventListener('message', function(event) {
+                        if (event.origin !== 'https://www.youtube.com') return;
+                        
+                        try {
+                          var data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                          if (data && (data.event === 'error' || data.error)) {
+                            handleError('YouTube player error: ' + (data.info || 'Unknown error'));
+                          } else if (data && data.event === 'onReady') {
+                            sendMessage('player_ready', { success: true });
+                          } else if (data && data.event === 'onStateChange') {
+                            if (data.info === -1 || data.info === 0) {
+                              // Video unstarted or ended
+                            } else if (data.info === 1) {
+                              sendMessage('video_playing', { success: true });
+                            } else if (data.info === 3) {
+                              sendMessage('video_buffering', {});
+                            }
+                          }
+                        } catch (e) {
+                          // Ignore non-JSON messages
+                        }
+                      });
+                      
+                      // Fallback: if no activity after 5 seconds, assume embedding failed
+                      setTimeout(function() {
+                        sendMessage('timeout_check', { message: 'No player activity detected' });
+                      }, 5000);
+                      
+                      // Initial message
+                      sendMessage('page_loaded', { youtubeId: '${currentSrc}' });
+                    })();
+                  </script>
+                </body>
+                </html>
+              `
             }}
             allowsFullscreenVideo={true}
             allowsInlineMediaPlayback={true}
@@ -419,78 +541,78 @@ export default function MakkahLiveScreen() {
             domStorageEnabled={true}
             startInLoadingState={true}
             scalesPageToFit={true}
-            mixedContentMode="compatibility"
-            thirdPartyCookiesEnabled={false}
+            mixedContentMode="always"
+            thirdPartyCookiesEnabled={true}
             setSupportMultipleWindows={false}
             onLoadStart={() => {
               setIsLoading(true);
               setVideoError(null);
             }}
             onLoadEnd={() => {
-              setIsLoading(false);
-              // Check if page loaded successfully after a short delay
               setTimeout(() => {
-                // If still loading after 5 seconds, might be an error
-              }, 5000);
+                setIsLoading(false);
+              }, 1000);
             }}
             onError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
               console.warn('WebView error: ', nativeEvent);
               setIsLoading(false);
-              setVideoError('Unable to load video. The stream may be unavailable or restricted.');
+              // Auto-fallback to YouTube app on error
+              setTimeout(() => {
+                if (!videoError) {
+                  setVideoError('Unable to load video in player. Opening in YouTube app...');
+                  setTimeout(() => {
+                    openInYouTube(active);
+                  }, 1500);
+                }
+              }, 2000);
             }}
             onHttpError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
               console.warn('WebView HTTP error: ', nativeEvent);
               setIsLoading(false);
-              if (nativeEvent.statusCode === 403 || nativeEvent.statusCode === 404) {
-                setVideoError('Video is not available for embedding. Try opening in YouTube app.');
+              if (nativeEvent.statusCode === 403) {
+                setVideoError('Video embedding is restricted. Opening in YouTube app...');
+                setTimeout(() => openInYouTube(active), 1500);
+              } else if (nativeEvent.statusCode === 404) {
+                setVideoError('Video not found. The stream may have ended.');
               } else {
-                setVideoError('Network error. Please check your connection and try again.');
+                setVideoError('Network error. Please check your connection.');
               }
             }}
-          onShouldStartLoadWithRequest={(request) => {
-            const disallowedHosts = [
-              'accounts.google.com',
-              'consent.youtube.com',
-              'm.youtube.com',
-              'www.youtube.com',
-              'youtube.com',
-              'myaccount.google.com',
-            ];
-            try {
-              const url = new URL(request.url);
-              const host = url.hostname.toLowerCase();
-              if (host.endsWith('youtube-nocookie.com') || host.endsWith('ytimg.com')) {
-                return true;
+            onMessage={(event) => {
+              try {
+                const data = JSON.parse(event.nativeEvent.data);
+                console.log('YouTube message:', data.type, data.data);
+                
+                if (data.type === 'error' || data.type === 'embed_failed') {
+                  setIsLoading(false);
+                  setVideoError(data.data?.message || 'Video playback error. Opening in YouTube app...');
+                  // Auto-fallback after showing error
+                  if (data.type === 'embed_failed') {
+                    setTimeout(() => openInYouTube(active), 2000);
+                  }
+                } else if (data.type === 'player_ready' || data.type === 'video_playing') {
+                  setIsLoading(false);
+                  setVideoError(null);
+                } else if (data.type === 'timeout_check') {
+                  // If we haven't received player_ready or video_playing, might be an issue
+                  if (isLoading) {
+                    console.warn('Player timeout - no activity detected');
+                  }
+                }
+              } catch (e) {
+                console.warn('Error parsing message:', e);
               }
-              if (disallowedHosts.some(h => host.endsWith(h))) {
-                return false;
-              }
-            } catch {}
-            return true;
-          }}
-          onMessage={(event) => {
-            const data = event.nativeEvent.data;
-            console.log('YouTube message:', data);
-            // Handle YouTube player errors
-            try {
-              const message = JSON.parse(data);
-              if (message?.event === 'error' || message?.error) {
-                setVideoError('Video playback error. Try opening in YouTube app.');
-                setIsLoading(false);
-              }
-            } catch {
-              // Not JSON, ignore
-            }
-          }}
-          renderError={(errorDomain, errorCode, errorDesc) => {
-            console.warn('WebView render error:', { errorDomain, errorCode, errorDesc });
-            setVideoError(`Video error: ${errorDesc || 'Unknown error'}`);
-            setIsLoading(false);
-            return null;
-          }}
-        />
+            }}
+            renderError={(errorDomain, errorCode, errorDesc) => {
+              console.warn('WebView render error:', { errorDomain, errorCode, errorDesc });
+              setVideoError(`Video error: ${errorDesc || 'Unknown error'}. Opening in YouTube app...`);
+              setIsLoading(false);
+              setTimeout(() => openInYouTube(active), 2000);
+              return null;
+            }}
+          />
           )}
       </View>
 

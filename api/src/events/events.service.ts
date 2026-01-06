@@ -58,10 +58,12 @@ export class EventsService {
           where,
           skip,
           take: limit,
-          orderBy: { startDate: 'asc' },
+          orderBy: { createdAt: 'desc' }, // Show newest first
         }),
         this.prisma.event.count({ where }),
       ]);
+
+      console.log(`[EventsService] Found ${events.length} events (total: ${total}) with filters:`, where);
 
       return {
         data: events,
@@ -185,9 +187,18 @@ export class EventsService {
         eventData.createdBy = data.createdBy;
       }
 
-      return await this.prisma.event.create({
+      const createdEvent = await this.prisma.event.create({
         data: eventData,
       });
+      
+      console.log('[EventsService] Event created successfully:', {
+        id: createdEvent.id,
+        title: createdEvent.title,
+        isPublished: createdEvent.isPublished,
+        createdAt: createdEvent.createdAt,
+      });
+      
+      return createdEvent;
     } catch (error: any) {
       console.error('Error in events service create:', error);
       console.error('Error details:', {

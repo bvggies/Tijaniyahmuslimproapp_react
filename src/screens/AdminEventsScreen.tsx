@@ -77,7 +77,17 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const loadEvents = async () => {
     try {
       const response = await api.getEventsAdmin();
-      const eventsData = response.data || response;
+      console.log('📅 Events API Response:', response);
+      // Handle both { data: [...], meta: {...} } and direct array formats
+      let eventsData: any[] = [];
+      if (Array.isArray(response)) {
+        eventsData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        eventsData = response.data;
+      } else if (response?.data && Array.isArray(response.data.data)) {
+        eventsData = response.data.data;
+      }
+      console.log(`📅 Loaded ${eventsData.length} events`);
       // Map backend data to frontend format
       const mappedEvents: Event[] = eventsData.map((e: any) => ({
         id: e.id,

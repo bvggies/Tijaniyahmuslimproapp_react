@@ -72,7 +72,10 @@ export default function NewsPage() {
   const createMutation = useMutation({
     mutationFn: (data: Partial<NewsArticle>) => newsApi.create(data),
     onSuccess: () => {
+      // Invalidate all news queries regardless of filters
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      // Also refetch to ensure we get the latest data
+      refetch();
       toast.success('Article created', 'Article has been created successfully.');
     },
     onError: (error: Error) => {
@@ -187,6 +190,8 @@ export default function NewsPage() {
       }
       setShowForm(false);
       reset();
+      // Manually refetch to ensure new article appears
+      await refetch();
     } catch {
       // Error handled by mutation
     }

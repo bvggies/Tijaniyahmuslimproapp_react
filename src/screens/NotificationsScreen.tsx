@@ -13,7 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../utils/theme';
 import { useNotifications } from '../contexts/NotificationContext';
 import { InAppNotification } from '../services/notificationService';
@@ -142,6 +142,14 @@ export default function NotificationsScreen() {
   useEffect(() => {
     fetchNotifications(true);
   }, []);
+
+  // Reload notifications when screen comes into focus (so new notifications appear immediately)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('🎯 Notifications screen focused, reloading notifications...');
+      fetchNotifications(true);
+    }, [fetchNotifications])
+  );
 
   const handleNotificationPress = useCallback(async (notification: InAppNotification) => {
     if (notification.status === 'UNREAD') {

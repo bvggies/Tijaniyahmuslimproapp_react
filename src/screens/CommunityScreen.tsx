@@ -362,6 +362,11 @@ export default function CommunityScreen() {
       const created = await api.createPost(optimistic.content, newPostImages);
       setPosts(prev => [mapApiPost(created), ...prev.filter(p => p.id !== optimistic.id)]);
       console.log('✅ Post created successfully with', newPostImages.length, 'images');
+      
+      // Reload all posts to ensure consistency and show the new post to all users
+      setTimeout(() => {
+        loadPosts();
+      }, 500); // Small delay to ensure backend has processed the post
     } catch (e: any) {
       setPosts(prev => prev.filter(p => p.id !== optimistic.id));
       Alert.alert('Error', e?.message ? String(e.message) : 'Failed to create post');

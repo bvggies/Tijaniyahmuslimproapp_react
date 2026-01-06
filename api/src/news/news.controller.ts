@@ -9,6 +9,7 @@ import {
   Body,
   UseGuards,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { AdminGuard } from '../common/admin.guard';
@@ -62,10 +63,56 @@ export class NewsController {
   @Post()
   @UseGuards(AdminGuard)
   create(@Body() body: any, @Request() req: any) {
-    return this.newsService.create({
-      ...body,
-      createdBy: req.user?.userId,
-    });
+    try {
+      // Validate required fields
+      if (!body.title || !body.content) {
+        throw new BadRequestException('Missing required fields: title and content are required');
+      }
+
+      // Get user ID from request (try different possible properties)
+      const userId = req.user?.userId || req.user?.id || req.user?.sub;
+
+      // Validate category if provided
+      if (body.category) {
+        const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
+        const categoryUpper = body.category.toUpperCase();
+        if (!validCategories.includes(categoryUpper)) {
+          throw new BadRequestException(`Invalid category: ${body.category}. Must be one of: ${validCategories.join(', ')}`);
+        }
+      }
+
+      // Validate priority if provided
+      if (body.priority) {
+        const validPriorities = ['LOW', 'MEDIUM', 'HIGH'];
+        const priorityUpper = body.priority.toUpperCase();
+        if (!validPriorities.includes(priorityUpper)) {
+          throw new BadRequestException(`Invalid priority: ${body.priority}. Must be one of: ${validPriorities.join(', ')}`);
+        }
+      }
+
+      return this.newsService.create({
+        title: body.title,
+        content: body.content,
+        excerpt: body.excerpt,
+        imageUrl: body.imageUrl,
+        category: body.category,
+        priority: body.priority,
+        isPublished: body.isPublished || false,
+        isFeatured: body.isFeatured || false,
+        createdBy: userId,
+      });
+    } catch (error: any) {
+      console.error('Error creating news article:', error);
+      console.error('Request body:', JSON.stringify(body, null, 2));
+      console.error('User object:', req.user);
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      
+      throw new BadRequestException(error.message || 'Failed to create news article');
+    }
   }
 
   @Patch(':id')
