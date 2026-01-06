@@ -170,7 +170,7 @@ export class EventsController {
 
       // Map category from form to enum value
       const categoryMap: Record<string, string> = {
-        'Prayer': 'OTHER',
+        'Prayer': 'PRAYER',
         'Celebration': 'CELEBRATION',
         'Education': 'WORKSHOP',
         'Competition': 'OTHER',
@@ -181,6 +181,7 @@ export class EventsController {
         'SEMINAR': 'SEMINAR',
         'WORKSHOP': 'WORKSHOP',
         'CELEBRATION': 'CELEBRATION',
+        'PRAYER': 'PRAYER',
         'OTHER': 'OTHER',
       };
 

@@ -22,7 +22,7 @@ export class EventsService {
       
       // Handle category filter with validation
       if (params?.category && params.category.trim()) {
-        const validCategories = ['CONFERENCE', 'SEMINAR', 'WORKSHOP', 'CELEBRATION', 'OTHER'];
+        const validCategories = ['CONFERENCE', 'SEMINAR', 'WORKSHOP', 'CELEBRATION', 'PRAYER', 'OTHER'];
         const categoryUpper = params.category.toUpperCase().trim();
         if (validCategories.includes(categoryUpper)) {
           where.category = categoryUpper;

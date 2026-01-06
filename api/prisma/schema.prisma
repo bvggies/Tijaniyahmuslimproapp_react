@@ -373,6 +373,7 @@ enum EventCategory {
   SEMINAR
   WORKSHOP
   CELEBRATION
+  PRAYER
   OTHER
 }
 
