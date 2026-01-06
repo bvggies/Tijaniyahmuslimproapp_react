@@ -22,6 +22,7 @@ import {
   Stream,
   Announcement,
   NewsArticle,
+  NewsCategory,
   AuditLog,
   PaginatedResponse,
 } from './types';
@@ -293,6 +294,21 @@ export const newsApi = {
   publish: (id: string) => patch<NewsArticle>(`/news/${id}/publish`),
   
   unpublish: (id: string) => patch<NewsArticle>(`/news/${id}/unpublish`),
+};
+
+// ==================== NEWS CATEGORIES ====================
+export const newsCategoriesApi = {
+  getAll: (activeOnly?: boolean) =>
+    get<NewsCategory[]>(`/news-categories${activeOnly !== undefined ? `?activeOnly=${activeOnly}` : ''}`),
+  
+  getById: (id: string) => get<NewsCategory>(`/news-categories/${id}`),
+  
+  create: (data: Partial<NewsCategory>) => post<NewsCategory>('/news-categories', data),
+  
+  update: (id: string, data: Partial<NewsCategory>) =>
+    patch<NewsCategory>(`/news-categories/${id}`, data),
+  
+  delete: (id: string) => del(`/news-categories/${id}`),
 };
 
 // ==================== AUDIT LOGS ====================

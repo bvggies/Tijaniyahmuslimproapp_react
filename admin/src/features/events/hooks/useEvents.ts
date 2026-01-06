@@ -22,7 +22,8 @@ export function useEvents(params: UseEventsParams = {}) {
   return useQuery({
     queryKey: eventQueryKeys.list(params),
     queryFn: () => eventsApi.getAll(params),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache old data
   });
 }
 
@@ -40,10 +41,13 @@ export function useCreateEvent() {
   return useMutation({
     mutationFn: (data: CreateEventDto) => eventsApi.create(data),
     onSuccess: (newEvent) => {
-      // Invalidate all event list queries regardless of filters
+      // Invalidate all event queries
       queryClient.invalidateQueries({ queryKey: eventQueryKeys.all });
-      // Also refetch to ensure we get the latest data
-      queryClient.refetchQueries({ queryKey: eventQueryKeys.lists() });
+      // Force refetch all event list queries
+      queryClient.refetchQueries({ 
+        queryKey: eventQueryKeys.all,
+        type: 'active' 
+      });
       toast.success('Event created', 'Event has been created successfully.');
     },
     onError: (error: Error) => {

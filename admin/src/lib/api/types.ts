@@ -371,6 +371,20 @@ export interface Announcement {
   updatedAt: string;
 }
 
+// News Category Types
+export interface NewsCategory {
+  id: string;
+  name: string;
+  nameArabic?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // News Types
 export interface NewsArticle {
   id: string;

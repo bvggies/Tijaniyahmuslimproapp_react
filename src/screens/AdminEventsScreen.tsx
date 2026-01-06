@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -74,6 +75,14 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     loadEvents();
   }, []);
 
+  // Reload events when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🎯 Admin Events screen focused, reloading events...');
+      loadEvents();
+    }, [])
+  );
+
   const loadEvents = async () => {
     try {
       const response = await api.getEventsAdmin();
@@ -144,7 +153,10 @@ const AdminEventsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       setShowAddModal(false);
       setEditingEvent(null);
       resetForm();
-      loadEvents(); // Reload events from API
+      // Wait a bit for backend to process, then reload
+      setTimeout(() => {
+        loadEvents(); // Reload events from API
+      }, 500);
       Alert.alert('Success', 'Event saved successfully');
     } catch (error) {
       console.error('Error saving event:', error);

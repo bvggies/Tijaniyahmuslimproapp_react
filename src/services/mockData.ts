@@ -110,12 +110,12 @@ export const mockLocation: LocationData = {
 export const mockQuickActions: QuickActionData[] = [
   { id: '1', title: 'Lessons', titleArabic: 'الدروس', icon: 'school', color: '#4CAF50', screen: 'Lessons', description: 'Islamic lessons' },
   { id: '2', title: 'AI Noor', titleArabic: 'الذكاء الاصطناعي', icon: 'bulb', color: '#00BCD4', screen: 'AI Noor', description: 'AI Islamic assistant' },
-  { id: '3', title: 'Azan', titleArabic: 'الأذان', icon: 'volume-high', color: '#FF9800', screen: 'Azan', description: 'Prayer call audio' },
-  { id: '4', title: 'Scholars', titleArabic: 'العلماء', icon: 'people', color: '#607D8B', screen: 'Scholars', description: 'Islamic scholars' },
+  { id: '3', title: 'Events', titleArabic: 'الأحداث', icon: 'calendar', color: '#3B82F6', screen: 'Events', description: 'Upcoming and past events' },
+  { id: '4', title: 'Community', titleArabic: 'المجتمع', icon: 'chatbubbles', color: '#E91E63', screen: 'Community', description: 'Connect with community' },
   { id: '5', title: 'Tariqa', titleArabic: 'الطريقة', icon: 'star', color: '#00BFA5', screen: 'TariqaTijaniyyah', description: 'The Tijānī Path' },
   { id: '6', title: 'Makkah', titleArabic: 'مكة مباشر', icon: 'videocam', color: '#FFD54F', screen: 'Makkah Live', description: 'Live from Kaaba' },
-  { id: '7', title: 'Mosque', titleArabic: 'موقع المسجد', icon: 'location', color: '#795548', screen: 'Mosque', description: 'Find nearby mosques' },
-  { id: '8', title: 'Qibla', titleArabic: 'القبلة', icon: 'compass', color: '#FF5722', screen: 'Qibla', description: 'Find prayer direction' },
+  { id: '7', title: 'Tijaniyah Wazifah', titleArabic: 'الوظيفة التجانية', icon: 'checkmark-done-circle', color: '#FF8F00', screen: 'Wazifa', description: 'Daily spiritual practices' },
+  { id: '8', title: 'Lazeem', titleArabic: 'اللازم', icon: 'reader', color: '#11C48D', screen: 'TijaniyaLazim', description: 'Step-by-step guide' },
 ];
 
 export const mockUpcomingEvents: IslamicEventData[] = [

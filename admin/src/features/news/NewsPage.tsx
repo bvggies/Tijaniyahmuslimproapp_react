@@ -11,6 +11,7 @@ import {
   Eye, 
   EyeOff,
   RefreshCw,
+  Tag,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -36,8 +37,9 @@ import {
 import { toast } from '../../components/ui/use-toast';
 import { formatDate, cn } from '../../lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { newsApi } from '../../lib/api';
-import { NewsArticle } from '../../lib/api/types';
+import { useNavigate } from 'react-router-dom';
+import { newsApi, newsCategoriesApi } from '../../lib/api';
+import { NewsArticle, NewsCategory } from '../../lib/api/types';
 
 const newsSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -52,15 +54,30 @@ const newsSchema = z.object({
 
 type NewsFormData = z.infer<typeof newsSchema>;
 
-const categories = ['Community', 'Events', 'Education', 'Global', 'Local', 'Announcements'];
-
 export default function NewsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
   const [deletingNews, setDeletingNews] = useState<NewsArticle | null>(null);
   const queryClient = useQueryClient();
+
+  // Fetch categories from API
+  const { data: categoriesData } = useQuery({
+    queryKey: ['news-categories'],
+    queryFn: () => newsCategoriesApi.getAll(true), // Only active categories
+  });
+
+  const categories = categoriesData?.map(cat => cat.name) || ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
+
+  // Fetch categories from API
+  const { data: categoriesData } = useQuery({
+    queryKey: ['news-categories'],
+    queryFn: () => newsCategoriesApi.getAll(true), // Only active categories
+  });
+
+  const categories = categoriesData?.map(cat => cat.name) || ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
 
   // API Queries
   const { data, isLoading, error, refetch } = useQuery({
@@ -233,6 +250,10 @@ export default function NewsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate('/news-categories')}>
+            <Tag className="h-4 w-4 mr-2" />
+            Manage Categories
+          </Button>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh

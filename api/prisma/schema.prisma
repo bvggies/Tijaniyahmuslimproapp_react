@@ -409,17 +409,25 @@ model Event {
 // NEWS SYSTEM
 // ==========================================
 
-enum NewsCategory {
-  GENERAL
-  EVENTS
-  ANNOUNCEMENTS
-  UPDATES
-}
-
 enum NewsPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+model NewsCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nameArabic  String?
+  description String?
+  color       String?  // Hex color for UI display
+  icon        String?  // Icon name or emoji
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
 }
 
 model News {
@@ -428,7 +436,7 @@ model News {
   content     String
   excerpt     String?
   imageUrl    String?
-  category    NewsCategory @default(GENERAL)
+  category    String       @default("GENERAL") // Changed from enum to string to support custom categories
   priority    NewsPriority @default(MEDIUM)
   isPublished Boolean      @default(false)
   isFeatured  Boolean      @default(false)

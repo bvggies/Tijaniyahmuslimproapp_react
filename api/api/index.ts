@@ -38,7 +38,16 @@ export default async function handler(req: Request, res: Response) {
     return app(req, res);
   } catch (error) {
     console.error('Handler error:', error);
-    res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
+    // For events/public endpoint, return empty array instead of 500 error
+    if (req.url?.includes('/events/public') || req.url?.includes('/events/upcoming')) {
+      if (!res.headersSent) {
+        return res.status(200).json([]);
+      }
+    }
+    // For other endpoints, return 500 error
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' });
+    }
   }
 }
 

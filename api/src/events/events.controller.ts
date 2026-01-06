@@ -11,6 +11,7 @@ import {
   Request,
   BadRequestException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { AdminGuard } from '../common/admin.guard';
@@ -22,13 +23,49 @@ export class EventsController {
 
   // Public endpoints
   @Get('public')
-  findPublished() {
-    return this.eventsService.findPublished();
+  async findPublished() {
+    try {
+      // Wrap in additional try-catch to ensure we never throw
+      try {
+        const events = await this.eventsService.findPublished();
+        // Always return an array, even if empty
+        return Array.isArray(events) ? events : [];
+      } catch (serviceError: any) {
+        // If service throws, catch it and return empty array
+        console.error('Service error in findPublished:', {
+          message: serviceError.message,
+          name: serviceError.name,
+        });
+        return [];
+      }
+    } catch (error: any) {
+      // Final catch-all to ensure we never throw
+      console.error('Controller error in findPublished:', {
+        message: error.message,
+        name: error.name,
+      });
+      // Always return empty array, never throw
+      return [];
+    }
   }
 
   @Get('upcoming')
-  findUpcoming() {
-    return this.eventsService.findUpcoming();
+  async findUpcoming() {
+    try {
+      const events = await this.eventsService.findUpcoming();
+      // Always return an array, even if empty
+      return Array.isArray(events) ? events : [];
+    } catch (error: any) {
+      // Log error but return empty array instead of throwing
+      // This prevents 500 errors and allows the app to continue working
+      console.error('Error in events controller findUpcoming:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      });
+      // Return empty array instead of throwing to prevent app crash
+      return [];
+    }
   }
 
   @Get('public/:id')

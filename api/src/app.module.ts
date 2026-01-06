@@ -15,6 +15,7 @@ import { AiModule } from './ai/ai.module';
 import { UsersModule } from './users/users.module';
 import { EventsModule } from './events/events.module';
 import { NewsModule } from './news/news.module';
+import { NewsCategoriesModule } from './news-categories/news-categories.module';
 import { ScholarsModule } from './scholars/scholars.module';
 
 @Module({
@@ -34,6 +35,7 @@ import { ScholarsModule } from './scholars/scholars.module';
     UsersModule,
     EventsModule,
     NewsModule,
+    NewsCategoriesModule,
     ScholarsModule,
   ],
   controllers: [HealthController],

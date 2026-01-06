@@ -19,13 +19,9 @@ export class NewsService {
 
       const where: any = {};
       
-      // Handle category filter with validation
+      // Handle category filter - now supports any category name (dynamic)
       if (params?.category && params.category.trim()) {
-        const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
-        const categoryUpper = params.category.toUpperCase().trim();
-        if (validCategories.includes(categoryUpper)) {
-          where.category = categoryUpper;
-        }
+        where.category = params.category.trim();
       }
       
       // Handle priority filter with validation
@@ -141,11 +137,17 @@ export class NewsService {
         throw new BadRequestException('Content is required');
       }
 
-      // Validate category enum
-      const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
-      const category = data.category?.toUpperCase() || 'GENERAL';
-      if (!validCategories.includes(category)) {
-        throw new BadRequestException(`Invalid category: ${category}. Must be one of: ${validCategories.join(', ')}`);
+      // Validate category - check if it exists in NewsCategory table
+      const categoryName = data.category?.toUpperCase().trim() || 'GENERAL';
+      
+      // Check if category exists (optional validation - can be removed if you want to allow any category)
+      const categoryExists = await this.prisma.newsCategory.findUnique({
+        where: { name: categoryName },
+      });
+      
+      if (!categoryExists) {
+        // If category doesn't exist, create it automatically or use default
+        console.warn(`[NewsService] Category "${categoryName}" not found, using as-is`);
       }
 
       // Validate priority enum

@@ -73,7 +73,7 @@ export default function HomeScreen({ navigation }: any) {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LocationType | null>(null);
   const [islamicDate, setIslamicDate] = useState(getIslamicDate());
-  const [upcomingEvents] = useState(getUpcomingIslamicEvents());
+  const [upcomingEvents, setUpcomingEvents] = useState(getUpcomingIslamicEvents());
   const [dailyReminder, setDailyReminder] = useState<DailyReminder | null>(null);
   const [currentTimezone, setCurrentTimezone] = useState<string | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -101,6 +101,7 @@ export default function HomeScreen({ navigation }: any) {
     loadLocationAndPrayerTimes();
     loadDailyReminder();
     loadNews();
+    loadEvents();
 
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -109,11 +110,12 @@ export default function HomeScreen({ navigation }: any) {
     }).start();
   }, [timeFormat]);
 
-  // Reload news when screen comes into focus (so new articles appear immediately)
+  // Reload news and events when screen comes into focus (so new content appears immediately)
   useFocusEffect(
     useCallback(() => {
-      console.log('🎯 Home screen focused, reloading news...');
+      console.log('🎯 Home screen focused, reloading news and events...');
       loadNews();
+      loadEvents();
     }, [])
   );
 
@@ -281,6 +283,45 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
+  // Load events from API
+  const loadEvents = async () => {
+    try {
+      const response = await api.getEvents();
+      const eventsData = Array.isArray(response) ? response : (response?.data || []);
+      
+      // Map API response to IslamicEventData format
+      const mappedEvents = eventsData
+        .filter((event: any) => event.isPublished) // Only show published events
+        .map((event: any) => {
+          const startDate = new Date(event.startDate);
+          const now = new Date();
+          const daysUntil = Math.ceil((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          
+          return {
+            id: event.id,
+            title: event.title,
+            titleArabic: event.title || '', // Add Arabic if available
+            date: startDate.toISOString(),
+            hijriDate: '', // Can be calculated if needed
+            daysUntil: daysUntil >= 0 ? daysUntil : 0,
+            category: event.category?.toLowerCase() || 'other',
+            location: event.location,
+          };
+        })
+        .filter((event: any) => event.daysUntil >= 0) // Only upcoming events
+        .sort((a: any, b: any) => a.daysUntil - b.daysUntil) // Sort by days until
+        .slice(0, 3); // Limit to 3 events
+      
+      if (mappedEvents.length > 0) {
+        setUpcomingEvents(mappedEvents);
+        console.log('✅ Loaded', mappedEvents.length, 'events from API');
+      }
+    } catch (error) {
+      console.error('⚠️ Failed to load events from API:', error);
+      // Keep using mock events if API fails
+    }
+  };
+
   // Load news from API
   const loadNews = async () => {
     setIsLoadingNews(true);
@@ -325,6 +366,7 @@ export default function HomeScreen({ navigation }: any) {
       loadLocationAndPrayerTimes(),
       loadDailyReminder(currentTimezone),
       loadNews(),
+      loadEvents(),
     ]);
     setRefreshing(false);
   }, [currentTimezone]);

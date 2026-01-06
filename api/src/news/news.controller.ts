@@ -72,14 +72,8 @@ export class NewsController {
       // Get user ID from request (try different possible properties)
       const userId = req.user?.userId || req.user?.id || req.user?.sub;
 
-      // Validate category if provided
-      if (body.category) {
-        const validCategories = ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
-        const categoryUpper = body.category.toUpperCase();
-        if (!validCategories.includes(categoryUpper)) {
-          throw new BadRequestException(`Invalid category: ${body.category}. Must be one of: ${validCategories.join(', ')}`);
-        }
-      }
+      // Category validation is now handled in the service layer
+      // Categories are dynamic and can be created by admins
 
       // Validate priority if provided
       if (body.priority) {

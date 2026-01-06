@@ -6,6 +6,7 @@ export const colors = {
   mintSurfaceAlt: '#DCEFE6',
   textPrimary: '#E7F5F1',
   textSecondary: '#BBE1D5',
+  text: '#E7F5F1', // alias for textPrimary for backward compatibility
   textDark: '#0B3F39',
   accentGreen: '#11C48D',
   accentTeal: '#00BFA5',

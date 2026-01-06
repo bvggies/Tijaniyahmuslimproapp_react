@@ -78,8 +78,10 @@ export default function EventsPage() {
     try {
       await createMutation.mutateAsync(eventData);
       setShowForm(false);
-      // Manually refetch to ensure new event appears
-      await refetch();
+      // Wait a bit for the backend to process, then refetch
+      setTimeout(async () => {
+        await refetch();
+      }, 500);
     } catch {
       // Error handled by mutation
     }

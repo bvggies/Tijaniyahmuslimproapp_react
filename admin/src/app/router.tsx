@@ -23,6 +23,7 @@ const NotificationsPage = lazy(() => import('../features/notifications/Notificat
 const DonationsPage = lazy(() => import('../features/donations/DonationsPage'));
 const ContentPage = lazy(() => import('../features/content/ContentPage'));
 const NewsPage = lazy(() => import('../features/news/NewsPage'));
+const NewsCategoriesPage = lazy(() => import('../features/news-categories/NewsCategoriesPage'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage'));
 const MakkahLivePage = lazy(() => import('../features/makkah-live/MakkahLivePage'));
 
@@ -108,6 +109,10 @@ export const router = createBrowserRouter([
       {
         path: 'news',
         element: <NewsPage />,
+      },
+      {
+        path: 'news-categories',
+        element: <NewsCategoriesPage />,
       },
       {
         path: 'settings',

@@ -425,114 +425,9 @@ export default function MakkahLiveScreen() {
         ) : (
           <WebView
             key={`${currentSrc}-${retryCount}`}
-            style={{ flex: 1, borderRadius: 14, overflow: 'hidden', backgroundColor: '#000' }}
-            source={{ 
-              html: `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                  <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-                    #player-container { width: 100%; height: 100%; position: relative; }
-                    #youtube-player { width: 100%; height: 100%; border: none; }
-                    .error-message { 
-                      color: #fff; 
-                      text-align: center; 
-                      padding: 20px; 
-                      font-family: Arial, sans-serif;
-                      display: none;
-                    }
-                  </style>
-                </head>
-                <body>
-                  <div id="player-container">
-                    <iframe 
-                      id="youtube-player"
-                      src="https://www.youtube.com/embed/${currentSrc}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&enablejsapi=1&origin=${encodeURIComponent('https://tijaniyahmuslimpro.com')}"
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen
-                    ></iframe>
-                    <div id="error-message" class="error-message"></div>
-                  </div>
-                  <script>
-                    (function() {
-                      var iframe = document.getElementById('youtube-player');
-                      var errorCount = 0;
-                      var checkInterval;
-                      
-                      function sendMessage(type, data) {
-                        if (window.ReactNativeWebView) {
-                          window.ReactNativeWebView.postMessage(JSON.stringify({ type: type, data: data }));
-                        }
-                      }
-                      
-                      function handleError(message) {
-                        errorCount++;
-                        sendMessage('error', { message: message, count: errorCount });
-                        if (errorCount >= 2) {
-                          sendMessage('embed_failed', { message: 'YouTube embedding failed. Please use YouTube app.' });
-                        }
-                      }
-                      
-                      // Monitor iframe load
-                      iframe.addEventListener('load', function() {
-                        sendMessage('iframe_loaded', { success: true });
-                        // Check if iframe actually loaded content after a delay
-                        setTimeout(function() {
-                          try {
-                            // Try to access iframe content (will fail if cross-origin, which is expected)
-                            var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                            sendMessage('iframe_accessible', { accessible: true });
-                          } catch (e) {
-                            // Cross-origin is normal, but check if we can detect errors
-                            sendMessage('iframe_accessible', { accessible: false, reason: 'cross-origin' });
-                          }
-                        }, 2000);
-                      });
-                      
-                      iframe.addEventListener('error', function(e) {
-                        handleError('Iframe load error');
-                      });
-                      
-                      // Monitor for YouTube player errors via postMessage
-                      window.addEventListener('message', function(event) {
-                        if (event.origin !== 'https://www.youtube.com') return;
-                        
-                        try {
-                          var data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-                          if (data && (data.event === 'error' || data.error)) {
-                            handleError('YouTube player error: ' + (data.info || 'Unknown error'));
-                          } else if (data && data.event === 'onReady') {
-                            sendMessage('player_ready', { success: true });
-                          } else if (data && data.event === 'onStateChange') {
-                            if (data.info === -1 || data.info === 0) {
-                              // Video unstarted or ended
-                            } else if (data.info === 1) {
-                              sendMessage('video_playing', { success: true });
-                            } else if (data.info === 3) {
-                              sendMessage('video_buffering', {});
-                            }
-                          }
-                        } catch (e) {
-                          // Ignore non-JSON messages
-                        }
-                      });
-                      
-                      // Fallback: if no activity after 5 seconds, assume embedding failed
-                      setTimeout(function() {
-                        sendMessage('timeout_check', { message: 'No player activity detected' });
-                      }, 5000);
-                      
-                      // Initial message
-                      sendMessage('page_loaded', { youtubeId: '${currentSrc}' });
-                    })();
-                  </script>
-                </body>
-                </html>
-              `
+            style={styles.youtubePlayerContainer}
+            source={{
+              uri: `https://www.youtube.com/embed/${currentSrc}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&enablejsapi=1&mute=0&loop=0&playlist=${currentSrc}`,
             }}
             allowsFullscreenVideo={true}
             allowsInlineMediaPlayback={true}
@@ -551,25 +446,21 @@ export default function MakkahLiveScreen() {
             onLoadEnd={() => {
               setTimeout(() => {
                 setIsLoading(false);
+                setVideoError(null);
               }, 1000);
             }}
             onError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
-              console.warn('WebView error: ', nativeEvent);
+              console.warn('WebView error:', nativeEvent);
               setIsLoading(false);
-              // Auto-fallback to YouTube app on error
+              setVideoError('Unable to load video. Opening in YouTube app...');
               setTimeout(() => {
-                if (!videoError) {
-                  setVideoError('Unable to load video in player. Opening in YouTube app...');
-                  setTimeout(() => {
-                    openInYouTube(active);
-                  }, 1500);
-                }
+                openInYouTube(active);
               }, 2000);
             }}
             onHttpError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
-              console.warn('WebView HTTP error: ', nativeEvent);
+              console.warn('WebView HTTP error:', nativeEvent);
               setIsLoading(false);
               if (nativeEvent.statusCode === 403) {
                 setVideoError('Video embedding is restricted. Opening in YouTube app...');
@@ -578,31 +469,6 @@ export default function MakkahLiveScreen() {
                 setVideoError('Video not found. The stream may have ended.');
               } else {
                 setVideoError('Network error. Please check your connection.');
-              }
-            }}
-            onMessage={(event) => {
-              try {
-                const data = JSON.parse(event.nativeEvent.data);
-                console.log('YouTube message:', data.type, data.data);
-                
-                if (data.type === 'error' || data.type === 'embed_failed') {
-                  setIsLoading(false);
-                  setVideoError(data.data?.message || 'Video playback error. Opening in YouTube app...');
-                  // Auto-fallback after showing error
-                  if (data.type === 'embed_failed') {
-                    setTimeout(() => openInYouTube(active), 2000);
-                  }
-                } else if (data.type === 'player_ready' || data.type === 'video_playing') {
-                  setIsLoading(false);
-                  setVideoError(null);
-                } else if (data.type === 'timeout_check') {
-                  // If we haven't received player_ready or video_playing, might be an issue
-                  if (isLoading) {
-                    console.warn('Player timeout - no activity detected');
-                  }
-                }
-              } catch (e) {
-                console.warn('Error parsing message:', e);
               }
             }}
             renderError={(errorDomain, errorCode, errorDesc) => {
@@ -743,7 +609,14 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 12,
   },
-  playerCard: { height: 250, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
+  playerCard: { height: 300, margin: 16, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.surface },
+  youtubePlayerContainer: {
+    flex: 1,
+    height: 300,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
   prayerStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8 },
   prayerItem: { color: colors.textSecondary, fontSize: 12 },
   fallback: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },

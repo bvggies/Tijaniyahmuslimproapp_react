@@ -57,6 +57,7 @@ import DuasTijaniyaScreen from './src/screens/DuasTijaniyaScreen';
 import DuaKhatmulWazifaScreen from './src/screens/DuaKhatmulWazifaScreen';
 import DuaRabilIbadiScreen from './src/screens/DuaRabilIbadiScreen';
 import DuaHasbilMuhaiminuScreen from './src/screens/DuaHasbilMuhaiminuScreen';
+import EventsScreen from './src/screens/EventsScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -392,6 +393,11 @@ function MoreStackNavigator() {
       <Stack.Screen 
         name="DuaHasbilMuhaiminu" 
         component={DuaHasbilMuhaiminuScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Events" 
+        component={EventsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -127,6 +127,14 @@ const features: FeatureItem[] = [
     category: 'community',
   },
   {
+    title: 'Events',
+    description: 'Upcoming and past events',
+    icon: 'calendar',
+    color: '#3B82F6',
+    screen: 'Events',
+    category: 'community',
+  },
+  {
     title: 'Mosque Finder',
     description: 'Find nearby mosques',
     icon: 'location',
