@@ -90,22 +90,41 @@ export class EventsService {
     registrationRequired?: boolean;
     createdBy?: string;
   }) {
-    return this.prisma.event.create({
-      data: {
-        title: data.title,
-        description: data.description,
-        location: data.location,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        imageUrl: data.imageUrl,
-        category: (data.category?.toUpperCase() as any) || 'OTHER',
-        status: (data.status?.toUpperCase() as any) || 'UPCOMING',
-        isPublished: data.isPublished || false,
-        maxAttendees: data.maxAttendees,
-        registrationRequired: data.registrationRequired || false,
-        createdBy: data.createdBy,
-      },
-    });
+    try {
+      // Validate category enum
+      const validCategories = ['CONFERENCE', 'SEMINAR', 'WORKSHOP', 'CELEBRATION', 'OTHER'];
+      const category = data.category?.toUpperCase() || 'OTHER';
+      if (!validCategories.includes(category)) {
+        throw new Error(`Invalid category: ${category}. Must be one of: ${validCategories.join(', ')}`);
+      }
+
+      // Validate status enum
+      const validStatuses = ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED'];
+      const status = data.status?.toUpperCase() || 'UPCOMING';
+      if (!validStatuses.includes(status)) {
+        throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`);
+      }
+
+      return await this.prisma.event.create({
+        data: {
+          title: data.title.trim(),
+          description: data.description.trim(),
+          location: data.location.trim(),
+          startDate: data.startDate,
+          endDate: data.endDate,
+          imageUrl: data.imageUrl?.trim() || null,
+          category: category as any,
+          status: status as any,
+          isPublished: data.isPublished || false,
+          maxAttendees: data.maxAttendees || null,
+          registrationRequired: data.registrationRequired || false,
+          createdBy: data.createdBy || null,
+        },
+      });
+    } catch (error: any) {
+      console.error('Error in events service create:', error);
+      throw error;
+    }
   }
 
   async update(id: string, data: Partial<{

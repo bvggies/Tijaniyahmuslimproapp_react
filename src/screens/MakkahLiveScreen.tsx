@@ -99,14 +99,35 @@ export default function MakkahLiveScreen() {
   // Fetch channels from API
   const fetchChannels = async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
+    else setIsLoading(true);
     
     try {
       const response = await api.getMakkahLiveChannels({ activeOnly: true });
       
-      if (response && Array.isArray(response)) {
+      console.log('📺 Makkah Live API Response:', response);
+      
+      // Handle both array and object with data property
+      let channelsData: MakkahLiveChannel[] = [];
+      if (Array.isArray(response)) {
+        channelsData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        channelsData = response.data;
+      } else if (response?.channels && Array.isArray(response.channels)) {
+        channelsData = response.channels;
+      }
+      
+      if (channelsData.length > 0) {
+        console.log(`📺 Found ${channelsData.length} active channels from API`);
+        
         // Separate YouTube and TV channels
-        const youtubeChannels: Channel[] = response
-          .filter((ch: MakkahLiveChannel) => ch.type === 'YOUTUBE_LIVE' && ch.youtubeId)
+        const youtubeChannels: Channel[] = channelsData
+          .filter((ch: MakkahLiveChannel) => {
+            const isValid = ch.type === 'YOUTUBE_LIVE' && ch.isActive && ch.youtubeId && ch.youtubeId.trim() !== '';
+            if (!isValid && ch.type === 'YOUTUBE_LIVE') {
+              console.warn(`⚠️ Skipping YouTube channel "${ch.title}": missing youtubeId or inactive`);
+            }
+            return isValid;
+          })
           .map((ch: MakkahLiveChannel) => ({
             id: ch.id,
             title: ch.logo ? `${ch.logo} ${ch.title}` : ch.title,
@@ -114,8 +135,14 @@ export default function MakkahLiveScreen() {
             youtubeId: ch.youtubeId!,
           }));
 
-        const tvChs: TVChannel[] = response
-          .filter((ch: MakkahLiveChannel) => ch.type === 'TV_CHANNEL' && ch.websiteUrl)
+        const tvChs: TVChannel[] = channelsData
+          .filter((ch: MakkahLiveChannel) => {
+            const isValid = ch.type === 'TV_CHANNEL' && ch.isActive && ch.websiteUrl && ch.websiteUrl.trim() !== '';
+            if (!isValid && ch.type === 'TV_CHANNEL') {
+              console.warn(`⚠️ Skipping TV channel "${ch.title}": missing websiteUrl or inactive`);
+            }
+            return isValid;
+          })
           .map((ch: MakkahLiveChannel) => ({
             id: ch.id,
             title: ch.logo ? `${ch.logo} ${ch.title}` : `📺 ${ch.title}`,
@@ -125,22 +152,70 @@ export default function MakkahLiveScreen() {
             category: ch.category.toLowerCase() as 'islamic' | 'quran' | 'news' | 'educational',
           }));
 
+        console.log(`📺 Processed ${youtubeChannels.length} YouTube channels and ${tvChs.length} TV channels`);
+
         if (youtubeChannels.length > 0) {
           setChannels(youtubeChannels);
           setActive(youtubeChannels[0]);
+        } else {
+          console.warn('⚠️ No valid YouTube channels found, keeping fallback channels');
         }
 
         if (tvChs.length > 0) {
           setTVChannels(tvChs);
+        } else {
+          console.warn('⚠️ No valid TV channels found, keeping fallback channels');
         }
 
         setFetchError(null);
+      } else {
+        console.warn('⚠️ No channels returned from API, using fallback channels');
+        setFetchError('No channels available');
       }
-    } catch (error) {
-      console.log('📺 Using fallback channels (API unavailable):', error);
-      setFetchError('Using offline channels');
+    } catch (error: any) {
+      console.error('❌ Error fetching Makkah Live channels:', error);
+      console.error('❌ Error type:', typeof error);
+      console.error('❌ Error keys:', Object.keys(error || {}));
+      
+      // Provide more specific error information
+      let errorMessage = 'Using offline channels';
+      const errorStr = error?.toString() || '';
+      const errorMsg = error?.message || errorStr;
+      
+      console.error('❌ Error message:', errorMsg);
+      console.error('❌ Full error object:', JSON.stringify(error, null, 2));
+      
+      if (errorMsg) {
+        if (errorMsg.includes('Network') || errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
+          errorMessage = 'Network error - check your connection';
+        } else if (errorMsg.includes('404') || errorMsg.includes('Not Found')) {
+          errorMessage = 'Channels endpoint not found (404)';
+        } else if (errorMsg.includes('500') || errorMsg.includes('Internal Server')) {
+          errorMessage = 'Server error - please try again';
+        } else if (errorMsg.includes('401') || errorMsg.includes('Unauthorized')) {
+          errorMessage = 'Authentication error';
+        } else if (errorMsg.includes('403') || errorMsg.includes('Forbidden')) {
+          errorMessage = 'Access forbidden';
+        } else {
+          errorMessage = `Error: ${errorMsg.substring(0, 50)}`;
+        }
+      }
+      
+      // Log the full error for debugging
+      if (error?.response) {
+        console.error('API Response error:', error.response);
+      }
+      if (error?.status) {
+        console.error('HTTP Status:', error.status);
+      }
+      if (error?.statusCode) {
+        console.error('HTTP Status Code:', error.statusCode);
+      }
+      
+      setFetchError(errorMessage);
       // Keep using fallback channels
     } finally {
+      setIsLoading(false);
       setIsRefreshing(false);
     }
   };
@@ -244,10 +319,16 @@ export default function MakkahLiveScreen() {
 
         {/* Offline indicator */}
         {fetchError && (
-          <View style={styles.offlineBanner}>
+          <TouchableOpacity 
+            style={styles.offlineBanner}
+            onPress={() => fetchChannels(true)}
+          >
             <Ionicons name="cloud-offline" size={16} color={colors.textSecondary} />
             <Text style={styles.offlineText}>{fetchError}</Text>
-          </View>
+            <Text style={[styles.offlineText, { fontSize: 12, marginTop: 4 }]}>
+              Tap to retry
+            </Text>
+          </TouchableOpacity>
         )}
 
         <View style={styles.prayerStrip}>

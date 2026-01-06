@@ -9,6 +9,7 @@ import {
   Body,
   UseGuards,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { AdminGuard } from '../common/admin.guard';
@@ -62,12 +63,78 @@ export class EventsController {
   @Post()
   @UseGuards(AdminGuard)
   create(@Body() body: any, @Request() req: any) {
-    return this.eventsService.create({
-      ...body,
-      startDate: new Date(body.startDate),
-      endDate: new Date(body.endDate),
-      createdBy: req.user?.userId,
-    });
+    try {
+      // Validate required fields
+      if (!body.title || !body.description || !body.location) {
+        throw new BadRequestException('Missing required fields: title, description, or location');
+      }
+
+      if (!body.startDate || !body.endDate) {
+        throw new BadRequestException('Missing required fields: startDate or endDate');
+      }
+
+      // Parse dates
+      const startDate = new Date(body.startDate);
+      const endDate = new Date(body.endDate);
+
+      // Validate dates
+      if (isNaN(startDate.getTime())) {
+        throw new BadRequestException(`Invalid startDate format: ${body.startDate}`);
+      }
+      if (isNaN(endDate.getTime())) {
+        throw new BadRequestException(`Invalid endDate format: ${body.endDate}`);
+      }
+
+      // Validate endDate is after startDate
+      if (endDate < startDate) {
+        throw new BadRequestException('endDate must be after startDate');
+      }
+
+      // Get user ID from request (try different possible properties)
+      const userId = req.user?.userId || req.user?.id || req.user?.sub;
+
+      // Map category from form to enum value
+      const categoryMap: Record<string, string> = {
+        'Prayer': 'OTHER',
+        'Celebration': 'CELEBRATION',
+        'Education': 'WORKSHOP',
+        'Competition': 'OTHER',
+        'Community': 'CONFERENCE',
+        'Charity': 'OTHER',
+        'Other': 'OTHER',
+        'CONFERENCE': 'CONFERENCE',
+        'SEMINAR': 'SEMINAR',
+        'WORKSHOP': 'WORKSHOP',
+        'CELEBRATION': 'CELEBRATION',
+        'OTHER': 'OTHER',
+      };
+
+      const mappedCategory = categoryMap[body.category] || 'OTHER';
+
+      return this.eventsService.create({
+        title: body.title,
+        description: body.description,
+        location: body.location,
+        startDate,
+        endDate,
+        imageUrl: body.imageUrl || undefined,
+        category: mappedCategory,
+        status: body.status,
+        isPublished: body.isPublished || false,
+        maxAttendees: body.maxAttendees ? (typeof body.maxAttendees === 'string' ? parseInt(body.maxAttendees) : body.maxAttendees) : undefined,
+        registrationRequired: body.registrationRequired || false,
+        createdBy: userId,
+      });
+    } catch (error: any) {
+      console.error('Error creating event:', error);
+      console.error('Request body:', JSON.stringify(body, null, 2));
+      console.error('User object:', req.user);
+      // Re-throw NestJS exceptions as-is, wrap others
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(error.message || 'Failed to create event');
+    }
   }
 
   @Patch(':id')
