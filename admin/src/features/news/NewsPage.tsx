@@ -47,9 +47,11 @@ const newsSchema = z.object({
   content: z.string().min(50, 'Content must be at least 50 characters'),
   category: z.string().min(1, 'Category is required'),
   imageUrl: z.union([z.string().url(), z.literal('')]).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+  isPublished: z.boolean(),
+  isFeatured: z.boolean().optional(),
   source: z.string().optional(),
   sourceUrl: z.union([z.string().url(), z.literal('')]).optional(),
-  isPublished: z.boolean(),
 });
 
 type NewsFormData = z.infer<typeof newsSchema>;
@@ -142,7 +144,11 @@ export default function NewsPage() {
     formState: { errors },
   } = useForm<NewsFormData>({
     resolver: zodResolver(newsSchema),
-    defaultValues: { isPublished: false },
+    defaultValues: { 
+      isPublished: false,
+      priority: 'MEDIUM',
+      isFeatured: false,
+    },
   });
 
   const news = data?.data || [];
@@ -165,10 +171,16 @@ export default function NewsPage() {
         imageUrl: article.imageUrl || '',
         source: article.source || '',
         isPublished: article.isPublished,
+        priority: article.priority || 'MEDIUM',
+        isFeatured: article.isFeatured || false,
       });
     } else {
       setEditingNews(null);
-      reset({ isPublished: false });
+      reset({ 
+        isPublished: false,
+        priority: 'MEDIUM',
+        isFeatured: false,
+      });
     }
     setShowForm(true);
   };
@@ -186,7 +198,9 @@ export default function NewsPage() {
             imageUrl: data.imageUrl || undefined,
             source: data.source || undefined,
             isPublished: data.isPublished,
-          },
+            priority: (data.priority || 'MEDIUM') as 'LOW' | 'MEDIUM' | 'HIGH',
+            isFeatured: data.isFeatured || false,
+          } as Partial<NewsArticle>,
         });
       } else {
         await createMutation.mutateAsync({
@@ -195,7 +209,7 @@ export default function NewsPage() {
           content: data.content,
           category: data.category,
           imageUrl: data.imageUrl || undefined,
-          priority: data.priority || 'MEDIUM',
+          priority: (data.priority || 'MEDIUM') as 'LOW' | 'MEDIUM' | 'HIGH',
           isPublished: data.isPublished,
           isFeatured: data.isFeatured || false,
         });
@@ -437,9 +451,33 @@ export default function NewsPage() {
               <Input id="imageUrl" placeholder="https://..." {...register('imageUrl')} />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="isPublished" {...register('isPublished')} />
-              <Label htmlFor="isPublished" className="font-normal">Publish immediately</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <Select value={watch('priority') || 'MEDIUM'} onValueChange={(v) => setValue('priority', v as 'LOW' | 'MEDIUM' | 'HIGH')}>
+                  <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LOW">Low</SelectItem>
+                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                    <SelectItem value="HIGH">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sourceUrl">Source URL</Label>
+                <Input id="sourceUrl" placeholder="https://..." {...register('sourceUrl')} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="isPublished" {...register('isPublished')} />
+                <Label htmlFor="isPublished" className="font-normal">Publish immediately</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="isFeatured" {...register('isFeatured')} />
+                <Label htmlFor="isFeatured" className="font-normal">Feature this article</Label>
+              </div>
             </div>
 
             <DialogFooter>

@@ -393,11 +393,14 @@ export interface NewsArticle {
   content: string;
   imageUrl?: string;
   category: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  isPublished: boolean;
+  isFeatured?: boolean;
+  viewCount?: number;
   source?: string;
   sourceUrl?: string;
-  isPublished: boolean;
   publishedAt?: string;
-  createdBy: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }

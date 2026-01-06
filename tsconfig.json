@@ -2,5 +2,14 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "api",
+    "admin",
+    "src/auth",
+    "src/community",
+    "src/journal",
+    "src/common"
+  ]
 }
