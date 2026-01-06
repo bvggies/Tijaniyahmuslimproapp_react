@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -123,7 +123,30 @@ export class EventsService {
       });
     } catch (error: any) {
       console.error('Error in events service create:', error);
-      throw error;
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+        stack: error.stack,
+      });
+      
+      // Handle Prisma errors
+      if (error.code === 'P2002') {
+        throw new BadRequestException('A record with this information already exists');
+      }
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid reference: ' + (error.meta?.field_name || 'unknown field'));
+      }
+      
+      // Re-throw NestJS exceptions as-is
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      
+      // Wrap other errors
+      throw new InternalServerErrorException(
+        error.message || 'Failed to create event. Please check the server logs for details.'
+      );
     }
   }
 
