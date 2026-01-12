@@ -48,10 +48,33 @@ BEGIN
       ALTER TABLE "Scholar" ADD COLUMN "title" TEXT;
     END IF;
 
-    IF NOT EXISTS (
+    -- Handle bio/biography column mismatch
+    -- Check if 'bio' column exists (old schema)
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns 
+      WHERE table_name = 'Scholar' AND column_name = 'bio'
+    ) THEN
+      -- Rename 'bio' to 'biography' and make it nullable if it's NOT NULL
+      DO $$
+      BEGIN
+        -- Check if bio is NOT NULL
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'Scholar' 
+          AND column_name = 'bio' 
+          AND is_nullable = 'NO'
+        ) THEN
+          -- Make it nullable first
+          ALTER TABLE "Scholar" ALTER COLUMN "bio" DROP NOT NULL;
+        END IF;
+        -- Rename to biography
+        ALTER TABLE "Scholar" RENAME COLUMN "bio" TO "biography";
+      END $$;
+    ELSIF NOT EXISTS (
       SELECT 1 FROM information_schema.columns 
       WHERE table_name = 'Scholar' AND column_name = 'biography'
     ) THEN
+      -- Add biography column if neither bio nor biography exists
       ALTER TABLE "Scholar" ADD COLUMN "biography" TEXT;
     END IF;
 
