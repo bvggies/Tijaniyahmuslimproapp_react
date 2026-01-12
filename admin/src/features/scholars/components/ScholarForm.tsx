@@ -75,6 +75,9 @@ export function ScholarForm({ open, onClose, onSubmit, scholar, isLoading }: Sch
         },
   });
 
+  // Watch isAlive to control deathYear field
+  const isAlive = watch('isAlive');
+
   React.useEffect(() => {
     if (scholar) {
       reset({
@@ -117,7 +120,8 @@ export function ScholarForm({ open, onClose, onSubmit, scholar, isLoading }: Sch
       biography: data.biography || undefined,
       imageUrl: data.imageUrl || undefined,
       birthYear: data.birthYear || undefined,
-      deathYear: data.deathYear || undefined,
+      // Only include deathYear if scholar is not alive
+      deathYear: data.isAlive ? undefined : (data.deathYear || undefined),
       location: data.location || undefined,
       specialty: data.specialty || undefined,
       isAlive: data.isAlive !== undefined ? data.isAlive : true,
@@ -239,14 +243,28 @@ export function ScholarForm({ open, onClose, onSubmit, scholar, isLoading }: Sch
             <div className="space-y-2">
               <Label htmlFor="deathYear" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Death Year
+                Death Year {isAlive && <span className="text-xs text-muted-foreground">(disabled if alive)</span>}
               </Label>
               <Input
                 id="deathYear"
                 type="number"
                 placeholder="e.g., 2020"
-                {...register('deathYear', { valueAsNumber: true })}
+                disabled={isAlive}
+                {...register('deathYear', { 
+                  valueAsNumber: true,
+                  onChange: (e) => {
+                    // Clear death year if scholar is alive
+                    if (isAlive) {
+                      setValue('deathYear', undefined);
+                    }
+                  }
+                })}
               />
+              {isAlive && (
+                <p className="text-xs text-muted-foreground">
+                  Death year is disabled because the scholar is marked as alive
+                </p>
+              )}
             </div>
           </div>
 
@@ -271,7 +289,16 @@ export function ScholarForm({ open, onClose, onSubmit, scholar, isLoading }: Sch
                 type="checkbox"
                 id="isAlive"
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                {...register('isAlive')}
+                {...register('isAlive', {
+                  onChange: (e) => {
+                    const checked = e.target.checked;
+                    setValue('isAlive', checked);
+                    // Clear death year when marking as alive
+                    if (checked) {
+                      setValue('deathYear', undefined);
+                    }
+                  }
+                })}
               />
               <Label htmlFor="isAlive" className="font-normal">
                 Is Alive
