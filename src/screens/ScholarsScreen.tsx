@@ -12,13 +12,16 @@ import {
   Dimensions,
   ScrollView,
   Platform,
-  StatusBar
+  StatusBar,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { colors, spacing, radius } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +35,7 @@ interface Scholar {
   hausaBio?: string;
   specialties: string[];
   image?: any;
+  imageUrl?: string;
   details?: { heading: string; text: string; frenchText?: string; arabicText?: string; hausaText?: string }[];
 }
 
@@ -460,6 +464,8 @@ export default function ScholarsScreen({ navigation }: { navigation: any }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [imageModalVisible, setImageModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [scholars, setScholars] = useState<Scholar[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Animations
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -472,7 +478,54 @@ export default function ScholarsScreen({ navigation }: { navigation: any }) {
       duration: 600,
       useNativeDriver: true,
     }).start();
+    loadScholars();
   }, []);
+
+  const loadScholars = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.getScholars();
+      const scholarsData = Array.isArray(response) ? response : (response.data || []);
+      
+      // Map API data to the Scholar interface format
+      const mappedScholars: Scholar[] = scholarsData.map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        title: s.title || '',
+        bio: s.biography || '',
+        frenchBio: '',
+        arabicBio: s.nameArabic || '',
+        hausaBio: '',
+        specialties: s.specialty ? [s.specialty] : [],
+        image: s.imageUrl ? { uri: s.imageUrl } : undefined,
+        imageUrl: s.imageUrl,
+        details: s.biography ? [
+          {
+            heading: 'Biography',
+            text: s.biography,
+            frenchText: '',
+            arabicText: '',
+            hausaText: ''
+          }
+        ] : []
+      }));
+      
+      // Combine API scholars with hardcoded ones (for backward compatibility)
+      // You can remove SCHOLARS array later if you want only API data
+      setScholars([...mappedScholars, ...SCHOLARS]);
+    } catch (error: any) {
+      console.error('Error loading scholars:', error);
+      // Fallback to hardcoded data if API fails
+      setScholars(SCHOLARS);
+      Alert.alert(
+        'Error',
+        'Failed to load scholars from server. Showing offline data.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onOpen = (item: Scholar) => {
     navigation.navigate('ScholarDetail', { scholar: item });
@@ -499,7 +552,7 @@ export default function ScholarsScreen({ navigation }: { navigation: any }) {
     }).start();
   };
 
-  const filteredScholars = SCHOLARS.filter(scholar => {
+  const filteredScholars = scholars.filter(scholar => {
     const matchesSearch = 
       scholar.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scholar.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -570,13 +623,17 @@ export default function ScholarsScreen({ navigation }: { navigation: any }) {
           activeOpacity={0.9}
         >
           {/* Scholar Image with Gradient Overlay */}
-          {!!item.image && (
+          {(!!item.image || !!item.imageUrl) && (
             <TouchableOpacity 
-              onPress={() => onImagePress(item.image)}
+              onPress={() => onImagePress(item.image || { uri: item.imageUrl })}
               activeOpacity={0.95}
             >
               <View style={styles.imageContainer}>
-                <Image source={item.image} style={styles.scholarImage} resizeMode="cover" />
+                <Image 
+                  source={item.image || (item.imageUrl ? { uri: item.imageUrl } : require('../../assets/SHEIKH FATIHU.jpg'))} 
+                  style={styles.scholarImage} 
+                  resizeMode="cover" 
+                />
                 <LinearGradient
                   colors={['transparent', 'rgba(5, 47, 42, 0.9)']}
                   style={styles.imageGradient}
@@ -751,36 +808,45 @@ export default function ScholarsScreen({ navigation }: { navigation: any }) {
       </Animated.View>
 
       {/* Scholars List */}
-      <FlatList
-        data={filteredScholars}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => <ScholarCard item={item} index={index} />}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
-        scrollEventThrottle={16}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconContainer}>
-              <Ionicons name="search-outline" size={48} color={colors.textSecondary} />
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.accentGreen} />
+          <Text style={styles.loadingText}>Loading scholars...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredScholars}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => <ScholarCard item={item} index={index} />}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: false }
+          )}
+          scrollEventThrottle={16}
+          refreshing={isLoading}
+          onRefresh={loadScholars}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconContainer}>
+                <Ionicons name="search-outline" size={48} color={colors.textSecondary} />
+              </View>
+              <Text style={styles.emptyTitle}>{t('scholars.no_results') || 'No scholars found'}</Text>
+              <Text style={styles.emptySubtitle}>{t('scholars.try_again') || 'Try adjusting your search or filters'}</Text>
+              <TouchableOpacity 
+                style={styles.resetButton}
+                onPress={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                }}
+              >
+                <Text style={styles.resetButtonText}>Reset Filters</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.emptyTitle}>{t('scholars.no_results') || 'No scholars found'}</Text>
-            <Text style={styles.emptySubtitle}>{t('scholars.try_again') || 'Try adjusting your search or filters'}</Text>
-            <TouchableOpacity 
-              style={styles.resetButton}
-              onPress={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-              }}
-            >
-              <Text style={styles.resetButtonText}>Reset Filters</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
+          }
+        />
+      )}
 
       {/* Image Modal */}
       <Modal
@@ -1092,6 +1158,19 @@ const styles = StyleSheet.create({
     color: colors.accentGreen,
     fontSize: 14,
     fontWeight: '600',
+  },
+
+  // Loading State
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 14,
+    color: colors.textSecondary,
   },
 
   // Empty State
