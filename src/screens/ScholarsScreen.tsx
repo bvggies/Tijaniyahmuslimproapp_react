@@ -348,15 +348,15 @@ const SCHOLARS: Scholar[] = [
       }
     ]
   },
-  // 6. Sheikh Al-Hajj Umar Tall
+  // 6. Shaykh Al-Hajj Umar Al-Futi Tal
   {
     id: 'sheikh_umar_tall',
-    name: 'Al-Hajj Umar Tall (1797–1864)',
+    name: 'Shaykh Al-Hajj Umar Al-Futi Tal (1797–1864)',
     title: 'Warrior Scholar & Khalifa of Tijaniyya in West Africa',
-    bio: 'Al-Hajj Umar Tall (1797–1864) was a Fulani scholar, Islamic reformer, and Tijani leader who established the Toucouleur Empire. He was initiated into the Tijaniyya by Muhammad al-Ghali and became the Khalifa for the Tijaniyya in West Africa. His jihad efforts expanded Islamic influence across Senegambia and Mali.',
-    frenchBio: `El Hadj Omar Tall (1797–1864) était un érudit peul, réformateur islamique et chef tijani qui fonda l'Empire toucouleur. Initié à la Tijaniyya par Muhammad al-Ghali, il devint Khalife de la Tijaniyya en Afrique de l'Ouest. Son jihad étendit l'influence islamique à travers la Sénégambie et le Mali.`,
-    arabicBio: 'كان الحاج عمر تال (1797–1864) عالماً فُلانياً ومُصلحاً إسلامياً وقائداً تجانياً أسّس إمبراطورية التوكولور. تلقى التجانية من محمد الغالي وأصبح خليفة التجانية في غرب أفريقيا. وسّع جهادُه النفوذَ الإسلامي في السنغامبيا ومالي.',
-    hausaBio: 'Al-Hajj Umar Tall (1797–1864) malamin Fulani ne, mai gyaran addinin Musulunci, kuma shugaban Tijaniyya wanda ya kafa Daular Toucouleur. An shigar da shi cikin Tijaniyya ta Muhammad al-Ghali kuma ya zama Khalifa na Tijaniyya a Yammacin Afirka. Jihadin sa ya fadada tasirin Musulunci a cikin Senegambia da Mali.',
+    bio: 'Shaykh Al-Hajj Umar Al-Futi Tal (1797–1864) was a Fulani scholar, Islamic reformer, and Tijani leader who established the Toucouleur Empire. He was initiated into the Tijaniyya by Muhammad al-Ghali and became the Khalifa for the Tijaniyya in West Africa. His jihad efforts expanded Islamic influence across Senegambia and Mali.',
+    frenchBio: `Cheikh El Hadj Omar Al-Futi Tal (1797–1864) était un érudit peul, réformateur islamique et chef tijani qui fonda l'Empire toucouleur. Initié à la Tijaniyya par Muhammad al-Ghali, il devint Khalife de la Tijaniyya en Afrique de l'Ouest. Son jihad étendit l'influence islamique à travers la Sénégambie et le Mali.`,
+    arabicBio: 'كان الشيخ الحاج عمر الفوتي تال (1797–1864) عالماً فُلانياً ومُصلحاً إسلامياً وقائداً تجانياً أسّس إمبراطورية التوكولور. تلقى التجانية من محمد الغالي وأصبح خليفة التجانية في غرب أفريقيا. وسّع جهادُه النفوذَ الإسلامي في السنغامبيا ومالي.',
+    hausaBio: 'Shaykh Al-Hajj Umar Al-Futi Tal (1797–1864) malamin Fulani ne, mai gyaran addinin Musulunci, kuma shugaban Tijaniyya wanda ya kafa Daular Toucouleur. An shigar da shi cikin Tijaniyya ta Muhammad al-Ghali kuma ya zama Khalifa na Tijaniyya a Yammacin Afirka. Jihadin sa ya fadada tasirin Musulunci a cikin Senegambia da Mali.',
     specialties: ['Tariqa Tijaniyya', 'Jihad', 'Islamic Reform', 'Leadership', 'West African History'],
     image: require('../../assets/Umar.jpg'),
     details: [

@@ -208,7 +208,7 @@ export const searchData: SearchResult[] = [
     id: 'muhammad_ghali',
     title: 'Sidi Muhammad Al-Ghali (R.A)',
     titleArabic: 'سيدي محمد الغالي',
-    description: 'Khalifa of Shaykh Ahmad Tijani & Teacher of Al-Hajj Umar',
+    description: 'Khalifa of Shaykh Ahmad Tijani & Teacher of Shaykh Al-Hajj Umar Al-Futi Tal',
     type: 'scholar',
     category: 'Scholars',
     screen: 'Scholars',
