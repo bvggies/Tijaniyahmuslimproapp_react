@@ -48,35 +48,72 @@ BEGIN
       ALTER TABLE "Scholar" ADD COLUMN "title" TEXT;
     END IF;
 
-    -- Handle bio/biography column mismatch
-    -- Check if 'bio' column exists (old schema)
-    IF EXISTS (
-      SELECT 1 FROM information_schema.columns 
-      WHERE table_name = 'Scholar' AND column_name = 'bio'
-    ) THEN
-      -- Rename 'bio' to 'biography' and make it nullable if it's NOT NULL
-      DO $$
+    -- Handle bio/biography column mismatch - MUST be handled BEFORE checking for biography
+    -- Use a nested DO block for proper exception handling
+    DO $$
+    BEGIN
+      -- Check if 'bio' column exists (old schema)
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'Scholar' AND column_name = 'bio'
+      ) THEN
+        -- Step 1: Make bio nullable if it's NOT NULL (required before rename)
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'Scholar' 
+            AND column_name = 'bio' 
+            AND is_nullable = 'NO'
+          ) THEN
+            ALTER TABLE "Scholar" ALTER COLUMN "bio" DROP NOT NULL;
+          END IF;
+        EXCEPTION WHEN OTHERS THEN
+          -- If dropping NOT NULL fails, log and continue
+          RAISE NOTICE 'Could not drop NOT NULL constraint on bio: %', SQLERRM;
+        END;
+        
+        -- Step 2: Rename bio to biography
+        BEGIN
+          ALTER TABLE "Scholar" RENAME COLUMN "bio" TO "biography";
+          RAISE NOTICE 'Successfully renamed bio column to biography';
+        EXCEPTION WHEN OTHERS THEN
+          -- If rename fails (e.g., biography already exists), try alternative approach
+          RAISE NOTICE 'Rename failed: %, trying alternative approach', SQLERRM;
+          
+          -- If biography doesn't exist, create it and copy data
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'Scholar' AND column_name = 'biography'
+          ) THEN
+            ALTER TABLE "Scholar" ADD COLUMN "biography" TEXT;
+            UPDATE "Scholar" SET "biography" = "bio" WHERE "bio" IS NOT NULL;
+          END IF;
+        END;
+      END IF;
+      
+      -- Ensure biography column exists (in case bio didn't exist or operations above failed)
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'Scholar' AND column_name = 'biography'
+      ) THEN
+        ALTER TABLE "Scholar" ADD COLUMN "biography" TEXT;
+      END IF;
+      
+      -- Ensure biography is nullable (double-check)
       BEGIN
-        -- Check if bio is NOT NULL
         IF EXISTS (
           SELECT 1 FROM information_schema.columns 
           WHERE table_name = 'Scholar' 
-          AND column_name = 'bio' 
+          AND column_name = 'biography' 
           AND is_nullable = 'NO'
         ) THEN
-          -- Make it nullable first
-          ALTER TABLE "Scholar" ALTER COLUMN "bio" DROP NOT NULL;
+          ALTER TABLE "Scholar" ALTER COLUMN "biography" DROP NOT NULL;
         END IF;
-        -- Rename to biography
-        ALTER TABLE "Scholar" RENAME COLUMN "bio" TO "biography";
-      END $$;
-    ELSIF NOT EXISTS (
-      SELECT 1 FROM information_schema.columns 
-      WHERE table_name = 'Scholar' AND column_name = 'biography'
-    ) THEN
-      -- Add biography column if neither bio nor biography exists
-      ALTER TABLE "Scholar" ADD COLUMN "biography" TEXT;
-    END IF;
+      EXCEPTION WHEN OTHERS THEN
+        -- Already nullable or error - that's fine
+        RAISE NOTICE 'Could not ensure biography is nullable: %', SQLERRM;
+      END;
+    END $$;
 
     IF NOT EXISTS (
       SELECT 1 FROM information_schema.columns 
