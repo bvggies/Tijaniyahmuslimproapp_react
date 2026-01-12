@@ -100,23 +100,69 @@ export class ScholarsService {
     sortOrder?: number;
     createdBy?: string;
   }) {
-    return this.prisma.scholar.create({
-      data: {
+    try {
+      // Only include fields that are provided (don't send undefined)
+      const createData: any = {
         name: data.name,
-        nameArabic: data.nameArabic,
-        title: data.title,
-        biography: data.biography,
-        imageUrl: data.imageUrl,
-        birthYear: data.birthYear,
-        deathYear: data.deathYear,
-        location: data.location,
-        specialty: data.specialty,
         isAlive: data.isAlive !== undefined ? data.isAlive : true,
         isPublished: data.isPublished || false,
         sortOrder: data.sortOrder || 0,
-        createdBy: data.createdBy,
-      },
-    });
+      };
+
+      // Only add optional fields if they have values
+      if (data.nameArabic !== undefined && data.nameArabic !== null && data.nameArabic !== '') {
+        createData.nameArabic = data.nameArabic;
+      }
+      if (data.title !== undefined && data.title !== null && data.title !== '') {
+        createData.title = data.title;
+      }
+      if (data.biography !== undefined && data.biography !== null && data.biography !== '') {
+        createData.biography = data.biography;
+      }
+      if (data.imageUrl !== undefined && data.imageUrl !== null && data.imageUrl !== '') {
+        createData.imageUrl = data.imageUrl;
+      }
+      if (data.birthYear !== undefined && data.birthYear !== null) {
+        createData.birthYear = data.birthYear;
+      }
+      if (data.deathYear !== undefined && data.deathYear !== null) {
+        createData.deathYear = data.deathYear;
+      }
+      if (data.location !== undefined && data.location !== null && data.location !== '') {
+        createData.location = data.location;
+      }
+      if (data.specialty !== undefined && data.specialty !== null && data.specialty !== '') {
+        createData.specialty = data.specialty;
+      }
+      if (data.createdBy !== undefined && data.createdBy !== null) {
+        createData.createdBy = data.createdBy;
+      }
+
+      return await this.prisma.scholar.create({
+        data: createData,
+      });
+    } catch (error: any) {
+      console.error('Error creating scholar:', error);
+      console.error('Error details:', {
+        code: error.code,
+        meta: error.meta,
+        message: error.message,
+        data: data,
+      });
+      
+      // Provide more helpful error message for schema mismatch
+      if (error.code === 'P2011' && error.meta?.constraint?.includes('bio')) {
+        throw new InternalServerErrorException(
+          'Database schema error: The bio column still exists in the database. ' +
+          'Please ensure migrations have been run successfully. ' +
+          'The migration should rename "bio" to "biography" and make it nullable.'
+        );
+      }
+      
+      throw new InternalServerErrorException(
+        error.message || 'Failed to create scholar. Please check the server logs for details.'
+      );
+    }
   }
 
   async update(id: string, data: Partial<{
