@@ -27,7 +27,7 @@
         "backgroundColor": "#052F2A"
       },
       "package": "com.tijaniyahpro.app",
-      "versionCode": 8,
+      "versionCode": 9,
       "enableEdgeToEdge": true,
       "supportsTablet": true,
       "permissions": [
