@@ -41,9 +41,10 @@ export default function ScholarsPage() {
   const [editingScholar, setEditingScholar] = useState<Scholar | null>(null);
   const [deletingScholar, setDeletingScholar] = useState<Scholar | null>(null);
 
-  // API Queries
+  // API Queries - Fetch all scholars (high limit for admin dashboard)
   const { data, isLoading, error, refetch } = useScholars({
     search,
+    limit: 10000, // High limit to show all scholars in admin dashboard
   });
 
   // Mutations
@@ -112,6 +113,11 @@ export default function ScholarsPage() {
           </h1>
           <p className="text-muted-foreground mt-1">
             Manage Islamic scholars, their profiles, and educational content
+            {data?.meta && (
+              <span className="ml-2 text-sm">
+                ({data.meta.total} {data.meta.total === 1 ? 'scholar' : 'scholars'})
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
