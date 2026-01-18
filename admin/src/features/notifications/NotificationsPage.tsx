@@ -8,7 +8,6 @@ import {
   Send, 
   Clock, 
   CheckCircle, 
-  XCircle,
   Users,
   User,
   Crown,
@@ -55,7 +54,6 @@ import { cn, formatDateTime, formatNumber } from '../../lib/utils';
 import {
   userSegments,
   notificationTemplates,
-  UserSegment,
   useNotificationCampaigns,
   useCreateCampaign,
   useSendCampaign,
@@ -88,8 +86,7 @@ const segmentIcons: Record<string, React.ElementType> = {
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'templates' | 'automation'>('campaigns');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -173,7 +170,6 @@ export default function NotificationsPage() {
   const handleUseTemplate = (template: typeof notificationTemplates[0]) => {
     setValue('title', template.title);
     setValue('body', template.body);
-    setSelectedTemplate(template.id);
     toast.info('Template applied', `Using "${template.name}" template.`);
   };
 

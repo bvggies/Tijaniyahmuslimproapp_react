@@ -16,7 +16,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { TrendingUp, BarChart3, DollarSign } from 'lucide-react';
-import { cn } from '../../../lib/utils';
 
 interface ChartData {
   date: string;

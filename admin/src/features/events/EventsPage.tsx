@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Search, 
   Plus, 
@@ -12,7 +12,7 @@ import {
   MoreHorizontal,
   RefreshCw,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -49,8 +49,7 @@ import {
   eventCategories,
 } from './hooks/useEvents';
 import { Event, CreateEventDto } from '../../lib/api/types';
-import { toast } from '../../components/ui/use-toast';
-import { formatDate, formatDateTime, cn } from '../../lib/utils';
+import { formatDateTime } from '../../lib/utils';
 
 export default function EventsPage() {
   const [search, setSearch] = useState('');
@@ -59,7 +58,7 @@ export default function EventsPage() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<Event | null>(null);
   // API Queries
-  const { data, isLoading, error, refetch } = useEvents({
+  const { data, isLoading, refetch } = useEvents({
     search,
     category: categoryFilter !== 'all' ? categoryFilter : undefined,
   });

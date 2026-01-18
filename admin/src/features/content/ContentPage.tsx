@@ -1,25 +1,19 @@
 import React, { useState } from 'react';
 import { 
-  FileText, 
-  Plus, 
   Edit, 
   Trash2, 
-  Eye, 
-  EyeOff,
   RefreshCw,
   BookOpen,
   Sparkles,
   Calendar,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { duasApi, wazifaApi, jummaDhikrApi } from '../../lib/api';
-import { Dua, Wazifa, JummaDhikr } from '../../lib/api/types';
 import { toast } from '../../components/ui/use-toast';
-import { formatDate, cn } from '../../lib/utils';
 
 export default function ContentPage() {
   const [activeTab, setActiveTab] = useState<'duas' | 'wazifa' | 'dhikr'>('duas');

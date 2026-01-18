@@ -13,7 +13,7 @@ import {
   RefreshCw,
   Tag,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -35,7 +35,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog';
 import { toast } from '../../components/ui/use-toast';
-import { formatDate, cn } from '../../lib/utils';
+import { formatDate } from '../../lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { newsApi, newsCategoriesApi } from '../../lib/api';
@@ -76,7 +76,7 @@ export default function NewsPage() {
     : ['GENERAL', 'EVENTS', 'ANNOUNCEMENTS', 'UPDATES'];
 
   // API Queries
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['news', { category: categoryFilter !== 'all' ? categoryFilter : undefined }],
     queryFn: () => newsApi.getAll({ category: categoryFilter !== 'all' ? categoryFilter : undefined, limit: 100 }),
   });

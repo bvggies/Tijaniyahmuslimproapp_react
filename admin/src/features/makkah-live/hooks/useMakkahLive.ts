@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { makkahLiveApi, MakkahLiveChannel, CreateMakkahChannelDto } from '../../../lib/api/endpoints';
+import { makkahLiveApi, CreateMakkahChannelDto } from '../../../lib/api/endpoints';
 
 const QUERY_KEY = 'makkah-live-channels';
 
