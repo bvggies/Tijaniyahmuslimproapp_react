@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Settings, 
-  Users, 
   Shield, 
   FileText, 
   Activity,
@@ -15,7 +13,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Skeleton } from '../../components/ui/skeleton';
 import { cn, formatDateTime } from '../../lib/utils';
 import { toast } from '../../components/ui/use-toast';
 

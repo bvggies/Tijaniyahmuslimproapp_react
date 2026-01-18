@@ -13,7 +13,6 @@ import {
   UserX,
   Activity,
   Clock,
-  Mail,
   X,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -50,7 +49,7 @@ import {
 } from './hooks/useUsers';
 import { User, UserRole } from '../../lib/api/types';
 import { toast } from '../../components/ui/use-toast';
-import { formatDate, formatNumber, cn } from '../../lib/utils';
+import { formatDate, cn } from '../../lib/utils';
 
 const roleOptions: UserRole[] = ['ADMIN', 'MODERATOR', 'SCHOLAR', 'SUPPORT', 'VIEWER', 'USER'];
 

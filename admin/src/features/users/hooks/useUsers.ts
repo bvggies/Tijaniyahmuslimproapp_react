@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '../../../lib/api';
-import { User, UserRole, UserTier } from '../../../lib/api/types';
+import { User, UserRole } from '../../../lib/api/types';
 import { toast } from '../../../components/ui/use-toast';
 
 interface UseUsersParams {
