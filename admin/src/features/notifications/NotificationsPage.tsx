@@ -90,7 +90,6 @@ export default function NotificationsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [showUserSelector, setShowUserSelector] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -176,10 +175,6 @@ export default function NotificationsPage() {
     setValue('body', template.body);
     setSelectedTemplate(template.id);
     toast.info('Template applied', `Using "${template.name}" template.`);
-  };
-
-  const handleSendToUser = (userId: string, userName: string) => {
-    toast.success('Notification sent', `Direct notification sent to ${userName}.`);
   };
 
   const getStatusColor = (status: string) => {
@@ -595,7 +590,6 @@ export default function NotificationsPage() {
                 type="button"
                 onClick={() => {
                   setValue('targetAudience', 'custom');
-                  setShowUserSelector(true);
                 }}
                 className={cn(
                   'w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all',
