@@ -11,7 +11,7 @@ import {
   MapPin,
   Calendar,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -32,8 +32,6 @@ import {
   useDeleteScholar,
 } from './hooks/useScholars';
 import { Scholar } from '../../lib/api/types';
-import { toast } from '../../components/ui/use-toast';
-import { formatDate, cn } from '../../lib/utils';
 
 export default function ScholarsPage() {
   const [search, setSearch] = useState('');
@@ -42,7 +40,7 @@ export default function ScholarsPage() {
   const [deletingScholar, setDeletingScholar] = useState<Scholar | null>(null);
 
   // API Queries - Fetch all scholars (high limit for admin dashboard)
-  const { data, isLoading, error, refetch } = useScholars({
+  const { data, isLoading, refetch } = useScholars({
     search,
     limit: 10000, // High limit to show all scholars in admin dashboard
   });
