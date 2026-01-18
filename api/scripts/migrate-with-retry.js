@@ -17,12 +17,12 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function runCommand(command, description) {
+function runCommand(command, description, captureOutput = false) {
   try {
     console.log(`\n🔄 ${description}...`);
     const output = execSync(command, {
       encoding: 'utf-8',
-      stdio: 'inherit',
+      stdio: captureOutput ? 'pipe' : 'inherit',
       timeout: MIGRATION_TIMEOUT,
       env: {
         ...process.env,
@@ -30,15 +30,16 @@ function runCommand(command, description) {
         PRISMA_MIGRATE_TIMEOUT: '30000',
       },
     });
-    return { success: true, output };
+    return { success: true, output: captureOutput ? output : '' };
   } catch (error) {
-    return { success: false, error: error.message };
+    const errorMessage = error.stderr?.toString() || error.stdout?.toString() || error.message;
+    return { success: false, error: errorMessage };
   }
 }
 
 async function checkMigrationStatus() {
   console.log('\n📊 Checking migration status...');
-  const result = runCommand('npx prisma migrate status', 'Checking migration status');
+  const result = runCommand('npx prisma migrate status', 'Checking migration status', true);
   
   if (!result.success) {
     // If status check fails, it might mean migrations need to be applied
@@ -47,7 +48,9 @@ async function checkMigrationStatus() {
   }
   
   // Check if output indicates migrations are up to date
-  if (result.output && result.output.includes('Database schema is up to date')) {
+  const output = result.output || '';
+  if (output.includes('Database schema is up to date') || 
+      output.includes('All migrations have been applied')) {
     return 'up-to-date';
   }
   
