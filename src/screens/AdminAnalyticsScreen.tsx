@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +57,7 @@ interface AnalyticsData {
 const AdminAnalyticsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
   const { hasPermission } = useAdminAuth();
+  const opacity = useFadeIn({ duration: 380 });
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [isLoading, setIsLoading] = useState(true);
@@ -296,7 +299,7 @@ const AdminAnalyticsScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -480,7 +483,7 @@ const AdminAnalyticsScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           </View>
         </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 

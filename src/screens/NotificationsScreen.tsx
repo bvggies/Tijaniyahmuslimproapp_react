@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -17,6 +18,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../utils/theme';
 import { useNotifications } from '../contexts/NotificationContext';
 import { InAppNotification } from '../services/notificationService';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
@@ -139,6 +141,8 @@ export default function NotificationsScreen() {
     archiveNotification,
   } = useNotifications();
 
+  const opacity = useFadeIn({ duration: 380 });
+
   useEffect(() => {
     fetchNotifications(true);
   }, []);
@@ -211,7 +215,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Modern Header */}
       <LinearGradient
         colors={['#052F2A', '#0B3F39']}
@@ -297,7 +301,7 @@ export default function NotificationsScreen() {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

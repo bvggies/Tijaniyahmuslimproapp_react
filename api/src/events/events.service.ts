@@ -299,27 +299,50 @@ export class EventsService {
     }
   }
 
-  async update(id: string, data: Partial<{
-    title: string;
-    description: string;
-    location: string;
-    startDate: Date;
-    endDate: Date;
-    imageUrl: string;
-    category: string;
-    status: string;
-    isPublished: boolean;
-    maxAttendees: number;
-    registrationRequired: boolean;
-  }>) {
-    const updateData: any = { ...data };
-    if (data.category) updateData.category = data.category.toUpperCase();
-    if (data.status) updateData.status = data.status.toUpperCase();
-
-    return this.prisma.event.update({
-      where: { id },
-      data: updateData,
-    });
+  async update(id: string, data: any) {
+    try {
+      // Only allow fields that exist on Event model (strip tags, id, createdAt, updatedAt, etc.)
+      const allowedKeys = [
+        'title', 'description', 'location', 'startDate', 'endDate', 'imageUrl',
+        'category', 'status', 'isPublished', 'maxAttendees', 'registrationRequired',
+      ];
+      const updateData: any = {};
+      for (const key of allowedKeys) {
+        if (data[key] !== undefined) {
+          if (key === 'startDate' || key === 'endDate') {
+            const d = data[key] instanceof Date ? data[key] : new Date(data[key]);
+            if (isNaN(d.getTime())) {
+              throw new BadRequestException(`Invalid ${key} value`);
+            }
+            updateData[key] = d;
+          } else if (key === 'category' && typeof data[key] === 'string') {
+            updateData[key] = data[key].toUpperCase();
+          } else if (key === 'status' && typeof data[key] === 'string') {
+            updateData[key] = data[key].toUpperCase();
+          } else {
+            updateData[key] = data[key];
+          }
+        }
+      }
+      if (Object.keys(updateData).length === 0) {
+        return this.findOne(id);
+      }
+      return await this.prisma.event.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Event not found');
+      }
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('[EventsService] update error:', error);
+      throw new InternalServerErrorException(
+        error.message || 'Failed to update event. Please check the server logs.'
+      );
+    }
   }
 
   async publish(id: string) {

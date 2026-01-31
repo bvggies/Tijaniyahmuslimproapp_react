@@ -9,6 +9,7 @@ import {
   Alert,
   TextInput,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ import { colors } from '../utils/theme';
 import { useNotifications } from '../contexts/NotificationContext';
 import { NotificationSettings, BackendNotificationPreferences } from '../services/notificationService';
 import { isAuthenticated } from '../services/api';
+import { useFadeIn } from '../hooks/useAnimations';
 
 export default function NotificationSettingsScreen() {
   const {
@@ -31,6 +33,7 @@ export default function NotificationSettingsScreen() {
   } = useNotifications();
 
   const [isSaving, setIsSaving] = useState(false);
+  const opacity = useFadeIn({ duration: 380 });
 
   const updateSetting = (key: keyof NotificationSettings, value: any) => {
     updateSettings({ [key]: value });
@@ -134,7 +137,8 @@ export default function NotificationSettingsScreen() {
   );
 
   return (
-    <LinearGradient colors={[colors.background, colors.mintSurface]} style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
+    <LinearGradient colors={[colors.background, colors.mintSurface]} style={StyleSheet.absoluteFill}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Notification Settings</Text>
@@ -424,6 +428,7 @@ export default function NotificationSettingsScreen() {
         </View>
       </ScrollView>
     </LinearGradient>
+    </Animated.View>
   );
 }
 

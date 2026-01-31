@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
@@ -147,6 +148,61 @@ export class CommunityService {
     }
 
     return post;
+  }
+
+  async updatePost(id: string, userId: string, updatePostDto: UpdatePostDto) {
+    const post = await this.prisma.communityPost.findUnique({
+      where: { id },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.userId !== userId) {
+      throw new ForbiddenException('You can only edit your own posts');
+    }
+
+    const data: { content?: string; mediaUrls?: string[] } = {};
+    if (updatePostDto.content !== undefined) data.content = updatePostDto.content;
+    if (updatePostDto.mediaUrls !== undefined) data.mediaUrls = updatePostDto.mediaUrls;
+
+    const updated = await this.prisma.communityPost.update({
+      where: { id },
+      data,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        likes: true,
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+          },
+        },
+      },
+    });
+
+    return updated;
   }
 
   async deletePost(id: string, userId: string) {

@@ -172,6 +172,9 @@ export const api = {
   // Test authentication
   testAuth: () => http('/posts?limit=1'),
 
+  // Analytics (e.g. for in-app admin dashboard)
+  getAnalyticsOverview: () => http('/analytics/overview'),
+
   // Auth
   signup: async (email: string, password: string, name?: string) => {
     const data = await http('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, name }) });
@@ -184,6 +187,10 @@ export const api = {
     return data;
   },
   getMe: () => http('/auth/me'),
+  updateMe: (updates: { name?: string; avatarUrl?: string }) =>
+    http('/auth/me', { method: 'PATCH', body: JSON.stringify(updates) }),
+  forgotPassword: (email: string) =>
+    http('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
 
   // Community
   listPosts: (limit = 20, cursor?: string) =>
@@ -191,6 +198,10 @@ export const api = {
   createPost: (content: string, mediaUrls: string[] = []) =>
     http('/posts', { method: 'POST', body: JSON.stringify({ content, mediaUrls }) }),
   getPost: (id: string) => http(`/posts/${encodeURIComponent(id)}`),
+  updatePost: (id: string, data: { content?: string; mediaUrls?: string[] }) =>
+    http(`/posts/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deletePost: (id: string) =>
+    http(`/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   addComment: (id: string, content: string) =>
     http(`/posts/${encodeURIComponent(id)}/comments`, { method: 'POST', body: JSON.stringify({ content }) }),
   likePost: (id: string) => http(`/posts/${encodeURIComponent(id)}/like`, { method: 'POST' }),
@@ -327,6 +338,22 @@ export const api = {
   createScholar: (data: any) => http('/scholars', { method: 'POST', body: JSON.stringify(data) }),
   updateScholar: (id: string, data: any) => http(`/scholars/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteScholar: (id: string) => http(`/scholars/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  // Azan - Public (for app to show and schedule notifications)
+  getAzans: (activeOnly = true) =>
+    http(`/azan/public?activeOnly=${activeOnly}`),
+
+  // Azan - Admin
+  getAzansAdmin: (activeOnly?: boolean) => {
+    const q = activeOnly !== undefined ? `?activeOnly=${activeOnly}` : '';
+    return http(`/azan${q}`);
+  },
+  createAzan: (data: { name: string; muezzin?: string; location?: string; description?: string; audioUrl: string; playAt: string; isActive?: boolean; sortOrder?: number }) =>
+    http('/azan', { method: 'POST', body: JSON.stringify(data) }),
+  updateAzan: (id: string, data: Partial<{ name: string; muezzin: string; location: string; description: string; audioUrl: string; playAt: string; isActive: boolean; sortOrder: number }>) =>
+    http(`/azan/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteAzan: (id: string) =>
+    http(`/azan/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 };
 
 export async function ensureDemoAuth() {

@@ -11,12 +11,14 @@ import {
   Alert,
   Image,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { useSlideUpFadeIn } from '../hooks/useAnimations';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -30,6 +32,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { opacity, translateY } = useSlideUpFadeIn({ delay: 150, duration: 450, distance: 30 });
 
   // Handle admin redirect after successful login
   useEffect(() => {
@@ -88,6 +91,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           </View>
 
           {/* Login Form - Glass Effect */}
+          <Animated.View style={[styles.formAnimatedWrap, { opacity, transform: [{ translateY }] }]}>
           <BlurView intensity={30} tint="dark" style={styles.formBlur}>
             <View style={styles.formContainer}>
               <Text style={styles.formTitle}>Sign In</Text>
@@ -180,6 +184,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               </TouchableOpacity>
             </View>
           </BlurView>
+          </Animated.View>
 
         </ScrollView>
       </LinearGradient>
@@ -244,6 +249,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
+  },
+  formAnimatedWrap: {
+    marginBottom: 24,
   },
   formBlur: {
     borderRadius: 24,

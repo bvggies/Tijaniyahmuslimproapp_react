@@ -9,6 +9,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -17,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
+import { useFadeIn, useStaggeredFadeIn, usePressScale } from '../hooks/useAnimations';
 // Date formatting helper
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('en-US', {
@@ -28,6 +30,38 @@ const formatDate = (date: Date) => {
 };
 
 const { width } = Dimensions.get('window');
+
+/** Wraps an event card with staggered entrance and press scale animation */
+function AnimatedEventCardWrapper({
+  index,
+  onPress,
+  children,
+}: {
+  index: number;
+  onPress: () => void;
+  children: React.ReactNode;
+}) {
+  const { opacity, translateY } = useStaggeredFadeIn(index, { baseDelay: 100 });
+  const { scale, onPressIn, onPressOut } = usePressScale(0.98);
+
+  return (
+    <Animated.View
+      style={[
+        { opacity, transform: [{ translateY }, { scale }] },
+      ]}
+    >
+      <TouchableOpacity
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        activeOpacity={1}
+        style={styles.eventCard}
+      >
+        {children}
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
 
 interface Event {
   id: string;
@@ -140,7 +174,7 @@ export default function EventsScreen({ navigation }: any) {
     return formatDate(date);
   };
 
-  const renderEventCard = (event: Event) => {
+  const renderEventCardContent = (event: Event) => {
     const categoryColor = getCategoryColor(event.category);
     const statusColor = getStatusColor(event.status);
     const startDate = new Date(event.startDate);
@@ -151,16 +185,7 @@ export default function EventsScreen({ navigation }: any) {
       : null;
 
     return (
-      <TouchableOpacity
-        key={event.id}
-        style={styles.eventCard}
-        activeOpacity={0.9}
-        onPress={() => {
-          // Navigate to event detail if needed
-          console.log('Event pressed:', event.id);
-        }}
-      >
-        <BlurView intensity={100} tint="dark" style={styles.blurCard}>
+      <BlurView intensity={100} tint="dark" style={styles.blurCard}>
           <LinearGradient
             colors={[`${colors.surface}E6`, `${colors.surface}CC`, `${colors.surface}E6`]}
             style={styles.cardGradient}
@@ -247,12 +272,13 @@ export default function EventsScreen({ navigation }: any) {
             </View>
           </LinearGradient>
         </BlurView>
-      </TouchableOpacity>
     );
   };
 
+  const screenOpacity = useFadeIn({ duration: 350 });
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       <LinearGradient
         colors={[colors.background, colors.surface, colors.background]}
         start={{ x: 0, y: 0 }}
@@ -358,7 +384,15 @@ export default function EventsScreen({ navigation }: any) {
             </View>
           ) : activeTab === 'upcoming' ? (
             upcomingEvents.length > 0 ? (
-              upcomingEvents.map(renderEventCard)
+              upcomingEvents.map((event, i) => (
+                <AnimatedEventCardWrapper
+                  key={event.id}
+                  index={i}
+                  onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+                >
+                  {renderEventCardContent(event)}
+                </AnimatedEventCardWrapper>
+              ))
             ) : (
               <View style={styles.emptyState}>
                 <LinearGradient
@@ -391,7 +425,7 @@ export default function EventsScreen({ navigation }: any) {
           )}
         </ScrollView>
       </LinearGradient>
-    </View>
+    </Animated.View>
   );
 }
 

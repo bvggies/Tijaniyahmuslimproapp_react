@@ -225,24 +225,44 @@ export class NewsService {
     }
   }
 
-  async update(id: string, data: Partial<{
-    title: string;
-    content: string;
-    excerpt: string;
-    imageUrl: string;
-    category: string;
-    priority: string;
-    isPublished: boolean;
-    isFeatured: boolean;
-  }>) {
-    const updateData: any = { ...data };
-    if (data.category) updateData.category = data.category.toUpperCase();
-    if (data.priority) updateData.priority = data.priority.toUpperCase();
-
-    return this.prisma.news.update({
-      where: { id },
-      data: updateData,
-    });
+  async update(id: string, data: any) {
+    try {
+      // Only allow updatable fields (strip id, createdAt, updatedAt, viewCount, createdBy, source, sourceUrl, publishedAt, etc.)
+      const allowedKeys = [
+        'title', 'content', 'excerpt', 'imageUrl', 'category', 'priority',
+        'isPublished', 'isFeatured',
+      ];
+      const updateData: any = {};
+      for (const key of allowedKeys) {
+        if (data[key] !== undefined) {
+          if (key === 'category' && typeof data[key] === 'string') {
+            updateData[key] = data[key].toUpperCase();
+          } else if (key === 'priority' && typeof data[key] === 'string') {
+            updateData[key] = data[key].toUpperCase();
+          } else {
+            updateData[key] = data[key];
+          }
+        }
+      }
+      if (Object.keys(updateData).length === 0) {
+        return this.findOne(id);
+      }
+      return await this.prisma.news.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Article not found');
+      }
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('[NewsService] update error:', error);
+      throw new InternalServerErrorException(
+        error.message || 'Failed to update article. Please check the server logs.'
+      );
+    }
   }
 
   async remove(id: string) {

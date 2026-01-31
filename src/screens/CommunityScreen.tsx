@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api, ensureDemoAuth, setToken, isAuthenticated, ensureAuthenticated } from '../services/api';
 import CloudinaryService from '../services/cloudinaryService';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface User {
   id: string;
@@ -149,6 +151,8 @@ export default function CommunityScreen() {
     followers: 0,
     following: 0,
   });
+
+  const screenOpacity = useFadeIn({ duration: 380 });
 
   const mapApiPost = (p: any): Post => {
     const authorName = p?.user?.name || p?.user?.email?.split('@')[0] || 'User';
@@ -416,16 +420,12 @@ export default function CommunityScreen() {
     if (!editingPost || !editPostContent.trim()) return;
     
     try {
-      // Update post optimistically
-      setPosts(prev => prev.map(post => 
-        post.id === editingPost 
+      await api.updatePost(editingPost, { content: editPostContent.trim() });
+      setPosts(prev => prev.map(post =>
+        post.id === editingPost
           ? { ...post, content: editPostContent.trim() }
           : post
       ));
-      
-      // TODO: Call API to update post
-      console.log('📝 Post updated:', editingPost);
-      
       setEditingPost(null);
       setEditPostContent('');
     } catch (error) {
@@ -445,11 +445,8 @@ export default function CommunityScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              // Remove post optimistically
+              await api.deletePost(postId);
               setPosts(prev => prev.filter(post => post.id !== postId));
-              
-              // TODO: Call API to delete post
-              console.log('🗑️ Post deleted:', postId);
             } catch (error) {
               console.error('❌ Failed to delete post:', error);
               Alert.alert('Error', 'Failed to delete post');
@@ -567,7 +564,7 @@ export default function CommunityScreen() {
       
       console.log('🔄 Sending message:', messageContent);
       
-      // Add message optimistically
+      // Add message optimistically (declare before try so it's in scope in catch)
       const optimisticMessage = {
         id: `tmp-${Date.now()}`,
         content: messageContent,
@@ -578,40 +575,29 @@ export default function CommunityScreen() {
       };
       setChatMessages(prev => [...prev, optimisticMessage]);
       
-      // Send to API
-      const sentMessage = await api.sendMessage(currentConversationId, messageContent);
-      console.log('✅ Message sent successfully:', sentMessage.id);
-      
-      // Replace optimistic message with real one
-      setChatMessages(prev => 
-        prev.map(msg => 
-          msg.id === optimisticMessage.id ? sentMessage : msg
-        )
-      );
-      
-      console.log('✅ Message sent successfully');
-    } catch (error: any) {
-      console.error('❌ Failed to send message:', error);
-      console.error('❌ Send message error details:', {
-        message: error.message,
-        conversationId: currentConversationId,
-        messageContent: newMessage.trim(),
-        isAuthenticated: authState.isAuthenticated
-      });
-      
-      let errorMessage = 'Failed to send message. Please try again.';
-      if (error.message?.includes('Not authenticated')) {
-        errorMessage = 'Please sign in to send messages.';
-      } else if (error.message?.includes('network')) {
-        errorMessage = 'Network error. Please check your connection.';
-      } else if (error.message?.includes('401')) {
-        errorMessage = 'Authentication expired. Please sign in again.';
+      try {
+        const sentMessage = await api.sendMessage(currentConversationId, messageContent);
+        console.log('✅ Message sent successfully:', sentMessage.id);
+        setChatMessages(prev => 
+          prev.map(msg => 
+            msg.id === optimisticMessage.id ? sentMessage : msg
+          )
+        );
+      } catch (sendError: any) {
+        console.error('❌ Failed to send message:', sendError);
+        let errorMessage = 'Failed to send message. Please try again.';
+        if (sendError.message?.includes('Not authenticated')) {
+          errorMessage = 'Please sign in to send messages.';
+        } else if (sendError.message?.includes('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (sendError.message?.includes('401')) {
+          errorMessage = 'Authentication expired. Please sign in again.';
+        }
+        Alert.alert('Error', errorMessage);
+        setChatMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
       }
-      
-      Alert.alert('Error', errorMessage);
-      
-      // Remove optimistic message on error
-      setChatMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+    } catch (error: any) {
+      console.error('❌ Send message error:', error);
     }
   };
 
@@ -709,9 +695,9 @@ export default function CommunityScreen() {
                   { text: 'Cancel', style: 'cancel' },
                   ...(item.author.id === currentUser.id ? [
                     { text: 'Edit', onPress: () => startEditPost(item.id) },
-                    { text: 'Delete', style: 'destructive', onPress: () => deletePost(item.id) },
+                    { text: 'Delete', style: 'destructive' as const, onPress: () => deletePost(item.id) },
                   ] : []),
-                  { text: 'Report', style: 'destructive', onPress: () => reportPost(item.id) },
+                  { text: 'Report', style: 'destructive' as const, onPress: () => reportPost(item.id) },
                 ]
               );
             }}
@@ -833,7 +819,7 @@ export default function CommunityScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       {/* Header */}
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
@@ -1134,7 +1120,7 @@ export default function CommunityScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 }
 

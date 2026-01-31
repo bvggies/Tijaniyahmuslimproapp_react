@@ -17,6 +17,7 @@ import { EventsModule } from './events/events.module';
 import { NewsModule } from './news/news.module';
 import { NewsCategoriesModule } from './news-categories/news-categories.module';
 import { ScholarsModule } from './scholars/scholars.module';
+import { AzanModule } from './azan/azan.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ScholarsModule } from './scholars/scholars.module';
     NewsModule,
     NewsCategoriesModule,
     ScholarsModule,
+    AzanModule,
   ],
   controllers: [HealthController],
 })

@@ -55,6 +55,10 @@ export interface AnalyticsOverview {
   upcomingEvents: number;
   wazifaCompletions?: number;
   lazimCompletions?: number;
+  totalNews?: number;
+  totalEvents?: number;
+  totalScholars?: number;
+  totalLessons?: number;
   // Comparison data for calculating changes
   totalUsersLastMonth?: number;
   postsYesterday?: number;

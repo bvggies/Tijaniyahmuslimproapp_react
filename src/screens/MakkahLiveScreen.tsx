@@ -1,11 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Linking, ActivityIndicator, ScrollView, RefreshControl, Alert, Image, Animated } from 'react-native';
 import { colors } from '../utils/theme';
 import { commonScreenStyles } from '../utils/screenStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
+import { useFadeIn } from '../hooks/useAnimations';
 
 // API Response type
 interface MakkahLiveChannel {
@@ -86,6 +87,7 @@ const FALLBACK_TV_CHANNELS: TVChannel[] = [
 
 export default function MakkahLiveScreen() {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [channels, setChannels] = useState<Channel[]>(FALLBACK_CHANNELS);
   const [tvChannels, setTVChannels] = useState<TVChannel[]>(FALLBACK_TV_CHANNELS);
   const [active, setActive] = useState<Channel>(FALLBACK_CHANNELS[0]);
@@ -297,7 +299,7 @@ export default function MakkahLiveScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <View style={styles.headerContent}>
         <View style={styles.headerText}>
@@ -511,7 +513,7 @@ export default function MakkahLiveScreen() {
         />
         </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 }
 

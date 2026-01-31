@@ -19,6 +19,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { api, ensureAuthenticated } from '../services/api';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface Conversation {
   id: string;
@@ -49,6 +50,7 @@ export default function ChatScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const opacity = useFadeIn({ duration: 380 });
 
   const loadConversations = useCallback(async (isRefresh = false) => {
     try {
@@ -236,7 +238,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <LinearGradient 
         colors={[colors.accentTeal + '20', colors.background, colors.background]} 
         start={{ x: 0, y: 0 }}
@@ -282,7 +284,7 @@ export default function ChatScreen() {
           }
         />
       )}
-    </View>
+    </Animated.View>
   );
 }
 

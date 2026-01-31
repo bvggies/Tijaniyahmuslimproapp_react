@@ -7,11 +7,13 @@ import {
   ScrollView,
   Alert,
   Image,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface GuestModeScreenProps {
   navigation: any;
@@ -19,6 +21,7 @@ interface GuestModeScreenProps {
 
 export default function GuestModeScreen({ navigation }: GuestModeScreenProps) {
   const { continueAsGuest } = useAuth();
+  const opacity = useFadeIn({ duration: 400 });
 
   const handleContinueAsGuest = () => {
     continueAsGuest();
@@ -122,7 +125,7 @@ export default function GuestModeScreen({ navigation }: GuestModeScreenProps) {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <LinearGradient colors={[colors.background, colors.surface]} style={styles.gradient}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
@@ -219,7 +222,7 @@ export default function GuestModeScreen({ navigation }: GuestModeScreenProps) {
           </View>
         </ScrollView>
       </LinearGradient>
-    </View>
+    </Animated.View>
   );
 }
 

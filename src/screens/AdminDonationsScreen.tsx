@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Modal,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,6 +33,7 @@ interface Donation {
 
 const AdminDonationsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [donations, setDonations] = useState<Donation[]>([]);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
@@ -320,7 +322,7 @@ const AdminDonationsScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -569,7 +571,7 @@ const AdminDonationsScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           </View>
         )}
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -8,15 +8,18 @@ import {
   TextInput, 
   Alert,
   Linking,
-  Image 
+  Image,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 export default function DonateScreen() {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 400 });
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -52,7 +55,8 @@ export default function DonateScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <Animated.View style={[styles.container, { opacity }]}>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>{t('donate.title')}</Text>
         <Text style={styles.headerSubtitle}>{t('donate.subtitle')}</Text>
@@ -271,11 +275,13 @@ export default function DonateScreen() {
 
       <View style={{ height: 20 }} />
     </ScrollView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   header: { paddingTop: 50, paddingBottom: 20, paddingHorizontal: 20 },
   headerTitle: { color: colors.textPrimary, fontSize: 24, fontWeight: '800', marginBottom: 8 },
   headerSubtitle: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },

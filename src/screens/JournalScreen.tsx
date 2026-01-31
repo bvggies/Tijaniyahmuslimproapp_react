@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import { api, ensureDemoAuth } from '../services/api';
 import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import UpgradePrompt from '../components/UpgradePrompt';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface Entry {
   id: string;
@@ -54,6 +55,7 @@ const MOOD_EMOJIS = {
 
 export default function JournalScreen() {
   const { authState } = useAuth();
+  const opacity = useFadeIn({ duration: 380 });
   const [entries, setEntries] = useState<Entry[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showStats, setShowStats] = useState(false);
@@ -289,7 +291,7 @@ export default function JournalScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>Islamic Journal</Text>
         <Text style={styles.headerSubtitle}>Reflect on your spiritual journey</Text>
@@ -523,7 +525,7 @@ export default function JournalScreen() {
         }}
         feature="Islamic Journal"
       />
-    </View>
+    </Animated.View>
   );
 }
 

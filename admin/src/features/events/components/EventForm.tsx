@@ -24,11 +24,24 @@ import {
 import { Event, CreateEventDto } from '../../../lib/api/types';
 import { eventCategories } from '../hooks/useEvents';
 
+// Build ISO string from date + 12h time (so AM/PM always shows in form)
+function toISOFromParts(dateStr: string, hour: number, minute: number, ampm: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const hour24 = ampm === 'PM' ? (hour === 12 ? 12 : hour + 12) : (hour === 12 ? 0 : hour);
+  return new Date(y, m - 1, d, hour24, minute).toISOString();
+}
+
 const eventSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  startDateDate: z.string().min(1, 'Start date is required'),
+  startHour: z.number().min(1).max(12),
+  startMinute: z.number().min(0).max(59),
+  startAmPm: z.enum(['AM', 'PM']),
+  endDateDate: z.string().min(1, 'End date is required'),
+  endHour: z.number().min(1).max(12),
+  endMinute: z.number().min(0).max(59),
+  endAmPm: z.enum(['AM', 'PM']),
   location: z.string().optional(),
   imageUrl: z.union([z.string().url(), z.literal('')]).optional(),
   category: z.string().min(1, 'Category is required'),
@@ -49,6 +62,16 @@ interface EventFormProps {
 export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFormProps) {
   const isEditing = Boolean(event);
 
+  const parseEventDate = (iso: string): { date: string; hour: number; minute: number; ampm: 'AM' | 'PM' } => {
+    const d = new Date(iso);
+    return {
+      date: d.toISOString().slice(0, 10),
+      hour: d.getHours() % 12 || 12,
+      minute: d.getMinutes(),
+      ampm: (d.getHours() >= 12 ? 'PM' : 'AM') as 'AM' | 'PM',
+    };
+  };
+
   const {
     register,
     handleSubmit,
@@ -59,18 +82,34 @@ export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFo
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
-      ? {
-          title: event.title,
-          description: event.description,
-          startDate: event.startDate.slice(0, 16),
-          endDate: event.endDate.slice(0, 16),
-          location: event.location || '',
-          imageUrl: event.imageUrl || '',
-          category: event.category,
-          tags: event.tags?.join(', ') || '',
-          isPublished: event.isPublished,
-        }
+      ? ((): EventFormData => {
+          const start = parseEventDate(event.startDate);
+          const end = parseEventDate(event.endDate);
+          return {
+            title: event.title,
+            description: event.description,
+            startDateDate: start.date,
+            startHour: start.hour,
+            startMinute: start.minute,
+            startAmPm: start.ampm,
+            endDateDate: end.date,
+            endHour: end.hour,
+            endMinute: end.minute,
+            endAmPm: end.ampm,
+            location: event.location || '',
+            imageUrl: event.imageUrl || '',
+            category: event.category,
+            tags: event.tags?.join(', ') || '',
+            isPublished: event.isPublished,
+          };
+        })()
       : {
+          startHour: 12,
+          startMinute: 0,
+          startAmPm: 'PM',
+          endHour: 12,
+          endMinute: 0,
+          endAmPm: 'PM',
           isPublished: false,
         },
   });
@@ -79,11 +118,19 @@ export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFo
 
   React.useEffect(() => {
     if (event) {
+      const start = parseEventDate(event.startDate);
+      const end = parseEventDate(event.endDate);
       reset({
         title: event.title,
         description: event.description,
-        startDate: event.startDate.slice(0, 16),
-        endDate: event.endDate.slice(0, 16),
+        startDateDate: start.date,
+        startHour: start.hour,
+        startMinute: start.minute,
+        startAmPm: start.ampm,
+        endDateDate: end.date,
+        endHour: end.hour,
+        endMinute: end.minute,
+        endAmPm: end.ampm,
         location: event.location || '',
         imageUrl: event.imageUrl || '',
         category: event.category,
@@ -94,8 +141,14 @@ export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFo
       reset({
         title: '',
         description: '',
-        startDate: '',
-        endDate: '',
+        startDateDate: '',
+        startHour: 12,
+        startMinute: 0,
+        startAmPm: 'PM',
+        endDateDate: '',
+        endHour: 12,
+        endMinute: 0,
+        endAmPm: 'PM',
         location: '',
         imageUrl: '',
         category: '',
@@ -109,8 +162,8 @@ export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFo
     const eventData: CreateEventDto = {
       title: data.title,
       description: data.description,
-      startDate: new Date(data.startDate).toISOString(),
-      endDate: new Date(data.endDate).toISOString(),
+      startDate: toISOFromParts(data.startDateDate, data.startHour, data.startMinute, data.startAmPm),
+      endDate: toISOFromParts(data.endDateDate, data.endHour, data.endMinute, data.endAmPm),
       location: data.location || undefined,
       imageUrl: data.imageUrl || undefined,
       category: data.category,
@@ -161,38 +214,120 @@ export function EventForm({ open, onClose, onSubmit, event, isLoading }: EventFo
             )}
           </div>
 
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Start Date *
-              </Label>
+          {/* Start Date & Time (date + AM/PM so it shows on all browsers) */}
+          <div className="grid grid-cols-1 gap-4">
+            <Label className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Start Date & Time *
+            </Label>
+            <div className="flex flex-wrap items-end gap-2">
               <Input
-                id="startDate"
-                type="datetime-local"
-                error={!!errors.startDate}
-                {...register('startDate')}
+                id="startDateDate"
+                type="date"
+                className="w-[140px]"
+                error={!!errors.startDateDate}
+                {...register('startDateDate')}
               />
-              {errors.startDate && (
-                <p className="text-sm text-red-500">{errors.startDate.message}</p>
-              )}
+              <Select
+                value={String(watch('startHour') ?? 12)}
+                onValueChange={(v) => setValue('startHour', parseInt(v, 10))}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="Hr" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={String(watch('startMinute') ?? 0)}
+                onValueChange={(v) => setValue('startMinute', parseInt(v, 10))}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="Min" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[0, 15, 30, 45].map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n.toString().padStart(2, '0')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={watch('startAmPm') ?? 'PM'}
+                onValueChange={(v) => setValue('startAmPm', v as 'AM' | 'PM')}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="AM/PM" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AM">AM</SelectItem>
+                  <SelectItem value="PM">PM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                End Date *
-              </Label>
+            {(errors.startDateDate || errors.startHour) && (
+              <p className="text-sm text-red-500">{errors.startDateDate?.message || errors.startHour?.message}</p>
+            )}
+          </div>
+
+          {/* End Date & Time */}
+          <div className="grid grid-cols-1 gap-4">
+            <Label className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              End Date & Time *
+            </Label>
+            <div className="flex flex-wrap items-end gap-2">
               <Input
-                id="endDate"
-                type="datetime-local"
-                error={!!errors.endDate}
-                {...register('endDate')}
+                id="endDateDate"
+                type="date"
+                className="w-[140px]"
+                error={!!errors.endDateDate}
+                {...register('endDateDate')}
               />
-              {errors.endDate && (
-                <p className="text-sm text-red-500">{errors.endDate.message}</p>
-              )}
+              <Select
+                value={String(watch('endHour') ?? 12)}
+                onValueChange={(v) => setValue('endHour', parseInt(v, 10))}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="Hr" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={String(watch('endMinute') ?? 0)}
+                onValueChange={(v) => setValue('endMinute', parseInt(v, 10))}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="Min" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[0, 15, 30, 45].map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n.toString().padStart(2, '0')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={watch('endAmPm') ?? 'PM'}
+                onValueChange={(v) => setValue('endAmPm', v as 'AM' | 'PM')}
+              >
+                <SelectTrigger className="w-[72px]">
+                  <SelectValue placeholder="AM/PM" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AM">AM</SelectItem>
+                  <SelectItem value="PM">PM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+            {(errors.endDateDate || errors.endHour) && (
+              <p className="text-sm text-red-500">{errors.endDateDate?.message || errors.endHour?.message}</p>
+            )}
           </div>
 
           {/* Location & Category */}

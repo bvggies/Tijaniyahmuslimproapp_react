@@ -9,12 +9,14 @@ import {
   Alert,
   Modal,
   Switch,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface AppSettings {
   general: {
@@ -73,6 +75,7 @@ interface AdminUser {
 const AdminSettingsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
   const { adminUser, hasPermission, updateProfile, changePassword } = useAdminAuth();
+  const opacity = useFadeIn({ duration: 380 });
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -372,7 +375,7 @@ const AdminSettingsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -673,7 +676,7 @@ const AdminSettingsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           onAdd={handleAddAdmin}
         />
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'GHS' | 'NGN';
 
@@ -39,6 +40,7 @@ export default function ZakatCalculatorScreen() {
   const [goldPricePerGram, setGoldPricePerGram] = useState<number>(75); // fallback approx in selected currency
   const [silverPricePerGram, setSilverPricePerGram] = useState<number>(0.9); // fallback approx
   const [isSaving, setIsSaving] = useState(false);
+  const opacity = useFadeIn({ duration: 380 });
 
   // Best effort: try to fetch latest prices; silently fall back on defaults
   useEffect(() => {
@@ -164,7 +166,8 @@ export default function ZakatCalculatorScreen() {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <Animated.View style={[styles.container, { opacity }]}>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>{t('zakat.title')}</Text>
         <Text style={styles.headerSubtitle}>{t('zakat.subtitle')}</Text>
@@ -276,11 +279,13 @@ export default function ZakatCalculatorScreen() {
 
       <View style={{ height: 24 }} />
     </ScrollView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   header: { paddingTop: 50, paddingBottom: 20, paddingHorizontal: 20 },
   headerTitle: { color: colors.textPrimary, fontSize: 24, fontWeight: '800', marginBottom: 8 },
   headerSubtitle: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },

@@ -581,6 +581,48 @@ class NotificationService {
     }
   }
 
+  /** Azan schedules from admin: play at set time daily (works offline). */
+  async scheduleAzanNotifications(azans: { id: string; name: string; playAt: string }[]): Promise<void> {
+    await this.cancelAzanNotifications();
+    for (const azan of azans) {
+      const [hourStr, minuteStr] = azan.playAt.split(':');
+      const hour = parseInt(hourStr, 10) || 0;
+      const minute = parseInt(minuteStr, 10) || 0;
+      const id = `azan_${azan.id}`;
+      try {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'أذان — Azan',
+            body: azan.name,
+            sound: true,
+            data: { type: 'azan', azanId: azan.id, azanName: azan.name },
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
+            hour,
+            minute,
+          },
+          identifier: id,
+        });
+      } catch (error) {
+        console.error('Error scheduling azan notification:', id, error);
+      }
+    }
+  }
+
+  async cancelAzanNotifications(): Promise<void> {
+    try {
+      const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+      for (const n of scheduled) {
+        if (n.identifier && String(n.identifier).startsWith('azan_')) {
+          await Notifications.cancelScheduledNotificationAsync(n.identifier);
+        }
+      }
+    } catch (error) {
+      console.error('Error canceling azan notifications:', error);
+    }
+  }
+
   // Cancel prayer notifications
   async cancelPrayerNotifications(): Promise<void> {
     const prayerIds = ['prayer_fajr', 'prayer_dhuhr', 'prayer_asr', 'prayer_maghrib', 'prayer_isha'];

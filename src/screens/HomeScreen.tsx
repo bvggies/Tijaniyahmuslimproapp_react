@@ -245,8 +245,8 @@ export default function HomeScreen({ navigation }: any) {
         setCurrentLocation({
           latitude: userLocation.latitude,
           longitude: userLocation.longitude,
-          city: userLocation.city,
-          country: userLocation.country,
+          city: userLocation.city ?? '',
+          country: userLocation.country ?? '',
         });
 
         const times = await getPrayerTimes(
@@ -567,6 +567,7 @@ export default function HomeScreen({ navigation }: any) {
               daysUntil: e.daysUntil || 0,
               category: 'celebration' as const,
             }))}
+            onEventPress={(e) => navigation.navigate('More', { screen: 'EventDetail', params: { eventId: e.id } })}
             isLoading={false}
           />
 
@@ -601,6 +602,7 @@ export default function HomeScreen({ navigation }: any) {
             articles={newsArticles}
             isLoading={isLoadingNews}
             onRefresh={loadNews}
+            onArticlePress={(article) => navigation.navigate('More', { screen: 'NewsDetail', params: { articleId: article.id } })}
           />
 
           {/* Bottom Padding for Tab Bar */}

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -20,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api, ensureAuthenticated } from '../services/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface Message {
   id: string;
@@ -57,6 +59,7 @@ export default function ConversationDetailScreen() {
   const [hasMore, setHasMore] = useState(false);
   const [cursor, setCursor] = useState<string | undefined>();
   const flatListRef = useRef<FlatList>(null);
+  const opacity = useFadeIn({ duration: 350 });
 
   const loadMessages = useCallback(async (loadMore = false) => {
     try {
@@ -407,6 +410,7 @@ export default function ConversationDetailScreen() {
   );
 
   return (
+    <Animated.View style={[styles.container, { opacity }]}>
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -504,6 +508,7 @@ export default function ConversationDetailScreen() {
         </LinearGradient>
       </BlurView>
     </KeyboardAvoidingView>
+    </Animated.View>
   );
 }
 

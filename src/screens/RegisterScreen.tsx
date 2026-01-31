@@ -11,6 +11,7 @@ import {
   Alert,
   Image,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -19,6 +20,7 @@ import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import CountryPicker from '../components/CountryPicker';
 import ProfileAvatar from '../components/ProfileAvatar';
+import { useSlideUpFadeIn } from '../hooks/useAnimations';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -41,6 +43,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { opacity, translateY } = useSlideUpFadeIn({ delay: 100, duration: 420, distance: 24 });
 
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -96,7 +99,8 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <Animated.View style={[styles.container, { opacity, transform: [{ translateY }] }]}>
+    <KeyboardAvoidingView style={styles.keyboardWrap} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <LinearGradient colors={[colors.background, colors.surface]} style={styles.gradient}>
         {/* Background Mosque Image with 60% opacity */}
         <Image
@@ -311,11 +315,15 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
         </ScrollView>
       </LinearGradient>
     </KeyboardAvoidingView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardWrap: {
     flex: 1,
   },
   gradient: {

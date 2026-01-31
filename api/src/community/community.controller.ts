@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../common/jwt.guard';
 
@@ -33,6 +34,12 @@ export class CommunityController {
   @Get(':id')
   getPost(@Param('id') id: string) {
     return this.communityService.getPost(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  updatePost(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.communityService.updatePost(id, req.user.userId, updatePostDto);
   }
 
   @Delete(':id')

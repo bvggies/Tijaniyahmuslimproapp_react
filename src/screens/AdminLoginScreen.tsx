@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +21,7 @@ interface AdminLoginScreenProps {
 }
 
 const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) => {
+  const { opacity, translateY } = useSlideUpFadeIn({ delay: 100, duration: 400, distance: 24 });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +73,7 @@ const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) =
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.formContainer}>
+        <Animated.View style={[styles.formContainer, { opacity, transform: [{ translateY }] }]}>
           <Text style={styles.welcomeText}>Welcome Back</Text>
           <Text style={styles.subtitleText}>Sign in to access the admin dashboard</Text>
 
@@ -173,7 +175,7 @@ const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({ onLoginSuccess }) =
               This is a secure admin area. All activities are logged and monitored.
             </Text>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

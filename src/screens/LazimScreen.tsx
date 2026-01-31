@@ -9,11 +9,13 @@ import {
   Modal,
   TextInput,
   Alert,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { LazimItem } from '../types';
 import * as Haptics from 'expo-haptics';
+import { useFadeIn } from '../hooks/useAnimations';
 
 // Mock data for Lazim items
 const mockLazimItems: LazimItem[] = [
@@ -60,6 +62,7 @@ const mockLazimItems: LazimItem[] = [
 ];
 
 export default function LazimScreen() {
+  const opacity = useFadeIn({ duration: 380 });
   const [lazimItems, setLazimItems] = useState<LazimItem[]>(mockLazimItems);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -155,7 +158,7 @@ export default function LazimScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={['#2E7D32', '#4CAF50']}
@@ -315,7 +318,7 @@ export default function LazimScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 }
 

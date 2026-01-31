@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +18,7 @@ import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import UpgradePrompt from '../components/UpgradePrompt';
 import IslamicBackground from '../components/IslamicBackground';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
@@ -396,7 +398,7 @@ export default function LessonsScreen({ navigation }: any) {
 
   return (
     <IslamicBackground opacity={1.0}>
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.surface, colors.background]}
@@ -514,7 +516,7 @@ export default function LessonsScreen({ navigation }: any) {
           }}
         />
       )}
-      </View>
+      </Animated.View>
     </IslamicBackground>
   );
 }

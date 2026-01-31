@@ -6,12 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 // Digital Counter Component
 const DigitalCounter = ({ count, onIncrement, onDecrement, onReset }: {
@@ -114,7 +116,7 @@ export default function WazifaScreen() {
 
   return (
     <IslamicBackground opacity={1.0}>
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity }]}>
         <ScrollView 
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
@@ -451,7 +453,7 @@ Ameen thumma Ameen!
             </ScrollView>
           </View>
         </Modal>
-      </View>
+      </Animated.View>
     </IslamicBackground>
   );
 }

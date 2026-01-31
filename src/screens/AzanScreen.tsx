@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,6 +16,8 @@ import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
 import { Audio } from 'expo-av';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
+import { api } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +29,8 @@ interface AzanOption {
   description: string;
   icon: string;
   color: string;
-  audioUrl: string;
+  /** Local require() result (number) or remote URL string */
+  audioUrl: string | number;
 }
 
 const TijaniyaAzanScreen: React.FC = () => {
@@ -38,9 +42,36 @@ const TijaniyaAzanScreen: React.FC = () => {
   const [volume, setVolume] = useState(1.0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [adminAzans, setAdminAzans] = useState<AzanOption[]>([]);
   const soundRef = useRef<Audio.Sound | null>(null);
+  const opacity = useFadeIn({ duration: 380 });
 
-  const azanOptions: AzanOption[] = [
+  useEffect(() => {
+    let cancelled = false;
+    api.getAzans(true)
+      .then((list) => {
+        if (cancelled) return;
+        const arr = Array.isArray(list) ? list : [];
+        setAdminAzans(
+          arr.map((a: { id: string; name: string; muezzin?: string; location?: string; description?: string; audioUrl: string }) => ({
+            id: a.id,
+            name: a.name,
+            muezzin: a.muezzin || '',
+            location: a.location || '',
+            description: a.description || '',
+            icon: 'volume-high',
+            color: colors.accentTeal,
+            audioUrl: a.audioUrl,
+          }))
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setAdminAzans([]);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const builtInAzans: AzanOption[] = [
     {
       id: 'makkah',
       name: 'Makkah Al-Mukarramah',
@@ -134,9 +165,13 @@ const TijaniyaAzanScreen: React.FC = () => {
 
       console.log('Audio mode set, creating sound...');
 
+      const source = typeof azan.audioUrl === 'string' && (azan.audioUrl.startsWith('http') || azan.audioUrl.startsWith('https'))
+        ? { uri: azan.audioUrl }
+        : azan.audioUrl;
+
       // Create new sound object with timeout
       const soundPromise = Audio.Sound.createAsync(
-        azan.audioUrl, // Local file, no need for { uri: }
+        source,
         { 
           shouldPlay: false,
           volume: volume,
@@ -380,7 +415,7 @@ const TijaniyaAzanScreen: React.FC = () => {
 
   return (
     <IslamicBackground opacity={0.1}>
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity }]}>
         <ScrollView 
           style={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
@@ -434,7 +469,7 @@ const TijaniyaAzanScreen: React.FC = () => {
             </LinearGradient>
           </View>
         </ScrollView>
-      </View>
+      </Animated.View>
     </IslamicBackground>
   );
 };

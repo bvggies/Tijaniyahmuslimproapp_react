@@ -8,12 +8,14 @@ import {
   TextInput,
   Alert,
   Modal,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface NewsItem {
   id: string;
@@ -29,6 +31,7 @@ interface NewsItem {
 
 const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
@@ -220,7 +223,7 @@ const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -400,7 +403,7 @@ const AdminNewsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

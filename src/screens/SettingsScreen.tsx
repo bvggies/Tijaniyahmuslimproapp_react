@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTimeFormat } from '../contexts/TimeFormatContext';
 import { useIslamicCalendar, IslamicCalendarType } from '../contexts/IslamicCalendarContext';
 import LanguageSelector from '../components/LanguageSelector';
+import { useFadeIn } from '../hooks/useAnimations';
+import NotificationService from '../services/notificationService';
+import { api } from '../services/api';
 
 interface Settings {
   notifications: boolean;
@@ -25,7 +29,10 @@ interface Settings {
   language: string;
   locationServices: boolean;
   autoLocation: boolean;
+  azanEnabled: boolean;
 }
+
+const SETTINGS_STORAGE_KEY = 'appSettings';
 
 export default function SettingsScreen({ navigation }: any) {
   const { t } = useLanguage();
@@ -39,6 +46,7 @@ export default function SettingsScreen({ navigation }: any) {
     language: 'en',
     locationServices: true,
     autoLocation: true,
+    azanEnabled: true,
   });
 
   useEffect(() => {
@@ -47,9 +55,14 @@ export default function SettingsScreen({ navigation }: any) {
 
   const loadSettings = async () => {
     try {
-      const savedSettings = await AsyncStorage.getItem('appSettings');
+      const savedSettings = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        const parsed = JSON.parse(savedSettings);
+        setSettings((prev) => ({
+          ...prev,
+          ...parsed,
+          azanEnabled: parsed.azanEnabled !== false,
+        }));
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -58,7 +71,7 @@ export default function SettingsScreen({ navigation }: any) {
 
   const saveSettings = async (newSettings: Settings) => {
     try {
-      await AsyncStorage.setItem('appSettings', JSON.stringify(newSettings));
+      await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
       setSettings(newSettings);
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -66,9 +79,25 @@ export default function SettingsScreen({ navigation }: any) {
     }
   };
 
-  const updateSetting = (key: keyof Settings, value: any) => {
+  const updateSetting = async (key: keyof Settings, value: any) => {
     const newSettings = { ...settings, [key]: value };
-    saveSettings(newSettings);
+    await saveSettings(newSettings);
+
+    if (key === 'azanEnabled') {
+      if (value) {
+        try {
+          const azans = await api.getAzans(true);
+          const list = Array.isArray(azans) ? azans : [];
+          await notificationService.scheduleAzanNotifications(
+            list.map((a: { id: string; name: string; playAt: string }) => ({ id: a.id, name: a.name, playAt: a.playAt }))
+          );
+        } catch (e) {
+          console.error('Failed to schedule azan notifications:', e);
+        }
+      } else {
+        await NotificationService.getInstance().cancelAzanNotifications();
+      }
+    }
   };
 
   const showCalendarSelector = () => {
@@ -141,6 +170,22 @@ export default function SettingsScreen({ navigation }: any) {
           thumbColor="#FFFFFF"
         />
       </View>
+
+      <View style={styles.settingItem}>
+        <View style={styles.settingContent}>
+          <Ionicons name="volume-high" size={20} color={colors.accentTeal} />
+          <View style={styles.settingText}>
+            <Text style={styles.settingLabel}>Azan (Adhan)</Text>
+            <Text style={styles.settingDescription}>Play azan at admin-set times daily (works offline)</Text>
+          </View>
+        </View>
+        <Switch
+          value={settings.azanEnabled}
+          onValueChange={(value) => updateSetting('azanEnabled', value)}
+          trackColor={{ false: colors.divider, true: colors.accentTeal }}
+          thumbColor="#FFFFFF"
+        />
+      </View>
     </View>
   );
 
@@ -192,7 +237,10 @@ export default function SettingsScreen({ navigation }: any) {
               styles.timeFormatButton,
               timeFormat === '24h' && styles.timeFormatButtonActive
             ]}
-            onPress={() => setTimeFormat('24h')}
+            onPress={async () => {
+              await setTimeFormat('24h');
+              await saveSettings({ ...settings, timeFormat: '24h' });
+            }}
           >
             <Text style={[
               styles.timeFormatText,
@@ -313,6 +361,50 @@ export default function SettingsScreen({ navigation }: any) {
     </View>
   );
 
+  const clearCache = async () => {
+    const cacheOnlyKeys = ['user_location_cache'];
+    try {
+      for (const key of cacheOnlyKeys) {
+        await AsyncStorage.removeItem(key);
+      }
+      Alert.alert('Success', 'Cache cleared. Location and other temporary data were removed.');
+    } catch (e) {
+      Alert.alert('Error', 'Failed to clear cache.');
+    }
+  };
+
+  const resetToDefault = async () => {
+    const defaultSettings: Settings = {
+      notifications: true,
+      prayerNotifications: true,
+      darkMode: false,
+      timeFormat: '12h',
+      language: 'en',
+      locationServices: true,
+      autoLocation: true,
+      azanEnabled: true,
+    };
+    await saveSettings(defaultSettings);
+    setTimeFormat('12h');
+    await AsyncStorage.setItem('timeFormat', '12h');
+    setSelectedCalendar('lunar');
+    await AsyncStorage.setItem('tijaniyah_islamic_calendar', 'lunar');
+    if (defaultSettings.azanEnabled) {
+      try {
+        const azans = await api.getAzans(true);
+        const list = Array.isArray(azans) ? azans : [];
+        await notificationService.scheduleAzanNotifications(
+          list.map((a: { id: string; name: string; playAt: string }) => ({ id: a.id, name: a.name, playAt: a.playAt }))
+        );
+      } catch (e) {
+        console.error('Failed to schedule azan after reset:', e);
+      }
+    } else {
+      await NotificationService.getInstance().cancelAzanNotifications();
+    }
+    Alert.alert('Success', 'Settings reset to default!');
+  };
+
   const renderDataManagement = () => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Data Management</Text>
@@ -322,12 +414,10 @@ export default function SettingsScreen({ navigation }: any) {
         onPress={() => {
           Alert.alert(
             'Clear Cache',
-            'This will clear all cached data. Continue?',
+            'This will clear cached settings and preferences (not login). Continue?',
             [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Clear', style: 'destructive', onPress: () => {
-                Alert.alert('Success', 'Cache cleared successfully!');
-              }}
+              { text: 'Clear', style: 'destructive', onPress: clearCache }
             ]
           );
         }}
@@ -345,19 +435,7 @@ export default function SettingsScreen({ navigation }: any) {
             'This will reset all settings to default. Continue?',
             [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Reset', style: 'destructive', onPress: () => {
-                const defaultSettings: Settings = {
-                  notifications: true,
-                  prayerNotifications: true,
-                  darkMode: false,
-                  timeFormat: '24h',
-                  language: 'en',
-                  locationServices: true,
-                  autoLocation: true,
-                };
-                saveSettings(defaultSettings);
-                Alert.alert('Success', 'Settings reset to default!');
-              }}
+              { text: 'Reset', style: 'destructive', onPress: resetToDefault }
             ]
           );
         }}
@@ -370,7 +448,7 @@ export default function SettingsScreen({ navigation }: any) {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {renderHeader()}
       
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -380,7 +458,7 @@ export default function SettingsScreen({ navigation }: any) {
         {renderAppInfo()}
         {renderDataManagement()}
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 }
 

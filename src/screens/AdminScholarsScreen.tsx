@@ -10,6 +10,7 @@ import {
   Modal,
   Image,
   Switch,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -58,6 +59,7 @@ interface Scholar {
 const AdminScholarsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
   const { hasPermission } = useAdminAuth();
+  const opacity = useFadeIn({ duration: 380 });
   const [scholars, setScholars] = useState<Scholar[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -440,7 +442,7 @@ const AdminScholarsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -647,7 +649,7 @@ const AdminScholarsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           onImagePicker={handleImagePicker}
         />
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

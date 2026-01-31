@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface ChecklistItem { id: string; label: string; done: boolean; }
 
@@ -50,6 +51,7 @@ export default function HajjUmrahScreen() {
   };
 
   return (
+    <Animated.View style={{ flex: 1, opacity }}>
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>{t('hajj.hajj_umrah')}</Text>
@@ -124,6 +126,7 @@ export default function HajjUmrahScreen() {
 
       <View style={{ height: 24 }} />
     </ScrollView>
+    </Animated.View>
   );
 }
 

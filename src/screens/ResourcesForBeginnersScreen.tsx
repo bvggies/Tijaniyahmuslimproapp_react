@@ -7,14 +7,17 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
 const ResourcesForBeginnersScreen: React.FC = () => {
+  const opacity = useFadeIn({ duration: 380 });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -237,7 +240,7 @@ const ResourcesForBeginnersScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <ScrollView 
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -299,7 +302,7 @@ const ResourcesForBeginnersScreen: React.FC = () => {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 

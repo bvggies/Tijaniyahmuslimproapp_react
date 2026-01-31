@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Dua } from '../types';
+import { useFadeIn, useStaggeredFadeIn } from '../hooks/useAnimations';
 
 // Mock data for Duas
 const mockDuas: Dua[] = [
@@ -189,6 +191,57 @@ const mockDuas: Dua[] = [
 
 const categories = ['All', 'Morning', 'Evening', 'Eating', 'Travel', 'Prayer', 'Forgiveness'];
 
+function AnimatedDuaCard({
+  item,
+  index,
+  language,
+  favorites,
+  toggleFavorite,
+  styles: s,
+  t,
+}: {
+  item: Dua;
+  index: number;
+  language: string;
+  favorites: string[];
+  toggleFavorite: (id: string) => void;
+  styles: any;
+  t: (key: string) => string;
+}) {
+  const { opacity, translateY } = useStaggeredFadeIn(index, { baseDelay: 80, itemDelay: 50 });
+  return (
+    <Animated.View style={[s.duaCard, { opacity, transform: [{ translateY }] }]}>
+      <View style={s.duaHeader}>
+        <Text style={s.duaTitle}>{item.title}</Text>
+        <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={s.favoriteButton}>
+          <Ionicons
+            name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
+            size={24}
+            color={favorites.includes(item.id) ? '#FF6B6B' : '#666'}
+          />
+        </TouchableOpacity>
+      </View>
+      <View style={s.duaContent}>
+        <Text style={s.arabicText}>{item.arabic}</Text>
+        <Text style={s.transliterationText}>{item.transliteration}</Text>
+        <Text style={s.translationText}>
+          {language === 'fr' && item.frenchTranslation ? item.frenchTranslation :
+           language === 'ha' && item.hausaTranslation ? item.hausaTranslation :
+           item.translation}
+        </Text>
+      </View>
+      <View style={s.duaFooter}>
+        <View style={s.categoryBadge}>
+          <Text style={s.categoryText}>{item.category}</Text>
+        </View>
+        <TouchableOpacity style={s.shareButton}>
+          <Ionicons name="share-outline" size={20} color="#2196F3" />
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
+  );
+}
+
 export default function DuasScreen() {
   const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
@@ -215,41 +268,10 @@ export default function DuasScreen() {
     );
   };
 
-  const renderDuaCard = ({ item }: { item: Dua }) => (
-    <View style={styles.duaCard}>
-      <View style={styles.duaHeader}>
-        <Text style={styles.duaTitle}>{item.title}</Text>
-        <TouchableOpacity
-          onPress={() => toggleFavorite(item.id)}
-          style={styles.favoriteButton}
-        >
-          <Ionicons
-            name={favorites.includes(item.id) ? 'heart' : 'heart-outline'}
-            size={24}
-            color={favorites.includes(item.id) ? '#FF6B6B' : '#666'}
-          />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.duaContent}>
-        <Text style={styles.arabicText}>{item.arabic}</Text>
-        <Text style={styles.transliterationText}>{item.transliteration}</Text>
-        <Text style={styles.translationText}>
-          {language === 'fr' && item.frenchTranslation ? item.frenchTranslation : 
-           language === 'ha' && item.hausaTranslation ? item.hausaTranslation : 
-           item.translation}
-        </Text>
-      </View>
-      
-      <View style={styles.duaFooter}>
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{item.category}</Text>
-        </View>
-        <TouchableOpacity style={styles.shareButton}>
-          <Ionicons name="share-outline" size={20} color="#2196F3" />
-        </TouchableOpacity>
-      </View>
-    </View>
+  const screenOpacity = useFadeIn({ duration: 350 });
+
+  const renderDuaCard = ({ item, index }: { item: Dua; index: number }) => (
+    <AnimatedDuaCard item={item} index={index} language={language} favorites={favorites} toggleFavorite={toggleFavorite} styles={styles} t={t} />
   );
 
   const renderHeader = () => (
@@ -312,7 +334,7 @@ export default function DuasScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.surface, colors.background]}
@@ -349,7 +371,7 @@ export default function DuasScreen() {
           </View>
         }
       />
-    </View>
+    </Animated.View>
   );
 }
 

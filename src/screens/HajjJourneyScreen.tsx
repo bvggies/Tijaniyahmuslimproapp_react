@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Platform, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const phases = [
   { key: 'day8', titleKey: 'hajj.day8_title', textKey: 'hajj.day8_text' },
@@ -14,6 +15,7 @@ const phases = [
 
 export default function HajjJourneyScreen() {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [done, setDone] = useState<Record<string, boolean>>({});
   useEffect(() => { (async () => { try { const s = await AsyncStorage.getItem('hajj_journey_done'); if (s) setDone(JSON.parse(s)); } catch {} })(); }, []);
   const toggle = (k: string) => setDone(prev => ({ ...prev, [k]: !prev[k] }));
@@ -23,6 +25,7 @@ export default function HajjJourneyScreen() {
     if (url) Linking.openURL(url).catch(()=>{});
   };
   return (
+    <Animated.View style={{ flex: 1, opacity }}>
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>{t('hajj.hajj_journey')}</Text>
@@ -50,6 +53,7 @@ export default function HajjJourneyScreen() {
       </View>
       <View style={{ height: 24 }} />
     </ScrollView>
+    </Animated.View>
   );
 }
 

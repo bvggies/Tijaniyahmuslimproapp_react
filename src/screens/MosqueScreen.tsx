@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Linking, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { colors } from '../utils/theme';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface Mosque { id: string; name: string; address: string; distance: number; }
 
@@ -12,6 +13,7 @@ export default function MosqueScreen() {
   const [city, setCity] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const opacity = useFadeIn({ duration: 380 });
 
   const GOOGLE_API_KEY = 'AIzaSyDYF4HFEefrlQMuswHoefQDU-DawWBatDI';
 
@@ -92,7 +94,7 @@ export default function MosqueScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <LinearGradient colors={[colors.surface, colors.background]} style={styles.header}>
         <Text style={styles.headerTitle}>Mosque Locator</Text>
         <Text style={styles.headerSubtitle}>Nearby in {city || 'your area'}</Text>
@@ -112,7 +114,7 @@ export default function MosqueScreen() {
           ListEmptyComponent={<Text style={styles.empty}>{error || 'No mosques found nearby.'}</Text>}
         />
       )}
-    </View>
+    </Animated.View>
   );
 }
 

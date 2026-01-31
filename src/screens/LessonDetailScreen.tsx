@@ -9,6 +9,7 @@ import {
   Dimensions,
   Modal,
   Alert,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ import { colors } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import UpgradePrompt from '../components/UpgradePrompt';
 import IslamicBackground from '../components/IslamicBackground';
+import { useSlideUpFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
@@ -536,7 +538,7 @@ export default function LessonDetailScreen({ route, navigation }: any) {
 
   return (
     <IslamicBackground opacity={1.0}>
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity, transform: [{ translateY }] }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.surface, colors.background]}
@@ -598,7 +600,7 @@ export default function LessonDetailScreen({ route, navigation }: any) {
           <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-      </View>
+      </Animated.View>
     </IslamicBackground>
   );
 }

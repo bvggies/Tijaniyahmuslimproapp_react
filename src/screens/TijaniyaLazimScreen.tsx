@@ -8,17 +8,20 @@ import {
   Dimensions,
   Modal,
   Alert,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import IslamicBackground from '../components/IslamicBackground';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
 const TijaniyaLazimScreen: React.FC = () => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [currentStep, setCurrentStep] = useState(0);
   const [counter, setCounter] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -296,7 +299,7 @@ const TijaniyaLazimScreen: React.FC = () => {
 
   return (
     <IslamicBackground opacity={0.1}>
-      <View style={styles.container}>
+      <Animated.View style={[styles.container, { opacity }]}>
         <ScrollView 
           style={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
@@ -388,7 +391,7 @@ const TijaniyaLazimScreen: React.FC = () => {
             </View>
           </View>
         </Modal>
-      </View>
+      </Animated.View>
     </IslamicBackground>
   );
 };

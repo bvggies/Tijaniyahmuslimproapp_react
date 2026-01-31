@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { api } from '../services/api';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface AdminStats {
   totalUsers: number;
@@ -34,6 +37,7 @@ interface AdminMenuItem {
 
 const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     totalDonations: 0,
@@ -115,25 +119,37 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
       color: '#FF5722',
       screen: 'AdminSettings',
     },
+    {
+      id: 'azan',
+      title: 'Azan Schedules',
+      subtitle: 'Add azans to play at set times (daily, works offline)',
+      icon: 'volume-high',
+      color: '#00BCD4',
+      screen: 'AdminAzan',
+    },
   ];
 
   const loadStats = async () => {
     try {
-      // TODO: Replace with actual API calls
-      // const response = await fetch('/api/admin/stats');
-      // const data = await response.json();
-      
-      // Mock data for now
+      const overview = await api.getAnalyticsOverview();
       setStats({
-        totalUsers: 1250,
-        totalDonations: 45,
-        totalNews: 12,
-        totalEvents: 8,
-        totalLessons: 25,
-        totalScholars: 15,
+        totalUsers: overview?.totalUsers ?? 0,
+        totalDonations: overview?.donationsMonth ?? 0,
+        totalNews: overview?.totalNews ?? 0,
+        totalEvents: overview?.totalEvents ?? 0,
+        totalLessons: overview?.totalLessons ?? 0,
+        totalScholars: overview?.totalScholars ?? 0,
       });
     } catch (error) {
       console.error('Error loading admin stats:', error);
+      setStats({
+        totalUsers: 0,
+        totalDonations: 0,
+        totalNews: 0,
+        totalEvents: 0,
+        totalLessons: 0,
+        totalScholars: 0,
+      });
     }
   };
 
@@ -191,8 +207,9 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
   );
 
   return (
+    <Animated.View style={[styles.container, { opacity, flex: 1 }]}>
     <ScrollView
-      style={styles.container}
+      style={{ flex: 1 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -272,6 +289,7 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
         </View>
       </View>
     </ScrollView>
+    </Animated.View>
   );
 };
 

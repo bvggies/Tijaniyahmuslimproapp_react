@@ -6,14 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
+import { useFadeIn } from '../hooks/useAnimations';
 
 const { width } = Dimensions.get('window');
 
 const TariqaTijaniyyahScreen: React.FC = () => {
+  const opacity = useFadeIn({ duration: 380 });
   const renderInfoCard = (title: string, content: string, icon: string, color: string) => (
     <View style={styles.infoCard}>
       <LinearGradient
@@ -39,7 +42,7 @@ const TariqaTijaniyyahScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       <ScrollView 
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -176,7 +179,7 @@ const TariqaTijaniyyahScreen: React.FC = () => {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 

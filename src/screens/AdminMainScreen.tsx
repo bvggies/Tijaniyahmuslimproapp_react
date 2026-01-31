@@ -27,6 +27,7 @@ import AdminLessonsScreen from './AdminLessonsScreen';
 import AdminScholarsScreen from './AdminScholarsScreen';
 import AdminAnalyticsScreen from './AdminAnalyticsScreen';
 import AdminSettingsScreen from './AdminSettingsScreen';
+import AdminAzanScreen from './AdminAzanScreen';
 
 interface AdminMainScreenProps {
   navigation: any;
@@ -136,6 +137,7 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
       'AdminScholars': 'scholars',
       'AdminSettings': 'settings',
       'AdminAnalytics': 'analytics',
+      'AdminAzan': 'azan',
     };
 
     const screenProps = { 
@@ -175,6 +177,8 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
         return <AdminAnalyticsScreen navigation={screenProps.navigation} />;
       case 'settings':
         return <AdminSettingsScreen navigation={screenProps.navigation} />;
+      case 'azan':
+        return <AdminAzanScreen navigation={screenProps.navigation} />;
       default:
         return <AdminDashboard navigation={screenProps.navigation} />;
     }
@@ -194,6 +198,7 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
       { id: 'scholars', label: 'Scholars', icon: 'school', color: '#795548' },
       { id: 'analytics', label: 'Analytics', icon: 'analytics', color: '#3F51B5' },
       { id: 'settings', label: 'Settings', icon: 'settings', color: '#9E9E9E' },
+      { id: 'azan', label: 'Azan Schedules', icon: 'volume-high', color: '#00BCD4' },
     ];
 
     const sidebarWidth = Math.min(280, Math.floor(windowWidth * 0.85));
@@ -312,7 +317,8 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
                currentScreen === 'lessons' ? 'Lessons' :
                currentScreen === 'scholars' ? 'Scholars' :
                currentScreen === 'analytics' ? 'Analytics' :
-               currentScreen === 'settings' ? 'Settings' : 'Admin Panel'}
+               currentScreen === 'settings' ? 'Settings' :
+               currentScreen === 'azan' ? 'Azan Schedules' : 'Admin Panel'}
             </Text>
             <TouchableOpacity
               style={styles.mobileLogoutButton}

@@ -30,6 +30,10 @@ export interface OverviewStats {
   upcomingEvents: number;
   wazifaCompletions: number;
   lazimCompletions: number;
+  totalNews: number;
+  totalEvents: number;
+  totalScholars: number;
+  totalLessons: number;
   // Comparison data for calculating changes
   totalUsersLastMonth?: number;
   postsYesterday?: number;
@@ -185,6 +189,12 @@ export class AnalyticsService {
       const wazifaCompletions = 0; // TODO: Implement when wazifa table exists
       const lazimCompletions = 0; // TODO: Implement when lazim table exists
 
+      // Content counts for admin dashboard
+      const totalNews = await this.prisma.news.count().catch((e) => { this.logger.error('Error counting news:', e); return 0; });
+      const totalEvents = await this.prisma.event.count().catch((e) => { this.logger.error('Error counting events:', e); return 0; });
+      const totalScholars = await this.prisma.scholar.count().catch((e) => { this.logger.error('Error counting scholars:', e); return 0; });
+      const totalLessons = 0; // No lessons table yet
+
       return {
         totalUsers,
         activeUsers7d,
@@ -198,6 +208,10 @@ export class AnalyticsService {
         upcomingEvents,
         wazifaCompletions,
         lazimCompletions,
+        totalNews,
+        totalEvents,
+        totalScholars,
+        totalLessons,
         // Comparison data
         totalUsersLastMonth,
         postsYesterday,
@@ -220,6 +234,10 @@ export class AnalyticsService {
         upcomingEvents: 0,
         wazifaCompletions: 0,
         lazimCompletions: 0,
+        totalNews: 0,
+        totalEvents: 0,
+        totalScholars: 0,
+        totalLessons: 0,
         totalUsersLastMonth: 0,
         postsYesterday: 0,
         upcomingEventsLastWeek: 0,

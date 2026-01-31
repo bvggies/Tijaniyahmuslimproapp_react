@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import NotificationService, { 
   NotificationSettings, 
   BackendNotificationPreferences,
   InAppNotification 
 } from '../services/notificationService';
-import { isAuthenticated } from '../services/api';
+import { isAuthenticated, api } from '../services/api';
 
 // Toast notification data
 export interface ToastNotification {
@@ -199,6 +201,18 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     };
   }, [handleForegroundNotification]);
 
+  // Re-register device when app comes to foreground so admin push campaigns reach users
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'active' && isAuthenticated()) {
+        notificationService.registerDeviceWithBackend().then((registered) => {
+          if (registered) setIsDeviceRegistered(true);
+        });
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   const initializeNotifications = async () => {
     try {
       // Request permissions on app start
@@ -229,6 +243,23 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       if (granted) {
         await notificationService.scheduleDailyReminders();
         await notificationService.scheduleIslamicEventNotifications();
+      }
+
+      // Schedule azan at admin-set times if user has azan enabled (works offline)
+      try {
+        const appSettings = await AsyncStorage.getItem('appSettings');
+        const parsed = appSettings ? JSON.parse(appSettings) : {};
+        if (parsed.azanEnabled !== false) {
+          const azans = await api.getAzans(true);
+          const list = Array.isArray(azans) ? azans : [];
+          await notificationService.scheduleAzanNotifications(
+            list.map((a: { id: string; name: string; playAt: string }) => ({ id: a.id, name: a.name, playAt: a.playAt }))
+          );
+        } else {
+          await notificationService.cancelAzanNotifications();
+        }
+      } catch (azanErr) {
+        console.error('Error scheduling azan notifications:', azanErr);
       }
     } catch (error) {
       console.error('Error initializing notifications:', error);

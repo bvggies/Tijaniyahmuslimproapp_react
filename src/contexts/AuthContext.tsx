@@ -237,11 +237,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      // For now, update locally since we don't have a profile update endpoint
-      const updatedUser = { ...authState.user, ...updates };
-      dispatch({ type: 'SET_USER', payload: updatedUser });
+      const payload: { name?: string; avatarUrl?: string } = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.profilePicture !== undefined) payload.avatarUrl = updates.profilePicture;
+      const userData = await api.updateMe(payload);
+      const updatedUser = mapBackendUserToAppUser(userData);
+      dispatch({ type: 'UPDATE_USER', payload: updatedUser });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Update failed' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -250,11 +255,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      // TODO: Implement password reset API endpoint
-      console.log('🔄 Password reset requested for:', email);
+      const data = await api.forgotPassword(email);
       dispatch({ type: 'SET_LOADING', payload: false });
+      return data?.message ?? 'If an account exists with this email, you will receive a password reset link.';
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Password reset failed' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      throw error;
     }
   };
 

@@ -9,6 +9,7 @@ import {
   Alert,
   Modal,
   Switch,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -46,6 +47,7 @@ interface Lesson {
 const AdminLessonsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
   const { hasPermission } = useAdminAuth();
+  const opacity = useFadeIn({ duration: 380 });
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -423,7 +425,7 @@ const AdminLessonsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -629,7 +631,7 @@ const AdminLessonsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           }}
         />
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

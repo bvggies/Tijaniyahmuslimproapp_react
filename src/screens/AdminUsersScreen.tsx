@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Modal,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +34,7 @@ interface User {
 
 const AdminUsersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [users, setUsers] = useState<User[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -337,7 +339,7 @@ const AdminUsersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -660,7 +662,7 @@ const AdminUsersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

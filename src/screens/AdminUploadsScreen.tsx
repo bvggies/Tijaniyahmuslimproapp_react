@@ -8,6 +8,7 @@ import {
   Alert,
   Modal,
   Image,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface UploadedFile {
   id: string;
@@ -31,6 +33,7 @@ interface UploadedFile {
 
 const AdminUploadsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -328,7 +331,7 @@ const AdminUploadsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}>
       {/* Header */}
       <LinearGradient
         colors={[colors.accentTeal, colors.accentGreen]}
@@ -538,7 +541,7 @@ const AdminUploadsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -58,6 +58,8 @@ import DuaKhatmulWazifaScreen from './src/screens/DuaKhatmulWazifaScreen';
 import DuaRabilIbadiScreen from './src/screens/DuaRabilIbadiScreen';
 import DuaHasbilMuhaiminuScreen from './src/screens/DuaHasbilMuhaiminuScreen';
 import EventsScreen from './src/screens/EventsScreen';
+import EventDetailScreen from './src/screens/EventDetailScreen';
+import NewsDetailScreen from './src/screens/NewsDetailScreen';
 
 // Import auth components
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -196,14 +198,15 @@ function MoreStackNavigator() {
           fontWeight: 'bold',
           color: colors.textPrimary,
         },
-        cardStyleInterpolator: ({ current, layouts }) => {
+        cardStyleInterpolator: ({ current, next }) => {
           return {
             cardStyle: {
+              opacity: current.progress,
               transform: [
                 {
                   translateX: current.progress.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [layouts.screen.width, 0],
+                    outputRange: [50, 0],
                   }),
                 },
               ],
@@ -214,13 +217,13 @@ function MoreStackNavigator() {
           open: {
             animation: 'timing',
             config: {
-              duration: 300,
+              duration: 320,
             },
           },
           close: {
             animation: 'timing',
             config: {
-              duration: 300,
+              duration: 280,
             },
           },
         },
@@ -398,6 +401,16 @@ function MoreStackNavigator() {
       <Stack.Screen 
         name="Events" 
         component={EventsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="EventDetail" 
+        component={EventDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="NewsDetail" 
+        component={NewsDetailScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

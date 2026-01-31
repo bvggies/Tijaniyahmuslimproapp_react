@@ -4,6 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -93,5 +95,39 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async updateMe(userId: string, updateMeDto: UpdateMeDto) {
+    const data: { name?: string; avatarUrl?: string } = {};
+    if (updateMeDto.name !== undefined) data.name = updateMeDto.name;
+    if (updateMeDto.avatarUrl !== undefined) data.avatarUrl = updateMeDto.avatarUrl;
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        avatarUrl: true,
+      },
+    });
+
+    return user;
+  }
+
+  async forgotPassword(email: string) {
+    // Always return same message for security (don't reveal if email exists)
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (user) {
+      // TODO: Generate reset token, send email (e.g. via SendGrid, Resend)
+      // For now we just acknowledge the request
+    }
+    return {
+      message: 'If an account exists with this email, you will receive a password reset link.',
+    };
   }
 }

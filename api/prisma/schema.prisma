@@ -476,3 +476,25 @@ model Scholar {
   @@index([isPublished])
   @@index([sortOrder])
 }
+
+// ==========================================
+// AZAN (ADHAN) SCHEDULES - Admin-managed, play at set times
+// ==========================================
+
+model AzanSchedule {
+  id          String   @id @default(cuid())
+  name        String   // e.g. "Makkah Al-Mukarramah"
+  muezzin     String?  // e.g. "Sheikh Abdul Rahman Al-Sudais"
+  location    String?  // e.g. "Masjid al-Haram, Makkah"
+  description String?  @db.Text
+  audioUrl    String   // URL to audio file (required for playback)
+  playAt      String   // Time in 24h "HH:mm" (e.g. "05:30") - when to play daily
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
