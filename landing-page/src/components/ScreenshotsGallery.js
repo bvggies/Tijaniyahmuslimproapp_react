@@ -9,10 +9,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
-  useTheme,
-  useMediaQuery,
   Zoom,
-  Fade,
 } from '@mui/material';
 import {
   Close,
@@ -38,8 +35,6 @@ const screenshots = [
 ];
 
 const ScreenshotsGallery = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [selectedImage, setSelectedImage] = useState(null);
   const [open, setOpen] = useState(false);
 

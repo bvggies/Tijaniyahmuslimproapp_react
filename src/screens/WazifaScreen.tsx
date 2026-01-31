@@ -98,6 +98,7 @@ const WazifaStepCard = ({
 );
 
 export default function WazifaScreen() {
+  const opacity = useFadeIn({ duration: 400 });
   const { t } = useLanguage();
   const [istighfarCount, setIstighfarCount] = useState(0);
   const [salatilFathiCount, setSalatilFathiCount] = useState(0);
@@ -792,6 +793,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontFamily: 'System',
   },
+  duaTransliteration: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 24,
+    marginBottom: 20,
+    fontStyle: 'italic',
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    padding: 16,
+    borderRadius: 8,
+  },
   duaTranslation: {
     fontSize: 16,
     color: colors.textSecondary,
@@ -862,53 +873,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(46, 125, 50, 0.1)',
     padding: 12,
     borderRadius: 8,
-  },
-  // Modal styles
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  modalContent: {
-    flex: 1,
-    padding: 20,
-  },
-  duaText: {
-    fontSize: 18,
-    color: colors.textPrimary,
-    textAlign: 'right',
-    lineHeight: 32,
-    marginBottom: 20,
-    fontFamily: 'System',
-  },
-  duaTransliteration: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    lineHeight: 24,
-    marginBottom: 20,
-    fontStyle: 'italic',
-    backgroundColor: 'rgba(46, 125, 50, 0.1)',
-    padding: 16,
-    borderRadius: 8,
-  },
-  duaTranslation: {
-    fontSize: 16,
-    color: colors.textPrimary,
-    lineHeight: 24,
-    marginBottom: 20,
   },
 });

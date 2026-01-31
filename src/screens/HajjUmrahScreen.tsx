@@ -11,6 +11,7 @@ interface ChecklistItem { id: string; label: string; done: boolean; }
 
 export default function HajjUmrahScreen() {
   const { t } = useLanguage();
+  const opacity = useFadeIn({ duration: 380 });
   const [items, setItems] = useState<ChecklistItem[]>([]);
 
   useEffect(() => {

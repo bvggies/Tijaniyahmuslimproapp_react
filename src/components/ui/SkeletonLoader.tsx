@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, ViewStyle, StyleProp, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, ViewStyle, StyleProp, Dimensions, DimensionValue } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tokens } from '../../utils/designTokens';
 
@@ -58,11 +58,11 @@ export default function SkeletonLoader({
       style={[
         styles.container,
         {
-          width: typeof width === 'number' ? width : width,
+          width: width as DimensionValue,
           height: variantStyles.height,
           borderRadius: variantStyles.borderRadius,
         },
-        variant === 'circle' && { width: variantStyles.width },
+        variant === 'circle' && { width: variantStyles.width as DimensionValue },
         style,
       ]}
     >

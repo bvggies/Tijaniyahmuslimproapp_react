@@ -408,7 +408,15 @@ export default function EventsScreen({ navigation }: any) {
               </View>
             )
           ) : pastEvents.length > 0 ? (
-            pastEvents.map(renderEventCard)
+            pastEvents.map((event, i) => (
+              <AnimatedEventCardWrapper
+                key={event.id}
+                index={i}
+                onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+              >
+                {renderEventCardContent(event)}
+              </AnimatedEventCardWrapper>
+            ))
           ) : (
             <View style={styles.emptyState}>
               <LinearGradient

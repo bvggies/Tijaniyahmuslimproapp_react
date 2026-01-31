@@ -59,8 +59,8 @@ export default function ProfileScreen({ navigation }: any) {
     name: authState.user?.name || '',
     email: authState.user?.email || '',
     phone: authState.user?.phone || '',
-    location: authState.user?.location || '',
-    bio: authState.user?.bio || '',
+    location: authState.user?.location ?? '',
+    bio: (authState.user as { bio?: string } | null)?.bio ?? '',
     profilePicture: authState.user?.profilePicture,
     preferences: {
       notifications: true,
@@ -89,8 +89,8 @@ export default function ProfileScreen({ navigation }: any) {
       name: authState.user?.name || '',
       email: authState.user?.email || '',
       phone: authState.user?.phone || '',
-      location: authState.user?.location || '',
-      bio: authState.user?.bio || '',
+      location: authState.user?.location ?? '',
+      bio: (authState.user as { bio?: string } | null)?.bio ?? '',
       profilePicture: authState.user?.profilePicture,
     });
     
@@ -108,9 +108,17 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleSave = async () => {
     try {
+      const locationPayload =
+        typeof tempProfile.location === 'object' && tempProfile.location && 'city' in tempProfile.location
+          ? tempProfile.location
+          : undefined;
       await updateProfile({
-        ...authState.user,
-        ...tempProfile,
+        name: tempProfile.name,
+        email: tempProfile.email,
+        phone: tempProfile.phone,
+        profilePicture: tempProfile.profilePicture,
+        location: locationPayload,
+        preferences: { ...authState.user?.preferences, ...tempProfile.preferences } as { prayerMethod: string; language: 'en' | 'ar'; notifications: boolean },
       });
       setProfile(tempProfile);
       setIsEditing(false);
@@ -334,13 +342,14 @@ export default function ProfileScreen({ navigation }: any) {
       </View>
       <Switch
         value={isEditing ? (tempProfile.preferences as any)[field] : value}
-        onValueChange={(val) =>
-          isEditing &&
-          setTempProfile({
-            ...tempProfile,
-            preferences: { ...tempProfile.preferences, [field]: val },
-          })
-        }
+        onValueChange={(val) => {
+          if (isEditing) {
+            setTempProfile({
+              ...tempProfile,
+              preferences: { ...tempProfile.preferences, [field]: val },
+            });
+          }
+        }}
         trackColor={{ false: 'rgba(255,255,255,0.1)', true: 'rgba(0,191,165,0.5)' }}
         thumbColor={value ? '#00BFA5' : '#666'}
         disabled={!isEditing}

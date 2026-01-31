@@ -739,8 +739,8 @@ const ProfileModal: React.FC<{
         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-          <Text style={styles.saveButtonText}>Save Changes</Text>
+        <TouchableOpacity style={styles.modalSaveButton} onPress={handleSubmit}>
+          <Text style={styles.modalSaveButtonText}>Save Changes</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -832,7 +832,7 @@ const PasswordModal: React.FC<{
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-          <Text style={styles.saveButtonText}>Change Password</Text>
+          <Text style={styles.modalSaveButtonText}>Change Password</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -936,8 +936,8 @@ const AddAdminModal: React.FC<{
         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-          <Text style={styles.saveButtonText}>Add Admin</Text>
+        <TouchableOpacity style={styles.modalSaveButton} onPress={handleSubmit}>
+          <Text style={styles.modalSaveButtonText}>Add Admin</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -1315,7 +1315,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
   },
-  saveButton: {
+  modalSaveButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
@@ -1323,7 +1323,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 8,
   },
-  saveButtonText: {
+  modalSaveButtonText: {
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',

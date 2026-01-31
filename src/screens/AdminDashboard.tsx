@@ -262,7 +262,7 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('AdminEvents')}
           >
-            <Ionicons name="calendar-plus" size={24} color="#FF9800" />
+            <Ionicons name="calendar" size={24} color="#FF9800" />
             <Text style={styles.quickActionText}>Add Event</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -276,7 +276,7 @@ const AdminDashboard: React.FC<{ navigation: any }> = ({ navigation }) => {
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('AdminLessons')}
           >
-            <Ionicons name="book-plus" size={24} color="#795548" />
+            <Ionicons name="book" size={24} color="#795548" />
             <Text style={styles.quickActionText}>Add Lesson</Text>
           </TouchableOpacity>
           <TouchableOpacity 

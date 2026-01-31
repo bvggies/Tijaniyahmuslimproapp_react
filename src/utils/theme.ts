@@ -15,6 +15,7 @@ export const colors = {
   accentOrange: '#FFA726',
   accentYellow: '#FFD54F', // light yellow
   accentYellowDark: '#F57F17', // dark yellow
+  accentRed: '#E53935', // red accent (e.g. live indicator)
   divider: '#114C45',
   primary: '#2E7D32',
   success: '#4CAF50',

@@ -35,6 +35,7 @@ interface Settings {
 const SETTINGS_STORAGE_KEY = 'appSettings';
 
 export default function SettingsScreen({ navigation }: any) {
+  const opacity = useFadeIn({ duration: 400 });
   const { t } = useLanguage();
   const { timeFormat, setTimeFormat } = useTimeFormat();
   const { selectedCalendar, setSelectedCalendar, getAllCalendars, getCalendarInfo } = useIslamicCalendar();
@@ -88,7 +89,7 @@ export default function SettingsScreen({ navigation }: any) {
         try {
           const azans = await api.getAzans(true);
           const list = Array.isArray(azans) ? azans : [];
-          await notificationService.scheduleAzanNotifications(
+          await NotificationService.getInstance().scheduleAzanNotifications(
             list.map((a: { id: string; name: string; playAt: string }) => ({ id: a.id, name: a.name, playAt: a.playAt }))
           );
         } catch (e) {
@@ -393,7 +394,7 @@ export default function SettingsScreen({ navigation }: any) {
       try {
         const azans = await api.getAzans(true);
         const list = Array.isArray(azans) ? azans : [];
-        await notificationService.scheduleAzanNotifications(
+        await NotificationService.getInstance().scheduleAzanNotifications(
           list.map((a: { id: string; name: string; playAt: string }) => ({ id: a.id, name: a.name, playAt: a.playAt }))
         );
       } catch (e) {

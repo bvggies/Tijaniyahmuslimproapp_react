@@ -108,6 +108,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   // Subscription refs for cleanup
   const notificationListenerRef = useRef<Notifications.Subscription | null>(null);
   const responseListenerRef = useRef<Notifications.Subscription | null>(null);
+  const fetchNotificationsRef = useRef<(refresh?: boolean) => Promise<void>>(() => Promise.resolve());
+  const refreshUnreadCountRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   const notificationService = NotificationService.getInstance();
 
@@ -135,10 +137,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       setUnreadCount(prev => prev + 1);
       
       // Refresh notifications list immediately when notification is received
-      fetchNotifications(true);
-      refreshUnreadCount();
+      fetchNotificationsRef.current?.(true);
+      refreshUnreadCountRef.current?.();
     }
-  }, [fetchNotifications, refreshUnreadCount]);
+  }, []);
 
   // Show toast notification
   const showToast = useCallback((toast: ToastNotification) => {
@@ -174,8 +176,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         }
         // Refresh notifications when user taps
         if (isAuthenticated()) {
-          fetchNotifications(true);
-          refreshUnreadCount();
+          fetchNotificationsRef.current?.(true);
+          refreshUnreadCountRef.current?.();
         }
       }
     );
@@ -183,9 +185,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     // Set up interval to refresh unread count and notifications
     const interval = setInterval(() => {
       if (isAuthenticated()) {
-        refreshUnreadCount();
+        refreshUnreadCountRef.current?.();
         // Also refresh notifications list every 30 seconds to catch new ones
-        fetchNotifications(false); // Don't reset cursor, just refresh
+        fetchNotificationsRef.current?.(false); // Don't reset cursor, just refresh
       }
     }, 30000); // Every 30 seconds (more frequent for better UX)
 
@@ -394,6 +396,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     const count = await notificationService.getUnreadCount();
     setUnreadCount(count);
   }, []);
+
+  // Keep refs in sync so handleForegroundNotification and intervals can call them
+  fetchNotificationsRef.current = fetchNotifications;
+  refreshUnreadCountRef.current = refreshUnreadCount;
 
   const value: NotificationContextType = {
     settings,

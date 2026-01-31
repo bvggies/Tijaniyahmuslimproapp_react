@@ -1155,7 +1155,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  resetButton: {
+  modalResetButton: {
     width: 40,
     height: 40,
     borderRadius: 20,

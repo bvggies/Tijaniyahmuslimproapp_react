@@ -26,6 +26,7 @@ const NewsPage = lazy(() => import('../features/news/NewsPage'));
 const NewsCategoriesPage = lazy(() => import('../features/news-categories/NewsCategoriesPage'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage'));
 const MakkahLivePage = lazy(() => import('../features/makkah-live/MakkahLivePage'));
+const AzanPage = lazy(() => import('../features/azan/AzanPage'));
 
 // Protected Route wrapper
 function ProtectedRoute() {
@@ -121,6 +122,10 @@ export const router = createBrowserRouter([
       {
         path: 'makkah-live',
         element: <MakkahLivePage />,
+      },
+      {
+        path: 'azan',
+        element: <AzanPage />,
       },
     ],
   },

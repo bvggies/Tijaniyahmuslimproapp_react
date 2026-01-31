@@ -54,7 +54,6 @@ class LocationService {
       // Get current position
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
-        timeout: 10000,
       });
 
       const { latitude, longitude } = location.coords;
@@ -80,7 +79,7 @@ class LocationService {
         country: addressInfo.country || 'Unknown',
         timezone,
         city: addressInfo.city || addressInfo.district || 'Unknown',
-        region: addressInfo.region || addressInfo.subregion,
+        region: addressInfo.region || addressInfo.subregion || undefined,
       };
 
       // Cache the location

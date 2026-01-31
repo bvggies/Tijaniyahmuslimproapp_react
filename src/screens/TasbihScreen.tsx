@@ -84,7 +84,7 @@ export default function TasbihScreen() {
       ]).start();
 
       Animated.timing(rotationAnim, {
-        toValue: rotationAnim._value + 1,
+        toValue: (rotationAnim as unknown as { _value: number })._value + 1,
         duration: 200,
         useNativeDriver: true,
       }).start();
@@ -493,6 +493,10 @@ const styles = StyleSheet.create({
   targetButton: {
     borderRadius: 20,
     overflow: 'hidden',
+  },
+  selectedTargetButton: {
+    borderWidth: 2,
+    borderColor: colors.accentTeal,
   },
   targetButtonGradient: {
     paddingHorizontal: 20,

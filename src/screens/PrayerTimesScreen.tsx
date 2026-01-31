@@ -87,10 +87,10 @@ export default function PrayerTimesScreen() {
       setCurrentLocation({
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
-        city: userLocation.city,
+        city: userLocation.city ?? '',
         country: userLocation.country,
       });
-      setTimezone(userLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
+      setTimezone(String(userLocation.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''));
 
       // Get prayer times using location coordinates
       console.log('🕌 Getting prayer times for:', userLocation.latitude, userLocation.longitude);
@@ -120,8 +120,8 @@ export default function PrayerTimesScreen() {
         const times = await getPrayerTimes(fallbackLocation.latitude, fallbackLocation.longitude, timeFormat);
         setPrayerTimes(times);
         
-        const islamic = getCurrentIslamicDate(fallbackLocation.latitude, fallbackLocation.longitude);
-        setHijriDisplay(`${islamic.hijriDate}`);
+        const islamic = getCurrentIslamicDate('Asia/Riyadh');
+        setHijriDisplay(islamic.hijriDate ?? '');
         console.log('✅ Fallback prayer times loaded');
       } catch (fallbackError) {
         console.error('❌ Fallback also failed:', fallbackError);
@@ -309,20 +309,10 @@ export default function PrayerTimesScreen() {
 
             {/* Current Prayer Indicator */}
             {prayer.isCurrent && (
-              <Animated.View
-                style={styles.currentIndicator}
-                animation={[
-                  {
-                    scale: [1, 1.1, 1],
-                    duration: 2000,
-                    loop: true,
-                    useNativeDriver: true,
-                  }
-                ]}
-              >
+              <View style={styles.currentIndicator}>
                 <Ionicons name="checkmark-circle" size={22} color="#FFFFFF" />
                 <Text style={styles.currentText}>Now</Text>
-              </Animated.View>
+              </View>
             )}
           </View>
         </LinearGradient>

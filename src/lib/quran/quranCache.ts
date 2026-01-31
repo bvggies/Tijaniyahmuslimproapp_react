@@ -767,7 +767,7 @@ export async function getCacheStats(): Promise<{
       bookmarksCount: bookmarks?.count ?? 0,
       lastSyncChapters,
       lastSyncTranslations,
-      sqliteAvailable: true,
+      sqliteAvailable: true as boolean,
     };
   }, {
     chaptersCount: 0,

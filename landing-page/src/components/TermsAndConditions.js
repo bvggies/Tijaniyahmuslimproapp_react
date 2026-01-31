@@ -7,7 +7,7 @@ import {
   Divider,
   Chip,
 } from '@mui/material';
-import { Gavel, Description, VerifiedUser, Balance, Security, AccountCircle } from '@mui/icons-material';
+import { Gavel, Description, VerifiedUser, Balance } from '@mui/icons-material';
 import Navbar from './Navbar';
 import Footer from './Footer';
 

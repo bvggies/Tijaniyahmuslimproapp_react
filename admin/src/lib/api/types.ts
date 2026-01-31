@@ -114,6 +114,33 @@ export interface CreateEventDto {
   isPublished?: boolean;
 }
 
+// Azan Schedule Types
+export interface AzanSchedule {
+  id: string;
+  name: string;
+  muezzin: string | null;
+  location: string | null;
+  description: string | null;
+  audioUrl: string;
+  playAt: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAzanDto {
+  name: string;
+  muezzin?: string;
+  location?: string;
+  description?: string;
+  audioUrl: string;
+  playAt: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
 // Post & Community Types
 export interface Post {
   id: string;

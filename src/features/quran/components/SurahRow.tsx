@@ -29,16 +29,17 @@ function SurahRowComponent({
   isDownloaded = false,
   isLastRead = false,
 }: SurahRowProps) {
-  // Handle both API response and cached format
-  const nameArabic = 'name_arabic' in chapter ? chapter.name_arabic : chapter.name_arabic;
-  const nameSimple = 'name_simple' in chapter ? chapter.name_simple : chapter.name_simple;
-  const nameTranslated = 'translated_name' in chapter 
-    ? chapter.translated_name?.name 
-    : 'name_translated' in chapter 
-      ? chapter.name_translated 
+  // Handle both API response (Chapter) and cached format (CachedChapter)
+  const ch = chapter as Chapter & CachedChapter;
+  const nameArabic = ch.name_arabic;
+  const nameSimple = ch.name_simple;
+  const nameTranslated = 'translated_name' in chapter && chapter.translated_name
+    ? (chapter as Chapter).translated_name?.name
+    : 'name_translated' in chapter
+      ? (chapter as CachedChapter).name_translated
       : nameSimple;
-  const versesCount = 'verses_count' in chapter ? chapter.verses_count : chapter.verses_count;
-  const revelationPlace = 'revelation_place' in chapter ? chapter.revelation_place : chapter.revelation_place;
+  const versesCount = ch.verses_count;
+  const revelationPlace = ch.revelation_place;
   
   return (
     <TouchableOpacity
@@ -66,12 +67,10 @@ function SurahRowComponent({
         <View style={styles.metaRow}>
           <View style={[
             styles.placeBadge,
-            revelationPlace === 'makkah' || revelationPlace === 'Mecca' 
-              ? styles.makkahBadge 
-              : styles.madinahBadge
+String(revelationPlace).toLowerCase() === 'makkah' ? styles.makkahBadge : styles.madinahBadge
           ]}>
             <Text style={styles.placeText}>
-              {revelationPlace === 'makkah' || revelationPlace === 'Mecca' ? 'Makkah' : 'Madinah'}
+              {String(revelationPlace).toLowerCase() === 'makkah' ? 'Makkah' : 'Madinah'}
             </Text>
           </View>
           <Text style={styles.verseCount}>{versesCount} verses</Text>

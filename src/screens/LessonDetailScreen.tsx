@@ -55,6 +55,7 @@ interface Lesson {
 export default function LessonDetailScreen({ route, navigation }: any) {
   const { lessonId } = route.params;
   const { authState } = useAuth();
+  const { opacity, translateY } = useSlideUpFadeIn({ duration: 400 });
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
@@ -531,6 +532,7 @@ export default function LessonDetailScreen({ route, navigation }: any) {
           onClose={() => navigation.goBack()}
           onSignUp={() => navigation.navigate('Register')}
           onSignIn={() => navigation.navigate('Login')}
+          feature="Lesson details"
         />
       </View>
     );

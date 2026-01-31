@@ -27,23 +27,15 @@ import {
   CheckCircle,
   MenuBook,
   School,
-  LocationOn,
-  LiveTv,
-  Chat,
-  AccountBalance,
   Translate,
   Security,
   CloudSync,
   AutoAwesome,
   Gavel,
   History,
-  LocalLibrary,
   Person,
   Star,
   Diamond,
-  RadioButtonChecked,
-  CheckCircleOutline,
-  Today,
   LibraryBooks,
   Handshake,
   Bookmark,
@@ -268,8 +260,6 @@ const LandingPage = () => {
       color: '#5C6BC0',
     },
   ];
-
-  const allFeatures = [...coreFeatures, ...tijaniyyaFeatures, ...educationalFeatures];
 
   return (
     <Box>

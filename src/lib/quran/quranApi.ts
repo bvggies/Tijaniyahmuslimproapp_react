@@ -259,7 +259,10 @@ export async function getVersesByChapter(
     }
     
     return {
-      verses: validated.data.verses,
+      verses: validated.data.verses.map((v: { text_uthmani?: string; [key: string]: unknown }) => ({
+        ...v,
+        text_uthmani: v.text_uthmani ?? '',
+      })) as VerseWithTranslation[],
       pagination: validated.data.pagination,
     };
   });
@@ -295,7 +298,10 @@ export async function getTranslations(language: string = 'en'): Promise<Translat
       );
     }
     
-    return validated.data.translations;
+    return validated.data.translations.map((t: { slug?: string | null; [key: string]: unknown }) => ({
+      ...t,
+      slug: t.slug ?? undefined,
+    })) as Translation[];
   });
 }
 
@@ -396,7 +402,10 @@ export async function getVersesByJuz(
     }
     
     return {
-      verses: validated.data.verses,
+      verses: validated.data.verses.map((v: { text_uthmani?: string; [key: string]: unknown }) => ({
+        ...v,
+        text_uthmani: v.text_uthmani ?? '',
+      })) as VerseWithTranslation[],
       pagination: validated.data.pagination,
     };
   });
@@ -447,7 +456,10 @@ export async function getVersesByPage(
     }
     
     return {
-      verses: validated.data.verses,
+      verses: validated.data.verses.map((v: { text_uthmani?: string; [key: string]: unknown }) => ({
+        ...v,
+        text_uthmani: v.text_uthmani ?? '',
+      })) as VerseWithTranslation[],
       pagination: validated.data.pagination,
     };
   });

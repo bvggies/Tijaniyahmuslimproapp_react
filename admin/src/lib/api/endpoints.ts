@@ -8,6 +8,8 @@ import {
   ActivityItem,
   Event,
   CreateEventDto,
+  AzanSchedule,
+  CreateAzanDto,
   Post,
   Comment,
   Report,
@@ -315,6 +317,21 @@ export const newsCategoriesApi = {
 export const auditLogsApi = {
   getAll: (params?: { page?: number; limit?: number; userId?: string; action?: string; entityType?: string }) =>
     get<PaginatedResponse<AuditLog>>('/audit-logs', params),
+};
+
+// ==================== AZAN SCHEDULES ====================
+export const azanApi = {
+  getAll: (params?: { activeOnly?: boolean }) =>
+    get<AzanSchedule[]>('/azan', params),
+  
+  getById: (id: string) => get<AzanSchedule>(`/azan/${id}`),
+  
+  create: (data: CreateAzanDto) => post<AzanSchedule>('/azan', data),
+  
+  update: (id: string, data: Partial<CreateAzanDto>) =>
+    patch<AzanSchedule>(`/azan/${id}`, data),
+  
+  delete: (id: string) => del(`/azan/${id}`),
 };
 
 // ==================== MAKKAH LIVE ====================

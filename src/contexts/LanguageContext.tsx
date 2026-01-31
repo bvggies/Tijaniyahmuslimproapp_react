@@ -1793,9 +1793,10 @@ const translations = {
     'language.arabic': 'العربية',
     'language.hausa': 'Hausa',
   },
-  
-  ha: {
-    // Navigation
+};
+// NOTE: Duplicate 'ha' key was here (second ha block) - removed to fix TS1117
+const _translationsHaBlockRemoved = {
+  _unused: {
     'nav.home': 'Gida',
     'nav.tijaniyah_features': 'Fasali na Tijaniyah',
     'nav.qibla': 'Qibla',
@@ -1957,7 +1958,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    const langMap = translations[language] as Record<string, string>;
+    return langMap[key] ?? key;
   };
 
   const isRTL = language === 'ar';

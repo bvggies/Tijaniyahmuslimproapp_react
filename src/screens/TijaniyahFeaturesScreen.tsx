@@ -119,7 +119,7 @@ const TijaniyahFeaturesScreen: React.FC = () => {
       title: "Duas of Tijaniyya",
       titleArabic: 'أدعية التجانية',
       description: 'Complete collection of Tijani Duas',
-      icon: 'hands',
+      icon: 'hand-left',
       color: '#00BCD4',
       gradient: ['#00BCD4', '#0097A7'],
       screen: 'DuasTijaniya',
@@ -179,7 +179,7 @@ const TijaniyahFeaturesScreen: React.FC = () => {
 
     const handlePress = () => {
       if (item.screen) {
-        navigation.navigate('More' as never, { screen: item.screen } as never);
+        (navigation as any).navigate('More', { screen: item.screen });
       }
     };
 

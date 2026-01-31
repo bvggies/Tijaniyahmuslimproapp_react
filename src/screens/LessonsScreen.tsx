@@ -57,6 +57,7 @@ interface Course {
 
 export default function LessonsScreen({ navigation }: any) {
   const { authState } = useAuth();
+  const opacity = useFadeIn({ duration: 400 });
   const [activeTab, setActiveTab] = useState<'courses' | 'lessons' | 'progress'>('courses');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
@@ -514,6 +515,7 @@ export default function LessonsScreen({ navigation }: any) {
             setShowUpgradePrompt(false);
             navigation.navigate('Login');
           }}
+          feature="Lessons"
         />
       )}
       </Animated.View>

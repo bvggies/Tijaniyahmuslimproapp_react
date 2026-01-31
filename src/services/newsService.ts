@@ -251,7 +251,7 @@ export const refreshNews = async (userLocation?: { country?: string; city?: stri
   // Force refresh by clearing cache
   cachedNews = [];
   lastFetchTime = 0;
-  return await getIslamicNews(userLocation);
+  return await getTijaniyaNews(userLocation);
 };
 
 export const filterNewsByLocation = (news: NewsArticle[], userLocation?: { country?: string; city?: string; region?: string }): NewsArticle[] => {

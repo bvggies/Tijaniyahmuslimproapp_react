@@ -523,11 +523,10 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 16,
     borderBottomLeftRadius: 24,
-    position: 'relative',
+    position: 'relative' as const,
     zIndex: 1,
     borderBottomRightRadius: 24,
     overflow: 'hidden',
-    position: 'relative',
   },
   headerInner: {
     flexDirection: 'row',

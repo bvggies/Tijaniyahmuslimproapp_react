@@ -67,9 +67,7 @@ const AdminMainScreen: React.FC<AdminMainScreenProps> = ({ navigation }) => {
     }
 
     return () => {
-      // @ts-ignore removeEventListener fallback for RN versions
-      if (subscription?.remove) subscription.remove();
-      else Dimensions.removeEventListener?.('change', onChange as any);
+      subscription?.remove?.();
     };
   }, []);
 

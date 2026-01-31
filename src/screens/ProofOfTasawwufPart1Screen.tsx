@@ -49,7 +49,7 @@ const ProofOfTasawwufPart1Screen: React.FC = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <Ionicons name="quote" size={24} color="white" style={styles.quoteIcon} />
+        <Ionicons name="chatbubble-ellipses" size={24} color="white" style={styles.quoteIcon} />
         <Text style={styles.quoteText}>{quote}</Text>
         <Text style={styles.quoteAuthor}>- {author}</Text>
       </LinearGradient>

@@ -68,6 +68,8 @@ export default function JournalScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMood, setFilterMood] = useState<Entry['mood'] | 'all'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'mood'>('newest');
+  const [tagInputValue, setTagInputValue] = useState('');
+  const tagInputRef = React.useRef<TextInput>(null);
 
   useEffect(() => {
     (async () => {
@@ -402,9 +404,12 @@ export default function JournalScreen() {
                     style={styles.tagInput}
                     placeholder="Add a tag..."
                     placeholderTextColor={colors.textSecondary}
+                    value={tagInputValue}
+                    onChangeText={setTagInputValue}
                     onSubmitEditing={(e) => {
-                      addTag(e.nativeEvent.text);
-                      e.currentTarget.clear();
+                      const text = e.nativeEvent.text?.trim();
+                      if (text) addTag(text);
+                      setTagInputValue('');
                     }}
                   />
                 </View>

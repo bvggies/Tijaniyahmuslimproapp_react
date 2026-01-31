@@ -136,7 +136,7 @@ const InAppNotificationToast: React.FC<InAppNotificationToastProps> = ({
     }
   };
 
-  if (!visible && opacity._value === 0) return null;
+  if (!visible && (opacity as unknown as { _value?: number })._value === 0) return null;
 
   const handlePress = () => {
     dismissToast();

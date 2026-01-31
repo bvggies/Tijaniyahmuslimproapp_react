@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useFadeIn } from '../hooks/useAnimations';
 
 interface Lesson {
   id: string;
@@ -382,20 +383,20 @@ const AdminLessonsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.lessonStats}>
           <View style={styles.statItem}>
             <Ionicons name="eye" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{lesson.views}</Text>
+            <Text style={styles.cardStatText}>{lesson.views}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name="heart" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{lesson.likes}</Text>
+            <Text style={styles.cardStatText}>{lesson.likes}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name="download" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{lesson.downloads}</Text>
+            <Text style={styles.cardStatText}>{lesson.downloads}</Text>
           </View>
-          <Text style={styles.authorText}>by {lesson.author}</Text>
+          <Text style={styles.cardAuthorText}>by {lesson.author}</Text>
         </View>
 
-        <View style={styles.lessonFooter}>
+        <View style={styles.cardLessonFooter}>
           <View style={styles.statusControls}>
             <View style={styles.statusControl}>
               <Text style={styles.statusLabel}>Published</Text>
@@ -1136,17 +1137,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 16,
   },
-  statText: {
+  cardStatText: {
     fontSize: 12,
     color: colors.textSecondary,
     marginLeft: 4,
   },
-  authorText: {
+  cardAuthorText: {
     fontSize: 12,
     color: colors.textSecondary,
     marginLeft: 'auto',
   },
-  lessonFooter: {
+  cardLessonFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

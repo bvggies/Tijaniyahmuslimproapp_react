@@ -185,10 +185,11 @@ class NotificationService {
         return this.expoPushToken;
       }
 
-      // Get projectId from config, with fallback to Constants projectId
+      // Get projectId from config (EAS/Expo), with fallback
+      const config = Constants.expoConfig as { projectId?: string; extra?: { eas?: { projectId?: string } } } | null;
       const projectId = 
-        Constants.expoConfig?.extra?.eas?.projectId || 
-        Constants.expoConfig?.projectId || 
+        config?.extra?.eas?.projectId || 
+        config?.projectId || 
         '0c6679dc-cf6b-41f2-be84-fc83580cb435'; // Fallback from .easrc
       
       const token = await Notifications.getExpoPushTokenAsync({
@@ -258,8 +259,13 @@ class NotificationService {
       if (!isAuthenticated()) {
         return false;
       }
-
-      const updated = await api.updateNotificationPreferences(prefs);
+      const sanitized = {
+        ...prefs,
+        quietHoursStart: prefs.quietHoursStart ?? undefined,
+        quietHoursEnd: prefs.quietHoursEnd ?? undefined,
+        quietHoursTimezone: prefs.quietHoursTimezone ?? undefined,
+      };
+      const updated = await api.updateNotificationPreferences(sanitized);
       this.backendPreferences = { ...this.backendPreferences, ...updated };
       console.log('✅ Updated backend notification preferences');
       return true;

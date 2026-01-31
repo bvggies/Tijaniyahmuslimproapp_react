@@ -237,24 +237,12 @@ export function SurahReader() {
     return null;
   };
   
-  // Chapter info
+  // Chapter info (Chapter | CachedChapter both have these)
   const chapterName = chapter
-    ? 'name_simple' in chapter
-      ? chapter.name_simple
-      : chapter.name_simple
+    ? (chapter as { name_simple: string }).name_simple
     : `Surah ${chapterId}`;
-  
-  const chapterArabic = chapter
-    ? 'name_arabic' in chapter
-      ? chapter.name_arabic
-      : chapter.name_arabic
-    : '';
-  
-  const versesCount = chapter
-    ? 'verses_count' in chapter
-      ? chapter.verses_count
-      : chapter.verses_count
-    : 0;
+  const chapterArabic = chapter ? (chapter as { name_arabic: string }).name_arabic : '';
+  const versesCount = chapter ? (chapter as { verses_count: number }).verses_count : 0;
   
   // Show bismillah for all surahs except Al-Fatihah (1) and At-Tawbah (9)
   const showBismillahForVerse = (verseNumber: number) => {

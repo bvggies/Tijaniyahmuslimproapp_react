@@ -178,7 +178,7 @@ const DuasTijaniyaScreen: React.FC = () => {
   });
 
   const handleDuaPress = (dua: Dua) => {
-    navigation.navigate('More' as never, { screen: dua.screen } as never);
+    (navigation as any).navigate('More', { screen: dua.screen });
   };
 
   const renderDuaCard = (dua: Dua, index: number) => {
@@ -269,7 +269,7 @@ const DuasTijaniyaScreen: React.FC = () => {
 
           <View style={styles.headerContent}>
             <View style={styles.headerIconWrap}>
-              <Ionicons name="hands" size={32} color="#FFFFFF" />
+              <Ionicons name="hand-left" size={32} color="#FFFFFF" />
             </View>
             <Text style={styles.headerTitle}>Duas of Tijaniyya</Text>
             <Text style={styles.headerArabic}>أدعية التجانية</Text>

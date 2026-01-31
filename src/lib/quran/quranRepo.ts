@@ -31,7 +31,7 @@ import type {
 export async function isOnline(): Promise<boolean> {
   try {
     const state = await Network.getNetworkStateAsync();
-    return state.isConnected && state.isInternetReachable !== false;
+    return Boolean(state.isConnected && state.isInternetReachable !== false);
   } catch {
     return false;
   }

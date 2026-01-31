@@ -314,6 +314,7 @@ export default function DuasScreen() {
                 styles.categoryButtonText,
                 selectedCategory === category && styles.selectedCategoryButtonText,
               ]}
+              numberOfLines={1}
             >
               {category} ({getCategoryCount(category)})
             </Text>
@@ -462,7 +463,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontWeight: '500',
     textAlign: 'center',
-    numberOfLines: 1,
   },
   selectedCategoryButtonText: {
     color: '#FFFFFF',

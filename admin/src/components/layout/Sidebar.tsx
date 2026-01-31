@@ -17,6 +17,7 @@ import {
   Sun,
   Monitor,
   Radio,
+  Volume2,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useUIStore } from '../../lib/store';
@@ -48,6 +49,7 @@ const navItems: NavItem[] = [
   { title: 'Scholars', href: '/scholars', icon: GraduationCap },
   { title: 'Notifications', href: '/notifications', icon: Bell, roles: ['ADMIN', 'MODERATOR'] },
   { title: 'Makkah Live', href: '/makkah-live', icon: Radio, roles: ['ADMIN', 'MODERATOR'] },
+  { title: 'Azan Schedules', href: '/azan', icon: Volume2 },
   { title: 'Donations', href: '/donations', icon: DollarSign, roles: ['ADMIN'] },
   { title: 'Content', href: '/content', icon: FileText },
   { title: 'News', href: '/news', icon: Newspaper },

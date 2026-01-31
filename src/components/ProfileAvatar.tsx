@@ -64,8 +64,9 @@ export default function ProfileAvatar({
       quality: 1.0,
     });
 
-    if (!result.canceled && result.assets[0]) {
-      onImageChange(result.assets[0].uri);
+    const asset = result.assets?.[0];
+    if (!result.canceled && asset) {
+      onImageChange?.(asset.uri);
     }
   };
 
@@ -77,8 +78,9 @@ export default function ProfileAvatar({
       quality: 1.0,
     });
 
-    if (!result.canceled && result.assets[0]) {
-      onImageChange(result.assets[0].uri);
+    const asset = result.assets?.[0];
+    if (!result.canceled && asset) {
+      onImageChange?.(asset.uri);
     }
   };
 

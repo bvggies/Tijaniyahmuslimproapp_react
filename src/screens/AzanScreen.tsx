@@ -272,6 +272,8 @@ const TijaniyaAzanScreen: React.FC = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const azanOptions = [...builtInAzans, ...adminAzans];
+
   const renderAzanCard = (azan: AzanOption) => (
     <TouchableOpacity
       key={azan.id}

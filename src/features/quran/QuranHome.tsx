@@ -46,20 +46,19 @@ export function QuranHome() {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return chaptersResult.chapters;
     
-    return chaptersResult.chapters.filter((chapter) => {
-      const nameSimple = 'name_simple' in chapter ? chapter.name_simple : chapter.name_simple;
-      const nameArabic = 'name_arabic' in chapter ? chapter.name_arabic : chapter.name_arabic;
-      const translated = 'translated_name' in chapter 
-        ? chapter.translated_name?.name 
-        : 'name_translated' in chapter 
-          ? chapter.name_translated 
+    return chaptersResult.chapters.filter((ch) => {
+      const nameSimple = (ch as Chapter & { name_simple: string }).name_simple;
+      const nameArabic = (ch as Chapter & { name_arabic: string }).name_arabic;
+      const translated = 'translated_name' in ch && (ch as Chapter).translated_name
+        ? (ch as Chapter).translated_name?.name
+        : 'name_translated' in ch
+          ? (ch as CachedChapter).name_translated
           : '';
-      
       return (
         nameSimple.toLowerCase().includes(query) ||
         nameArabic.includes(query) ||
         translated?.toLowerCase().includes(query) ||
-        chapter.id.toString() === query
+        ch.id.toString() === query
       );
     });
   }, [chaptersResult?.chapters, searchQuery]);

@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors } from '../utils/theme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useFadeIn } from '../hooks/useAnimations';
 import { api } from '../services/api';
 
 interface Scholar {
@@ -385,17 +386,17 @@ const AdminScholarsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         </View>
 
         <View style={styles.scholarStats}>
-          <View style={styles.statItem}>
+          <View style={styles.scholarStatItem}>
             <Ionicons name="people" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{formatNumber(scholar.followers)}</Text>
+            <Text style={styles.scholarStatText}>{formatNumber(scholar.followers)}</Text>
           </View>
-          <View style={styles.statItem}>
+          <View style={styles.scholarStatItem}>
             <Ionicons name="book" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{scholar.lessonsCount}</Text>
+            <Text style={styles.scholarStatText}>{scholar.lessonsCount}</Text>
           </View>
-          <View style={styles.statItem}>
+          <View style={styles.scholarStatItem}>
             <Ionicons name="library" size={14} color={colors.textSecondary} />
-            <Text style={styles.statText}>{scholar.booksCount}</Text>
+            <Text style={styles.scholarStatText}>{scholar.booksCount}</Text>
           </View>
           <View style={styles.lifeStatus}>
             <Ionicons 
@@ -1208,12 +1209,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  statItem: {
+  scholarStatItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 16,
   },
-  statText: {
+  scholarStatText: {
     fontSize: 12,
     color: colors.textSecondary,
     marginLeft: 4,
