@@ -3,7 +3,7 @@
     "name": "Tijaniyah Muslim Pro",
     "slug": "tijaniyah-muslim-pro",
     "version": "1.0.6",
-    "orientation": "any",
+    "orientation": "default",
     "icon": "./assets/appicon.png",
     "userInterfaceStyle": "light",
     "splash": {
