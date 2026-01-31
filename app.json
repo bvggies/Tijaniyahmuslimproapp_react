@@ -3,7 +3,7 @@
     "name": "Tijaniyah Muslim Pro",
     "slug": "tijaniyah-muslim-pro",
     "version": "1.0.6",
-    "orientation": "default",
+    "orientation": "any",
     "icon": "./assets/appicon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -27,9 +27,10 @@
         "backgroundColor": "#052F2A"
       },
       "package": "com.tijaniyahpro.app",
-      "versionCode": 9,
+      "versionCode": 11,
       "enableEdgeToEdge": true,
       "supportsTablet": true,
+      "resizableActivity": true,
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
